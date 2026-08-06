@@ -78,8 +78,13 @@ function spustiDraft() {
     if (r2K) { if (jeSingleplayer) r2K.classList.add('ruka-ai-skryta'); else r2K.classList.remove('ruka-ai-skryta'); }
 }
 // =========================================================================
-// RODINNÁ HRA - VERZIA 7.9.6 (3. ČASŤ: VÝPOČTOVÉ JADRO STOLA - PRIORITA ZÁKLADU)
+// RODINNÁ HRA - VERZIA 7.9.9 (3. ČASŤ: VÝPOČTOVÉ JADRO STOLA - PRIORITA ZÁKLADU)
 // =========================================================================
+function aktualizujStavZamkuMenu() {
+    var menuEl = document.getElementById('hlavne-menu'); if (!menuEl) return;
+    if (!draft_faza) { menuEl.classList.add('zamknute-menu'); } else { menuEl.classList.remove('zamknute-menu'); }
+}
+
 function spustiPrepocty() {
     aktualizujStavZamkuMenu();
     var vsetky = p1_played_cards.concat(p2_played_cards).filter(function(k) { return k; });
@@ -181,6 +186,7 @@ function spustiPrepocty() {
     sc2 = p1_used_mulligan ? 7 : 0; p2_played_cards.forEach(function(card) { if (card && "number" == typeof card.livePwr) sc2 += card.livePwr; });
     if (document.getElementById('body-skore')) { document.getElementById('body-skore').innerHTML = "Hráč 1: " + sc1 + " b | Hráč 2: " + sc2 + " b" + vTxt; }
 }
+
 // =========================================================================
 // RODINNÁ HRA - VERZIA 7.9.6 (4. ČASŤ: VYKRESLENIE DRAFTU A FINÁLNY MULLIGAN)
 // =========================================================================
