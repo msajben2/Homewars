@@ -1,22 +1,18 @@
 // =========================================================================
-// RODINNÁ HRA - VERZIA 7.5.0 (1. ČASŤ: DEFINITÍVNY BASE64 ZÁMOK)
+// RODINNÁ HRA - VERZIA 7.6.1 (1. ČASŤ: ZÁMOK A ZÁKLADNÝ REGISTER)
 // =========================================================================
 (function() {
-    // V zdrojovom kóde je iba tento nečitateľný text. Originál tu nikde neexistuje.
     var TAJNY_KOD_HESLA = "dGVzdGVyMTIzIQ=="; 
-    
     var vstup = prompt("🔒 Vstup do kráľovstva zakázaný!\nZadaj tajné rodinné prístupové heslo:");
     var zadaneHeslo = vstup ? vstup.trim() : "";
-    
-    // Zašifrujeme zadaný text do Base64 a porovnáme ho
     if (btoa(zadaneHeslo) !== TAJNY_KOD_HESLA) {
-        alert("❌ Nesprávne heslo! Prístup bol trvalo zablokovaný.");
+        alert("❌ Nesprávne heslo!");
         document.body.innerHTML = "<div style='display:flex; justify-content:center; align-items:center; height:100vh; background:#111; color:#ff4d4d; font-family:sans-serif; font-size:1.5em; font-weight:bold;'>🔒 Prístup odmietnutý. Stránka je chránená rodinným zámkom.</div>";
-        throw new Error("Zastavenie načítavania: Neautorizovaný prístup.");
+        throw new Error("Neautorizovaný prístup.");
     }
 })();
 
-var VERZIA = "7.5.0";
+var VERZIA = "7.6.1";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -40,9 +36,14 @@ var p1_full_deck = [], p2_full_deck = [], p1_draft_hand = [], p2_draft_hand = []
 var p1_used_mulligan = false, p2_used_mulligan = false, p1_confirmed_mulligan = false, p2_confirmed_mulligan = false;
 var draft_faza = true; var p1_spalene = [], p2_spalene = [], neutralne_vplyvy = [];
 var jeSingleplayer = false; var obtiaznostAI = "B"; var inventar = { mince: 500, karty: {}, zostava: [] };
-
+// =========================================================================
+// RODINNÁ HRA - VERZIA 7.6.1 (2. ČASŤ: PREPÍNANIE SEKCIÍ A POMOCNÉ FUNKCIE)
+// =========================================================================
 function prepniSekciuVizualne(idSekcie) {
-    if (!draft_faza && (p1_played_cards.length > 0 || p2_played_cards.length > 0 || p1_draft_hand.length > 0)) { alert("Uprostred zápasu nemôžeš opustiť bojové pole!"); return; }
+    if (!draft_faza && (p1_played_cards.length > 0 || p2_played_cards.length > 0 || p1_draft_hand.length > 0)) { 
+        alert("Uprostred zápasu nemôžeš opustiť bojové pole!"); 
+        return; 
+    }
     document.querySelectorAll('.sekcia-obsah').forEach(function(el) { el.classList.add('schovana-sekcia'); });
     document.querySelectorAll('.menu-tab').forEach(function(el) { el.classList.remove('aktivna-tab'); });
     var ciel = document.getElementById(idSekcie); if (ciel) ciel.classList.remove('schovana-sekcia');
@@ -65,43 +66,12 @@ function aktualizujArchivyVizualne() {
     var e1 = document.getElementById('zoznam-p1'); if (e1) { e1.innerHTML = p1_spalene.length === 0 ? "Zatiaľ prázdne." : ""; p1_spalene.forEach(function(k) { var d = document.createElement('div'); d.className = "archiv-polozka"; d.innerText = "📄 " + k.n.replace(/\s\d$/, ""); e1.appendChild(d); }); }
     var e2 = document.getElementById('zoznam-p2'); if (e2) { e2.innerHTML = p2_spalene.length === 0 ? "Zatiaľ prázdne." : ""; p2_spalene.forEach(function(k) { var d = document.createElement('div'); d.className = "archiv-polozka"; d.innerText = "📄 " + k.n.replace(/\s\d$/, ""); e2.appendChild(d); }); }
 }
-
-function aktualizujZostavaPanel() {
-    var mriezka = document.getElementById('zostava-mriezka'); if (!mriezka) return; mriezka.innerHTML = "";
-    Object.keys(MASTER_REGISTRY).forEach(function(meno) {
-        var div = document.createElement('div'); var jeVZostave = inventar.zostava.indexOf(meno) !== -1;
-        div.className = "zostava-polozka-karta" + (jeVZostave ? " v-zostave" : "");
-        var peknyNazov = meno.replace(/\s\d$/, ""); var tData = inventar.karty[meno] || { aktivnaTrieda: "C" };
-        var txt = "<div style='font-weight:bold; font-size:1.05em;'>" + peknyNazov + "</div>";
-        txt += "<div style='font-size:0.85em; color:#ffcc00; margin-top:2px;'>[Trieda " + tData.aktivnaTrieda + "]</div>";
-        txt += "<div class='status-label'>" + (jeVZostave ? "✓ V ZOSTAVE" : " ODOBRATÁ") + "</div>"; div.innerHTML = txt;
-        div.onclick = function() {
-            var index = inventar.zostava.indexOf(meno); if (index !== -1) { inventar.zostava.splice(index, 1); } else { inventar.zostava.push(meno); }
-            aktualizujZostavaPanel(); obnovPocitadlaZostavyVMenu();
-        };
-        mriezka.appendChild(div);
-    });
-    obnovPocitadlaZostavyVMenu();
-}
-
-function obnovPocitadlaZostavyVMenu() {
-    var btnZostava = document.getElementById('menu-btn-zostava'); var pStranka = document.getElementById('zostava-pocitadlo-stranka');
-    var aktualnyPocet = inventar.zostava ? inventar.zostava.length : 0;
-    if (btnZostava) { btnZostava.innerHTML = "🎴 MOJA ZOSTAVA (" + aktualnyPocet + " kariet)"; }
-    if (pStranka) {
-        if (aktualnyPocet < 30) { pStranka.innerText = aktualnyPocet + " / minimálne 30"; pStranka.style.color = "#dc3545"; } 
-        else { pStranka.innerText = aktualnyPocet + " kariet (Pripravená)"; pStranka.style.color = "#28a745"; }
-    }
-}
-
 // =========================================================================
-// RODINNÁ HRA - VERZIA 7.3.0 (2. ČASŤ: VÝPOČTOVÉ JADRO S PRIORITOU ZÁKLADU)
+// RODINNÁ HRA - VERZIA 7.6.1 (3. ČASŤ: VÝPOČTOVÉ JADRO STOLA - PRIORITA ZÁKLADU)
 // =========================================================================
 function spustiPrepocty() {
     aktualizujStavZamkuMenu();
     var vsetky = p1_played_cards.concat(p2_played_cards).filter(function(k) { return k; });
-    var h1H = p2_used_mulligan ? " <span style='color:#ff4d4d;'>[Handicap: +7 b]</span>" : "";
-    var h2H = p1_used_mulligan ? " <span style='color:#ff4d4d;'>[Handicap: +7 b]</span>" : "";
     var vTxt = " | Mince: " + inventar.mince;
     
     var vChlapov = neutralne_vplyvy.find(function(k) { return k.n === "Musíme sa porozprávať"; });
@@ -134,77 +104,61 @@ function spustiPrepocty() {
         
         if (c.cls === "S") { el.classList.add("karta-s-class-aura"); } else { el.classList.remove("karta-s-class-aura"); }
 
-        if (MASTER_REGISTRY[c.n] && (MASTER_REGISTRY[c.n].row === 0 || cMeno === "Alcohol" || cMeno === "Kvety" || cMeno === "Medove Orechy")) { 
+        if (MASTER_REGISTRY[c.n] && (MASTER_REGISTRY[c.n].row === 0 || "Alcohol" === cMeno || "Kvety" === cMeno || "Medove Orechy" === cMeno)) { 
             c.livePwr = "none"; el.innerText = cMeno + " [" + c.cls + "]"; continue; 
         }
-        if (cMeno === "Oli") { c.livePwr = 8; el.innerText = "8 - Oli (Imúnna) [" + c.cls + "]"; el.style.color = "#ffcc00"; continue; }
+        if ("Oli" === cMeno) { c.livePwr = 8; el.innerText = "8 - Oli (Imúnna) [" + c.cls + "]"; el.style.color = "#ffcc00"; continue; }
 
+        // KROK 1 A 2: UPRAVENÝ ZÁKLAD KARTY
         var zaklad = c.p;
         if (c.isSpy) {
-            if (c.cls === "B") zaklad = Math.max(0, zaklad - 1);
-            if (c.cls === "A") zaklad = Math.max(0, zaklad - 2);
-            if (c.cls === "S") zaklad = Math.max(0, zaklad - 3);
+            if ("B" === c.cls) zaklad = Math.max(0, zaklad - 1);
+            if ("A" === c.cls) zaklad = Math.max(0, zaklad - 2);
+            if ("S" === c.cls) zaklad = Math.max(0, zaklad - 3);
         } else {
-            if (c.cls === "B") zaklad += 1;
-            if (c.cls === "A") zaklad += 2;
-            if (c.cls === "S") zaklad += 3;
+            if ("B" === c.cls) zaklad += 1;
+            if ("A" === c.cls) zaklad += 2;
+            if ("S" === c.cls) zaklad += 3;
         }
 
         if (cMeno.indexOf('Mravce') !== -1) { 
-            var povodnyClsBonus = zaklad - c.p;
-            zaklad = ((c.pNum === 1 ? mC1 : mC2) === 3) ? 4 : (((c.pNum === 1 ? mC1 : mC2) === 2) ? 2 : 1); 
-            zaklad += povodnyClsBonus;
+            var pB = zaklad - c.p; zaklad = (3 === (1 === c.pNum ? mC1 : mC2)) ? 4 : ((2 === (1 === c.pNum ? mC1 : mC2)) ? 2 : 1); zaklad += pB;
         } else if (cMeno.indexOf('holuby') !== -1) { 
-            var povodnyClsBonus = zaklad - c.p;
-            zaklad = ((c.pNum === 1 ? hC1 : hC2) === 3) ? 4 : (((c.pNum === 1 ? hC1 : hC2) === 2) ? 2 : 1); 
-            zaklad += povodnyClsBonus;
+            var pB = zaklad - c.p; zaklad = (3 === (1 === c.pNum ? hC1 : hC2)) ? 4 : ((2 === (1 === c.pNum ? hC1 : hC2)) ? 2 : 1); zaklad += pB;
         }
 
         var aZ = null;
-        if (c.row === 1 && vChlapov) aZ = vChlapov;
-        if (c.row === 2 && vZien) aZ = vZien;
-        if ((c.row === 3 || cMeno.indexOf('Mravce') !== -1 || cMeno.indexOf('holuby') !== -1) && vZvierat) aZ = vZvierat;
+        if (1 === c.row && vChlapov) aZ = vChlapov;
+        if (2 === c.row && vZien) aZ = vZien;
+        if ((3 === c.row || -1 !== cMeno.indexOf('Mravce') || -1 !== cMeno.indexOf('holuby')) && vZvierat) aZ = vZvierat;
 
         var bZ = false;
         if (aZ) {
-            if ("S" === aZ.cls) {
-                zaklad = ("S" === c.cls) ? 3 : 0;
-                if ("S" !== c.cls) bZ = true;
-            } else {
-                zaklad = ("S" === c.cls) ? 4 : 1; 
-            }
+            if ("S" === aZ.cls) { zaklad = ("S" === c.cls) ? 3 : 0; if ("S" !== c.cls) bZ = true; } 
+            else { zaklad = ("S" === c.cls) ? 4 : 1; }
         }
 
-        if (cMeno !== 'Katy') {
-            if (c.pNum === 1) {
-                if (p1Katy) zaklad += 1;
-                if (p2Katy) zaklad -= 1;
-            } else {
-                if (p2Katy) zaklad += 1;
-                if (p1Katy) zaklad -= 1;
-            }
+        if ("Katy" !== cMeno) {
+            if (1 === c.pNum) { if (p1Katy) zaklad += 1; if (p2Katy) zaklad -= 1; } 
+            else { if (p2Katy) zaklad += 1; if (p1Katy) zaklad -= 1; }
             zaklad = Math.max(0, zaklad);
         }
 
+        // KROK 3: PERCENTUÁLNE BONUSY
         var pct = 0;
-        var cId = (c.pNum === 2) ? ((c.row === 1) ? "r1" : ((c.row === 2) ? "r2" : "r3")) : ((c.row === 1) ? "r4" : ((c.row === 2) ? "r5" : "r6"));
+        var cId = (2 === c.pNum) ? (1 === c.row ? "r1" : (2 === c.row ? "r2" : "r3")) : (1 === c.row ? "r4" : (2 === c.row ? "r5" : "r6"));
         
         if (!nela && !bZ) {
-            if (cMeno === 'Michal') pct += 1.0; 
-            
+            if ("Michal" === cMeno) pct += 1.0; 
             var pr = vsetky.find(function(k) { return k.pNum === c.pNum && k.row === c.row && ("Alcohol" === k.n || "Kvety" === k.n || "Medove Orechy" === k.n); });
-            var dR = vsetky.some(function(k) { return k.n.indexOf('Duri') !== -1 && k.pNum === c.pNum && k.row === 1; });
+            var dR = vsetky.some(function(k) { return -1 !== k.n.indexOf('Duri') && k.pNum === c.pNum && 1 === k.row; });
 
-            if (pr) {
-                var zB = ("S" === pr.cls) ? 1.0 : 0.5; 
-                pct += zB;
-                if ("A" === c.cls || "S" === c.cls) pct += 0.5;
-            }
-            if (c.row === 1) { 
-                if (vsetky.some(function(k) { return k.n.indexOf('Sisa') !== -1 && k.pNum === c.pNum; }) && "Sisa" !== cMeno) pct += 1.0; 
+            if (pr) { var zB = ("S" === pr.cls) ? 1.0 : 0.5; pct += zB; if ("A" === c.cls || "S" === c.cls) pct += 0.5; }
+            if (1 === c.row) { 
+                if (vsetky.some(function(k) { return -1 !== k.n.indexOf('Sisa') && k.pNum === c.pNum; }) && "Sisa" !== cMeno) pct += 1.0; 
                 if (dR && pr && "Alcohol" === pr.n && "Duri" !== cMeno) pct += 0.5; 
             }
-            if ((c.pNum === 1 ? p1_erik_buff_row : p2_erik_buff_row) !== null && c.row === parseInt(c.pNum === 1 ? p1_erik_buff_row : p2_erik_buff_row, 10) && "Erik" !== cMeno) pct += 1.0;
+            if ((1 === c.pNum ? p1_erik_buff_row : p2_erik_buff_row) !== null && c.row === parseInt(1 === c.pNum ? p1_erik_buff_row : p2_erik_buff_row, 10) && "Erik" !== cMeno) pct += 1.0;
             if ("S" !== c.cls) { pct += sClassRiadkyBonus[cId]; }
         }
 
@@ -220,7 +174,7 @@ function spustiPrepocty() {
     if (document.getElementById('body-skore')) { document.getElementById('body-skore').innerHTML = "Hráč 1: " + sc1 + " b | Hráč 2: " + sc2 + " b" + vTxt; }
 }
 // =========================================================================
-// RODINNÁ HRA - VERZIA 7.5.5 (3. ČASŤ: STOPERCENTNÝ FIX VYŤAHOVANIA SPLICE)
+// RODINNÁ HRA - VERZIA 7.6.1 (4. ČASŤ: MANAGEMENT BALÍČKOV A DRAFTU)
 // =========================================================================
 function vytvorZoznamKariet(pNum) {
     var rawList = Object.keys(MASTER_REGISTRY);
@@ -253,7 +207,6 @@ function spustiDraft() {
     for (var i = 0; i < 10; i++) {
         var p1Res = p1_full_deck.splice(Math.floor(Math.random() * p1_full_deck.length), 1);
         var p2Res = p2_full_deck.splice(Math.floor(Math.random() * p2_full_deck.length), 1);
-        // DEFINITÍVNY FIX: Vyťahujeme index 0, aby sme uložili čistý objekt a nie pole v poli!
         if (p1Res && p1Res.length > 0) p1_draft_hand.push(p1Res[0]); 
         if (p2Res && p2Res.length > 0) p2_draft_hand.push(p2Res[0]);
     }
@@ -270,7 +223,7 @@ function vykresliDraftOkna() {
         if (r1) {
             r1.innerHTML = ""; p1_draft_hand.forEach(function(k) {
                 if (!k) return; var d = document.createElement('div'); d.className = "karta karta-h1";
-                if (k.cls === "S") d.classList.add("karta-s-class-aura"); 
+                if ("S" === k.cls) d.classList.add("karta-s-class-aura"); 
                 d.innerText = (k.p > 0 ? k.p + " - " + k.n : k.n) + " [" + k.cls + "]"; r1.appendChild(d);
             });
         }
@@ -278,7 +231,7 @@ function vykresliDraftOkna() {
         if (r2) {
             r2.innerHTML = ""; p2_draft_hand.forEach(function(k) {
                 if (!k) return; var d = document.createElement('div'); d.className = "karta karta-h2";
-                if (k.cls === "S") d.classList.add("karta-s-class-aura");
+                if ("S" === k.cls) d.classList.add("karta-s-class-aura");
                 d.innerText = (k.p > 0 ? k.p + " - " + k.n : k.n) + " [" + k.cls + "]"; r2.appendChild(d);
             });
         }
@@ -307,9 +260,8 @@ function preklopDraftDoRukyHTML() {
         });
     }
 }
-
 // =========================================================================
-// RODINNÁ HRA - VERZIA 7.3.5 (4. ČASŤ: REFORMA SYNERGIÍ A VYHODNOCOVANIA)
+// RODINNÁ HRA - VERZIA 7.6.1 (5. ČASŤ: ARCHÍVY, TRUHLICE A SÉRIE)
 // =========================================================================
 function dynamicDrawNewCard(e, t) {
     var r = 1 === e ? p1_full_deck : p2_full_deck, n = document.getElementById(1 === e ? "ruka-p1" : "ruka-p2");
@@ -356,7 +308,7 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
         if (jeVitaz) { if (r < 0.5) vygenerovanaTrieda = "S"; else if (r < 10.0) vygenerovanaTrieda = "A"; else if (r < 30.0) vygenerovanaTrieda = "B"; } 
         else { if (r < 0.01) vygenerovanaTrieda = "S"; else if (r < 2.0) vygenerovanaTrieda = "A"; else if (r < 12.0) vygenerovanaTrieda = "B"; }
         if (!inventar.karty[nahodneMeno]) { inventar.karty[nahodneMeno] = { replikyC: 0, aktivnaTrieda: "C" }; }
-        var pridaneRepliky = 1; if (vygenerovanaTrieda === "B") pridaneRepliky = 5; if (vygenerovanaTrieda === "A") pridaneRepliky = 25; if (vygenerovanaTrieda === "S") pridaneRepliky = 75;
+        var pridaneRepliky = 1; if (vygenerovanaTrieda === "B") pridaneRepliky = 5; if (vygenerovanaTrieda === "A") pridaneRepliky = 25; if ("S" === vygenerovanaTrieda) pridaneRepliky = 75;
         inventar.karty[nahodneMeno].replikyC += pridaneRepliky; var cistyNazovOznamu = nahodneMeno.replace(/\s\d$/, ""); ziskaneMena.push(cistyNazovOznamu + " (" + vygenerovanaTrieda + ")");
     }
     var nadpisOznamu = "📦 TRUHLA ÚČASTNÍKA SÉRIE";
@@ -377,44 +329,58 @@ function vyhodnot() {
     } else { p1Pass = false; p2Pass = false; resetStolaBezReloadu(true); }
 }
 // =========================================================================
-// RODINNÁ HRA - VERZIA 7.3.5 (5. ČASŤ: INTELIGENTNÝ RADAR ROZHODOVANIA BOT)
+// RODINNÁ HRA - VERZIA 7.6.1 (6. ČASŤ: LOGIKA ROZHODOVANIA BOTA A AI JADRÁ)
 // =========================================================================
+function resetStolaBezReloadu(e) {
+    p1Pass = false; p2Pass = false;
+    for (var t = 1; t <= 6; t++) {
+        var r = document.getElementById("r" + t); if (r) {
+            var n = r.querySelector(".skore-rad"); r.innerHTML = "";
+            if (n) { n.innerText = "0 b"; r.appendChild(n); }
+        }
+    }
+    p1_played_cards = []; p2_played_cards = []; p1_erik_buff_row = null; p2_erik_buff_row = null; blokujVykladanie = false;
+    var a = document.getElementById("neutralny-riadok"); if (a) a.innerHTML = "⚡ Neutrálna zóna (Vplyvy stola)";
+    document.getElementById("panel-erik").className = "schovany"; document.getElementById("panel-marek").className = "schovany";
+    sc1 = 0; sc2 = 0; hracCakajuciNaAkciu = 0; aktualnyHrac = 1; neutralne_vplyvy = [];
+    if (e) {
+        draft_faza = false; dynamicDrawNewCard(1); dynamicDrawNewCard(2);
+        setTimeout(function() {
+            var e = document.getElementById("ruka-p1"), t = document.getElementById("ruka-p2");
+            if (e && 0 === e.querySelectorAll(".karta").length) p1Pass = true;
+            if (t && 0 === t.querySelectorAll(".karta").length) p2Pass = true;
+            if (p1Pass && p2Pass) vyhodnot();
+            else { if (p1Pass) { aktualnyHrac = 2; if (jeSingleplayer) setTimeout(spustiTahAI, 800); } spustiPrepocty(); }
+        }, 100);
+    } else {
+        p1_draft_hand = []; p2_draft_hand = []; p1_full_deck = vytvorZoznamKariet(1); p2_full_deck = vytvorZoznamKariet(2);
+        draft_faza = true; spustiDraft();
+    }
+}
+
 function spustiTahAI() {
     if (!jeSingleplayer || p2Pass || draft_faza) return;
     var rukaAI = document.getElementById('ruka-p2'); if (!rukaAI) return;
     var karty = rukaAI.querySelectorAll('.karta');
     if (karty.length === 0) { p2Pass = true; hracPasolAI(); return; }
-
-    spustiPrepocty();
-    var jeFinale = (r1 === 1 && r2 === 1);
-
+    spustiPrepocty(); var jeFinale = (r1 === 1 && r2 === 1);
     if (p1Pass && sc2 > sc1) { p2Pass = true; hracPasolAI(); return; }
-
     if (!jeFinale) {
         if ("B" === obtiaznostAI) { if (sc2 > sc1 && (sc2 - sc1) >= 20 && karty.length <= 4) { p2Pass = true; hracPasolAI(); return; } } 
         else if ("A" === obtiaznostAI) { if (p1Pass && sc2 > sc1) { p2Pass = true; hracPasolAI(); return; } if (sc2 > sc1 && (sc2 - sc1) >= 15 && karty.length <= 3) { p2Pass = true; hracPasolAI(); return; } } 
         else if ("S" === obtiaznostAI) { if (p1Pass && sc2 > sc1) { p2Pass = true; hracPasolAI(); return; } if (sc1 > sc2 && (sc1 - sc2) > 18 && karty.length <= 4 && r2 === 0) { p2Pass = true; hracPasolAI(); return; } }
     }
-
     var vybranaKarta = null; var postavy = []; var efekty = [];
     for (var i = 0; i < karty.length; i++) {
         var mK = karty[i].getAttribute('data-meno') || ""; var rK = parseInt(karty[i].getAttribute('data-row'), 10) || 0;
         if (rK === 0 || "Alcohol" === mK || "Kvety" === mK || "Medove Orechy" === mK) { efekty.push(karty[i]); } else { postavy.push(karty[i]); }
     }
-
     if (postavy.length > 0) {
         if ("S" === obtiaznostAI) {
             var maxP = -1; for (var i = 0; i < postavy.length; i++) { var pwr = parseInt(postavy[i].getAttribute('data-pwr'), 10) || 0; if (pwr > maxP) { maxP = pwr; vybranaKarta = postavy[i]; } }
-        } else {
-            var idx = ("B" === obtiaznostAI && Math.random() < 0.4) ? Math.floor(Math.random() * postavy.length) : 0; vybranaKarta = postavy[idx];
-        }
-    } else if (efekty.length > 0) {
-        if (p1Pass && sc1 > sc2) { p2Pass = true; hracPasolAI(); return; }
-        vybranaKarta = efekty[0];
-    }
-
-    if (vybranaKarta) { setTimeout(function() { if (!p2Pass) vybranaKarta.click(); }, 800); } 
-    else { p2Pass = true; hracPasolAI(); }
+        } else { var idx = ("B" === obtiaznostAI && Math.random() < 0.4) ? Math.floor(Math.random() * postavy.length) : 0; vybranaKarta = postavy[idx]; }
+    } else if (efekty.length > 0) { if (p1Pass && sc1 > sc2) { p2Pass = true; hracPasolAI(); return; } vybranaKarta = efekty[0]; }
+    if (vybranaKarta) { setTimeout(function() { if (!p2Pass) vybranaKarta.click(); }, 800); } else { p2Pass = true; hracPasolAI(); }
 }
 
 function hracPasolAI() { 
@@ -426,43 +392,33 @@ function spustiMarekaAIJadro(botPNum) {
     var superP = (1 === botPNum) ? 2 : 1; var sPole = (1 === superP) ? p1_played_cards : p2_played_cards;
     var ciele = sPole.filter(function(k) { return k && -1 === k.n.indexOf('Nela') && -1 === k.n.indexOf('Oli') && "Alcohol" !== k.n && "Kvety" !== k.n && "Medove Orechy" !== k.n && k.livePwr > 0; });
     if (0 === ciele.length) { alert("🤖 AI Marek: Bez zmysluplného cieľa."); return; }
-    ciele.sort(function(a, b) { return b.livePwr - a.livePwr; });
-    var tKarta = ciele[0];
+    ciele.sort(function(a, b) { return b.livePwr - a.livePwr; }); var tKarta = ciele[0];
     if (tKarta) {
         var idx = sPole.findIndex(function(c) { return c && c.id === tKarta.id; });
         if (-1 !== idx) {
             var el = document.getElementById(tKarta.id); if (el) el.remove();
             if (1 === tKarta.pNum) p1_spalene.push(tKarta); else p2_spalene.push(tKarta);
-            sPole.splice(idx, 1); alert("🤖 AI Marek ufilozofoval kartu: " + tKarta.n + " (" + tKarta.livePwr + "b)!"); aktualizujArchivyVizualne(); spustiPrepocty();
+            sPole.splice(idx, 1); alert("🤖 AI Marek ufilozofoval kartu: " + tKarta.n); aktualizujArchivyVizualne(); spustiPrepocty();
         }
     }
 }
 
 function spustiErikaAIJadro(botPNum) {
     var b1 = zratajRad((1 === botPNum ? p1_played_cards : p2_played_cards), 1); var b2 = zratajRad((1 === botPNum ? p1_played_cards : p2_played_cards), 2); var b3 = zratajRad((1 === botPNum ? p1_played_cards : p2_played_cards), 3);
-    var rady = [ { id: 1, p: b1 }, { id: 2, p: b2 }, { id: 3, p: b3 } ]; rady.sort(function(a, b) { return b.p - a.p; });
-    var zRad = rady[0].id;
+    var rady = [ { id: 1, p: b1 }, { id: 2, p: b2 }, { id: 3, p: b3 } ]; rady.sort(function(a, b) { return b.p - a.p; }); var zRad = rady[0].id;
     if (1 === botPNum) p1_erik_buff_row = zRad; else p2_erik_buff_row = zRad;
     alert("🤖 AI Erik zacielil svoju silu na svoj: Rad " + zRad + "!"); spustiPrepocty();
 }
 // =========================================================================
-// RODINNÁ HRA - VERZIA 7.3.6 (6. ČASŤ: LOGIKA MAREKA, ERIKA A KONCA TAHU)
+// RODINNÁ HRA - VERZIA 7.6.1 (7. ČASŤ: DIELŇA, TRHOVISKO A SCHOPNOSTI HRDINU)
 // =========================================================================
 function spustiMarekaLogiku() {
-    spustiPrepocty(); 
-    var hCiel = (1 === hracCakajuciNaAkciu) ? 2 : 1; 
-    var sPole = (1 === hCiel) ? p1_played_cards : p2_played_cards;
-    if (sPole.some(function(k) { return k && -1 !== k.n.indexOf('Nela') && 2 === k.row; })) { 
-        blokujVykladanie = false; var p = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0; ukonciTah(p, "Marek zablokovaný"); return; 
-    }
+    spustiPrepocty(); var hCiel = (1 === hracCakajuciNaAkciu) ? 2 : 1, sPole = (1 === hCiel) ? p1_played_cards : p2_played_cards;
+    if (sPole.some(function(k) { return k && -1 !== k.n.indexOf('Nela') && 2 === k.row; })) { blokujVykladanie = false; var p = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0; ukonciTah(p, "Marek zablokovaný"); return; }
     var ciele = sPole.filter(function(k) { return k && -1 === k.n.indexOf('Nela') && -1 === k.n.indexOf('Oli') && "Alcohol" !== k.n && "Kvety" !== k.n && "Medove Orechy" !== k.n && k.livePwr > 0; });
-    if (0 === ciele.length) { 
-        blokujVykladanie = false; var p = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0; ukonciTah(p, "Bez cieľa"); return; 
-    }
+    if (0 === ciele.length) { blokujVykladanie = false; var p = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0; ukonciTah(p, "Bez cieľa"); return; }
     var dd = document.getElementById("marek-dropdown"); if (!dd) return; dd.innerHTML = "";
-    ciele.forEach(function(k) { 
-        var opt = document.createElement("option"); opt.value = k.id; opt.innerText = k.n.replace(/\s\d$/, "") + " (" + k.livePwr + "b)"; dd.appendChild(opt); 
-    });
+    ciele.forEach(function(k) { var opt = document.createElement("option"); opt.value = k.id; opt.innerText = k.n.replace(/\s\d$/, "") + " (" + k.livePwr + "b)"; dd.appendChild(opt); });
     var btn = document.getElementById("marek-burn-btn");
     if (btn) {
         btn.onclick = function(e) {
@@ -480,30 +436,16 @@ function spustiMarekaLogiku() {
     document.getElementById('panel-marek').className = '';
 }
 
-function gamePassBtn(pNum) { 
-    if (draft_faza) { potvrdDraftHrac(pNum); return; } 
-    if (1 === pNum) { p1Pass = true; aktualnyHrac = 2; } else { p2Pass = true; aktualnyHrac = 1; } 
-    if (p1Pass && p2Pass) vyhodnot(); 
-    else { spustiPrepocty(); if (jeSingleplayer && 2 === aktualnyHrac && !p2Pass) { setTimeout(spustiTahAI, 800); } } 
-}
-
-function spustiErikaHtml(rad) { 
-    if (1 === hracCakajuciNaAkciu) p1_erik_buff_row = parseInt(rad, 10); else p2_erik_buff_row = parseInt(rad, 10); 
-    document.getElementById('panel-erik').className = 'schovany'; blokujVykladanie = false; 
-    var povH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0; ukonciTah(povH); 
-}
+function gamePassBtn(pNum) { if (draft_faza) { potvrdDraftHrac(pNum); return; } if (1 === pNum) { p1Pass = true; aktualnyHrac = 2; } else { p2Pass = true; aktualnyHrac = 1; } if (p1Pass && p2Pass) vyhodnot(); else { spustiPrepocty(); if (jeSingleplayer && 2 === aktualnyHrac && !p2Pass) { setTimeout(spustiTahAI, 800); } } }
+function spustiErikaHtml(rad) { if (1 === hracCakajuciNaAkciu) p1_erik_buff_row = parseInt(rad, 10); else p2_erik_buff_row = parseInt(rad, 10); document.getElementById('panel-erik').className = 'schovany'; blokujVykladanie = false; var povH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0; ukonciTah(povH); }
 
 function ukonciTah(pNum, info) { 
     if (1 === pNum) { if (!p2Pass) aktualnyHrac = 2; } else { if (!p1Pass) aktualnyHrac = 1; } 
     spustiPrepocty(); 
-    if (document.getElementById('turn-indicator')) { 
-        document.getElementById('turn-indicator').innerText = "Na ťahu: Hráč " + aktualnyHrac + (info ? " | (" + info + ")" : ""); 
-    }
+    if (document.getElementById('turn-indicator')) { document.getElementById('turn-indicator').innerText = "Na ťahu: Hráč " + aktualnyHrac + (info ? " | (" + info + ")" : ""); }
     if (jeSingleplayer && 2 === aktualnyHrac && !p2Pass) { setTimeout(spustiTahAI, 800); }
 }
-// =========================================================================
-// RODINNÁ HRA - VERZIA 7.3.6 (7. ČASŤ: MANAGMENT DIELNE, KUTIA A OBCHODU)
-// =========================================================================
+
 function vylepsiKartuVoForge(e) {
     var t = inventar.karty[e]; if (t) {
         var r = t.aktivnaTrieda, n = false;
@@ -545,7 +487,7 @@ function vygenerujRegalyTrhoviska() {
     });
 }
 // =========================================================================
-// RODINNÁ HRA - VERZIA 7.3.6 (8. ČASŤ: INICIALIZÁCIA SÉRIÍ A KLIKACÍ ENGIN)
+// RODINNÁ HRA - VERZIA 7.6.1 (8. ČASŤ: INICIALIZÁCIA SÉRIÍ A INTERAKTÍVNY MOTOR)
 // =========================================================================
 function spustitZapasProtiAI(e) { 
     if (overMoznostStartuHry()) { 
