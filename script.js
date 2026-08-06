@@ -220,7 +220,7 @@ function spustiPrepocty() {
     if (document.getElementById('body-skore')) { document.getElementById('body-skore').innerHTML = "Hráč 1: " + sc1 + " b | Hráč 2: " + sc2 + " b" + vTxt; }
 }
 // =========================================================================
-// RODINNÁ HRA - VERZIA 7.3.5 (3. ČASŤ: PREČISTENÝ MANAGEMENT DRAFTU)
+// RODINNÁ HRA - VERZIA 7.5.5 (3. ČASŤ: STOPERCENTNÝ FIX VYŤAHOVANIA SPLICE)
 // =========================================================================
 function vytvorZoznamKariet(pNum) {
     var rawList = Object.keys(MASTER_REGISTRY);
@@ -251,9 +251,11 @@ function spustiDraft() {
     p1_full_deck = vytvorZoznamKariet(1); p2_full_deck = vytvorZoznamKariet(2);
     p1_draft_hand = []; p2_draft_hand = []; p1_used_mulligan = false; p2_used_mulligan = false; p1_confirmed_mulligan = false; p2_confirmed_mulligan = false;
     for (var i = 0; i < 10; i++) {
-        var p1Res = p1_full_deck.splice(Math.floor(Math.random() * p1_full_deck.length), 1)[0];
-        var p2Res = p2_full_deck.splice(Math.floor(Math.random() * p2_full_deck.length), 1)[0];
-        if (p1Res) p1_draft_hand.push(p1Res); if (p2Res) p2_draft_hand.push(p2Res);
+        var p1Res = p1_full_deck.splice(Math.floor(Math.random() * p1_full_deck.length), 1);
+        var p2Res = p2_full_deck.splice(Math.floor(Math.random() * p2_full_deck.length), 1);
+        // DEFINITÍVNY FIX: Vyťahujeme index 0, aby sme uložili čistý objekt a nie pole v poli!
+        if (p1Res && p1Res.length > 0) p1_draft_hand.push(p1Res[0]); 
+        if (p2Res && p2Res.length > 0) p2_draft_hand.push(p2Res[0]);
     }
     vykresliDraftOkna();
     var r2K = document.getElementById('kontajner-ruka-p2');
@@ -305,6 +307,7 @@ function preklopDraftDoRukyHTML() {
         });
     }
 }
+
 // =========================================================================
 // RODINNÁ HRA - VERZIA 7.3.5 (4. ČASŤ: REFORMA SYNERGIÍ A VYHODNOCOVANIA)
 // =========================================================================
