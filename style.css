@@ -1,0 +1,222 @@
+/* =========================================================================
+   RODINNÁ HRACIA PLOCHA - KOMPLETNÝ GRAFICKÝ DIZAJN (VERZIA 7.3.0)
+   ========================================================================= */
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    user-select: none;
+}
+
+/* HLAVNÉ NAVIGAČNÉ LIŠTY */
+#hlavne-menu {
+    display: flex;
+    gap: 12px;
+    background: #1e1e1e;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid #2d2d2d;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.menu-tab {
+    background: #2d2d2d;
+    color: #b0b0b0;
+    border: 1px solid #3d3d3d;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.95em;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.menu-tab:hover {
+    background: #3d3d3d;
+    color: #fff;
+    border-color: #5d5d5d;
+}
+
+.aktivna-tab {
+    background: #0284c7 !important;
+    color: #fff !important;
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 10px rgba(2,132,199,0.5);
+}
+
+.zamknute-menu .menu-tab:not(.aktivna-tab) {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* KARTY - BOJOVNÍCI A PREDMETY */
+.karta {
+    background: #262626;
+    border: 2px solid #404040;
+    padding: 12px;
+    margin: 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-block;
+    min-width: 100px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.9em;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.karta:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.6);
+}
+
+.karta-h1 { border-color: #0284c7; background: #1a2e3b; }
+.karta-h2 { border-color: #dc2626; background: #3b1a1a; }
+
+.karta-s-class-aura {
+    box-shadow: 0 0 12px #eab308;
+    animation: auraPulse 1.6s infinite alternate;
+}
+
+@keyframes auraPulse {
+    from { box-shadow: 0 0 4px #eab308; border-color: #ca8a04; }
+    to { box-shadow: 0 0 20px #fde047; border-color: #facc15; }
+}
+
+.ruka-ai-skryta .karta {
+    background: #171717 !important;
+    color: #171717 !important;
+    border-color: #262626 !important;
+    box-shadow: none !important;
+    pointer-events: none;
+    transform: none !important;
+}
+
+/* BOJOVÉ POLE A RIADKY */
+#hlavna-zona {
+    display: flex;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+#stoly {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.riadok {
+    background: #171717;
+    border: 1px solid #2d2d2d;
+    min-height: 100px;
+    padding: 15px;
+    position: relative;
+    border-radius: 8px;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.skore-rad {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    font-weight: bold;
+    font-size: 1.1em;
+    background: #0a0a0a;
+    color: #00e676;
+    padding: 4px 10px;
+    border-radius: 5px;
+    border: 1px solid #222;
+    z-index: 10;
+}
+
+#neutralna-zona {
+    background: #262626;
+    padding: 15px;
+    text-align: center;
+    font-weight: bold;
+    color: #eab308;
+    border-radius: 8px;
+    border: 1px dashed #404040;
+}
+
+/* ARCHÍVY SPÁLENÝCH KARIET */
+#archivy-bocny-panel {
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.archiv-kontajner {
+    background: #171717;
+    border: 1px solid #2d2d2d;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.archiv-kopa {
+    font-weight: bold;
+    color: #a3a3a3;
+    border-bottom: 1px solid #2d2d2d;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+}
+
+.archiv-polozka {
+    font-size: 0.85em;
+    color: #ef4444;
+    padding: 3px 0;
+}
+
+/* DIELŇA, OBCHOD A REZIMY */
+#zostava-mriezka, #dielna-zoznam, #obchod-regaly-zoznam {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.zostava-polozka-karta, .dielna-polozka, .obchod-polozka-karta {
+    background: #1e1e1e;
+    border: 1px solid #2d2d2d;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: border-color 0.2s;
+}
+
+.v-zostave {
+    border-color: #22c55e !important;
+    background: #142816 !important;
+}
+
+.status-label {
+    margin-top: 10px;
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #a3a3a3;
+}
+
+.v-zostave .status-label { color: #22c55e; }
+
+.dielna-info { font-weight: bold; font-size: 1.1em; margin-bottom: 10px; display: flex; justify-content: space-between; }
+.btn-forge, .btn-recycle, .btn-obchod-nakup {
+    padding: 8px 16px; font-weight: bold; border-radius: 5px; cursor: pointer; border: none; margin: 3px; color: #fff;
+}
+.btn-forge { background: #0284c7; }
+.btn-recycle { background: #dc2626; }
+.btn-obchod-nakup { background: #22c55e; width: 100%; margin-top: 10px; }
+
+.schovana-sekcia, .schovany { display: none !important; }
