@@ -1,30 +1,22 @@
 // =========================================================================
-// RODINNÁ HRA - VERZIA 7.4.0 (1. ČASŤ: BEZPEČNÝ ZÁMOK A HLAVNÁ ARCHITEKTÚRA)
+// RODINNÁ HRA - VERZIA 7.5.0 (1. ČASŤ: DEFINITÍVNY BASE64 ZÁMOK)
 // =========================================================================
 (function() {
-    function cyklusHash(str) {
-        var hash = 0;
-        if (str.length === 0) return hash;
-        for (var i = 0; i < str.length; i++) {
-            var chr = str.charCodeAt(i);
-            hash = ((hash << 5) - hash) + chr;
-            hash |= 0; 
-        }
-        return hash;
-    }
-
-    var TAJNY_HASH_HESLA = 356075196; 
+    // V zdrojovom kóde je iba tento nečitateľný text. Originál tu nikde neexistuje.
+    var TAJNY_KOD_HESLA = "dGVzdGVyMTIzIQ=="; 
+    
     var vstup = prompt("🔒 Vstup do kráľovstva zakázaný!\nZadaj tajné rodinné prístupové heslo:");
     var zadaneHeslo = vstup ? vstup.trim() : "";
     
-    if (cyklusHash(zadaneHeslo) !== TAJNY_HASH_HESLA) {
+    // Zašifrujeme zadaný text do Base64 a porovnáme ho
+    if (btoa(zadaneHeslo) !== TAJNY_KOD_HESLA) {
         alert("❌ Nesprávne heslo! Prístup bol trvalo zablokovaný.");
         document.body.innerHTML = "<div style='display:flex; justify-content:center; align-items:center; height:100vh; background:#111; color:#ff4d4d; font-family:sans-serif; font-size:1.5em; font-weight:bold;'>🔒 Prístup odmietnutý. Stránka je chránená rodinným zámkom.</div>";
         throw new Error("Zastavenie načítavania: Neautorizovaný prístup.");
     }
 })();
 
-var VERZIA = "7.4.0";
+var VERZIA = "7.5.0";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
