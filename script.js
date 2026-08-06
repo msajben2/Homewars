@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.0.1 - INTERAKTÍVNE VYKLADANIE)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.0.2 - RESET A VYKLADANIE FIX)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.0.1";
+var VERZIA = "8.0.2";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -88,13 +88,28 @@ function vytvorZoznamKariet(pNum) {
 }
 
 function spustiDraft() {
+    draft_faza = true;
     p1_full_deck = vytvorZoznamKariet(1); p2_full_deck = vytvorZoznamKariet(2);
     p1_draft_hand = []; p2_draft_hand = []; p1_used_mulligan = false; p2_used_mulligan = false; p1_confirmed_mulligan = false; p2_confirmed_mulligan = false;
+    
+    // Vyčistenie stola aj ruky v DOM
+    var r1El = document.getElementById("ruka-p1"), r2El = document.getElementById("ruka-p2");
+    if(r1El) r1El.innerHTML = ""; if(r2El) r2El.innerHTML = "";
+
     for (var i = 0; i < 10; i++) {
         var p1Res = p1_full_deck.splice(Math.floor(Math.random() * p1_full_deck.length), 1)[0];
         var p2Res = p2_full_deck.splice(Math.floor(Math.random() * p2_full_deck.length), 1)[0];
         if (p1Res) p1_draft_hand.push(p1Res); if (p2Res) p2_draft_hand.push(p2Res);
     }
+    
+    // Obnovenie tlačidiel Mulliganu
+    if (document.getElementById("p1-mulligan-btn")) document.getElementById("p1-mulligan-btn").className = "";
+    if (document.getElementById("p2-mulligan-btn")) document.getElementById("p2-mulligan-btn").className = "";
+    if (document.getElementById("p1-pass-btn")) {
+        document.getElementById("p1-pass-btn").innerText = "Potvrdiť ruku";
+        document.getElementById("p1-pass-btn").style.background = "#28a745";
+    }
+
     vykresliDraftOkna();
     var r2K = document.getElementById('kontajner-ruka-p2');
     if (r2K) { if (jeSingleplayer) r2K.classList.add('ruka-ai-skryta'); else r2K.classList.remove('ruka-ai-skryta'); }
@@ -301,6 +316,9 @@ function skontrolujUkoncenieMulliganu() {
     if (jeSingleplayer) p2_confirmed_mulligan = true;
     if (p1_confirmed_mulligan && p2_confirmed_mulligan) {
         draft_faza = false; 
+        aktualnyHrac = 1;
+        blokujVykladanie = false;
+        
         if (document.getElementById("p1-pass-btn")) {
             document.getElementById("p1-pass-btn").style.display = "inline-block";
             document.getElementById("p1-pass-btn").innerText = "Pass";
@@ -308,6 +326,9 @@ function skontrolujUkoncenieMulliganu() {
         }
         if (document.getElementById("p1-mulligan-btn")) document.getElementById("p1-mulligan-btn").className = "schovany"; 
         if (document.getElementById("p2-mulligan-btn")) document.getElementById("p2-mulligan-btn").className = "schovany";
+        
+        if (document.getElementById('turn-indicator')) document.getElementById('turn-indicator').innerText = "Na ťahu: Hráč 1";
+        
         preklopDraftDoRukyHTML(); spustiPrepocty(); aktualizujArchivyVizualne(); aktualizujPanelDielne();
     }
 }
@@ -553,7 +574,21 @@ function overMoznostStartuHry() {
 
 function spustitZapasProtiAI(e) { if (overMoznostStartuHry()) { jeSingleplayer = true; obtiaznostAI = e; if (document.getElementById("rezim-zapasu-oznam")) document.getElementById("rezim-zapasu-oznam").innerText = "🤖 PROTI AI - " + e; document.getElementById("predzapasove-menu").className = "schovany"; document.getElementById("hraci-stol-kontajner").className = ""; r1 = 0; r2 = 0; resetStolaBezReloadu(false); } }
 function spustitZapasLokálnePVP() { if (overMoznostStartuHry()) { jeSingleplayer = false; if (document.getElementById("rezim-zapasu-oznam")) document.getElementById("rezim-zapasu-oznam").innerText = "👥 MULTIPLAYER 1v1"; document.getElementById("predzapasove-menu").className = "schovany"; document.getElementById("hraci-stol-kontajner").className = ""; r1 = 0; r2 = 0; resetStolaBezReloadu(false); } }
-function vzdajZapasUtek() { if (confirm("Vzdať sériu?")) { document.getElementById("hraci-stol-kontajner").className = "schovany"; document.getElementById("predzapasove-menu").className = ""; draft_faza = true; r1 = 0; r2 = 0; aktualizujStavZamkuMenu(); } }
+
+// OPRAVA: Plný reset pri vzdaní zápasu
+function vzdajZapasUtek() { 
+    if (confirm("Vzdať sériu a vrátiť sa do menu?")) { 
+        document.getElementById("hraci-stol-kontajner").className = "schovany"; 
+        document.getElementById("predzapasove-menu").className = ""; 
+        draft_faza = true; 
+        p1Pass = false; p2Pass = false;
+        r1 = 0; r2 = 0; 
+        p1_played_cards = []; p2_played_cards = []; neutralne_vplyvy = [];
+        p1_draft_hand = []; p2_draft_hand = [];
+        p1_confirmed_mulligan = false; p2_confirmed_mulligan = false;
+        aktualizujStavZamkuMenu(); 
+    } 
+}
 
 function aktualizujPanelDielne(){
     var e=document.getElementById("dielna-zoznam");if(e){e.innerHTML="",Object.keys(inventar.karty).forEach(function(t){var r=inventar.karty[t],n=document.createElement("div");n.className="dielna-polozka cls-"+r.aktivnaTrieda;var i="<div class='dielna-info'><span>"+t+"</span><span style='color:#ffcc00'>["+r.aktivnaTrieda+"]</span></div>";i+="<div>Repliky: <strong>"+r.replikyC+"x</strong></div>",i+="<div class='dielna-akcie'><button class='btn-forge' onclick=\"vylepsiKartuVoForge('"+t+"')\">🔨 Forge</button>",i+="<button class='btn-recycle' style='background:#b91c1c' onclick=\"recyklujKartuDielne('"+t+"')\">♻️ Recyklovať</button></div>",i+="<button class='btn-recycle' style='width:100%;font-size:.8em;margin-top:3px' onclick=\"kupKonkretnuKartu('"+t+"')\">🎯 Kúpiť (3000 m)</button>",n.innerHTML=i,e.appendChild(n)});var t=document.getElementById("wallet-p1");t&&(t.innerText=inventar.mince+" m")}
@@ -579,11 +614,10 @@ document.addEventListener("DOMContentLoaded", function() {
     p1_full_deck = vytvorZoznamKariet(1); obnovPocitadlaZostavyVMenu();
 });
 
-// GLOBÁLNY ODCHYTÁVAČ KLIKNUTÍ A VYKLADANIE KARIET
+// GLOBÁLNY ODCHYTÁVAČ KLIKNUTÍ A VYKLADANIA
 document.addEventListener("click", function(e) {
     var t = e.composedPath() || [], r = null; 
     
-    // Odchytenie systémových tlačidiel z UI
     for (var n = 0; n < t.length; n++) { 
         var a = t[n]; 
         if (a) { 
