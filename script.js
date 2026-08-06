@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - VERZIA 7.3.0 (1. ČASŤ: REGISTRE A HLAVNÁ MATEMATIKA)
+// RODINNÁ HRA - VERZIA 7.4.0 (1. ČASŤ: BEZPEČNÝ ZÁMOK A HLAVNÁ ARCHITEKTÚRA)
 // =========================================================================
 (function() {
     function cyklusHash(str) {
@@ -13,19 +13,18 @@
         return hash;
     }
 
-    // V kóde je iba tento matematický odtlačok. Textový originál tu nikde nie je.
     var TAJNY_HASH_HESLA = 356075196; 
+    var vstup = prompt("🔒 Vstup do kráľovstva zakázaný!\nZadaj tajné rodinné prístupové heslo:");
+    var zadaneHeslo = vstup ? vstup.trim() : "";
     
-    var zadaneHeslo = prompt("🔒 Vstup do kráľovstva zakázaný!\nZadaj tajné rodinné prístupové heslo:");
-    
-    if (!zadaneHeslo || cyklusHash(zadaneHeslo) !== TAJNY_HASH_HESLA) {
+    if (cyklusHash(zadaneHeslo) !== TAJNY_HASH_HESLA) {
         alert("❌ Nesprávne heslo! Prístup bol trvalo zablokovaný.");
         document.body.innerHTML = "<div style='display:flex; justify-content:center; align-items:center; height:100vh; background:#111; color:#ff4d4d; font-family:sans-serif; font-size:1.5em; font-weight:bold;'>🔒 Prístup odmietnutý. Stránka je chránená rodinným zámkom.</div>";
         throw new Error("Zastavenie načítavania: Neautorizovaný prístup.");
     }
 })();
 
-var VERZIA = "7.3.0";
+var VERZIA = "7.4.0";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -74,6 +73,35 @@ function aktualizujArchivyVizualne() {
     var e1 = document.getElementById('zoznam-p1'); if (e1) { e1.innerHTML = p1_spalene.length === 0 ? "Zatiaľ prázdne." : ""; p1_spalene.forEach(function(k) { var d = document.createElement('div'); d.className = "archiv-polozka"; d.innerText = "📄 " + k.n.replace(/\s\d$/, ""); e1.appendChild(d); }); }
     var e2 = document.getElementById('zoznam-p2'); if (e2) { e2.innerHTML = p2_spalene.length === 0 ? "Zatiaľ prázdne." : ""; p2_spalene.forEach(function(k) { var d = document.createElement('div'); d.className = "archiv-polozka"; d.innerText = "📄 " + k.n.replace(/\s\d$/, ""); e2.appendChild(d); }); }
 }
+
+function aktualizujZostavaPanel() {
+    var mriezka = document.getElementById('zostava-mriezka'); if (!mriezka) return; mriezka.innerHTML = "";
+    Object.keys(MASTER_REGISTRY).forEach(function(meno) {
+        var div = document.createElement('div'); var jeVZostave = inventar.zostava.indexOf(meno) !== -1;
+        div.className = "zostava-polozka-karta" + (jeVZostave ? " v-zostave" : "");
+        var peknyNazov = meno.replace(/\s\d$/, ""); var tData = inventar.karty[meno] || { aktivnaTrieda: "C" };
+        var txt = "<div style='font-weight:bold; font-size:1.05em;'>" + peknyNazov + "</div>";
+        txt += "<div style='font-size:0.85em; color:#ffcc00; margin-top:2px;'>[Trieda " + tData.aktivnaTrieda + "]</div>";
+        txt += "<div class='status-label'>" + (jeVZostave ? "✓ V ZOSTAVE" : " ODOBRATÁ") + "</div>"; div.innerHTML = txt;
+        div.onclick = function() {
+            var index = inventar.zostava.indexOf(meno); if (index !== -1) { inventar.zostava.splice(index, 1); } else { inventar.zostava.push(meno); }
+            aktualizujZostavaPanel(); obnovPocitadlaZostavyVMenu();
+        };
+        mriezka.appendChild(div);
+    });
+    obnovPocitadlaZostavyVMenu();
+}
+
+function obnovPocitadlaZostavyVMenu() {
+    var btnZostava = document.getElementById('menu-btn-zostava'); var pStranka = document.getElementById('zostava-pocitadlo-stranka');
+    var aktualnyPocet = inventar.zostava ? inventar.zostava.length : 0;
+    if (btnZostava) { btnZostava.innerHTML = "🎴 MOJA ZOSTAVA (" + aktualnyPocet + " kariet)"; }
+    if (pStranka) {
+        if (aktualnyPocet < 30) { pStranka.innerText = aktualnyPocet + " / minimálne 30"; pStranka.style.color = "#dc3545"; } 
+        else { pStranka.innerText = aktualnyPocet + " kariet (Pripravená)"; pStranka.style.color = "#28a745"; }
+    }
+}
+
 // =========================================================================
 // RODINNÁ HRA - VERZIA 7.3.0 (2. ČASŤ: VÝPOČTOVÉ JADRO S PRIORITOU ZÁKLADU)
 // =========================================================================
