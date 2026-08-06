@@ -1,7 +1,7 @@
 // =========================================================================
 // RODINNÁ HRA - HOME WARS (VERZIA 8.0.4 - NELA & OLI IMUNITA FIX)
 // =========================================================================
-
+ 
 (function() {
     var TAJNY_KOD_HESLA = "dGVzdGVyMTIzIQ=="; 
     var vstup = prompt("🔒 Vstup do kráľovstva zakázaný!\nZadaj tajné rodinné prístupové heslo:");
