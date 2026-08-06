@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <title>Rodinná Kartová Hra</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="hra">
+    <div id="hlavne-menu">
+        <button id="menu-btn-hra" class="menu-tab aktivna-tab">🎮 ZÁPAS MENU</button>
+        <button id="menu-btn-zostava" class="menu-tab">🎴 MOJA ZOSTAVA</button>
+        <button id="menu-btn-dielna" class="menu-tab">🔨 KOVÁČSKA DIELŇA</button>
+        <button id="menu-btn-trhovisko" class="menu-tab">🛒 TRHOVISKO</button>
+    </div>
+
+    <div id="sekcia-hra" class="sekcia-obsah">
+        <div id="predzapasove-menu">
+            <h3>⚔️ Vyber si režim zápasu</h3>
+            <p style="color: #aaa; font-size: 0.9em; margin-top: -5px;">Na spustenie hry musí tvoja zostava obsahovať minimálne 30 kariet.</p>
+            <div class="pve-rezimy-kontajner">
+                <div class="pve-box">
+                    <h4>🤖 Singleplayer (Proti AI)</h4>
+                    <div class="ai-tlacidla-riadok">
+                        <button class="btn-ai-start" style="background:#cd7f32;" onclick="spustitZapasProtiAI('B')">Bronzové AI [B]</button>
+                        <button class="btn-ai-start" style="background:#c0c0c0; color:#222;" onclick="spustitZapasProtiAI('A')">Strieborné AI [A]</button>
+                        <button class="btn-ai-start" style="background:#ffd700; color:#222;" onclick="spustitZapasProtiAI('S')">Zlaté AI [S]</button>
+                    </div>
+                </div>
+                <div class="pvp-box">
+                    <h4>👥 Multiplayer (Lokálny PVP)</h4>
+                    <button id="btn-start-pvp" onclick="spustitZapasLokálnePVP()">Hrať lokálne 1v1 na jednom PC</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="hraci-stol-kontajner" class="schovany">
+            <div id="hlavicka">
+                <div id="rezim-zapasu-oznam" style="font-weight:bold; color:#ffcc00; margin-bottom:5px;"></div>
+                <div id="turn-indicator">MULLIGAN FÁZA - Hráči potvrdzujú ruku alebo menia celé karty.</div>
+                <div id="kola-skore">Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2</div>
+                <div id="body-skore">Hráč 1: 0 b | Hráč 2: 0 b</div>
+            </div>
+            
+            <div id="hlavna-zona">
+                <div id="stoly">
+                    <div class="stol" id="stol-p1">
+                        <div class="riadok" id="r6"><div class="skore-rad" id="s6">0 b</div></div>
+                        <div class="riadok" id="r5"><div class="skore-rad" id="s5">0 b</div></div>
+                        <div class="riadok" id="r4"><div class="skore-rad" id="s4">0 b</div></div>
+                    </div>
+                    <div id="neutralna-zona">
+                        <div id="neutralny-riadok">⚡ Neutrálna zóna (Vplyvy stola)</div>
+                    </div>
+                    <div class="stol" id="stol-p2">
+                        <div class="riadok" id="r1"><div class="skore-rad" id="s1">0 b</div></div>
+                        <div class="riadok" id="r2"><div class="skore-rad" id="s2">0 b</div></div>
+                        <div class="riadok" id="r3"><div class="skore-rad" id="s3">0 b</div></div>
+                    </div>
+                </div>
+                <div id="archivy-bocny-panel">
+                    <div class="archiv-kontajner" id="arch-p1">
+                        <div class="archiv-kopa">📦 Spálené Hráč 1</div>
+                        <div class="archiv-zoznam" id="zoznam-p1">Zatiaľ prázdne.</div>
+                    </div>
+                    <div class="archiv-kontajner" id="arch-p2">
+                        <div class="archiv-kopa">📦 Spálené Hráč 2</div>
+                        <div class="archiv-zoznam" id="zoznam-p2">Zatiaľ prázdne.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ruka-kontajner" id="kontajner-ruka-p1">
+                <h3>Ruka Hráč 1</h3>
+                <button id="p1-pass-btn">Potvrdiť ruku</button>
+                <button id="p1-mulligan-btn" style="background:#d97706; margin-right:5px;">Vymeniť celú ruku (+7b pre oponenta)</button>
+                <div class="ruka" id="ruka-p1"></div>
+            </div>
+            <div class="ruka-kontajner" id="kontajner-ruka-p2">
+                <h3>Ruka Hráč 2</h3>
+                <button id="p2-pass-btn">Potvrdiť ruku</button>
+                <button id="p2-mulligan-btn" style="background:#d97706; margin-right:5px;">Vymeniť celú ruku (+7b pre oponenta)</button>
+                <div class="ruka" id="ruka-p2"></div>
+            </div>
+
+            <div id="panel-erik" class="schovany">
+                <h4>Erik: Vyber rad na buff (+100%)</h4>
+                <button id="eb1">Rad 1</button><button id="eb2">Rad 2</button><button id="eb3">Rad 3</button>
+            </div>
+            <div id="panel-marek" class="schovany">
+                <h4>Marek: Vyber kartu na ufilozofovanie</h4>
+                <select id="marek-dropdown"></select><button id="marek-burn-btn">Odložiť kartu</button>
+            </div>
+            <button id="rest-btn" onclick="vzdajZapasUtek()">Vzdať zápas / Návrat do menu</button>
+        </div>
+    </div>
+
+    <div id="sekcia-zostava" class="sekcia-obsah schovana-sekcia">
+        <div class="dielna-hlavicka-info">
+            <h3>🎴 Správa hernej zostavy</h3>
+            <p>Súčasný stav: <strong id="zostava-pocitadlo-stranka" style="color:#ffcc00;">0 / 30+</strong></p>
+        </div>
+        <div id="zostava-mriezka"></div>
+    </div>
+
+    <div id="sekcia-dielna" class="sekcia-obsah schovana-sekcia">
+        <div class="dielna-hlavicka-info">
+            <h3>🔨 Kováčska dielňa (Hráč 1)</h3>
+            <p>Vylepšuj svoje karty pomocou nazbieraných duplikátov.</p>
+        </div>
+        <div id="dielna-zoznam"></div>
+    </div>
+
+    <div id="sekcia-trhovisko" class="sekcia-obsah schovana-sekcia">
+        <div class="obchod-hlavicka-info">
+            <h3>🛒 Kráľovské Trhovisko</h3>
+            <div id="obchod-mince-indikator">Tvoje mince: <strong id="wallet-p1" style="color: #ffcc00;">500 m</strong></div>
+        </div>
+        <button class="btn-obchod-nakup" style="background: #d97706; padding:12px; font-weight:bold;" onclick="kupNahodnyBooster()">Kúpiť Booster (100 mincí)</button>
+        <div id="obchod-regaly-zoznam"></div>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
