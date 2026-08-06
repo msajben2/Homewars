@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.0.0)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.0.1 - INTERAKTÍVNE VYKLADANIE)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.0.0";
+var VERZIA = "8.0.1";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -38,7 +38,6 @@ var p1_used_mulligan = false, p2_used_mulligan = false, p1_confirmed_mulligan = 
 var draft_faza = true; var p1_spalene = [], p2_spalene = [], neutralne_vplyvy = [];
 var jeSingleplayer = false; var obtiaznostAI = "B"; var inventar = { mince: 500, karty: {}, zostava: [] };
 
-// Pomocné výpočty pre zoskupenia mravcov a holubov
 function countMravce(list) { return list.filter(function(k) { return k && k.n.indexOf('Mravce') !== -1; }).length; }
 function countHoluby(list) { return list.filter(function(k) { return k && k.n.indexOf('holuby') !== -1; }).length; }
 function zratajRad(list, row) {
@@ -47,7 +46,6 @@ function zratajRad(list, row) {
     return sum;
 }
 
-// Navigačná funkcia na prepínanie tabov
 function prepniSekciuVizualne(sekciaId) {
     var sekcie = document.querySelectorAll('.sekcia-obsah');
     sekcie.forEach(function(s) { s.classList.add('schovana-sekcia'); });
@@ -491,7 +489,6 @@ function spustiMarekaLogiku() {
         o.innerText = k.n + " (" + k.livePwr + "b)"; dd.appendChild(o); 
     });
     
-    // OPRAVA: Zobrazenie panelu pre Mareka
     var pm = document.getElementById("panel-marek");
     if (pm) pm.classList.remove("schovany");
 }
@@ -582,41 +579,89 @@ document.addEventListener("DOMContentLoaded", function() {
     p1_full_deck = vytvorZoznamKariet(1); obnovPocitadlaZostavyVMenu();
 });
 
+// GLOBÁLNY ODCHYTÁVAČ KLIKNUTÍ A VYKLADANIE KARIET
 document.addEventListener("click", function(e) {
-    var t = e.composedPath() || [], r = null; for (var n = 0; n < t.length; n++) { var a = t[n]; if (a) { if ("p1-pass-btn" === a.id) { gamePassBtn(1); return; } if ("p2-pass-btn" === a.id) { gamePassBtn(2); return; } if ("p1-mulligan-btn" === a.id) { Admin_vynutVymenu(1); return; } if ("eb1" === a.id) { spustiErikaHtml(1); return; } if ("eb2" === a.id) { spustiErikaHtml(2); return; } if ("eb3" === a.id) { spustiErikaHtml(3); return; } a.classList && a.classList.contains("karta") && (r = a) } }
-    if (!draft_faza) {
-        var i = !document.getElementById("panel-erik").classList.contains("schovany") || !document.getElementById("panel-marek").classList.contains("schovany"), o = r ? r.closest(".karta") : null;
-        if (o && !blokujVykladanie && !i) {
-            var u = o.getAttribute("data-meno") || "", c = parseInt(o.getAttribute("data-pnum"), 10) || 0, s = parseInt(o.getAttribute("data-row"), 10) || 0, d = parseInt(o.getAttribute("data-pwr"), 10) || 0, l = "true" === o.getAttribute("data-isspy");
-            if (c === aktualnyHrac && (1 === c || !p1Pass) && (2 === c || !p2Pass) && !o.parentNode.classList.contains("riadok") && "neutralny-riadok" !== o.parentNode.id) {
-                var f = Math.floor(1e6 * Math.random()).toString(16), p = (new Date).getTime().toString(16), m = "c_" + c + "*" + u.replace(/\s+/g, "") + "*" + p + "_" + f; o.id = m;
+    var t = e.composedPath() || [], r = null; 
+    
+    // Odchytenie systémových tlačidiel z UI
+    for (var n = 0; n < t.length; n++) { 
+        var a = t[n]; 
+        if (a) { 
+            if ("p1-pass-btn" === a.id) { gamePassBtn(1); return; } 
+            if ("p2-pass-btn" === a.id) { gamePassBtn(2); return; } 
+            if ("p1-mulligan-btn" === a.id) { Admin_vynutVymenu(1); return; } 
+            if ("eb1" === a.id) { spustiErikaHtml(1); return; } 
+            if ("eb2" === a.id) { spustiErikaHtml(2); return; } 
+            if ("eb3" === a.id) { spustiErikaHtml(3); return; } 
+            if (a.classList && a.classList.contains("karta")) { r = a; } 
+        } 
+    }
+    
+    if (!draft_faza && r) {
+        var jeVRuke = r.parentNode && (r.parentNode.id === "ruka-p1" || r.parentNode.id === "ruka-p2");
+        var i = !document.getElementById("panel-erik").classList.contains("schovany") || !document.getElementById("panel-marek").classList.contains("schovany");
+        
+        if (jeVRuke && !blokujVykladanie && !i) {
+            var u = r.getAttribute("data-meno") || "", 
+                c = parseInt(r.getAttribute("data-pnum"), 10) || 1, 
+                s = parseInt(r.getAttribute("data-row"), 10) || 0, 
+                d = parseInt(r.getAttribute("data-pwr"), 10) || 0, 
+                l = "true" === r.getAttribute("data-isspy");
+
+            if (c === aktualnyHrac && ((1 === c && !p1Pass) || (2 === c && !p2Pass))) {
+                var f = Math.floor(1e6 * Math.random()).toString(16), 
+                    p = (new Date).getTime().toString(16), 
+                    m = "c_" + c + "*" + u.replace(/\s+/g, "") + "*" + p + "_" + f; 
+                r.id = m;
+
                 if (0 === s) {
-                    var k = document.getElementById("neutralny-riadok"); k && ("Šicko v porádku" === u ? (neutralne_vplyvy = [], k.innerHTML = "⚡ Neutrálna zóna (Vplyvy stola)", o.remove()) : (0 === neutralne_vplyvy.length && (k.innerHTML = ""), k.appendChild(o), neutralne_vplyvy.push({ id: m, n: u, pNum: c, row: 0, p: 0, livePwr: "none" })));
-                    ukonciTah(c); return;
+                    var k = document.getElementById("neutralny-riadok"); 
+                    if (k) {
+                        if ("Šicko v porádku" === u) {
+                            neutralne_vplyvy = []; 
+                            k.innerHTML = "⚡ Neutrálna zóna (Vplyvy stola)"; 
+                            r.remove();
+                        } else {
+                            if (0 === neutralne_vplyvy.length) k.innerHTML = ""; 
+                            k.appendChild(r); 
+                            neutralne_vplyvy.push({ id: m, n: u, pNum: c, row: 0, p: 0, livePwr: "none" });
+                        }
+                    }
+                    ukonciTah(c); 
+                    return;
                 }
                 
-                // Uplatnenie špióna na stranu oponenta
-                var v = l ? (1 === c ? 2 : 1) : c, h = vytvorZoznamKariet(c).find(function(e) { return e.n === u }), g = h ? h.cls : "C", _ = { id: m, n: u, pNum: v, row: s, p: d, livePwr: d, cls: g, isSpy: l }, x = 2 === v ? (1 === s ? "r1" : 2 === s ? "r2" : "r3") : (1 === s ? "r4" : 2 === s ? "r5" : "r6"), E = document.getElementById(x);
+                var v = l ? (1 === c ? 2 : 1) : c;
+                var h = vytvorZoznamKariet(c).find(function(item) { return item.n === u; });
+                var g = h ? h.cls : "C";
+                var _ = { id: m, n: u, pNum: v, row: s, p: d, livePwr: d, cls: g, isSpy: l };
+                var x = 2 === v ? (1 === s ? "r1" : 2 === s ? "r2" : "r3") : (1 === s ? "r4" : 2 === s ? "r5" : "r6");
+                var E = document.getElementById(x);
                 
                 if (E) { 
-                    E.appendChild(o); 
-                    o.className = "karta " + (1 === c ? "karta-h1" : "karta-h2"); 
-                    if ("S" === g) o.classList.add("karta-s-class-aura"); 
+                    E.appendChild(r); 
+                    r.className = "karta " + (1 === v ? "karta-h1" : "karta-h2"); 
+                    if ("S" === g) r.classList.add("karta-s-class-aura"); 
                     
                     if (1 === v) p1_played_cards.push(_); else p2_played_cards.push(_); 
                     
                     if (l) { 
-                        // Mechanika: Hráč, ktorý vyložil špióna, si potiahne 2 karty z balíčka
-                        dynamicDrawNewCard(c); dynamicDrawNewCard(c); 
+                        dynamicDrawNewCard(c); 
+                        dynamicDrawNewCard(c); 
                         if ("A" === g || "S" === g) { spustiSpyNakukanie(c); } 
                     } 
                     if ("Doktor" === u || "Sestricka" === u) ozivKartuZArchivu(c); 
                 }
                 
-                if ("Erik" === u) { hracCakajuciNaAkciu = c; blokujVykladanie = true; setTimeout(function() { 1 === c ? document.getElementById("panel-erik").className = "" : spustiErikaAIJadro(2) }, 10); } 
-                else if ("Marek" === u) { hracCakajuciNaAkciu = c; blokujVykladanie = true; setTimeout(function() { 1 === c ? spustiMarekaLogiku() : spustiMarekaAIJadro(2) }, 10); } 
-                else {
-                    // Po vyložení špióna (alebo bežnej karty) odovzdá ťah súperovi
+                if ("Erik" === u) { 
+                    hracCakajuciNaAkciu = c; 
+                    blokujVykladanie = true; 
+                    setTimeout(function() { 1 === c ? document.getElementById("panel-erik").className = "" : spustiErikaAIJadro(2); }, 10); 
+                } else if ("Marek" === u) { 
+                    hracCakajuciNaAkciu = c; 
+                    blokujVykladanie = true; 
+                    setTimeout(function() { 1 === c ? spustiMarekaLogiku() : spustiMarekaAIJadro(2); }, 10); 
+                } else {
                     ukonciTah(c);
                 }
             }
