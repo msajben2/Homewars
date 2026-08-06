@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.0.2 - RESET A VYKLADANIE FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.0.4 - NELA & OLI IMUNITA FIX)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.0.2";
+var VERZIA = "8.0.4";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -89,10 +89,10 @@ function vytvorZoznamKariet(pNum) {
 
 function spustiDraft() {
     draft_faza = true;
+    p1Pass = false; p2Pass = false;
     p1_full_deck = vytvorZoznamKariet(1); p2_full_deck = vytvorZoznamKariet(2);
     p1_draft_hand = []; p2_draft_hand = []; p1_used_mulligan = false; p2_used_mulligan = false; p1_confirmed_mulligan = false; p2_confirmed_mulligan = false;
     
-    // Vyčistenie stola aj ruky v DOM
     var r1El = document.getElementById("ruka-p1"), r2El = document.getElementById("ruka-p2");
     if(r1El) r1El.innerHTML = ""; if(r2El) r2El.innerHTML = "";
 
@@ -102,7 +102,6 @@ function spustiDraft() {
         if (p1Res) p1_draft_hand.push(p1Res); if (p2Res) p2_draft_hand.push(p2Res);
     }
     
-    // Obnovenie tlačidiel Mulliganu
     if (document.getElementById("p1-mulligan-btn")) document.getElementById("p1-mulligan-btn").className = "";
     if (document.getElementById("p2-mulligan-btn")) document.getElementById("p2-mulligan-btn").className = "";
     if (document.getElementById("p1-pass-btn")) {
@@ -135,7 +134,7 @@ function spustiPrepocty() {
         return;
     }
     
-    var nela = vsetky.some(function(k) { return -1 !== k.n.indexOf('Nela'); });
+    var nelaPritomna = vsetky.some(function(k) { return -1 !== k.n.indexOf('Nela'); });
     var p1Katy = vsetky.some(function(k) { return -1 !== k.n.indexOf('Katy') && 1 === k.pNum; }), p2Katy = vsetky.some(function(k) { return -1 !== k.n.indexOf('Katy') && 2 === k.pNum; });
     var mC1 = countMravce(p1_played_cards), mC2 = countMravce(p2_played_cards), hC1 = countHoluby(p1_played_cards), hC2 = countHoluby(p2_played_cards);
 
@@ -187,7 +186,8 @@ function spustiPrepocty() {
             else { zaklad = ("S" === c.cls) ? 4 : 1; }
         }
 
-        if ("Katy" !== cMeno) {
+        // OPRAVA: Nela aj Oli sú imúnne voči zásahu Katy!
+        if ("Katy" !== cMeno && "Nela" !== cMeno && "Oli" !== cMeno) {
             if (1 === c.pNum) { if (p1Katy) zaklad += 1; if (p2Katy) zaklad -= 1; } 
             else { if (p2Katy) zaklad += 1; if (p1Katy) zaklad -= 1; }
             zaklad = Math.max(0, zaklad);
@@ -196,7 +196,7 @@ function spustiPrepocty() {
         var pct = 0;
         var cId = (2 === c.pNum) ? (1 === c.row ? "r1" : (2 === c.row ? "r2" : "r3")) : (1 === c.row ? "r4" : (2 === c.row ? "r5" : "r6"));
         
-        if (!nela && !bZ) {
+        if (!nelaPritomna && !bZ) {
             if ("Michal" === cMeno) pct += 1.0; 
             var pr = vsetky.find(function(k) { return k.pNum === c.pNum && k.row === c.row && ("Alcohol" === k.n || "Kvety" === k.n || "Medove Orechy" === k.n); });
             var dR = vsetky.some(function(k) { return -1 !== k.n.indexOf('Duri') && k.pNum === c.pNum && 1 === k.row; });
@@ -316,6 +316,8 @@ function skontrolujUkoncenieMulliganu() {
     if (jeSingleplayer) p2_confirmed_mulligan = true;
     if (p1_confirmed_mulligan && p2_confirmed_mulligan) {
         draft_faza = false; 
+        p1Pass = false; 
+        p2Pass = false;
         aktualnyHrac = 1;
         blokujVykladanie = false;
         
@@ -421,11 +423,19 @@ function vyhodnot() {
         else { var h1V = (r1 >= 2); otvorTruhlu(h1V, false); alert("Koniec série! Víťaz: " + (h1V ? "Hráč 1" : "AI")); }
         document.getElementById('hraci-stol-kontajner').classList.add('schovany'); document.getElementById('predzapasove-menu').classList.remove('schovany');
         draft_faza = true; r1 = 0; r2 = 0;
-    } else { p1Pass = false; p2Pass = false; resetStolaBezReloadu(true); }
+    } else { resetStolaBezReloadu(true); }
 }
 
 function resetStolaBezReloadu(e) {
-    p1Pass = false; p2Pass = false; for (var t = 1; t <= 6; t++) { var r = document.getElementById("r" + t); if (r) { var n = r.querySelector(".skore-rad"); r.innerHTML = ""; if (n) { n.innerText = "0 b"; r.appendChild(n); } } }
+    p1Pass = false; p2Pass = false; 
+    for (var t = 1; t <= 6; t++) { 
+        var r = document.getElementById("r" + t); 
+        if (r) { 
+            var n = r.querySelector(".skore-rad"); 
+            r.innerHTML = ""; 
+            if (n) { n.innerText = "0 b"; r.appendChild(n); } 
+        } 
+    }
     p1_played_cards = []; p2_played_cards = []; p1_erik_buff_row = null; p2_erik_buff_row = null; blokujVykladanie = false;
     var a = document.getElementById("neutralny-riadok"); if (a) a.innerHTML = "⚡ Neutrálna zóna (Vplyvy stola)";
     document.getElementById("panel-erik").className = "schovany"; document.getElementById("panel-marek").className = "schovany";
@@ -575,7 +585,6 @@ function overMoznostStartuHry() {
 function spustitZapasProtiAI(e) { if (overMoznostStartuHry()) { jeSingleplayer = true; obtiaznostAI = e; if (document.getElementById("rezim-zapasu-oznam")) document.getElementById("rezim-zapasu-oznam").innerText = "🤖 PROTI AI - " + e; document.getElementById("predzapasove-menu").className = "schovany"; document.getElementById("hraci-stol-kontajner").className = ""; r1 = 0; r2 = 0; resetStolaBezReloadu(false); } }
 function spustitZapasLokálnePVP() { if (overMoznostStartuHry()) { jeSingleplayer = false; if (document.getElementById("rezim-zapasu-oznam")) document.getElementById("rezim-zapasu-oznam").innerText = "👥 MULTIPLAYER 1v1"; document.getElementById("predzapasove-menu").className = "schovany"; document.getElementById("hraci-stol-kontajner").className = ""; r1 = 0; r2 = 0; resetStolaBezReloadu(false); } }
 
-// OPRAVA: Plný reset pri vzdaní zápasu
 function vzdajZapasUtek() { 
     if (confirm("Vzdať sériu a vrátiť sa do menu?")) { 
         document.getElementById("hraci-stol-kontajner").className = "schovany"; 
@@ -614,7 +623,6 @@ document.addEventListener("DOMContentLoaded", function() {
     p1_full_deck = vytvorZoznamKariet(1); obnovPocitadlaZostavyVMenu();
 });
 
-// GLOBÁLNY ODCHYTÁVAČ KLIKNUTÍ A VYKLADANIA
 document.addEventListener("click", function(e) {
     var t = e.composedPath() || [], r = null; 
     
