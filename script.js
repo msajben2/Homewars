@@ -1,7 +1,7 @@
 // =========================================================================
 // RODINNÁ HRA - HOME WARS (VERZIA 8.1.0 - TRUHLA SIMULÁTOR & AUTO-PASS FIX)
 // =========================================================================
-  
+
 (function() {
     var TAJNY_KOD_HESLA = "dGVzdGVyMTIzIQ=="; 
     var vstup = prompt("🔒 Vstup do kráľovstva zakázaný!\nZadaj tajné rodinné prístupové heslo:");
