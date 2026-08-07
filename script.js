@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.2.7)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.2.7 - FIXED ROWS & SCORES)
 // =========================================================================
 
 (function() {
@@ -163,7 +163,7 @@ function spustiPrepocty() {
     var sClassRiadkyBonus = { r1: 0, r2: 0, r3: 0, r4: 0, r5: 0, r6: 0 };
     vsetky.forEach(function(k) {
         if (k && "S" === k.cls && k.row > 0 && "none" !== k.livePwr) {
-            var rId = (2 === k.pNum) ? (1 === k.row ? "r1" : (2 === k.row ? "r2" : "r3")) : (1 === k.row ? "r4" : (2 === k.row ? "r5" : "r6"));
+            var rId = (2 === k.pNum) ? (1 === k.row ? "r3" : (2 === k.row ? "r2" : "r1")) : (1 === k.row ? "r4" : (2 === k.row ? "r5" : "r6"));
             sClassRiadkyBonus[rId] = 0.5;
         }
     });
@@ -216,7 +216,7 @@ function spustiPrepocty() {
         zaklad = Math.max(0, zaklad);
 
         var pct = 0.0;
-        var cId = (2 === c.pNum) ? (1 === c.row ? "r1" : (2 === c.row ? "r2" : "r3")) : (1 === c.row ? "r4" : (2 === c.row ? "r5" : "r6"));
+        var cId = (2 === c.pNum) ? (1 === c.row ? "r3" : (2 === c.row ? "r2" : "r1")) : (1 === c.row ? "r4" : (2 === c.row ? "r5" : "r6"));
         
         if (!nelaPritomna) {
             if ("Michal" === cMeno) pct += 1.0; 
@@ -243,7 +243,7 @@ function spustiPrepocty() {
 
     for (var r = 1; r <= 6; r++) { 
         var elS = document.getElementById('s' + r); 
-        if (elS) elS.innerText = zratajRad(r > 3 ? p1_played_cards : p2_played_cards, r > 3 ? r - 3 : r) + " b"; 
+        if (elS) elS.innerText = zratajRad(r > 3 ? p1_played_cards : p2_played_cards, r > 3 ? r - 3 : (r === 1 ? 3 : (r === 2 ? 2 : 1))) + " b"; 
     }
 
     sc1 = p2_used_mulligan ? 7 : 0; p1_played_cards.forEach(function(card) { if (card && "number" == typeof card.livePwr) sc1 += card.livePwr; });
@@ -425,7 +425,7 @@ function ozivKartuZArchivu(pNum) {
     k.pNum = tPNum; 
     if (jeSpy) div.setAttribute('data-isspy', "true");
     
-    var cId = (2 === tPNum) ? (1 === k.row ? "r1" : (2 === k.row ? "r2" : "r3")) : (1 === k.row ? "r4" : (2 === k.row ? "r5" : "r6")); 
+    var cId = (2 === tPNum) ? (1 === k.row ? "r3" : (2 === k.row ? "r2" : "r1")) : (1 === k.row ? "r4" : (2 === k.row ? "r5" : "r6")); 
     var rEl = document.getElementById(cId);
     
     if (rEl) { 
@@ -516,7 +516,15 @@ function resetStolaBezReloadu(e) {
     for (var t = 1; t <= 6; t++) { 
         var r = document.getElementById("r" + t); 
         if (r) { 
-            r.innerHTML = (t <= 3 ? (t === 1 ? "3. Rad (Zvieratá/Podpora): " : (t === 2 ? "2. Rad (Ženy/Sestričky): " : "1. Rad (Chlapi/Bojovníci): ")) : (t === 4 ? "1. Rad (Chlapi/Bojovníci): " : (t === 5 ? "2. Rad (Ženy/Sestričky): " : "3. Rad (Zvieratá/Podpora): "))) + "<span class='skore-rad' id='s" + t + "'>0 b</span>";
+            var nazovRadu = "";
+            if (t === 1) nazovRadu = "3. Rad (Zvieratá/Podpora): ";
+            else if (t === 2) nazovRadu = "2. Rad (Ženy/Sestričky): ";
+            else if (t === 3) nazovRadu = "1. Rad (Chlapi/Bojovníci): ";
+            else if (t === 4) nazovRadu = "1. Rad (Chlapi/Bojovníci): ";
+            else if (t === 5) nazovRadu = "2. Rad (Ženy/Sestričky): ";
+            else if (t === 6) nazovRadu = "3. Rad (Zvieratá/Podpora): ";
+
+            r.innerHTML = nazovRadu + "<span class='skore-rad' id='s" + t + "'>0 b</span>";
         } 
     }
     p1_played_cards = []; 
@@ -993,7 +1001,12 @@ document.addEventListener("click", function(e) {
                 var h = vytvorZoznamKariet(c).find(function(item) { return item.n === u; });
                 var g = h ? h.cls : "C";
                 var _ = { id: m, n: u, pNum: v, row: s, p: d, livePwr: d, cls: g, isSpy: l };
-                var x = 2 === v ? (1 === s ? "r1" : 2 === s ? "r2" : "r3") : (1 === s ? "r4" : 2 === s ? "r5" : "r6");
+                
+                // Opravené zrkadlové priraďovanie do HTML radov:
+                var x = (2 === v) 
+                    ? (1 === s ? "r3" : (2 === s ? "r2" : "r1")) 
+                    : (1 === s ? "r4" : (2 === s ? "r5" : "r6"));
+                
                 var E = document.getElementById(x);
                 
                 if (E) { 
