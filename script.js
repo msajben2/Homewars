@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.1.2 - AUTO-MAREK & HAND POWER DISPLAY FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.1.4 - MAREK 0B CARDS FIX)
 // =========================================================================
   
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.1.2";
+var VERZIA = "8.1.4";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -43,7 +43,6 @@ function isSpecialCard(name) {
     return spec.indexOf(name) !== -1;
 }
 
-// POMOCNÁ FUNKCIA PRE VÝPOČET SILY KARTY PODĽA TRIEDY V RUKE
 function getRealPower(card) {
     if (!card || isSpecialCard(card.n) || card.p === 0) return card.p;
     var bonus = 0;
@@ -554,7 +553,7 @@ function hracPasolAI() {
 
 function spustiMarekaAIJadro(bNum) {
     var sPole = (1 === bNum) ? p2_played_cards : p1_played_cards;
-    var cls = sPole.filter(function(k) { return k && -1 === k.n.indexOf('Nela') && -1 === k.n.indexOf('Oli') && "Alcohol" !== k.n && "Kvety" !== k.n && "Medove Orechy" !== k.n && k.livePwr > 0; });
+    var cls = sPole.filter(function(k) { return k && -1 === k.n.indexOf('Nela') && -1 === k.n.indexOf('Oli') && !isSpecialCard(k.n); });
     if (0 === cls.length) {
         blokujVykladanie = false;
         var povH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0;
@@ -592,21 +591,27 @@ function spustiErikaAIJadro(bNum) {
     ukonciTah(povH);
 }
 
-// LOGIKA PRE MAREKA (S AUTOMATICKÝM UFILOZOFOWANÍM PRI 1 CIELI)
+// LOGIKA PRE MAREKA (ZOBRAZUJE AJ 0B KARTY A AUTOMATICKY ODSTRAŇUJE PRI 1 CIELI)
 function spustiMarekaLogiku() {
     spustiPrepocty(); 
     var sPole = (1 === hracCakajuciNaAkciu) ? p2_played_cards : p1_played_cards;
+    
     if (sPole.some(function(k) { return k && -1 !== k.n.indexOf('Nela') && 2 === k.row; })) { 
         blokujVykladanie = false; var p = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0; 
         ukonciTah(p, "Marek zablokovaný Nelou"); return; 
     }
-    var cls = sPole.filter(function(k) { return k && -1 === k.n.indexOf('Nela') && -1 === k.n.indexOf('Oli') && "Alcohol" !== k.n && "Kvety" !== k.n && "Medove Orechy" !== k.n && k.livePwr > 0; });
+
+    // Vyhľadáme všetky karty súpera (vrátane 0b), okrem Nely, Oli a Špeciálnych efektov
+    var cls = sPole.filter(function(k) { 
+        return k && -1 === k.n.indexOf('Nela') && -1 === k.n.indexOf('Oli') && !isSpecialCard(k.n); 
+    });
+
     if (0 === cls.length) { 
         blokujVykladanie = false; var p = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0; 
-        ukonciTah(p, "Bez cieľa"); return; 
+        ukonciTah(p, "Marek nemá cieľ"); return; 
     }
 
-    // AUTOMATIKA: Ak je len 1 karta na ufilozofovanie, zmaže sa ihneď!
+    // AUTOMATIKA: Ak je len 1 cieľ (aj 0b), ufilozofuje sa ihneď!
     if (1 === cls.length) {
         var soleCard = cls[0];
         var idx = sPole.findIndex(function(c) { return c && c.id === soleCard.id; });
@@ -614,7 +619,8 @@ function spustiMarekaLogiku() {
             var el = document.getElementById(soleCard.id); if (el) el.remove();
             if (1 === soleCard.pNum) p1_spalene.push(soleCard); else p2_spalene.push(soleCard);
             sPole.splice(idx, 1);
-            alert("🧹 Marek automaticky ufilozofoval jediný cieľ: " + soleCard.n);
+            alert("🧹 Marek ufilozofoval cieľ: " + soleCard.n + " (" + soleCard.livePwr + "b)");
+            
             blokujVykladanie = false;
             var povH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0;
             aktualizujArchivyVizualne();
@@ -623,7 +629,7 @@ function spustiMarekaLogiku() {
         }
     }
 
-    // Ak je cieľov 2 a viac, zobrazí sa roletka
+    // Ak sú ciele 2 a viac, naplní sa roletka (vrátane 0b kariet)
     var dd = document.getElementById("marek-dropdown"); if (!dd) return; dd.innerHTML = "";
     cls.forEach(function(k) { 
         var o = document.createElement("option"); o.value = k.id; 
@@ -903,7 +909,7 @@ document.addEventListener("click", function(e) {
     }
 });
 
-// OPRAVENÁ OBSLUHA RUČNÉHO TLAČIDLA MAREKA (ODSSTRÁNI ZÁSEK)
+// TLAČIDLO PRE RUČNÝ VÝBER MAREKA
 document.getElementById("marek-burn-btn").addEventListener("click", function(e) {
     e.stopPropagation(); var dd = document.getElementById("marek-dropdown"); var zId = dd.value; if (!zId) return;
     var sPole = (1 === hracCakajuciNaAkciu) ? p2_played_cards : p1_played_cards;
@@ -911,12 +917,15 @@ document.getElementById("marek-burn-btn").addEventListener("click", function(e) 
     if (-1 !== idx) {
         var k = sPole[idx]; var el = document.getElementById(k.id); if (el) el.remove();
         if (1 === k.pNum) p1_spalene.push(k); else p2_spalene.push(k);
-        sPole.splice(idx, 1); document.getElementById('panel-marek').className = 'schovany';
+        sPole.splice(idx, 1); 
         
+        document.getElementById('panel-marek').className = 'schovany';
         blokujVykladanie = false;
-        var povH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0;
+        var povH = hracCakajuciNaAkciu; 
+        hracCakajuciNaAkciu = 0;
+        
         aktualizujArchivyVizualne();
-        ukonciTah(povH); // ODOVZDÁ ŤAH A NESKORUJE
+        ukonciTah(povH);
     }
 });
 
