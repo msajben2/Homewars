@@ -1,7 +1,7 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.1.0 - TRUHLA SIMULÁTOR & AUTO-PASS FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.1.1 - REBALANC FORGE & PVP ROUND 1 REWARD)
 // =========================================================================
-
+  
 (function() {
     var TAJNY_KOD_HESLA = "dGVzdGVyMTIzIQ=="; 
     var vstup = prompt("🔒 Vstup do kráľovstva zakázaný!\nZadaj tajné rodinné prístupové heslo:");
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.1.0";
+var VERZIA = "8.1.1";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -37,6 +37,11 @@ var p1_full_deck = [], p2_full_deck = [], p1_draft_hand = [], p2_draft_hand = []
 var p1_used_mulligan = false, p2_used_mulligan = false, p1_confirmed_mulligan = false, p2_confirmed_mulligan = false;
 var draft_faza = true; var p1_spalene = [], p2_spalene = [], neutralne_vplyvy = [];
 var jeSingleplayer = false; var obtiaznostAI = "B"; var inventar = { mince: 500, karty: {}, zostava: [] };
+
+function isSpecialCard(name) {
+    var spec = ["Musíme sa porozprávať", "Upokoj sa", "Ohnostroj", "Šicko v porádku", "Alcohol", "Kvety", "Medove Orechy"];
+    return spec.indexOf(name) !== -1;
+}
 
 function countMravce(list) { return list.filter(function(k) { return k && k.n.indexOf('Mravce') !== -1; }).length; }
 function countHoluby(list) { return list.filter(function(k) { return k && k.n.indexOf('holuby') !== -1; }).length; }
@@ -400,14 +405,21 @@ function aktualizujArchivyVizualne() {
     }
 }
 
+// OTVÁRANIE TRUHIEL (ŠPECIÁLNE KARTY SÚ IBA V C-CLASS)
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
     var hMena = Object.keys(MASTER_REGISTRY); var pC = jeVitaz ? 3 : 10; var zMena = [];
     for (var i = 0; i < pC; i++) {
         var nMeno = hMena[Math.floor(Math.random() * hMena.length)]; var r = 100 * Math.random(); var vCls = "C";
-        if (jeVitaz) { if (r < 0.5) vCls = "S"; else if (r < 10) vCls = "A"; else if (r < 30) vCls = "B"; } else { if (r < 0.01) vCls = "S"; else if (r < 2) vCls = "A"; else if (r < 12) vCls = "B"; }
+        
+        // Špeciálne karty sú vždy striktne C-class!
+        if (!isSpecialCard(nMeno)) {
+            if (jeVitaz) { if (r < 0.5) vCls = "S"; else if (r < 10) vCls = "A"; else if (r < 30) vCls = "B"; } 
+            else { if (r < 0.01) vCls = "S"; else if (r < 2) vCls = "A"; else if (r < 12) vCls = "B"; }
+        }
+
         if (!inventar.karty[nMeno]) inventar.karty[nMeno] = { replikyC: 0, aktivnaTrieda: "C" };
-        var pR = 1; if ("B" === vCls) pR = 5; if ("A" === vCls) pR = 25; if ("S" === vCls) pR = 75;
+        var pR = 1; if ("B" === vCls) pR = 5; if ("A" === vCls) pR = 25; if ("S" === vCls) pR = 125;
         inventar.karty[nMeno].replikyC += pR; zMena.push(nMeno.replace(/\s\d$/, "") + " (" + vCls + ")");
     }
     alert((jeVitaz ? "🏆 TRUHLA VÍŤAZA" : (jeRemizaZapasu ? "📦 TRUHLA ZA REMÍZU 2:2" : "📦 TRUHLA ÚČASTNÍKA")) + "\n" + zMena.join("\n")); 
@@ -415,12 +427,20 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
 }
 
 function vyhodnot() {
-    if (sc1 > sc2) { r1++; if (!jeSingleplayer) { inventar.mince += 50; alert("Hráč 1 vyhráva! (+50m)"); } else alert("Hráč 1 vyhráva!"); } 
-    else if (sc2 > sc1) { r2++; alert("AI vyhráva!"); } else { r1++; r2++; alert("Remíza! Bod pre oboch."); }
+    // KONTROLA ODMENY ZA 1. KOLO V MULTIPLAYERI
+    if (!jeSingleplayer && (r1 + r2 === 0)) {
+        if (sc1 > sc2) { inventar.mince += 50; alert("🏆 Hráč 1 vyhráva 1. kolo! (+50m bonus)"); }
+        else if (sc2 > sc1) { alert("🏆 Hráč 2 vyhráva 1. kolo!"); }
+        else { inventar.mince += 50; alert("⚖️ Remíza v 1. kole! Obaja hráči získavajú +50m bonus"); }
+    }
+
+    if (sc1 > sc2) { r1++; if (!jeSingleplayer) { inventar.mince += 50; alert("Hráč 1 vyhráva kolo! (+50m)"); } else alert("Hráč 1 vyhráva!"); } 
+    else if (sc2 > sc1) { r2++; alert("AI / Hráč 2 vyhráva kolo!"); } else { r1++; r2++; alert("Remíza! Bod pre oboch."); }
+    
     if (document.getElementById('kola-skore')) document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: " + r1 + "/2 | Hráč 2: " + r2 + "/2";
     if (r1 >= 2 || r2 >= 2) {
         if (r1 >= 2 && r2 >= 2) { alert("Séria skončila remízou 2:2!"); otvorTruhlu(false, true); } 
-        else { var h1V = (r1 >= 2); otvorTruhlu(h1V, false); alert("Koniec série! Víťaz: " + (h1V ? "Hráč 1" : "AI")); }
+        else { var h1V = (r1 >= 2); otvorTruhlu(h1V, false); alert("Koniec série! Víťaz: " + (h1V ? "Hráč 1" : "AI / Hráč 2")); }
         document.getElementById('hraci-stol-kontajner').classList.add('schovany'); document.getElementById('predzapasove-menu').classList.remove('schovany');
         draft_faza = true; r1 = 0; r2 = 0;
     } else { resetStolaBezReloadu(true); }
@@ -595,7 +615,6 @@ function spustiErikaHtml(rad) {
 }
 
 function ukonciTah(pNum, info) { 
-    // AUTO-PASS KONTROLA PRE HRÁČA 1 (AK NEMÁ ŽIADNE KARTY V RUKE)
     if (!draft_faza) {
         var ruka1 = document.getElementById("ruka-p1");
         if (ruka1 && 0 === ruka1.querySelectorAll(".karta").length) {
@@ -619,15 +638,37 @@ function ukonciTah(pNum, info) {
     if (jeSingleplayer && 2 === aktualnyHrac && !p2Pass) setTimeout(spustiTahAI, 800); 
 }
 
+// OPRAVENÁ FORGE LOGIKA DĽA NOVEJ MATEMATIKY (5 -> 25 -> 125 A ŠPECIÁLNE 1000)
 function vylepsiKartuVoForge(e) { 
     var t = inventar.karty[e]; 
     if (t) { 
         var r = t.aktivnaTrieda, n = false; 
-        if ("C" === r && t.replikyC >= 5) { t.replikyC -= 5; t.aktivnaTrieda = "B"; n = true; } 
-        else if ("B" === r && t.replikyC >= 25) { t.replikyC -= 25; t.aktivnaTrieda = "A"; n = true; } 
-        else if ("A" === r && t.replikyC >= 75) { t.replikyC -= 75; t.aktivnaTrieda = "S"; n = true; } 
-        if (n) { alert("🔨 Vykované na " + t.aktivnaTrieda); aktualizujPanelDielne(); if (!draft_faza) spustiPrepocty(); } 
-        else alert("Málo replík!"); 
+        
+        if (isSpecialCard(e)) {
+            if ("C" === r && t.replikyC >= 1000) {
+                t.replikyC -= 1000;
+                t.aktivnaTrieda = "S";
+                n = true;
+            } else if ("S" === r) {
+                alert("Špeciálna karta je už na maximálnej triede S!");
+                return;
+            } else {
+                alert("Na vykovanie špeciálnej karty na triedu S potrebuješ 1000 replík!");
+                return;
+            }
+        } else {
+            if ("C" === r && t.replikyC >= 5) { t.replikyC -= 5; t.aktivnaTrieda = "B"; n = true; } 
+            else if ("B" === r && t.replikyC >= 25) { t.replikyC -= 25; t.aktivnaTrieda = "A"; n = true; } 
+            else if ("A" === r && t.replikyC >= 125) { t.replikyC -= 125; t.aktivnaTrieda = "S"; n = true; } 
+        }
+
+        if (n) { 
+            alert("🔨 Vykované na " + t.aktivnaTrieda); 
+            aktualizujPanelDielne(); 
+            if (!draft_faza) spustiPrepocty(); 
+        } else {
+            alert("Málo replík!"); 
+        }
     } 
 }
 
@@ -674,13 +715,11 @@ function vzdajZapasUtek() {
     } 
 }
 
-// SIMULÁTOR TRUHIEL S TLAČIDLAMI
 function aktualizujPanelDielne(){
     var e=document.getElementById("dielna-zoznam");
     if(e){
         e.innerHTML = "";
         
-        // TESTOVACÍ PANEL TRUHIEL
         var simBox = document.createElement("div");
         simBox.style.cssText = "grid-column: 1 / -1; background: #2b2611; border: 2px dashed #ffcc00; padding: 12px; border-radius: 8px; margin-bottom: 15px; text-align: center;";
         simBox.innerHTML = "<h4 style='color:#ffcc00; margin:0 0 8px 0;'>🧪 SIMULÁTOR OTVÁRANIA TRUHIEL</h4>" +
@@ -823,19 +862,6 @@ document.addEventListener("click", function(e) {
                 }
             }
         }
-    }
-});
-
-document.getElementById("marek-burn-btn").addEventListener("click", function(e) {
-    e.stopPropagation(); var dd = document.getElementById("marek-dropdown"); var zId = dd.value; if (!zId) return;
-    var sPole = (1 === hracCakajuciNaAkciu) ? p2_played_cards : p1_played_cards;
-    var idx = sPole.findIndex(function(c) { return c && c.id === zId; });
-    if (-1 !== idx) {
-        var k = sPole[idx]; var el = document.getElementById(k.id); if (el) el.remove();
-        if (1 === k.pNum) p1_spalene.push(k); else p2_spalene.push(k);
-        sPole.splice(idx, 1); document.getElementById('panel-marek').className = 'schovany';
-        blokujVykladanie = false; var povH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0;
-        ukonciTah(povH); aktualizujArchivyVizualne();
     }
 });
 
