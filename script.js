@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.1.7 - PATKAŇE ROW & BUFF RESET FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.1.9 - NELA PROPER LOGIC FIX)
 // =========================================================================
   
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.1.7";
+var VERZIA = "8.1.9";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -110,7 +110,7 @@ function vytvorZoznamKariet(pNum) {
 function spustiDraft() {
     draft_faza = true;
     p1Pass = false; p2Pass = false;
-    p1_erik_buff_row = null; p2_erik_buff_row = null; // VYNULOVANIE ERIK BUFFU
+    p1_erik_buff_row = null; p2_erik_buff_row = null;
     p1_full_deck = vytvorZoznamKariet(1); p2_full_deck = vytvorZoznamKariet(2);
     p1_draft_hand = []; p2_draft_hand = []; p1_used_mulligan = false; p2_used_mulligan = false; p1_confirmed_mulligan = false; p2_confirmed_mulligan = false;
     
@@ -197,6 +197,7 @@ function spustiPrepocty() {
             var pB = zaklad - c.p; zaklad = (3 === (1 === c.pNum ? hC1 : hC2)) ? 4 : ((2 === (1 === c.pNum ? hC1 : hC2)) ? 2 : 1); zaklad += pB;
         }
 
+        // NEUTRÁLNE VPLYVY STOLA PLATIA VŽDY (AJ PRI NELE)
         var aZ = null;
         if (1 === c.row && vChlapov) aZ = vChlapov;
         if (2 === c.row && vZien) aZ = vZien;
@@ -217,6 +218,7 @@ function spustiPrepocty() {
         var pct = 0;
         var cId = (2 === c.pNum) ? (1 === c.row ? "r1" : (2 === c.row ? "r2" : "r3")) : (1 === c.row ? "r4" : (2 === c.row ? "r5" : "r6"));
         
+        // NELA RUŠÍ IBA RODINNÉ SYNERGIE A BUFFY (KVETY, ALKOHOL, ORECHY, ERIK, SISA...)
         if (!nelaPritomna && !bZ) {
             if ("Michal" === cMeno) pct += 1.0; 
             var pr = vsetky.find(function(k) { return k.pNum === c.pNum && k.row === c.row && ("Alcohol" === k.n || "Kvety" === k.n || "Medove Orechy" === k.n); });
@@ -469,7 +471,7 @@ function vyhodnot() {
         draft_faza = true; 
         r1 = 0; 
         r2 = 0;
-        p1_erik_buff_row = null; p2_erik_buff_row = null; // BUFF RESET
+        p1_erik_buff_row = null; p2_erik_buff_row = null;
         
         if (document.getElementById('kola-skore')) {
             document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2";
@@ -483,7 +485,7 @@ function resetStolaBezReloadu(e) {
     p1Pass = false; 
     p2Pass = false; 
     p1_erik_buff_row = null; 
-    p2_erik_buff_row = null; // BUFF RESET PRI PRECHODE DO NOVÉHO KOLA
+    p2_erik_buff_row = null;
     
     for (var t = 1; t <= 6; t++) { 
         var r = document.getElementById("r" + t); 
@@ -771,7 +773,7 @@ function vzdajZapasUtek() {
         p1_played_cards = []; p2_played_cards = []; neutralne_vplyvy = [];
         p1_draft_hand = []; p2_draft_hand = [];
         p1_confirmed_mulligan = false; p2_confirmed_mulligan = false;
-        p1_erik_buff_row = null; p2_erik_buff_row = null; // BUFF RESET
+        p1_erik_buff_row = null; p2_erik_buff_row = null;
         
         if (document.getElementById('kola-skore')) {
             document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2";
