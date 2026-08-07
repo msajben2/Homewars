@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.2.5 - UNDEFINED ROW & AI FREEZE FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.2.6 - ARCHIVE RESET ON NEW GAME FIX)
 // =========================================================================
   
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.2.5";
+var VERZIA = "8.2.6";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -141,7 +141,6 @@ function aktualizujStavZamkuMenu() {
     if (!draft_faza) { menuEl.classList.add('zamknute-menu'); } else { menuEl.classList.remove('zamknute-menu'); }
 }
 
-// SPUSŤ PREPOČTY S PLNOU OCHRANOU PROTI UNDEFINED KARTÁM
 function spustiPrepocty() {
     aktualizujStavZamkuMenu();
     var vsetky = p1_played_cards.concat(p2_played_cards).filter(function(k) { return k && "object" === typeof k && k.n; });
@@ -183,7 +182,6 @@ function spustiPrepocty() {
         }
         if ("Oli" === cMeno) { c.livePwr = 8; el.innerText = "8 - Oli (Imúnna) [" + c.cls + "]"; el.style.color = "#ffcc00"; continue; }
 
-        // KROK 1: URČENIE ZÁKLADU RADU
         var aZ = null;
         if (1 === c.row && vChlapov) aZ = vChlapov;
         if (2 === c.row && vZien) aZ = vZien;
@@ -201,7 +199,6 @@ function spustiPrepocty() {
             zaklad = (3 === (1 === c.pNum ? hC1 : hC2)) ? 4 : ((2 === (1 === c.pNum ? hC1 : hC2)) ? 2 : 1);
         }
 
-        // KROK 2: OSOBNÉ BUFFY (TRIEDA + KATY)
         if (c.isSpy) {
             if ("B" === c.cls) zaklad -= 1;
             if ("A" === c.cls) zaklad -= 2;
@@ -218,7 +215,6 @@ function spustiPrepocty() {
         }
         zaklad = Math.max(0, zaklad);
 
-        // KROK 3: SÚČET PERCENTUÁLNYCH BONUSOV
         var pct = 0.0;
         var cId = (2 === c.pNum) ? (1 === c.row ? "r1" : (2 === c.row ? "r2" : "r3")) : (1 === c.row ? "r4" : (2 === c.row ? "r5" : "r6"));
         
@@ -237,7 +233,6 @@ function spustiPrepocty() {
             if ("S" !== c.cls) { pct += (sClassRiadkyBonus[cId] || 0); }
         }
 
-        // KROK 4: FINÁLNE ZAOKRÚHLENIE
         var medzivysledok = zaklad + Math.round(zaklad * pct);
         
         c.livePwr = Math.max(0, medzivysledok);
@@ -479,6 +474,10 @@ function vyhodnot() {
         r2 = 0;
         p1_erik_buff_row = null; p2_erik_buff_row = null;
         
+        // VYČISTENIE ARCHÍVU PRI KONCI SÉRIE
+        p1_spalene = []; p2_spalene = [];
+        aktualizujArchivyVizualne();
+        
         if (document.getElementById('kola-skore')) {
             document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2";
         }
@@ -531,6 +530,10 @@ function resetStolaBezReloadu(e) {
         p1_full_deck = vytvorZoznamKariet(1); 
         p2_full_deck = vytvorZoznamKariet(2); 
         draft_faza = true; 
+        
+        // VYČISTENIE ARCHÍVU PRI NOVOM VSTUPE DO HRY
+        p1_spalene = []; p2_spalene = [];
+        aktualizujArchivyVizualne();
         
         if (document.getElementById('kola-skore')) {
             document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2";
@@ -805,6 +808,10 @@ function vzdajZapasUtek() {
         p1_draft_hand = []; p2_draft_hand = [];
         p1_confirmed_mulligan = false; p2_confirmed_mulligan = false;
         p1_erik_buff_row = null; p2_erik_buff_row = null;
+        
+        // VYČISTENIE ARCHÍVU PRI VZDANÍ
+        p1_spalene = []; p2_spalene = [];
+        aktualizujArchivyVizualne();
         
         if (document.getElementById('kola-skore')) {
             document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2";
