@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.1.5 - MENU UNLOCK AFTER MATCH FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.1.6 - MATCH SCORE RESET & BUFF FIX)
 // =========================================================================
   
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.1.5";
+var VERZIA = "8.1.6";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -457,15 +457,24 @@ function vyhodnot() {
     else if (sc2 > sc1) { r2++; alert("AI / Hráč 2 vyhráva kolo!"); } else { r1++; r2++; alert("Remíza! Bod pre oboch."); }
     
     if (document.getElementById('kola-skore')) document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: " + r1 + "/2 | Hráč 2: " + r2 + "/2";
+    
     if (r1 >= 2 || r2 >= 2) {
         if (r1 >= 2 && r2 >= 2) { alert("Séria skončila remízou 2:2!"); otvorTruhlu(false, true); } 
         else { var h1V = (r1 >= 2); otvorTruhlu(h1V, false); alert("Koniec série! Víťaz: " + (h1V ? "Hráč 1" : "AI / Hráč 2")); }
-        document.getElementById('hraci-stol-kontajner').classList.add('schovany'); document.getElementById('predzapasove-menu').classList.remove('schovany');
+        
+        document.getElementById('hraci-stol-kontajner').classList.add('schovany'); 
+        document.getElementById('predzapasove-menu').classList.remove('schovany');
         
         draft_faza = true; 
         r1 = 0; 
         r2 = 0;
-        aktualizujStavZamkuMenu(); // OPRAVA: Odblokuje horné menu po ukončení zápasu
+        
+        // RESET SKÓRE KÔL V MENU
+        if (document.getElementById('kola-skore')) {
+            document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2";
+        }
+        
+        aktualizujStavZamkuMenu(); 
     } else { resetStolaBezReloadu(true); }
 }
 
@@ -513,6 +522,12 @@ function resetStolaBezReloadu(e) {
         p1_full_deck = vytvorZoznamKariet(1); 
         p2_full_deck = vytvorZoznamKariet(2); 
         draft_faza = true; 
+        
+        // RESET TEXTU SKÓRE PRI ŠTARTE NOVEJ HRY
+        if (document.getElementById('kola-skore')) {
+            document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2";
+        }
+        
         spustiDraft(); 
     }
 }
@@ -756,6 +771,11 @@ function vzdajZapasUtek() {
         p1_played_cards = []; p2_played_cards = []; neutralne_vplyvy = [];
         p1_draft_hand = []; p2_draft_hand = [];
         p1_confirmed_mulligan = false; p2_confirmed_mulligan = false;
+        
+        if (document.getElementById('kola-skore')) {
+            document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2";
+        }
+        
         aktualizujStavZamkuMenu(); 
     } 
 }
