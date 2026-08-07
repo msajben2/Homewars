@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.1.6 - MATCH SCORE RESET & BUFF FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.1.7 - PATKAŇE ROW & BUFF RESET FIX)
 // =========================================================================
   
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.1.6";
+var VERZIA = "8.1.7";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -24,7 +24,7 @@ var MASTER_REGISTRY = {
     "Kika": { row: 2, p: 3, isSpy: true }, "Zvedava suseda": { row: 2, p: 7, isSpy: true },
     "Grobske Mravce 1": { row: 3, p: 1 }, "Grobske Mravce 2": { row: 3, p: 1 }, "Grobske Mravce 3": { row: 3, p: 1 },
     "Petrzalske holuby 1": { row: 3, p: 1 }, "Petrzalske holuby 2": { row: 3, p: 1 }, "Petrzalske holuby 3": { row: 3, p: 1 },
-    "Kabelkovy pes": { row: 3, p: 3 }, "Patkaňe": { row: 2, p: 2 }, "Sviňa lesná": { row: 3, p: 4 },
+    "Kabelkovy pes": { row: 3, p: 3 }, "Patkaňe": { row: 3, p: 2 }, "Sviňa lesná": { row: 3, p: 4 },
     "Zatúlaný tatranský medved": { row: 3, p: 5 }, "Pouličný mačiak": { row: 3, p: 3 }, "Komare": { row: 3, p: 3 },
     "Alcohol": { row: 1, p: 0 }, "Kvety": { row: 2, p: 0 }, "Medove Orechy": { row: 3, p: 0 },
     "Musíme sa porozprávať": { row: 0, p: 0 }, "Upokoj sa": { row: 0, p: 0 }, "Ohnostroj": { row: 0, p: 0 }, "Šicko v porádku": { row: 0, p: 0 }
@@ -110,6 +110,7 @@ function vytvorZoznamKariet(pNum) {
 function spustiDraft() {
     draft_faza = true;
     p1Pass = false; p2Pass = false;
+    p1_erik_buff_row = null; p2_erik_buff_row = null; // VYNULOVANIE ERIK BUFFU
     p1_full_deck = vytvorZoznamKariet(1); p2_full_deck = vytvorZoznamKariet(2);
     p1_draft_hand = []; p2_draft_hand = []; p1_used_mulligan = false; p2_used_mulligan = false; p1_confirmed_mulligan = false; p2_confirmed_mulligan = false;
     
@@ -468,8 +469,8 @@ function vyhodnot() {
         draft_faza = true; 
         r1 = 0; 
         r2 = 0;
+        p1_erik_buff_row = null; p2_erik_buff_row = null; // BUFF RESET
         
-        // RESET SKÓRE KÔL V MENU
         if (document.getElementById('kola-skore')) {
             document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2";
         }
@@ -481,6 +482,8 @@ function vyhodnot() {
 function resetStolaBezReloadu(e) {
     p1Pass = false; 
     p2Pass = false; 
+    p1_erik_buff_row = null; 
+    p2_erik_buff_row = null; // BUFF RESET PRI PRECHODE DO NOVÉHO KOLA
     
     for (var t = 1; t <= 6; t++) { 
         var r = document.getElementById("r" + t); 
@@ -492,8 +495,6 @@ function resetStolaBezReloadu(e) {
     }
     p1_played_cards = []; 
     p2_played_cards = []; 
-    p1_erik_buff_row = null; 
-    p2_erik_buff_row = null; 
     blokujVykladanie = false;
     
     var a = document.getElementById("neutralny-riadok"); 
@@ -523,7 +524,6 @@ function resetStolaBezReloadu(e) {
         p2_full_deck = vytvorZoznamKariet(2); 
         draft_faza = true; 
         
-        // RESET TEXTU SKÓRE PRI ŠTARTE NOVEJ HRY
         if (document.getElementById('kola-skore')) {
             document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2";
         }
@@ -771,6 +771,7 @@ function vzdajZapasUtek() {
         p1_played_cards = []; p2_played_cards = []; neutralne_vplyvy = [];
         p1_draft_hand = []; p2_draft_hand = [];
         p1_confirmed_mulligan = false; p2_confirmed_mulligan = false;
+        p1_erik_buff_row = null; p2_erik_buff_row = null; // BUFF RESET
         
         if (document.getElementById('kola-skore')) {
             document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2";
