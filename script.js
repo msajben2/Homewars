@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.1.9 - NELA PROPER LOGIC FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.2.4 - CLEAN PIPELINE CALC ENGINE)
 // =========================================================================
   
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.1.9";
+var VERZIA = "8.2.4";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -141,6 +141,7 @@ function aktualizujStavZamkuMenu() {
     if (!draft_faza) { menuEl.classList.add('zamknute-menu'); } else { menuEl.classList.remove('zamknute-menu'); }
 }
 
+// NOVY JEDNOTNY ENGINE PREPOČTU SÍL
 function spustiPrepocty() {
     aktualizujStavZamkuMenu();
     var vsetky = p1_played_cards.concat(p2_played_cards).filter(function(k) { return k; });
@@ -180,60 +181,64 @@ function spustiPrepocty() {
         }
         if ("Oli" === cMeno) { c.livePwr = 8; el.innerText = "8 - Oli (Imúnna) [" + c.cls + "]"; el.style.color = "#ffcc00"; continue; }
 
+        // KROK 1: URČENIE ZÁKLADU RADU PODĽA NEUTRÁLNYCH EFEKTOV
+        var aZ = null;
+        if (1 === c.row && vChlapov) aZ = vChlapov;
+        if (2 === c.row && vZien) aZ = vZien;
+        if ((3 === c.row || -1 !== cMeno.indexOf('Mravce') || -1 !== cMeno.indexOf('holuby')) && vZvierat) aZ = vZvierat;
+
         var zaklad = c.p;
+        if (aZ) {
+            if ("S" === aZ.cls) { zaklad = 0; } 
+            else { zaklad = 1; }
+        }
+
+        // Mravce & Holuby špeciálny základ
+        if (-1 !== cMeno.indexOf('Mravce')) { 
+            zaklad = (3 === (1 === c.pNum ? mC1 : mC2)) ? 4 : ((2 === (1 === c.pNum ? mC1 : mC2)) ? 2 : 1);
+        } else if (-1 !== cMeno.indexOf('holuby')) { 
+            zaklad = (3 === (1 === c.pNum ? hC1 : hC2)) ? 4 : ((2 === (1 === c.pNum ? hC1 : hC2)) ? 2 : 1);
+        }
+
+        // KROK 2: OSOBNÉ BUFFY (TRIEDA + KATY)
         if (c.isSpy) {
-            if ("B" === c.cls) zaklad = Math.max(0, zaklad - 1);
-            if ("A" === c.cls) zaklad = Math.max(0, zaklad - 2);
-            if ("S" === c.cls) zaklad = Math.max(0, zaklad - 3);
+            if ("B" === c.cls) zaklad -= 1;
+            if ("A" === c.cls) zaklad -= 2;
+            if ("S" === c.cls) zaklad -= 3;
         } else {
             if ("B" === c.cls) zaklad += 1;
             if ("A" === c.cls) zaklad += 2;
             if ("S" === c.cls) zaklad += 3;
         }
 
-        if (-1 !== cMeno.indexOf('Mravce')) { 
-            var pB = zaklad - c.p; zaklad = (3 === (1 === c.pNum ? mC1 : mC2)) ? 4 : ((2 === (1 === c.pNum ? mC1 : mC2)) ? 2 : 1); zaklad += pB;
-        } else if (-1 !== cMeno.indexOf('holuby')) { 
-            var pB = zaklad - c.p; zaklad = (3 === (1 === c.pNum ? hC1 : hC2)) ? 4 : ((2 === (1 === c.pNum ? hC1 : hC2)) ? 2 : 1); zaklad += pB;
-        }
-
-        // NEUTRÁLNE VPLYVY STOLA PLATIA VŽDY (AJ PRI NELE)
-        var aZ = null;
-        if (1 === c.row && vChlapov) aZ = vChlapov;
-        if (2 === c.row && vZien) aZ = vZien;
-        if ((3 === c.row || -1 !== cMeno.indexOf('Mravce') || -1 !== cMeno.indexOf('holuby')) && vZvierat) aZ = vZvierat;
-
-        var bZ = false;
-        if (aZ) {
-            if ("S" === aZ.cls) { zaklad = ("S" === c.cls) ? 3 : 0; if ("S" !== c.cls) bZ = true; } 
-            else { zaklad = ("S" === c.cls) ? 4 : 1; }
-        }
-
         if ("Katy" !== cMeno && "Nela" !== cMeno && "Oli" !== cMeno) {
             if (1 === c.pNum) { if (p1Katy) zaklad += 1; if (p2Katy) zaklad -= 1; } 
             else { if (p2Katy) zaklad += 1; if (p1Katy) zaklad -= 1; }
-            zaklad = Math.max(0, zaklad);
         }
+        zaklad = Math.max(0, zaklad);
 
-        var pct = 0;
-        var cId = (2 === c.pNum) ? (1 === c.row ? "r1" : (2 === c.row ? "r2" : "r3")) : (1 === c.row ? "r4" : (2 === c.row ? "r5" : "r6"));
+        // KROK 3: SÚČET PERCENTUÁLNYCH BONUSOV
+        var pct = 0.0;
+        var cId = (2 === c.pNum) ? (1 === c.row ? "r1" : (2 === k.row ? "r2" : "r3")) : (1 === c.row ? "r4" : (2 === c.row ? "r5" : "r6"));
         
-        // NELA RUŠÍ IBA RODINNÉ SYNERGIE A BUFFY (KVETY, ALKOHOL, ORECHY, ERIK, SISA...)
-        if (!nelaPritomna && !bZ) {
+        if (!nelaPritomna) {
             if ("Michal" === cMeno) pct += 1.0; 
             var pr = vsetky.find(function(k) { return k.pNum === c.pNum && k.row === c.row && ("Alcohol" === k.n || "Kvety" === k.n || "Medove Orechy" === k.n); });
             var dR = vsetky.some(function(k) { return -1 !== k.n.indexOf('Duri') && k.pNum === c.pNum && 1 === k.row; });
 
             if (pr) { var zB = ("S" === pr.cls) ? 1.0 : 0.5; pct += zB; if ("A" === c.cls || "S" === c.cls) pct += 0.5; }
+            
             if (1 === c.row) { 
-                if (vsetky.some(function(k) { return -1 !== k.n.indexOf('Sisa') && k.pNum === c.pNum; }) && "Sisa" !== cMeno) pct += 1.0; 
+                if (vsetky.some(function(k) { return -1 !== k.n.indexOf('Sisa') && k.pNum === c.pNum; })) pct += 1.0; 
                 if (dR && pr && "Alcohol" === pr.n && "Duri" !== cMeno) pct += 0.5; 
             }
             if ((1 === c.pNum ? p1_erik_buff_row : p2_erik_buff_row) !== null && c.row === parseInt(1 === c.pNum ? p1_erik_buff_row : p2_erik_buff_row, 10) && "Erik" !== cMeno) pct += 1.0;
             if ("S" !== c.cls) { pct += sClassRiadkyBonus[cId]; }
         }
 
-        var medzivysledok = zaklad + Math.ceil(zaklad * pct);
+        // KROK 4: FINÁLNE ZAOKRÚHLENIE A SÚČET
+        var medzivysledok = zaklad + Math.round(zaklad * pct);
+        
         c.livePwr = Math.max(0, medzivysledok);
         el.innerText = c.livePwr + " - " + cMeno + " [" + c.cls + "]";
         
@@ -760,8 +765,33 @@ function overMoznostStartuHry() {
     return true; 
 }
 
-function spustitZapasProtiAI(e) { if (overMoznostStartuHry()) { jeSingleplayer = true; obtiaznostAI = e; if (document.getElementById("rezim-zapasu-oznam")) document.getElementById("rezim-zapasu-oznam").innerText = "🤖 PROTI AI - " + e; document.getElementById("predzapasove-menu").className = "schovany"; document.getElementById("hraci-stol-kontajner").className = ""; r1 = 0; r2 = 0; resetStolaBezReloadu(false); } }
-function spustitZapasLokálnePVP() { if (overMoznostStartuHry()) { jeSingleplayer = false; if (document.getElementById("rezim-zapasu-oznam")) document.getElementById("rezim-zapasu-oznam").innerText = "👥 MULTIPLAYER 1v1"; document.getElementById("predzapasove-menu").className = "schovany"; document.getElementById("hraci-stol-kontajner").className = ""; r1 = 0; r2 = 0; resetStolaBezReloadu(false); } }
+function zobraziťMenuAI() {
+    var subMenu = document.getElementById("ai-difficulty-options");
+    if (subMenu) subMenu.classList.remove("schovany");
+}
+
+function spustitZapasProtiAI(obtiaznost) { 
+    if (overMoznostStartuHry()) { 
+        jeSingleplayer = true; 
+        obtiaznostAI = obtiaznost; 
+        if (document.getElementById("rezim-zapasu-oznam")) document.getElementById("rezim-zapasu-oznam").innerText = "🤖 PROTI AI - Trieda " + obtiaznost; 
+        document.getElementById("predzapasove-menu").className = "schovany"; 
+        document.getElementById("hraci-stol-kontajner").className = ""; 
+        r1 = 0; r2 = 0; 
+        resetStolaBezReloadu(false); 
+    } 
+}
+
+function spustitZapasLokálnePVP() { 
+    if (overMoznostStartuHry()) { 
+        jeSingleplayer = false; 
+        if (document.getElementById("rezim-zapasu-oznam")) document.getElementById("rezim-zapasu-oznam").innerText = "👥 MULTIPLAYER 1v1"; 
+        document.getElementById("predzapasove-menu").className = "schovany"; 
+        document.getElementById("hraci-stol-kontajner").className = ""; 
+        r1 = 0; r2 = 0; 
+        resetStolaBezReloadu(false); 
+    } 
+}
 
 function vzdajZapasUtek() { 
     if (confirm("Vzdať sériu a vrátiť sa do menu?")) { 
