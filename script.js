@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.0.7 - MULLIGAN PASS FIX & AUTO-PASS)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.0.9 - STRICT ROUND FLOW FIX)
 // =========================================================================
   
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.0.7";
+var VERZIA = "8.0.9";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -281,9 +281,9 @@ function preklopDraftDoRukyHTML() {
     }
 }
 
-function potvrdDraftHrac(e) { 
+function potvrdMulliganRuku(pNum) { 
     if (draft_faza) { 
-        if (1 === e) p1_confirmed_mulligan = true; else p2_confirmed_mulligan = true; 
+        if (1 === pNum) p1_confirmed_mulligan = true; else p2_confirmed_mulligan = true; 
         skontrolujUkoncenieMulliganu(); 
     } 
 }
@@ -477,7 +477,6 @@ function spustiTahAI() {
     if (!jeSingleplayer || p2Pass || draft_faza || blokujVykladanie) return; var rA = document.getElementById('ruka-p2'); if (!rA) return;
     var k = rA.querySelectorAll('.karta'); 
     
-    // AUTO-PASS AK AI NEMÁ KARTY
     if (0 === k.length) { p2Pass = true; hracPasolAI(); return; }
     spustiPrepocty(); 
     
@@ -575,12 +574,8 @@ function spustiMarekaLogiku() {
     if (pm) pm.classList.remove("schovany");
 }
 
-// KLÚČOVÁ OPRAVA: Odseparovanie potvrdenia ruky od herniho Passu!
-function gamePassBtn(pNum) { 
-    if (draft_faza) { 
-        potvrdDraftHrac(pNum); 
-        return; 
-    } 
+function hracStlacilPass(pNum) { 
+    if (draft_faza) return; 
     
     if (1 === pNum) { p1Pass = true; aktualnyHrac = 2; } else { p2Pass = true; aktualnyHrac = 1; } 
     if (p1Pass && p2Pass) {
@@ -598,13 +593,8 @@ function spustiErikaHtml(rad) {
     var pH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0; ukonciTah(pH); 
 }
 
+// ČISTÁ METÓDA PRE UKONČENIE ŤAHU
 function ukonciTah(pNum, info) { 
-    // AUTO-PASS PRE HRÁČA 1, AK NEMÁ KARTY
-    var ruka1 = document.getElementById("ruka-p1");
-    if (ruka1 && 0 === ruka1.querySelectorAll(".karta").length) {
-        p1Pass = true;
-    }
-
     if (1 === pNum) {
         if (!p2Pass) aktualnyHrac = 2;
     } else {
@@ -706,8 +696,22 @@ document.addEventListener("click", function(e) {
     for (var n = 0; n < t.length; n++) { 
         var a = t[n]; 
         if (a) { 
-            if ("p1-pass-btn" === a.id) { gamePassBtn(1); return; } 
-            if ("p2-pass-btn" === a.id) { gamePassBtn(2); return; } 
+            if ("p1-pass-btn" === a.id) { 
+                if (draft_faza) {
+                    potvrdMulliganRuku(1); 
+                } else {
+                    hracStlacilPass(1); 
+                }
+                return; 
+            } 
+            if ("p2-pass-btn" === a.id) { 
+                if (draft_faza) {
+                    potvrdMulliganRuku(2); 
+                } else {
+                    hracStlacilPass(2); 
+                }
+                return; 
+            } 
             if ("p1-mulligan-btn" === a.id) { Admin_vynutVymenu(1); return; } 
             if ("eb1" === a.id) { spustiErikaHtml(1); return; } 
             if ("eb2" === a.id) { spustiErikaHtml(2); return; } 
