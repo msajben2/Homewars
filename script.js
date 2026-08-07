@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.0.9 - STRICT ROUND FLOW FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.1.0 - TRUHLA SIMULÁTOR & AUTO-PASS FIX)
 // =========================================================================
   
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.0.9";
+var VERZIA = "8.1.0";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -410,7 +410,8 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
         var pR = 1; if ("B" === vCls) pR = 5; if ("A" === vCls) pR = 25; if ("S" === vCls) pR = 75;
         inventar.karty[nMeno].replikyC += pR; zMena.push(nMeno.replace(/\s\d$/, "") + " (" + vCls + ")");
     }
-    alert((jeVitaz ? "🏆 TRUHLA VÍŤAZA" : (jeRemizaZapasu ? "📦 TRUHLA ZA REMÍZU 2:2" : "📦 TRUHLA ÚČASTNÍKA")) + "\n" + zMena.join("\n")); aktualizujPanelDielne();
+    alert((jeVitaz ? "🏆 TRUHLA VÍŤAZA" : (jeRemizaZapasu ? "📦 TRUHLA ZA REMÍZU 2:2" : "📦 TRUHLA ÚČASTNÍKA")) + "\n" + zMena.join("\n")); 
+    aktualizujPanelDielne();
 }
 
 function vyhodnot() {
@@ -593,8 +594,15 @@ function spustiErikaHtml(rad) {
     var pH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0; ukonciTah(pH); 
 }
 
-// ČISTÁ METÓDA PRE UKONČENIE ŤAHU
 function ukonciTah(pNum, info) { 
+    // AUTO-PASS KONTROLA PRE HRÁČA 1 (AK NEMÁ ŽIADNE KARTY V RUKE)
+    if (!draft_faza) {
+        var ruka1 = document.getElementById("ruka-p1");
+        if (ruka1 && 0 === ruka1.querySelectorAll(".karta").length) {
+            p1Pass = true;
+        }
+    }
+
     if (1 === pNum) {
         if (!p2Pass) aktualnyHrac = 2;
     } else {
@@ -666,8 +674,34 @@ function vzdajZapasUtek() {
     } 
 }
 
+// SIMULÁTOR TRUHIEL S TLAČIDLAMI
 function aktualizujPanelDielne(){
-    var e=document.getElementById("dielna-zoznam");if(e){e.innerHTML="",Object.keys(inventar.karty).forEach(function(t){var r=inventar.karty[t],n=document.createElement("div");n.className="dielna-polozka cls-"+r.aktivnaTrieda;var i="<div class='dielna-info'><span>"+t+"</span><span style='color:#ffcc00'>["+r.aktivnaTrieda+"]</span></div>";i+="<div>Repliky: <strong>"+r.replikyC+"x</strong></div>",i+="<div class='dielna-akcie'><button class='btn-forge' onclick=\"vylepsiKartuVoForge('"+t+"')\">🔨 Forge</button>",i+="<button class='btn-recycle' style='background:#b91c1c' onclick=\"recyklujKartuDielne('"+t+"')\">♻️ Recyklovať</button></div>",i+="<button class='btn-recycle' style='width:100%;font-size:.8em;margin-top:3px' onclick=\"kupKonkretnuKartu('"+t+"')\">🎯 Kúpiť (3000 m)</button>",n.innerHTML=i,e.appendChild(n)});var t=document.getElementById("wallet-p1");t&&(t.innerText=inventar.mince+" m")}
+    var e=document.getElementById("dielna-zoznam");
+    if(e){
+        e.innerHTML = "";
+        
+        // TESTOVACÍ PANEL TRUHIEL
+        var simBox = document.createElement("div");
+        simBox.style.cssText = "grid-column: 1 / -1; background: #2b2611; border: 2px dashed #ffcc00; padding: 12px; border-radius: 8px; margin-bottom: 15px; text-align: center;";
+        simBox.innerHTML = "<h4 style='color:#ffcc00; margin:0 0 8px 0;'>🧪 SIMULÁTOR OTVÁRANIA TRUHIEL</h4>" +
+            "<button onclick='otvorTruhlu(false, false)' style='background:#0d6efd; color:#fff; border:none; padding:8px 12px; margin:4px; border-radius:4px; cursor:pointer; font-weight:bold;'>📦 Simulovať Truhlu Účastníka</button>" +
+            "<button onclick='otvorTruhlu(true, false)' style='background:#ffc107; color:#000; border:none; padding:8px 12px; margin:4px; border-radius:4px; cursor:pointer; font-weight:bold;'>🏆 Simulovať Truhlu Víťaza</button>";
+        e.appendChild(simBox);
+
+        Object.keys(inventar.karty).forEach(function(t){
+            var r=inventar.karty[t],n=document.createElement("div");
+            n.className="dielna-polozka cls-"+r.aktivnaTrieda;
+            var i="<div class='dielna-info'><span>"+t+"</span><span style='color:#ffcc00'>["+r.aktivnaTrieda+"]</span></div>";
+            i+="<div>Repliky: <strong>"+r.replikyC+"x</strong></div>",
+            i+="<div class='dielna-akcie'><button class='btn-forge' onclick=\"vylepsiKartuVoForge('"+t+"')\">🔨 Forge</button>",
+            i+="<button class='btn-recycle' style='background:#b91c1c' onclick=\"recyklujKartuDielne('"+t+"')\">♻️ Recyklovať</button></div>",
+            i+="<button class='btn-recycle' style='width:100%;font-size:.8em;margin-top:3px' onclick=\"kupKonkretnuKartu('"+t+"')\">🎯 Kúpiť (3000 m)</button>",
+            n.innerHTML=i,
+            e.appendChild(n)
+        });
+        var t=document.getElementById("wallet-p1");
+        t&&(t.innerText=inventar.mince+" m")
+    }
 }
 
 function vygenerujRegalyTrhoviska(){
