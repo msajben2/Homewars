@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.1.4 - MAREK 0B CARDS FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.1.5 - MENU UNLOCK AFTER MATCH FIX)
 // =========================================================================
   
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.1.4";
+var VERZIA = "8.1.5";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -132,6 +132,7 @@ function spustiDraft() {
     vykresliDraftOkna();
     var r2K = document.getElementById('kontajner-ruka-p2');
     if (r2K) { if (jeSingleplayer) r2K.classList.add('ruka-ai-skryta'); else r2K.classList.remove('ruka-ai-skryta'); }
+    aktualizujStavZamkuMenu();
 }
 
 function aktualizujStavZamkuMenu() {
@@ -460,7 +461,11 @@ function vyhodnot() {
         if (r1 >= 2 && r2 >= 2) { alert("Séria skončila remízou 2:2!"); otvorTruhlu(false, true); } 
         else { var h1V = (r1 >= 2); otvorTruhlu(h1V, false); alert("Koniec série! Víťaz: " + (h1V ? "Hráč 1" : "AI / Hráč 2")); }
         document.getElementById('hraci-stol-kontajner').classList.add('schovany'); document.getElementById('predzapasove-menu').classList.remove('schovany');
-        draft_faza = true; r1 = 0; r2 = 0;
+        
+        draft_faza = true; 
+        r1 = 0; 
+        r2 = 0;
+        aktualizujStavZamkuMenu(); // OPRAVA: Odblokuje horné menu po ukončení zápasu
     } else { resetStolaBezReloadu(true); }
 }
 
@@ -591,7 +596,6 @@ function spustiErikaAIJadro(bNum) {
     ukonciTah(povH);
 }
 
-// LOGIKA PRE MAREKA (ZOBRAZUJE AJ 0B KARTY A AUTOMATICKY ODSTRAŇUJE PRI 1 CIELI)
 function spustiMarekaLogiku() {
     spustiPrepocty(); 
     var sPole = (1 === hracCakajuciNaAkciu) ? p2_played_cards : p1_played_cards;
@@ -601,7 +605,6 @@ function spustiMarekaLogiku() {
         ukonciTah(p, "Marek zablokovaný Nelou"); return; 
     }
 
-    // Vyhľadáme všetky karty súpera (vrátane 0b), okrem Nely, Oli a Špeciálnych efektov
     var cls = sPole.filter(function(k) { 
         return k && -1 === k.n.indexOf('Nela') && -1 === k.n.indexOf('Oli') && !isSpecialCard(k.n); 
     });
@@ -611,7 +614,6 @@ function spustiMarekaLogiku() {
         ukonciTah(p, "Marek nemá cieľ"); return; 
     }
 
-    // AUTOMATIKA: Ak je len 1 cieľ (aj 0b), ufilozofuje sa ihneď!
     if (1 === cls.length) {
         var soleCard = cls[0];
         var idx = sPole.findIndex(function(c) { return c && c.id === soleCard.id; });
@@ -629,7 +631,6 @@ function spustiMarekaLogiku() {
         }
     }
 
-    // Ak sú ciele 2 a viac, naplní sa roletka (vrátane 0b kariet)
     var dd = document.getElementById("marek-dropdown"); if (!dd) return; dd.innerHTML = "";
     cls.forEach(function(k) { 
         var o = document.createElement("option"); o.value = k.id; 
@@ -909,7 +910,6 @@ document.addEventListener("click", function(e) {
     }
 });
 
-// TLAČIDLO PRE RUČNÝ VÝBER MAREKA
 document.getElementById("marek-burn-btn").addEventListener("click", function(e) {
     e.stopPropagation(); var dd = document.getElementById("marek-dropdown"); var zId = dd.value; if (!zId) return;
     var sPole = (1 === hracCakajuciNaAkciu) ? p2_played_cards : p1_played_cards;
