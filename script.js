@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.0.5 - MAREK AI FIX & ROUND PASS FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.0.7 - MULLIGAN PASS FIX & AUTO-PASS)
 // =========================================================================
   
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.0.5";
+var VERZIA = "8.0.7";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -186,7 +186,6 @@ function spustiPrepocty() {
             else { zaklad = ("S" === c.cls) ? 4 : 1; }
         }
 
-        // Nela aj Oli sú imúnne voči zásahu Katy
         if ("Katy" !== cMeno && "Nela" !== cMeno && "Oli" !== cMeno) {
             if (1 === c.pNum) { if (p1Katy) zaklad += 1; if (p2Katy) zaklad -= 1; } 
             else { if (p2Katy) zaklad += 1; if (p1Katy) zaklad -= 1; }
@@ -427,7 +426,9 @@ function vyhodnot() {
 }
 
 function resetStolaBezReloadu(e) {
-    p1Pass = false; p2Pass = false; 
+    p1Pass = false; 
+    p2Pass = false; 
+    
     for (var t = 1; t <= 6; t++) { 
         var r = document.getElementById("r" + t); 
         if (r) { 
@@ -436,23 +437,50 @@ function resetStolaBezReloadu(e) {
             if (n) { n.innerText = "0 b"; r.appendChild(n); } 
         } 
     }
-    p1_played_cards = []; p2_played_cards = []; p1_erik_buff_row = null; p2_erik_buff_row = null; blokujVykladanie = false;
-    var a = document.getElementById("neutralny-riadok"); if (a) a.innerHTML = "⚡ Neutrálna zóna (Vplyvy stola)";
-    document.getElementById("panel-erik").className = "schovany"; document.getElementById("panel-marek").className = "schovany";
-    sc1 = 0; sc2 = 0; hracCakajuciNaAkciu = 0; aktualnyHrac = 1; neutralne_vplyvy = [];
+    p1_played_cards = []; 
+    p2_played_cards = []; 
+    p1_erik_buff_row = null; 
+    p2_erik_buff_row = null; 
+    blokujVykladanie = false;
+    
+    var a = document.getElementById("neutralny-riadok"); 
+    if (a) a.innerHTML = "⚡ Neutrálna zóna (Vplyvy stola)";
+    
+    document.getElementById("panel-erik").className = "schovany"; 
+    document.getElementById("panel-marek").className = "schovany";
+    
+    sc1 = 0; 
+    sc2 = 0; 
+    hracCakajuciNaAkciu = 0; 
+    aktualnyHrac = 1; 
+    neutralne_vplyvy = [];
+    
     if (e) {
-        draft_faza = false; dynamicDrawNewCard(1); dynamicDrawNewCard(2);
+        draft_faza = false; 
+        dynamicDrawNewCard(1); 
+        dynamicDrawNewCard(2);
         spustiPrepocty();
-        if (document.getElementById('turn-indicator')) document.getElementById('turn-indicator').innerText = "Na ťahu: Hráč 1";
-    } else { p1_draft_hand = []; p2_draft_hand = []; p1_full_deck = vytvorZoznamKariet(1); p2_full_deck = vytvorZoznamKariet(2); draft_faza = true; spustiDraft(); }
+        if (document.getElementById('turn-indicator')) {
+            document.getElementById('turn-indicator').innerText = "Na ťahu: Hráč 1";
+        }
+    } else { 
+        p1_draft_hand = []; 
+        p2_draft_hand = []; 
+        p1_full_deck = vytvorZoznamKariet(1); 
+        p2_full_deck = vytvorZoznamKariet(2); 
+        draft_faza = true; 
+        spustiDraft(); 
+    }
 }
 
 function spustiTahAI() {
     if (!jeSingleplayer || p2Pass || draft_faza || blokujVykladanie) return; var rA = document.getElementById('ruka-p2'); if (!rA) return;
-    var k = rA.querySelectorAll('.karta'); if (0 === k.length) { p2Pass = true; hracPasolAI(); return; }
+    var k = rA.querySelectorAll('.karta'); 
+    
+    // AUTO-PASS AK AI NEMÁ KARTY
+    if (0 === k.length) { p2Pass = true; hracPasolAI(); return; }
     spustiPrepocty(); 
     
-    // Ak Hráč 1 pasoval a AI už vyhráva, AI hneď pasuje
     if (p1Pass && sc2 > sc1) { p2Pass = true; hracPasolAI(); return; }
     
     if (!(1 === r1 && 1 === r2)) {
@@ -485,7 +513,6 @@ function hracPasolAI() {
     } 
 }
 
-// OPRAVENÁ FUNKCIA: AI Marek korektne vymaže kartu a odovzdá ťah hráčovi
 function spustiMarekaAIJadro(bNum) {
     var sPole = (1 === bNum) ? p2_played_cards : p1_played_cards;
     var cls = sPole.filter(function(k) { return k && -1 === k.n.indexOf('Nela') && -1 === k.n.indexOf('Oli') && "Alcohol" !== k.n && "Kvety" !== k.n && "Medove Orechy" !== k.n && k.livePwr > 0; });
@@ -505,7 +532,6 @@ function spustiMarekaAIJadro(bNum) {
             sPole.splice(idx, 1); 
             alert("🤖 AI Marek odstránil: " + tK.n); 
             
-            // OBLOKOVANIE A ODOVZDANIE ŤAHU
             blokujVykladanie = false;
             var povH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0;
             aktualizujArchivyVizualne(); 
@@ -549,8 +575,13 @@ function spustiMarekaLogiku() {
     if (pm) pm.classList.remove("schovany");
 }
 
+// KLÚČOVÁ OPRAVA: Odseparovanie potvrdenia ruky od herniho Passu!
 function gamePassBtn(pNum) { 
-    if (draft_faza) { potvrdDraftHrac(pNum); return; } 
+    if (draft_faza) { 
+        potvrdDraftHrac(pNum); 
+        return; 
+    } 
+    
     if (1 === pNum) { p1Pass = true; aktualnyHrac = 2; } else { p2Pass = true; aktualnyHrac = 1; } 
     if (p1Pass && p2Pass) {
         vyhodnot(); 
@@ -568,11 +599,23 @@ function spustiErikaHtml(rad) {
 }
 
 function ukonciTah(pNum, info) { 
+    // AUTO-PASS PRE HRÁČA 1, AK NEMÁ KARTY
+    var ruka1 = document.getElementById("ruka-p1");
+    if (ruka1 && 0 === ruka1.querySelectorAll(".karta").length) {
+        p1Pass = true;
+    }
+
     if (1 === pNum) {
         if (!p2Pass) aktualnyHrac = 2;
     } else {
         if (!p1Pass) aktualnyHrac = 1;
     }
+
+    if (p1Pass && p2Pass) {
+        vyhodnot();
+        return;
+    }
+
     spustiPrepocty(); 
     if (document.getElementById('turn-indicator')) document.getElementById('turn-indicator').innerText = "Na ťahu: Hráč " + aktualnyHrac + (info ? " | " + info : ""); 
     if (jeSingleplayer && 2 === aktualnyHrac && !p2Pass) setTimeout(spustiTahAI, 800); 
