@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.2.4 - CLEAN PIPELINE CALC ENGINE)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.2.5 - UNDEFINED ROW & AI FREEZE FIX)
 // =========================================================================
   
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.2.4";
+var VERZIA = "8.2.5";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -58,8 +58,8 @@ function getRealPower(card) {
     return Math.max(0, card.p + bonus);
 }
 
-function countMravce(list) { return list.filter(function(k) { return k && k.n.indexOf('Mravce') !== -1; }).length; }
-function countHoluby(list) { return list.filter(function(k) { return k && k.n.indexOf('holuby') !== -1; }).length; }
+function countMravce(list) { return list.filter(function(k) { return k && k.n && k.n.indexOf('Mravce') !== -1; }).length; }
+function countHoluby(list) { return list.filter(function(k) { return k && k.n && k.n.indexOf('holuby') !== -1; }).length; }
 function zratajRad(list, row) {
     var sum = 0;
     list.forEach(function(k) { if (k && k.row === row && "number" === typeof k.livePwr) sum += k.livePwr; });
@@ -141,15 +141,15 @@ function aktualizujStavZamkuMenu() {
     if (!draft_faza) { menuEl.classList.add('zamknute-menu'); } else { menuEl.classList.remove('zamknute-menu'); }
 }
 
-// NOVY JEDNOTNY ENGINE PREPOČTU SÍL
+// SPUSŤ PREPOČTY S PLNOU OCHRANOU PROTI UNDEFINED KARTÁM
 function spustiPrepocty() {
     aktualizujStavZamkuMenu();
-    var vsetky = p1_played_cards.concat(p2_played_cards).filter(function(k) { return k; });
+    var vsetky = p1_played_cards.concat(p2_played_cards).filter(function(k) { return k && "object" === typeof k && k.n; });
     var vTxt = " | Mince: " + inventar.mince;
     
-    var vChlapov = neutralne_vplyvy.find(function(k) { return "Musíme sa porozprávať" === k.n; });
-    var vZien = neutralne_vplyvy.find(function(k) { return "Upokoj sa" === k.n; });
-    var vZvierat = neutralne_vplyvy.find(function(k) { return "Ohnostroj" === k.n; });
+    var vChlapov = neutralne_vplyvy.find(function(k) { return k && "Musíme sa porozprávať" === k.n; });
+    var vZien = neutralne_vplyvy.find(function(k) { return k && "Upokoj sa" === k.n; });
+    var vZvierat = neutralne_vplyvy.find(function(k) { return k && "Ohnostroj" === k.n; });
 
     if (vsetky.length === 0) {
         for (var k = 1; k <= 6; k++) { if (document.getElementById('s' + k)) document.getElementById('s' + k).innerText = "0 b"; }
@@ -157,31 +157,33 @@ function spustiPrepocty() {
         return;
     }
     
-    var nelaPritomna = vsetky.some(function(k) { return -1 !== k.n.indexOf('Nela'); });
-    var p1Katy = vsetky.some(function(k) { return -1 !== k.n.indexOf('Katy') && 1 === k.pNum; }), p2Katy = vsetky.some(function(k) { return -1 !== k.n.indexOf('Katy') && 2 === k.pNum; });
+    var nelaPritomna = vsetky.some(function(k) { return k && k.n && -1 !== k.n.indexOf('Nela'); });
+    var p1Katy = vsetky.some(function(k) { return k && k.n && -1 !== k.n.indexOf('Katy') && 1 === k.pNum; }), p2Katy = vsetky.some(function(k) { return k && k.n && -1 !== k.n.indexOf('Katy') && 2 === k.pNum; });
     var mC1 = countMravce(p1_played_cards), mC2 = countMravce(p2_played_cards), hC1 = countHoluby(p1_played_cards), hC2 = countHoluby(p2_played_cards);
 
     var sClassRiadkyBonus = { r1: 0, r2: 0, r3: 0, r4: 0, r5: 0, r6: 0 };
     vsetky.forEach(function(k) {
-        if ("S" === k.cls && k.row > 0 && "none" !== k.livePwr) {
+        if (k && "S" === k.cls && k.row > 0 && "none" !== k.livePwr) {
             var rId = (2 === k.pNum) ? (1 === k.row ? "r1" : (2 === k.row ? "r2" : "r3")) : (1 === k.row ? "r4" : (2 === k.row ? "r5" : "r6"));
             sClassRiadkyBonus[rId] = 0.5;
         }
     });
 
     for (var j = 0; j < vsetky.length; j++) {
-        var c = vsetky[j]; if (!c) continue;
+        var c = vsetky[j]; 
+        if (!c || "object" !== typeof c || !c.n || !c.id) continue;
+        
         var el = document.getElementById(c.id); if (!el) continue;
         var cMeno = c.n;
         
         if ("S" === c.cls) el.classList.add("karta-s-class-aura"); else el.classList.remove("karta-s-class-aura");
 
-        if (MASTER_REGISTRY[c.n] && (0 === MASTER_REGISTRY[c.n].row || "Alcohol" === cMeno || "Kvety" === cMeno || "Medove Orechy" === cMeno)) { 
+        if (MASTER_REGISTRY[cMeno] && (0 === MASTER_REGISTRY[cMeno].row || "Alcohol" === cMeno || "Kvety" === cMeno || "Medove Orechy" === cMeno)) { 
             c.livePwr = "none"; el.innerText = cMeno + " [" + c.cls + "]"; continue; 
         }
         if ("Oli" === cMeno) { c.livePwr = 8; el.innerText = "8 - Oli (Imúnna) [" + c.cls + "]"; el.style.color = "#ffcc00"; continue; }
 
-        // KROK 1: URČENIE ZÁKLADU RADU PODĽA NEUTRÁLNYCH EFEKTOV
+        // KROK 1: URČENIE ZÁKLADU RADU
         var aZ = null;
         if (1 === c.row && vChlapov) aZ = vChlapov;
         if (2 === c.row && vZien) aZ = vZien;
@@ -193,7 +195,6 @@ function spustiPrepocty() {
             else { zaklad = 1; }
         }
 
-        // Mravce & Holuby špeciálny základ
         if (-1 !== cMeno.indexOf('Mravce')) { 
             zaklad = (3 === (1 === c.pNum ? mC1 : mC2)) ? 4 : ((2 === (1 === c.pNum ? mC1 : mC2)) ? 2 : 1);
         } else if (-1 !== cMeno.indexOf('holuby')) { 
@@ -219,24 +220,24 @@ function spustiPrepocty() {
 
         // KROK 3: SÚČET PERCENTUÁLNYCH BONUSOV
         var pct = 0.0;
-        var cId = (2 === c.pNum) ? (1 === c.row ? "r1" : (2 === k.row ? "r2" : "r3")) : (1 === c.row ? "r4" : (2 === c.row ? "r5" : "r6"));
+        var cId = (2 === c.pNum) ? (1 === c.row ? "r1" : (2 === c.row ? "r2" : "r3")) : (1 === c.row ? "r4" : (2 === c.row ? "r5" : "r6"));
         
         if (!nelaPritomna) {
             if ("Michal" === cMeno) pct += 1.0; 
-            var pr = vsetky.find(function(k) { return k.pNum === c.pNum && k.row === c.row && ("Alcohol" === k.n || "Kvety" === k.n || "Medove Orechy" === k.n); });
-            var dR = vsetky.some(function(k) { return -1 !== k.n.indexOf('Duri') && k.pNum === c.pNum && 1 === k.row; });
+            var pr = vsetky.find(function(k) { return k && k.pNum === c.pNum && k.row === c.row && ("Alcohol" === k.n || "Kvety" === k.n || "Medove Orechy" === k.n); });
+            var dR = vsetky.some(function(k) { return k && -1 !== k.n.indexOf('Duri') && k.pNum === c.pNum && 1 === k.row; });
 
             if (pr) { var zB = ("S" === pr.cls) ? 1.0 : 0.5; pct += zB; if ("A" === c.cls || "S" === c.cls) pct += 0.5; }
             
             if (1 === c.row) { 
-                if (vsetky.some(function(k) { return -1 !== k.n.indexOf('Sisa') && k.pNum === c.pNum; })) pct += 1.0; 
+                if (vsetky.some(function(k) { return k && -1 !== k.n.indexOf('Sisa') && k.pNum === c.pNum; })) pct += 1.0; 
                 if (dR && pr && "Alcohol" === pr.n && "Duri" !== cMeno) pct += 0.5; 
             }
             if ((1 === c.pNum ? p1_erik_buff_row : p2_erik_buff_row) !== null && c.row === parseInt(1 === c.pNum ? p1_erik_buff_row : p2_erik_buff_row, 10) && "Erik" !== cMeno) pct += 1.0;
-            if ("S" !== c.cls) { pct += sClassRiadkyBonus[cId]; }
+            if ("S" !== c.cls) { pct += (sClassRiadkyBonus[cId] || 0); }
         }
 
-        // KROK 4: FINÁLNE ZAOKRÚHLENIE A SÚČET
+        // KROK 4: FINÁLNE ZAOKRÚHLENIE
         var medzivysledok = zaklad + Math.round(zaklad * pct);
         
         c.livePwr = Math.max(0, medzivysledok);
@@ -427,11 +428,11 @@ function ozivKartuZArchivu(pNum) {
 function aktualizujArchivyVizualne() {
     var z1 = document.getElementById("zoznam-p1");
     if (z1) {
-        z1.innerHTML = p1_spalene.length === 0 ? "Zatiaľ prázdne." : p1_spalene.map(function(k) { return "<div class='archiv-polozka'>" + k.n + " [" + k.cls + "]</div>"; }).join("");
+        z1.innerHTML = p1_spalene.length === 0 ? "Zatiaľ prázdne." : p1_spalene.map(function(k) { return "<div class='archiv-polozka'>" + (k ? k.n : "") + " [" + (k ? k.cls : "") + "]</div>"; }).join("");
     }
     var z2 = document.getElementById("zoznam-p2");
     if (z2) {
-        z2.innerHTML = p2_spalene.length === 0 ? "Zatiaľ prázdne." : p2_spalene.map(function(k) { return "<div class='archiv-polozka'>" + k.n + " [" + k.cls + "]</div>"; }).join("");
+        z2.innerHTML = p2_spalene.length === 0 ? "Zatiaľ prázdne." : p2_spalene.map(function(k) { return "<div class='archiv-polozka'>" + (k ? k.n : "") + " [" + (k ? k.cls : "") + "]</div>"; }).join("");
     }
 }
 
@@ -580,7 +581,7 @@ function hracPasolAI() {
 
 function spustiMarekaAIJadro(bNum) {
     var sPole = (1 === bNum) ? p2_played_cards : p1_played_cards;
-    var cls = sPole.filter(function(k) { return k && -1 === k.n.indexOf('Nela') && -1 === k.n.indexOf('Oli') && !isSpecialCard(k.n); });
+    var cls = sPole.filter(function(k) { return k && k.n && -1 === k.n.indexOf('Nela') && -1 === k.n.indexOf('Oli') && !isSpecialCard(k.n); });
     if (0 === cls.length) {
         blokujVykladanie = false;
         var povH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0;
@@ -622,13 +623,13 @@ function spustiMarekaLogiku() {
     spustiPrepocty(); 
     var sPole = (1 === hracCakajuciNaAkciu) ? p2_played_cards : p1_played_cards;
     
-    if (sPole.some(function(k) { return k && -1 !== k.n.indexOf('Nela') && 2 === k.row; })) { 
+    if (sPole.some(function(k) { return k && k.n && -1 !== k.n.indexOf('Nela') && 2 === k.row; })) { 
         blokujVykladanie = false; var p = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0; 
         ukonciTah(p, "Marek zablokovaný Nelou"); return; 
     }
 
     var cls = sPole.filter(function(k) { 
-        return k && -1 === k.n.indexOf('Nela') && -1 === k.n.indexOf('Oli') && !isSpecialCard(k.n); 
+        return k && k.n && -1 === k.n.indexOf('Nela') && -1 === k.n.indexOf('Oli') && !isSpecialCard(k.n); 
     });
 
     if (0 === cls.length) { 
