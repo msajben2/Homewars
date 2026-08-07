@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.1.1 - REBALANC FORGE & PVP ROUND 1 REWARD)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.1.2 - AUTO-MAREK & HAND POWER DISPLAY FIX)
 // =========================================================================
   
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.1.1";
+var VERZIA = "8.1.2";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -41,6 +41,22 @@ var jeSingleplayer = false; var obtiaznostAI = "B"; var inventar = { mince: 500,
 function isSpecialCard(name) {
     var spec = ["Musíme sa porozprávať", "Upokoj sa", "Ohnostroj", "Šicko v porádku", "Alcohol", "Kvety", "Medove Orechy"];
     return spec.indexOf(name) !== -1;
+}
+
+// POMOCNÁ FUNKCIA PRE VÝPOČET SILY KARTY PODĽA TRIEDY V RUKE
+function getRealPower(card) {
+    if (!card || isSpecialCard(card.n) || card.p === 0) return card.p;
+    var bonus = 0;
+    if (card.isSpy) {
+        if ("B" === card.cls) bonus = -1;
+        if ("A" === card.cls) bonus = -2;
+        if ("S" === card.cls) bonus = -3;
+    } else {
+        if ("B" === card.cls) bonus = 1;
+        if ("A" === card.cls) bonus = 2;
+        if ("S" === card.cls) bonus = 3;
+    }
+    return Math.max(0, card.p + bonus);
 }
 
 function countMravce(list) { return list.filter(function(k) { return k && k.n.indexOf('Mravce') !== -1; }).length; }
@@ -237,7 +253,8 @@ function vykresliDraftOkna() {
                 if (!k) return; 
                 var d = document.createElement('div'); d.className = "karta karta-h1"; 
                 if ("S" === k.cls) d.classList.add("karta-s-class-aura"); 
-                d.innerText = (k.p > 0 ? k.p + " - " + k.n : k.n) + " [" + k.cls + "]"; 
+                var realPwr = getRealPower(k);
+                d.innerText = (realPwr > 0 ? realPwr + " - " + k.n : k.n) + " [" + k.cls + "]"; 
                 r1.appendChild(d); 
             }); 
         }
@@ -248,7 +265,8 @@ function vykresliDraftOkna() {
                 if (!k) return; 
                 var d = document.createElement('div'); d.className = "karta karta-h2"; 
                 if ("S" === k.cls) d.classList.add("karta-s-class-aura"); 
-                d.innerText = (k.p > 0 ? k.p + " - " + k.n : k.n) + " [" + k.cls + "]"; 
+                var realPwr2 = getRealPower(k);
+                d.innerText = (realPwr2 > 0 ? realPwr2 + " - " + k.n : k.n) + " [" + k.cls + "]"; 
                 r2.appendChild(d); 
             }); 
         }
@@ -264,10 +282,11 @@ function preklopDraftDoRukyHTML() {
         p1_draft_hand.forEach(function(t) { 
             if (!t) return; 
             var r = document.createElement("div"); r.className = "karta karta-h1"; 
-            r.setAttribute("data-meno", t.n); r.setAttribute("data-pnum", "1"); r.setAttribute("data-row", t.row); r.setAttribute("data-pwr", t.p); 
+            var realPwr = getRealPower(t);
+            r.setAttribute("data-meno", t.n); r.setAttribute("data-pnum", "1"); r.setAttribute("data-row", t.row); r.setAttribute("data-pwr", realPwr); 
             if (t.isSpy) r.setAttribute("data-isspy", "true"); 
             if ("S" === t.cls) r.classList.add("karta-s-class-aura"); 
-            r.innerText = (t.p > 0 ? t.p + " - " + t.n : t.n) + " [" + t.cls + "]"; 
+            r.innerText = (realPwr > 0 ? realPwr + " - " + t.n : t.n) + " [" + t.cls + "]"; 
             e.appendChild(r); 
         }); 
     }
@@ -277,10 +296,11 @@ function preklopDraftDoRukyHTML() {
         p2_draft_hand.forEach(function(e) { 
             if (!e) return; 
             var r = document.createElement("div"); r.className = "karta karta-h2"; 
-            r.setAttribute("data-meno", e.n); r.setAttribute("data-pnum", "2"); r.setAttribute("data-row", e.row); r.setAttribute("data-pwr", e.p); 
+            var realPwr2 = getRealPower(e);
+            r.setAttribute("data-meno", e.n); r.setAttribute("data-pnum", "2"); r.setAttribute("data-row", e.row); r.setAttribute("data-pwr", realPwr2); 
             if (e.isSpy) r.setAttribute("data-isspy", "true"); 
             if ("S" === e.cls) r.classList.add("karta-s-class-aura"); 
-            r.innerText = (e.p > 0 ? e.p + " - " + e.n : e.n) + " [" + e.cls + "]"; 
+            r.innerText = (realPwr2 > 0 ? realPwr2 + " - " + e.n : e.n) + " [" + e.cls + "]"; 
             t.appendChild(r); 
         }); 
     }
@@ -349,10 +369,11 @@ function dynamicDrawNewCard(e, t) {
         } 
         if (a) { 
             var o = document.createElement("div"); o.className = "karta karta-nova " + (1 === e ? "karta-h1" : "karta-h2"); 
-            o.setAttribute("data-meno", a.n); o.setAttribute("data-pnum", e.toString()); o.setAttribute("data-row", a.row); o.setAttribute("data-pwr", a.p); 
+            var realPwr = getRealPower(a);
+            o.setAttribute("data-meno", a.n); o.setAttribute("data-pnum", e.toString()); o.setAttribute("data-row", a.row); o.setAttribute("data-pwr", realPwr); 
             if (a.isSpy) o.setAttribute("data-isspy", "true"); 
             if ("S" === a.cls) o.classList.add("karta-s-class-aura"); 
-            o.innerText = (a.p > 0 ? a.p + " - " + a.n : a.n) + " [" + a.cls + "]"; 
+            o.innerText = (realPwr > 0 ? realPwr + " - " + a.n : a.n) + " [" + a.cls + "]"; 
             n.appendChild(o); 
         } 
     }
@@ -376,9 +397,10 @@ function ozivKartuZArchivu(pNum) {
     var k = list.pop(); if (!k) return;
     var jeSpy = ("Zvedava suseda" === k.n || "Kika" === k.n); var tPNum = jeSpy ? (1 === pNum ? 2 : 1) : pNum;
     var div = document.createElement('div'); div.className = "karta karta-nova " + (1 === k.pNum ? "karta-h1" : "karta-h2"); div.id = k.id;
-    div.setAttribute('data-meno', k.n); div.setAttribute('data-row', k.row); div.setAttribute('data-pwr', k.p); 
+    var realPwr = getRealPower(k);
+    div.setAttribute('data-meno', k.n); div.setAttribute('data-row', k.row); div.setAttribute('data-pwr', realPwr); 
     if ("S" === k.cls) div.classList.add("karta-s-class-aura");
-    div.innerText = (k.p > 0 ? k.p + " - " + k.n : k.n) + " [" + k.cls + "]"; div.setAttribute('data-pnum', tPNum.toString()); k.pNum = tPNum; 
+    div.innerText = (realPwr > 0 ? realPwr + " - " + k.n : k.n) + " [" + k.cls + "]"; div.setAttribute('data-pnum', tPNum.toString()); k.pNum = tPNum; 
     if (jeSpy) div.setAttribute('data-isspy', "true");
     var cId = (2 === tPNum) ? (1 === k.row ? "r1" : (2 === k.row ? "r2" : "r3")) : (1 === k.row ? "r4" : (2 === k.row ? "r5" : "r6")); 
     var rEl = document.getElementById(cId);
@@ -405,14 +427,12 @@ function aktualizujArchivyVizualne() {
     }
 }
 
-// OTVÁRANIE TRUHIEL (ŠPECIÁLNE KARTY SÚ IBA V C-CLASS)
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
     var hMena = Object.keys(MASTER_REGISTRY); var pC = jeVitaz ? 3 : 10; var zMena = [];
     for (var i = 0; i < pC; i++) {
         var nMeno = hMena[Math.floor(Math.random() * hMena.length)]; var r = 100 * Math.random(); var vCls = "C";
         
-        // Špeciálne karty sú vždy striktne C-class!
         if (!isSpecialCard(nMeno)) {
             if (jeVitaz) { if (r < 0.5) vCls = "S"; else if (r < 10) vCls = "A"; else if (r < 30) vCls = "B"; } 
             else { if (r < 0.01) vCls = "S"; else if (r < 2) vCls = "A"; else if (r < 12) vCls = "B"; }
@@ -427,7 +447,6 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
 }
 
 function vyhodnot() {
-    // KONTROLA ODMENY ZA 1. KOLO V MULTIPLAYERI
     if (!jeSingleplayer && (r1 + r2 === 0)) {
         if (sc1 > sc2) { inventar.mince += 50; alert("🏆 Hráč 1 vyhráva 1. kolo! (+50m bonus)"); }
         else if (sc2 > sc1) { alert("🏆 Hráč 2 vyhráva 1. kolo!"); }
@@ -573,6 +592,7 @@ function spustiErikaAIJadro(bNum) {
     ukonciTah(povH);
 }
 
+// LOGIKA PRE MAREKA (S AUTOMATICKÝM UFILOZOFOWANÍM PRI 1 CIELI)
 function spustiMarekaLogiku() {
     spustiPrepocty(); 
     var sPole = (1 === hracCakajuciNaAkciu) ? p2_played_cards : p1_played_cards;
@@ -585,6 +605,25 @@ function spustiMarekaLogiku() {
         blokujVykladanie = false; var p = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0; 
         ukonciTah(p, "Bez cieľa"); return; 
     }
+
+    // AUTOMATIKA: Ak je len 1 karta na ufilozofovanie, zmaže sa ihneď!
+    if (1 === cls.length) {
+        var soleCard = cls[0];
+        var idx = sPole.findIndex(function(c) { return c && c.id === soleCard.id; });
+        if (-1 !== idx) {
+            var el = document.getElementById(soleCard.id); if (el) el.remove();
+            if (1 === soleCard.pNum) p1_spalene.push(soleCard); else p2_spalene.push(soleCard);
+            sPole.splice(idx, 1);
+            alert("🧹 Marek automaticky ufilozofoval jediný cieľ: " + soleCard.n);
+            blokujVykladanie = false;
+            var povH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0;
+            aktualizujArchivyVizualne();
+            ukonciTah(povH);
+            return;
+        }
+    }
+
+    // Ak je cieľov 2 a viac, zobrazí sa roletka
     var dd = document.getElementById("marek-dropdown"); if (!dd) return; dd.innerHTML = "";
     cls.forEach(function(k) { 
         var o = document.createElement("option"); o.value = k.id; 
@@ -638,7 +677,6 @@ function ukonciTah(pNum, info) {
     if (jeSingleplayer && 2 === aktualnyHrac && !p2Pass) setTimeout(spustiTahAI, 800); 
 }
 
-// OPRAVENÁ FORGE LOGIKA DĽA NOVEJ MATEMATIKY (5 -> 25 -> 125 A ŠPECIÁLNE 1000)
 function vylepsiKartuVoForge(e) { 
     var t = inventar.karty[e]; 
     if (t) { 
@@ -862,6 +900,23 @@ document.addEventListener("click", function(e) {
                 }
             }
         }
+    }
+});
+
+// OPRAVENÁ OBSLUHA RUČNÉHO TLAČIDLA MAREKA (ODSSTRÁNI ZÁSEK)
+document.getElementById("marek-burn-btn").addEventListener("click", function(e) {
+    e.stopPropagation(); var dd = document.getElementById("marek-dropdown"); var zId = dd.value; if (!zId) return;
+    var sPole = (1 === hracCakajuciNaAkciu) ? p2_played_cards : p1_played_cards;
+    var idx = sPole.findIndex(function(c) { return c && c.id === zId; });
+    if (-1 !== idx) {
+        var k = sPole[idx]; var el = document.getElementById(k.id); if (el) el.remove();
+        if (1 === k.pNum) p1_spalene.push(k); else p2_spalene.push(k);
+        sPole.splice(idx, 1); document.getElementById('panel-marek').className = 'schovany';
+        
+        blokujVykladanie = false;
+        var povH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0;
+        aktualizujArchivyVizualne();
+        ukonciTah(povH); // ODOVZDÁ ŤAH A NESKORUJE
     }
 });
 
