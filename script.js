@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.0.4 - NELA & OLI IMUNITA FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.0.5 - MAREK AI FIX & ROUND PASS FIX)
 // =========================================================================
   
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.0.4";
+var VERZIA = "8.0.5";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -186,7 +186,7 @@ function spustiPrepocty() {
             else { zaklad = ("S" === c.cls) ? 4 : 1; }
         }
 
-        // OPRAVA: Nela aj Oli sú imúnne voči zásahu Katy!
+        // Nela aj Oli sú imúnne voči zásahu Katy
         if ("Katy" !== cMeno && "Nela" !== cMeno && "Oli" !== cMeno) {
             if (1 === c.pNum) { if (p1Katy) zaklad += 1; if (p2Katy) zaklad -= 1; } 
             else { if (p2Katy) zaklad += 1; if (p1Katy) zaklad -= 1; }
@@ -442,18 +442,19 @@ function resetStolaBezReloadu(e) {
     sc1 = 0; sc2 = 0; hracCakajuciNaAkciu = 0; aktualnyHrac = 1; neutralne_vplyvy = [];
     if (e) {
         draft_faza = false; dynamicDrawNewCard(1); dynamicDrawNewCard(2);
-        setTimeout(function() {
-            var e = document.getElementById("ruka-p1"), t = document.getElementById("ruka-p2");
-            if (e && 0 === e.querySelectorAll(".karta").length) p1Pass = true; if (t && 0 === t.querySelectorAll(".karta").length) p2Pass = true;
-            if (p1Pass && p2Pass) vyhodnot(); else { if (p1Pass) { aktualnyHrac = 2; if (jeSingleplayer) setTimeout(spustiTahAI, 800); } spustiPrepocty(); }
-        }, 100);
+        spustiPrepocty();
+        if (document.getElementById('turn-indicator')) document.getElementById('turn-indicator').innerText = "Na ťahu: Hráč 1";
     } else { p1_draft_hand = []; p2_draft_hand = []; p1_full_deck = vytvorZoznamKariet(1); p2_full_deck = vytvorZoznamKariet(2); draft_faza = true; spustiDraft(); }
 }
 
 function spustiTahAI() {
-    if (!jeSingleplayer || p2Pass || draft_faza) return; var rA = document.getElementById('ruka-p2'); if (!rA) return;
+    if (!jeSingleplayer || p2Pass || draft_faza || blokujVykladanie) return; var rA = document.getElementById('ruka-p2'); if (!rA) return;
     var k = rA.querySelectorAll('.karta'); if (0 === k.length) { p2Pass = true; hracPasolAI(); return; }
-    spustiPrepocty(); if (p1Pass && sc2 > sc1) { p2Pass = true; hracPasolAI(); return; }
+    spustiPrepocty(); 
+    
+    // Ak Hráč 1 pasoval a AI už vyhráva, AI hneď pasuje
+    if (p1Pass && sc2 > sc1) { p2Pass = true; hracPasolAI(); return; }
+    
     if (!(1 === r1 && 1 === r2)) {
         if ("B" === obtiaznostAI && sc2 > sc1 && sc2 - sc1 >= 20 && k.length <= 4) { p2Pass = true; hracPasolAI(); return; }
         if ("A" === obtiaznostAI && ((p1Pass && sc2 > sc1) || (sc2 > sc1 && sc2 - sc1 >= 15 && k.length <= 3))) { p2Pass = true; hracPasolAI(); return; }
@@ -473,12 +474,27 @@ function spustiTahAI() {
     if (vK) { setTimeout(function() { if (!p2Pass) vK.click(); }, 800); } else { p2Pass = true; hracPasolAI(); }
 }
 
-function hracPasolAI() { alert("🤖 AI pasuje!"); if (!p1Pass) aktualnyHrac = 1; if (p1Pass && p2Pass) vyhodnot(); else { spustiPrepocty(); if (jeSingleplayer && 2 === aktualnyHrac && !p2Pass) setTimeout(spustiTahAI, 800); } }
+function hracPasolAI() { 
+    alert("🤖 AI pasuje!"); 
+    if (!p1Pass) aktualnyHrac = 1; 
+    if (p1Pass && p2Pass) {
+        vyhodnot(); 
+    } else { 
+        spustiPrepocty(); 
+        if (document.getElementById('turn-indicator')) document.getElementById('turn-indicator').innerText = "Na ťahu: Hráč " + aktualnyHrac + " (AI Pasoval)";
+    } 
+}
 
+// OPRAVENÁ FUNKCIA: AI Marek korektne vymaže kartu a odovzdá ťah hráčovi
 function spustiMarekaAIJadro(bNum) {
     var sPole = (1 === bNum) ? p2_played_cards : p1_played_cards;
     var cls = sPole.filter(function(k) { return k && -1 === k.n.indexOf('Nela') && -1 === k.n.indexOf('Oli') && "Alcohol" !== k.n && "Kvety" !== k.n && "Medove Orechy" !== k.n && k.livePwr > 0; });
-    if (0 === cls.length) return; 
+    if (0 === cls.length) {
+        blokujVykladanie = false;
+        var povH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0;
+        ukonciTah(povH, "Marek bez cieľa");
+        return;
+    } 
     cls.sort(function(a, b) { return b.livePwr - a.livePwr; }); 
     var tK = cls[0];
     if (tK) { 
@@ -486,8 +502,14 @@ function spustiMarekaAIJadro(bNum) {
         if (-1 !== idx) { 
             var el = document.getElementById(tK.id); if (el) el.remove(); 
             if (1 === tK.pNum) p1_spalene.push(tK); else p2_spalene.push(tK); 
-            sPole.splice(idx, 1); alert("🤖 AI Marek odstránil: " + tK.n); 
-            aktualizujArchivyVizualne(); spustiPrepocty(); 
+            sPole.splice(idx, 1); 
+            alert("🤖 AI Marek odstránil: " + tK.n); 
+            
+            // OBLOKOVANIE A ODOVZDANIE ŤAHU
+            blokujVykladanie = false;
+            var povH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0;
+            aktualizujArchivyVizualne(); 
+            ukonciTah(povH); 
         } 
     }
 }
@@ -499,7 +521,10 @@ function spustiErikaAIJadro(bNum) {
     rdy.sort(function(a, b) { return b.p - a.p; }); 
     var zR = rdy[0].id;
     if (1 === bNum) p1_erik_buff_row = zR; else p2_erik_buff_row = zR; 
-    alert("🤖 AI Erik buffol Rad " + zR); spustiPrepocty();
+    alert("🤖 AI Erik buffol Rad " + zR); 
+    blokujVykladanie = false;
+    var povH = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0;
+    ukonciTah(povH);
 }
 
 function spustiMarekaLogiku() {
@@ -507,7 +532,7 @@ function spustiMarekaLogiku() {
     var sPole = (1 === hracCakajuciNaAkciu) ? p2_played_cards : p1_played_cards;
     if (sPole.some(function(k) { return k && -1 !== k.n.indexOf('Nela') && 2 === k.row; })) { 
         blokujVykladanie = false; var p = hracCakajuciNaAkciu; hracCakajuciNaAkciu = 0; 
-        ukonciTah(p, "Marek zablokovaný"); return; 
+        ukonciTah(p, "Marek zablokovaný Nelou"); return; 
     }
     var cls = sPole.filter(function(k) { return k && -1 === k.n.indexOf('Nela') && -1 === k.n.indexOf('Oli') && "Alcohol" !== k.n && "Kvety" !== k.n && "Medove Orechy" !== k.n && k.livePwr > 0; });
     if (0 === cls.length) { 
@@ -527,8 +552,13 @@ function spustiMarekaLogiku() {
 function gamePassBtn(pNum) { 
     if (draft_faza) { potvrdDraftHrac(pNum); return; } 
     if (1 === pNum) { p1Pass = true; aktualnyHrac = 2; } else { p2Pass = true; aktualnyHrac = 1; } 
-    if (p1Pass && p2Pass) vyhodnot(); 
-    else { spustiPrepocty(); if (jeSingleplayer && 2 === aktualnyHrac && !p2Pass) setTimeout(spustiTahAI, 800); } 
+    if (p1Pass && p2Pass) {
+        vyhodnot(); 
+    } else { 
+        spustiPrepocty(); 
+        if (document.getElementById('turn-indicator')) document.getElementById('turn-indicator').innerText = "Na ťahu: Hráč " + aktualnyHrac + (p1Pass ? " (Hráč 1 Pasoval)" : " (AI Pasoval)");
+        if (jeSingleplayer && 2 === aktualnyHrac && !p2Pass) setTimeout(spustiTahAI, 800); 
+    } 
 }
 
 function spustiErikaHtml(rad) { 
@@ -538,7 +568,11 @@ function spustiErikaHtml(rad) {
 }
 
 function ukonciTah(pNum, info) { 
-    1 === pNum ? (p2Pass || (aktualnyHrac = 2)) : (p1Pass || (aktualnyHrac = 1)); 
+    if (1 === pNum) {
+        if (!p2Pass) aktualnyHrac = 2;
+    } else {
+        if (!p1Pass) aktualnyHrac = 1;
+    }
     spustiPrepocty(); 
     if (document.getElementById('turn-indicator')) document.getElementById('turn-indicator').innerText = "Na ťahu: Hráč " + aktualnyHrac + (info ? " | " + info : ""); 
     if (jeSingleplayer && 2 === aktualnyHrac && !p2Pass) setTimeout(spustiTahAI, 800); 
