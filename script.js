@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 9.0.0 - STREDOVEKÝ UPDATE A KARTY)
+// RODINNÁ HRA - HOME WARS (VERZIA 9.2.0 - INSPECT LUPA & FORGE RITUÁL)
 // =========================================================================
 
 (function() {
@@ -13,56 +13,56 @@
     }
 })();
 
-var VERZIA = "9.0.0";
+var VERZIA = "9.2.0";
 
-// MASTER REGISTRAČNÁ TABUĽKA KARIET - PRESNE PODĽA SÚBOROV V Img/
+// MASTER REGISTRAČNÁ TABUĽKA KARIET - GRAMATICKY OPRAVENÁ
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
-    "Michal": { row: 1, p: 5, img: "Img/michal.png", desc: "Bystrý obchodník. Váži zlato a pozná cenu každej veci." },
-    "Erik": { row: 1, p: 4, img: "Img/erik.png", desc: "Geniálny taktik, ktorý plánuje každý krok nad mapou so šachovými figúrkami." },
-    "Marek": { row: 1, p: 4, img: "Img/marek.png", desc: "Učený filozof vo fialovom plášti. Svojimi rečami zmäti každého protivníka." },
-    "Duri": { row: 1, p: 6, img: "Img/duri.png", desc: "Veterán v plnej zbroji. Pevný pilier každej bitky." },
-    "Doktor": { row: 1, p: 5, img: "Img/doktor.png", desc: "Hradný alchymista a lekár, ktorý vie namiešať liek aj silný jed." },
-    "Neviditelny Mario": { row: 1, p: 5, img: "Img/neviditelny-mario.png", desc: "Tajuplný zbojník v kapucni, ktorý udrie z tieňa a zmizne." },
-    "Martin": { row: 1, p: 3, img: "Img/martin.png", desc: "Šikovný hraničiar a lovec, ktorý sa potichu krája tmavým lesom." },
-    "Tymko": { row: 1, p: 2, img: "Img/tymko.png", desc: "Obranný 4-ročný bojovník s dreveným mečom a veľkým odhodlaním." },
+    "Michal": { row: 1, p: 5, img: "Img/michal.png", desc: "Bystrý obchodník. Váži zlato a pozná presnú cenu každej veci v kráľovstve." },
+    "Erik": { row: 1, p: 4, img: "Img/erik.png", desc: "Geniálny taktik, ktorý plánuje každý krok nad bojovou mapou so šachovými figúrkami." },
+    "Marek": { row: 1, p: 4, img: "Img/marek.png", desc: "Učený filozof vo fialovom plášti. Svojimi rečami zmäti a odstráni každého protivníka." },
+    "Duri": { row: 1, p: 6, img: "Img/duri.png", desc: "Veterán v plnej zbroji. Pevný a neoblomný pilier každej bitky." },
+    "Doktor": { row: 1, p: 5, img: "Img/doktor.png", desc: "Hradný alchymista a lekár, ktorý vie namiešať liečivý elixír aj nebezpečný jed." },
+    "Neviditelny Mario": { row: 1, p: 5, img: "Img/neviditelny-mario.png", desc: "Tajuplný zbojník v kapucni, ktorý nečakane udrie z tieňa a znova zmizne." },
+    "Martin": { row: 1, p: 3, img: "Img/martin.png", desc: "Šikovný hraničiar a lovec, ktorý sa potichu kráča tmavým lesom." },
+    "Tymko": { row: 1, p: 2, img: "Img/tymko.png", desc: "Obranný štvorročný bojovník s dreveným mečom a obrovským odhodlaním." },
     "Jaro": { row: 1, p: 3, img: "Img/jaro.png", desc: "Zručný kováč, z ktorého kovadliny vychádzajú tie najostrejšie meče." },
     
     // POSTAVY A JEDNOTKY (ŽENY)
-    "Oli": { row: 2, p: 8, img: "Img/oli.png", desc: "Duchovná matka chrámu strážiaca svätý pokoj." },
-    "Sisa": { row: 2, p: 6, img: "Img/sisa.png", desc: "Mocná vládkyňa hradu pripíjajúca na víťazstvo svojho vojska." },
-    "Katy": { row: 2, p: 2, img: "Img/katy.png", desc: "Dobrosrdečná pekárenská pomocníčka s čerstvým chlebom." },
-    "Nela": { row: 2, p: 6, img: "Img/nela.png", desc: "Malá princezná so žiariacim zvieraťom a magickým amuletom." },
-    "Lula": { row: 2, p: 4, img: "Img/lula.png", desc: "Dvorná harfistka, ktorej hudba dokáže obmäkčiť aj srdce kata." },
+    "Oli": { row: 2, p: 8, img: "Img/oli.png", desc: "Duchovná matka chrámu, strážiaca svätý pokoj a imunitu pred kúzlam." },
+    "Sisa": { row: 2, p: 6, img: "Img/sisa.png", desc: "Mocná vládkyňa hradu pripíjajúca na víťazstvo svojho verného vojska." },
+    "Katy": { row: 2, p: 2, img: "Img/katy.png", desc: "Dobrosrdečná pekárenská pomocníčka s čerstvým chlebom a láskavým srdcom." },
+    "Nela": { row: 2, p: 6, img: "Img/nela.png", desc: "Malá princezná so žiariacim zvieraťom a magickým ochranným amuletom." },
+    "Lula": { row: 2, p: 4, img: "Img/lula.png", desc: "Dvorná harfistka, ktorej čarovná hudba dokáže obmäkčiť aj srdce kata." },
     "Anka": { row: 2, p: 4, img: "Img/anka.png", desc: "Správkyňa hradných kľúčov. Bez jej povolenia sa neotvoria žiadne dvere." },
-    "Darinka": { row: 2, p: 3, img: "Img/darinka.png", desc: "Majsterka tkáčka. Jej tkaniny chránia hradné dámy pred chladom." },
-    "Viera": { row: 2, p: 2, img: "Img/viera.jpg", desc: "Hradná pekárka starajúca sa o zásoby chleba pre celú posádku." },
-    "Sestricka": { row: 2, p: 3, img: "Img/sestricka.jpg", desc: "Milosrdná ošetrovateľka, ktorá stavia na nohy ranených bojovníkov." },
+    "Darinka": { row: 2, p: 3, img: "Img/darinka.png", desc: "Majsterka tkáčka. Jej nádherné tkaniny chránia hradné dámy pred chladom." },
+    "Viera": { row: 2, p: 2, img: "Img/viera.jpg", desc: "Hradná pekárka starajúca sa o bohaté zásoby chleba pre celú posádku." },
+    "Sestricka": { row: 2, p: 3, img: "Img/sestricka.jpg", desc: "Milosrdná ošetrovateľka, ktorá stavia na nohy ranených bojovníkov z archívu." },
     "Kika": { row: 2, p: 5, isSpy: true, img: "Img/kika.jpg", desc: "Tajuplná hradná archivárka so zvinutými kráľovskými dekrétmi." },
-    "Zvedava suseda": { row: 2, p: 1, isSpy: true, img: "Img/zvedava-suseda.jpg", desc: "Pozorné oko podhradia. Z okna jej neunikne jediný klep." },
+    "Zvedava suseda": { row: 2, p: 1, isSpy: true, img: "Img/zvedava-suseda.jpg", desc: "Pozorné oko podhradia. Z okna jej neunikne ani jediný klep." },
     
     // ZVIERATÁ A SVORKY
-    "Grobske Mravce 1": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov. Sú malé, no v obrovskom počte." },
+    "Grobske Mravce 1": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov. Sú malé, no v obrovskom počte nepremožiteľné." },
     "Grobske Mravce 2": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov." },
     "Grobske Mravce 3": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov." },
-    "Petrzalske holuby 1": { row: 3, p: 2, img: "Img/petrzalske-holuby.png", desc: "Rýchli hradní posli prenášajúci tajné správy." },
+    "Petrzalske holuby 1": { row: 3, p: 2, img: "Img/petrzalske-holuby.png", desc: "Rýchli hradní posli prenášajúci tajné správy naprieč kráľovstvom." },
     "Petrzalske holuby 2": { row: 3, p: 2, img: "Img/petrzalske-holuby.png", desc: "Rýchli hradní posli prenášajúci tajné správy." },
     "Petrzalske holuby 3": { row: 3, p: 2, img: "Img/petrzalske-holuby.png", desc: "Rýchli hradní posli prenášajúci tajné správy." },
-    "Kabelkovy pes": { row: 3, p: 2, img: "Img/kabelkovy-pes.png", desc: "Panský miláčik usadený na vankúši. Breše viac, než hryzie." },
-    "Patkaňe": { row: 3, p: 1, img: "Img/patkane.jpg", desc: "Hladná pivničná svorka. Kde sa objavia, tam nastane zmätok." },
+    "Kabelkovy pes": { row: 3, p: 2, img: "Img/kabelkovy-pes.png", desc: "Panský miláčik usadený na hodvábnom vankúši. Breše viac, než hryzie." },
+    "Patkaňe": { row: 3, p: 1, img: "Img/patkane.jpg", desc: "Hladná pivničná svorka. Kde sa objavia, tam nastane chaos a zmätok." },
     "Sviňa lesná": { row: 3, p: 4, img: "Img/svina-lesna.png", desc: "Zúrivý lesný kanec, ktorý zmetie všetko, čo mu stojí v ceste." },
     "Zatúlaný tatranský medved": { row: 3, p: 5, img: "Img/tatransky-medved.png", desc: "Obrovská horská šelma zosadajúca zo zasnežených štítov." },
-    "Pouličný mačiak": { row: 3, p: 2, img: "Img/poulicny-maciak.png", desc: "Tichý potulný kocúr obchádzajúci hradné múry." },
-    "Komare": { row: 3, p: 1, img: "Img/komare.png", desc: "Oravské húfy komárov trápiace zvierací rad." },
+    "Pouličný mačiak": { row: 3, p: 2, img: "Img/poulicny-maciak.png", desc: "Tichý potulný kocúr obchádzajúci hradné múry a hľadajúci korisť." },
+    "Komare": { row: 3, p: 1, img: "Img/komare.png", desc: "Oravské húfy komárov neúprosne trápiace zvierací rad." },
     
     // NEUTRÁLNE KARTY A VPLYVY
-    "Alcohol": { row: 1, p: 0, img: "Img/alkohol.png", desc: "Medovina a pálenka pre mužský rad. Zvyšuje bojovú náladu." },
-    "Kvety": { row: 2, p: 0, img: "Img/kvety.jpg", desc: "Kytica poľných kvetov pre radosť ženského radu." },
-    "Medove Orechy": { row: 3, p: 0, img: "Img/medove-orechy.png", desc: "Sladká odmena pre zvierací rad." },
-    "Musíme sa porozprávať": { row: 0, p: 0, img: "Img/musime-sa-porozpravat.png", desc: "Vážny rozhovor s hradnou paňou zmrazí silu mužského radu." },
-    "Upokoj sa": { row: 0, p: 0, img: "Img/upokoj-sa.png", desc: "Nevhodne zvolené slová vyvolajú hnev v ženskom rade!" },
-    "Ohnostroj": { row: 0, p: 0, img: "Img/ohnostroj.png", desc: "Rachot svetlíc vyplaší celý zvierací rad." },
-    "Šicko v porádku": { row: 0, p: 0, img: "Img/sicko-v-poradku.jpg", desc: "Šašo prinesie pokoj a vyčistí všetky nepriaznivé vplyvy na stole." }
+    "Alcohol": { row: 1, p: 0, img: "Img/alkohol.png", desc: "Súdok medoviny a pálenky pre mužský rad. Výrazne zvyšuje bojovú náladu." },
+    "Kvety": { row: 2, p: 0, img: "Img/kvety.jpg", desc: "Kytica čerstvých poľných kvetov pre radosť a povzbudenie ženského radu." },
+    "Medove Orechy": { row: 3, p: 0, img: "Img/medove-orechy.png", desc: "Sladká odmena posilňujúca verný zvierací rad." },
+    "Musíme sa porozprávať": { row: 0, p: 0, img: "Img/musime-sa-porozpravat.png", desc: "Vážny rozhovor s hradnou paňou okamžite zmrazí silu mužského radu." },
+    "Upokoj sa": { row: 0, p: 0, img: "Img/upokoj-sa.png", desc: "Nevhodne zvolené slová vyvolajú obrovský hnev v ženskom rade!" },
+    "Ohnostroj": { row: 0, p: 0, img: "Img/ohnostroj.png", desc: "Rachot svetlíc a výbuchov vyplaší celý zvierací rad." },
+    "Šicko v porádku": { row: 0, p: 0, img: "Img/sicko-v-poradku.jpg", desc: "Dvorný šašo prinesie smiech a vyčistí všetky nepriaznivé vplyvy na stole." }
 };
 
 var p1_played_cards = [], p2_played_cards = [];
@@ -72,6 +72,13 @@ var p1_full_deck = [], p2_full_deck = [], p1_draft_hand = [], p2_draft_hand = []
 var p1_used_mulligan = false, p2_used_mulligan = false, p1_confirmed_mulligan = false, p2_confirmed_mulligan = false;
 var draft_faza = true; var p1_spalene = [], p2_spalene = [], neutralne_vplyvy = [];
 var jeSingleplayer = false; var obtiaznostAI = "B"; var inventar = { mince: 500, karty: {}, zostava: [] };
+
+function getRegistryCard(meno) {
+    if (MASTER_REGISTRY[meno]) return MASTER_REGISTRY[meno];
+    var zaklad = meno.replace(/\s\d$/, "");
+    if (MASTER_REGISTRY[zaklad]) return MASTER_REGISTRY[zaklad];
+    return MASTER_REGISTRY[meno] || {};
+}
 
 function isSpecialCard(name) {
     var spec = ["Musíme sa porozprávať", "Upokoj sa", "Ohnostroj", "Šicko v porádku", "Alcohol", "Kvety", "Medove Orechy"];
@@ -122,7 +129,7 @@ function getAbilityBadge(meno) {
     return null;
 }
 
-// VYKRESLENIE KARTY S KOVANÝMI PEČAŤAMI A OBRÁZKOM
+// VYKRESLENIE KARTY S TLAČIDLOM PRE NÁHĽAD (🔍)
 function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     var rInfo = getRowLetterAndClass(row);
     var pwrClass = "";
@@ -131,16 +138,21 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
         else if (livePwr < origPwr) pwrClass = "debuffed";
     }
 
-    var reg = MASTER_REGISTRY[meno] || {};
+    var reg = getRegistryCard(meno);
     var imgPath = reg.img || "Img/default.jpg";
+    var cisteMeno = meno.replace(/\s\d$/, "");
 
     var html = "";
     if (livePwr !== "none") {
         html += "<div class='karta-kruh karta-kruh-pwr " + pwrClass + "'>" + livePwr + "</div>";
     }
     html += "<div class='karta-kruh karta-kruh-cls cls-" + cls + "'>" + cls + "</div>";
+    
+    // Tlačidlo lupy pre zväčšenie
+    html += "<button class='karta-btn-inspect' title='Zväčšiť kartu' onclick='event.stopPropagation(); otvorDetailKarty(\"" + meno + "\");'>🔍</button>";
+    
     html += "<div class='karta-foto' style=\"background-image: url('" + encodeURI(imgPath) + "');\"></div>";
-    html += "<div class='karta-nazov'>" + meno + "</div>";
+    html += "<div class='karta-nazov'>" + cisteMeno + "</div>";
     html += "<div class='karta-kruh karta-kruh-row " + rInfo.cls + "'>" + rInfo.text + "</div>";
 
     var ab = getAbilityBadge(meno);
@@ -153,7 +165,7 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
 
 // OTTVORENIE DETAILU KARTY (ZOOM MODAL)
 function otvorDetailKarty(meno) {
-    var reg = MASTER_REGISTRY[meno];
+    var reg = getRegistryCard(meno);
     if (!reg) return;
 
     var modal = document.getElementById("card-modal");
@@ -165,11 +177,13 @@ function otvorDetailKarty(meno) {
         document.body.appendChild(modal);
     }
 
+    var cisteMeno = meno.replace(/\s\d$/, "");
+
     modal.innerHTML = `
         <div class="card-modal-content ${reg.cls || ''}" onclick="event.stopPropagation()">
             <span class="card-modal-close" onclick="document.getElementById('card-modal').style.display='none'">&times;</span>
             <div class="modal-foto" style="background-image: url('${encodeURI(reg.img)}');"></div>
-            <h2>${meno}</h2>
+            <h2>${cisteMeno}</h2>
             <div class="modal-stats">
                 ${reg.p !== undefined ? `<span>Základná Sila: <strong>${reg.p}b</strong></span>` : ''}
                 ${reg.row ? `<span>Rad: <strong>${reg.row}</strong></span>` : ''}
@@ -178,6 +192,50 @@ function otvorDetailKarty(meno) {
         </div>
     `;
     modal.style.display = "flex";
+}
+
+// MAGICKÝ RITUÁL KOVANIA VO FORGE (ANIMÁCIA)
+function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) {
+    var modal = document.getElementById("forge-modal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "forge-modal";
+        modal.className = "forge-modal-overlay";
+        document.body.appendChild(modal);
+    }
+
+    var reg = getRegistryCard(meno);
+    var imgPath = reg.img || "Img/default.jpg";
+
+    modal.innerHTML = `
+        <div class="forge-ritual-box">
+            <h2 class="forge-title">🔨 MAGICKÉ KOVANIE...</h2>
+            <div class="forge-arena">
+                <div class="forge-orb orb-1"></div>
+                <div class="forge-orb orb-2"></div>
+                <div class="forge-orb orb-3"></div>
+                <div class="karta cls-${staraTrieda} forge-target-card" id="forge-target-card">
+                    <div class="karta-foto" style="background-image: url('${encodeURI(imgPath)}');"></div>
+                    <div class="karta-nazov">${meno}</div>
+                </div>
+            </div>
+            <div class="forge-status">Spájanie ${spotrebovaneRepliky}x materiálu...</div>
+        </div>
+    `;
+    modal.style.display = "flex";
+
+    // Spustenie animácie
+    setTimeout(function() {
+        var card = document.getElementById("forge-target-card");
+        if (card) {
+            card.className = "karta cls-" + novaTrieda + " forge-target-card forge-sparkle-active";
+            if (novaTrieda === "S") card.classList.add("karta-s-class-aura");
+        }
+    }, 1000);
+
+    setTimeout(function() {
+        modal.style.display = "none";
+    }, 2800);
 }
 
 function prepniSekciuVizualne(sekciaId) {
@@ -858,12 +916,14 @@ function ukonciTah(pNum, info) {
 function vylepsiKartuVoForge(e) { 
     var t = inventar.karty[e]; 
     if (t) { 
-        var r = t.aktivnaTrieda, n = false; 
+        var r = t.aktivnaTrieda, n = false, novaTrieda = "", spotrebovane = 0; 
         
         if (isSpecialCard(e)) {
             if ("C" === r && t.replikyC >= 1000) {
                 t.replikyC -= 1000;
                 t.aktivnaTrieda = "S";
+                novaTrieda = "S";
+                spotrebovane = 1000;
                 n = true;
             } else if ("S" === r) {
                 alert("Špeciálna karta je už na maximálnej triede S!");
@@ -873,13 +933,13 @@ function vylepsiKartuVoForge(e) {
                 return;
             }
         } else {
-            if ("C" === r && t.replikyC >= 5) { t.replikyC -= 5; t.aktivnaTrieda = "B"; n = true; } 
-            else if ("B" === r && t.replikyC >= 25) { t.replikyC -= 25; t.aktivnaTrieda = "A"; n = true; } 
-            else if ("A" === r && t.replikyC >= 125) { t.replikyC -= 125; t.aktivnaTrieda = "S"; n = true; } 
+            if ("C" === r && t.replikyC >= 5) { t.replikyC -= 5; t.aktivnaTrieda = "B"; novaTrieda = "B"; spotrebovane = 5; n = true; } 
+            else if ("B" === r && t.replikyC >= 25) { t.replikyC -= 25; t.aktivnaTrieda = "A"; novaTrieda = "A"; spotrebovane = 25; n = true; } 
+            else if ("A" === r && t.replikyC >= 125) { t.replikyC -= 125; t.aktivnaTrieda = "S"; novaTrieda = "S"; spotrebovane = 125; n = true; } 
         }
 
         if (n) { 
-            alert("🔨 Vykované na " + t.aktivnaTrieda); 
+            spustiKovaciRitual(e, r, novaTrieda, spotrebovane);
             aktualizujPanelDielne(); 
             aktualizujZostavaPanel();
             if (!draft_faza) spustiPrepocty(); 
@@ -1075,7 +1135,9 @@ function aktualizujZostavaPanel(){
             lblDiv.innerHTML = label;
             wrapper.appendChild(lblDiv);
 
-            wrapper.onclick = function(){
+            wrapper.onclick = function(evt){
+                // Ak nebolo kliknuté na lupu, prepne sa stav zostavy
+                if (evt.target.classList.contains("karta-btn-inspect")) return;
                 var idx = inventar.zostava.indexOf(t);
                 if(idx !== -1){
                     inventar.zostava.splice(idx, 1);
@@ -1113,19 +1175,11 @@ document.addEventListener("click", function(e) {
         var a = t[n]; 
         if (a) { 
             if ("p1-pass-btn" === a.id) { 
-                if (draft_faza) {
-                    potvrdMulliganRuku(1); 
-                } else {
-                    hracStlacilPass(1); 
-                }
+                if (draft_faza) { potvrdMulliganRuku(1); } else { hracStlacilPass(1); }
                 return; 
             } 
             if ("p2-pass-btn" === a.id) { 
-                if (draft_faza) {
-                    potvrdMulliganRuku(2); 
-                } else {
-                    hracStlacilPass(2); 
-                }
+                if (draft_faza) { potvrdMulliganRuku(2); } else { hracStlacilPass(2); }
                 return; 
             } 
             if ("p1-mulligan-btn" === a.id) { Admin_vynutVymenu(1); return; } 
@@ -1136,87 +1190,77 @@ document.addEventListener("click", function(e) {
         } 
     }
     
-    if (r) {
+    // VYKLADANIE KARTY POČAS HRY
+    if (r && !draft_faza) {
         var jeVRuke = r.parentNode && (r.parentNode.id === "ruka-p1" || r.parentNode.id === "ruka-p2");
-        
-        // Ak sa klikne na fotku na karte, otvorí sa Zoom Modal (zväčšenie)
-        if (e.target.classList.contains("karta-foto")) {
-            var menoKarty = r.getAttribute("data-meno");
-            if (menoKarty) {
-                otvorDetailKarty(menoKarty);
-                return;
-            }
-        }
+        var i = !document.getElementById("panel-erik").classList.contains("schovany") || !document.getElementById("panel-marek").classList.contains("schovany");
 
-        if (!draft_faza && jeVRuke) {
-            var i = !document.getElementById("panel-erik").classList.contains("schovany") || !document.getElementById("panel-marek").classList.contains("schovany");
-            if (!blokujVykladanie && !i) {
-                var u = r.getAttribute("data-meno") || "", 
-                    c = parseInt(r.getAttribute("data-pnum"), 10) || 1, 
-                    s = parseInt(r.getAttribute("data-row"), 10) || 0, 
-                    d = parseInt(r.getAttribute("data-pwr"), 10) || 0, 
-                    l = "true" === r.getAttribute("data-isspy");
+        if (jeVRuke && !blokujVykladanie && !i) {
+            var u = r.getAttribute("data-meno") || "", 
+                c = parseInt(r.getAttribute("data-pnum"), 10) || 1, 
+                s = parseInt(r.getAttribute("data-row"), 10) || 0, 
+                d = parseInt(r.getAttribute("data-pwr"), 10) || 0, 
+                l = "true" === r.getAttribute("data-isspy");
 
-                if (c === aktualnyHrac && ((1 === c && !p1Pass) || (2 === c && !p2Pass))) {
-                    var f = Math.floor(1e6 * Math.random()).toString(16), 
-                        p = (new Date).getTime().toString(16), 
-                        m = "c_" + c + "*" + u.replace(/\s+/g, "") + "*" + p + "_" + f; 
-                    r.id = m;
+            if (c === aktualnyHrac && ((1 === c && !p1Pass) || (2 === c && !p2Pass))) {
+                var f = Math.floor(1e6 * Math.random()).toString(16), 
+                    p = (new Date).getTime().toString(16), 
+                    m = "c_" + c + "*" + u.replace(/\s+/g, "") + "*" + p + "_" + f; 
+                r.id = m;
 
-                    if (0 === s) {
-                        var k = document.getElementById("neutralny-riadok"); 
-                        if (k) {
-                            if ("Šicko v porádku" === u) {
-                                neutralne_vplyvy = []; 
-                                k.innerHTML = "⚡ Neutrálna zóna (Vplyvy stola)"; 
-                                r.remove();
-                            } else {
-                                if (0 === neutralne_vplyvy.length) k.innerHTML = ""; 
-                                k.appendChild(r); 
-                                neutralne_vplyvy.push({ id: m, n: u, pNum: c, row: 0, p: 0, livePwr: "none" });
-                            }
+                if (0 === s) {
+                    var k = document.getElementById("neutralny-riadok"); 
+                    if (k) {
+                        if ("Šicko v porádku" === u) {
+                            neutralne_vplyvy = []; 
+                            k.innerHTML = "⚡ Neutrálna zóna (Vplyvy stola)"; 
+                            r.remove();
+                        } else {
+                            if (0 === neutralne_vplyvy.length) k.innerHTML = ""; 
+                            k.appendChild(r); 
+                            neutralne_vplyvy.push({ id: m, n: u, pNum: c, row: 0, p: 0, livePwr: "none" });
                         }
-                        ukonciTah(c); 
-                        return;
                     }
+                    ukonciTah(c); 
+                    return;
+                }
+                
+                var v = l ? (1 === c ? 2 : 1) : c;
+                var h = vytvorZoznamKariet(c).find(function(item) { return item.n === u; });
+                var g = h ? h.cls : "C";
+                var _ = { id: m, n: u, pNum: v, row: s, p: d, livePwr: d, cls: g, isSpy: l };
+                
+                var x = (2 === v) 
+                    ? (1 === s ? "r3" : (2 === s ? "r2" : "r1")) 
+                    : (1 === s ? "r4" : (2 === s ? "r5" : "r6"));
+                
+                var E = document.getElementById(x);
+                
+                if (E) { 
+                    E.appendChild(r); 
+                    r.className = "karta " + (1 === v ? "karta-h1" : "karta-h2"); 
+                    if ("S" === g) r.classList.add("karta-s-class-aura"); 
                     
-                    var v = l ? (1 === c ? 2 : 1) : c;
-                    var h = vytvorZoznamKariet(c).find(function(item) { return item.n === u; });
-                    var g = h ? h.cls : "C";
-                    var _ = { id: m, n: u, pNum: v, row: s, p: d, livePwr: d, cls: g, isSpy: l };
+                    if (1 === v) p1_played_cards.push(_); else p2_played_cards.push(_); 
                     
-                    var x = (2 === v) 
-                        ? (1 === s ? "r3" : (2 === s ? "r2" : "r1")) 
-                        : (1 === s ? "r4" : (2 === s ? "r5" : "r6"));
-                    
-                    var E = document.getElementById(x);
-                    
-                    if (E) { 
-                        E.appendChild(r); 
-                        r.className = "karta " + (1 === v ? "karta-h1" : "karta-h2"); 
-                        if ("S" === g) r.classList.add("karta-s-class-aura"); 
-                        
-                        if (1 === v) p1_played_cards.push(_); else p2_played_cards.push(_); 
-                        
-                        if (l) { 
-                            dynamicDrawNewCard(c); 
-                            dynamicDrawNewCard(c); 
-                            if ("A" === g || "S" === g) { spustiSpyNakukanie(c); } 
-                        } 
-                        if ("Doktor" === u || "Sestricka" === u) ozivKartuZArchivu(c); 
-                    }
-                    
-                    if ("Erik" === u) { 
-                        hracCakajuciNaAkciu = c; 
-                        blokujVykladanie = true; 
-                        setTimeout(function() { 1 === c ? document.getElementById("panel-erik").classList.remove("schovany") : spustiErikaAIJadro(2); }, 10); 
-                    } else if ("Marek" === u) { 
-                        hracCakajuciNaAkciu = c; 
-                        blokujVykladanie = true; 
-                        setTimeout(function() { 1 === c ? spustiMarekaLogiku() : spustiMarekaAIJadro(2); }, 10); 
-                    } else {
-                        ukonciTah(c);
-                    }
+                    if (l) { 
+                        dynamicDrawNewCard(c); 
+                        dynamicDrawNewCard(c); 
+                        if ("A" === g || "S" === g) { spustiSpyNakukanie(c); } 
+                    } 
+                    if ("Doktor" === u || "Sestricka" === u) ozivKartuZArchivu(c); 
+                }
+                
+                if ("Erik" === u) { 
+                    hracCakajuciNaAkciu = c; 
+                    blokujVykladanie = true; 
+                    setTimeout(function() { 1 === c ? document.getElementById("panel-erik").classList.remove("schovany") : spustiErikaAIJadro(2); }, 10); 
+                } else if ("Marek" === u) { 
+                    hracCakajuciNaAkciu = c; 
+                    blokujVykladanie = true; 
+                    setTimeout(function() { 1 === c ? spustiMarekaLogiku() : spustiMarekaAIJadro(2); }, 10); 
+                } else {
+                    ukonciTah(c);
                 }
             }
         }
