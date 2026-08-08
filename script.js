@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.2.7 - FIXED ROWS & SCORES)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.2.9 - HARD FIX HTML RENDERINGU KARIET)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.2.7";
+var VERZIA = "8.2.9";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -64,6 +64,36 @@ function zratajRad(list, row) {
     var sum = 0;
     list.forEach(function(k) { if (k && k.row === row && "number" === typeof k.livePwr) sum += k.livePwr; });
     return sum;
+}
+
+/* =========================================================================
+   GENEROVANIE KARTY S 3 KRUHOVÝMI ODZNAKMI
+   ========================================================================= */
+
+function getRowLetterAndClass(row) {
+    if (row === 1) return { text: "M", cls: "row-m" };
+    if (row === 2) return { text: "Ž", cls: "row-z" };
+    if (row === 3) return { text: "Z", cls: "row-a" };
+    return { text: "⚡", cls: "row-n" };
+}
+
+function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
+    var rInfo = getRowLetterAndClass(row);
+    var pwrClass = "";
+    if (origPwr !== undefined && livePwr !== "none") {
+        if (livePwr > origPwr) pwrClass = "buffed";
+        else if (livePwr < origPwr) pwrClass = "debuffed";
+    }
+
+    var html = "";
+    if (livePwr !== "none") {
+        html += "<div class='karta-kruh karta-kruh-pwr " + pwrClass + "'>" + livePwr + "</div>";
+    }
+    html += "<div class='karta-kruh karta-kruh-cls cls-" + cls + "'>" + cls + "</div>";
+    html += "<div class='karta-nazov'>" + meno + "</div>";
+    html += "<div class='karta-kruh karta-kruh-row " + rInfo.cls + "'>" + rInfo.text + "</div>";
+
+    return html;
 }
 
 function prepniSekciuVizualne(sekciaId) {
@@ -178,9 +208,15 @@ function spustiPrepocty() {
         if ("S" === c.cls) el.classList.add("karta-s-class-aura"); else el.classList.remove("karta-s-class-aura");
 
         if (MASTER_REGISTRY[cMeno] && (0 === MASTER_REGISTRY[cMeno].row || "Alcohol" === cMeno || "Kvety" === cMeno || "Medove Orechy" === cMeno)) { 
-            c.livePwr = "none"; el.innerText = cMeno + " [" + c.cls + "]"; continue; 
+            c.livePwr = "none"; 
+            el.innerHTML = vytvorHTMLKarty(cMeno, "none", c.cls, c.row, c.p); 
+            continue; 
         }
-        if ("Oli" === cMeno) { c.livePwr = 8; el.innerText = "8 - Oli (Imúnna) [" + c.cls + "]"; el.style.color = "#ffcc00"; continue; }
+        if ("Oli" === cMeno) { 
+            c.livePwr = 8; 
+            el.innerHTML = vytvorHTMLKarty(cMeno, 8, c.cls, c.row, 8); 
+            continue; 
+        }
 
         var aZ = null;
         if (1 === c.row && vChlapov) aZ = vChlapov;
@@ -234,11 +270,9 @@ function spustiPrepocty() {
         }
 
         var medzivysledok = zaklad + Math.round(zaklad * pct);
-        
         c.livePwr = Math.max(0, medzivysledok);
-        el.innerText = c.livePwr + " - " + cMeno + " [" + c.cls + "]";
         
-        if ("B" === c.cls) el.style.color = "#cd7f32"; else if ("A" === c.cls) el.style.color = "#c0c0c0"; else if ("S" === c.cls) el.style.color = "#ffd700"; else el.style.color = "#fff";
+        el.innerHTML = vytvorHTMLKarty(cMeno, c.livePwr, c.cls, c.row, MASTER_REGISTRY[cMeno] ? MASTER_REGISTRY[cMeno].p : c.p);
     }
 
     for (var r = 1; r <= 6; r++) { 
@@ -263,7 +297,7 @@ function vykresliDraftOkna() {
                 var d = document.createElement('div'); d.className = "karta karta-h1"; 
                 if ("S" === k.cls) d.classList.add("karta-s-class-aura"); 
                 var realPwr = getRealPower(k);
-                d.innerText = (realPwr > 0 ? realPwr + " - " + k.n : k.n) + " [" + k.cls + "]"; 
+                d.innerHTML = vytvorHTMLKarty(k.n, realPwr, k.cls, k.row, k.p); 
                 r1.appendChild(d); 
             }); 
         }
@@ -275,7 +309,7 @@ function vykresliDraftOkna() {
                 var d = document.createElement('div'); d.className = "karta karta-h2"; 
                 if ("S" === k.cls) d.classList.add("karta-s-class-aura"); 
                 var realPwr2 = getRealPower(k);
-                d.innerText = (realPwr2 > 0 ? realPwr2 + " - " + k.n : k.n) + " [" + k.cls + "]"; 
+                d.innerHTML = vytvorHTMLKarty(k.n, realPwr2, k.cls, k.row, k.p); 
                 r2.appendChild(d); 
             }); 
         }
@@ -295,7 +329,7 @@ function preklopDraftDoRukyHTML() {
             r.setAttribute("data-meno", t.n); r.setAttribute("data-pnum", "1"); r.setAttribute("data-row", t.row); r.setAttribute("data-pwr", realPwr); 
             if (t.isSpy) r.setAttribute("data-isspy", "true"); 
             if ("S" === t.cls) r.classList.add("karta-s-class-aura"); 
-            r.innerText = (realPwr > 0 ? realPwr + " - " + t.n : t.n) + " [" + t.cls + "]"; 
+            r.innerHTML = vytvorHTMLKarty(t.n, realPwr, t.cls, t.row, t.p); 
             e.appendChild(r); 
         }); 
     }
@@ -309,7 +343,7 @@ function preklopDraftDoRukyHTML() {
             r.setAttribute("data-meno", e.n); r.setAttribute("data-pnum", "2"); r.setAttribute("data-row", e.row); r.setAttribute("data-pwr", realPwr2); 
             if (e.isSpy) r.setAttribute("data-isspy", "true"); 
             if ("S" === e.cls) r.classList.add("karta-s-class-aura"); 
-            r.innerText = (realPwr2 > 0 ? realPwr2 + " - " + e.n : e.n) + " [" + e.cls + "]"; 
+            r.innerHTML = vytvorHTMLKarty(e.n, realPwr2, e.cls, e.row, e.p); 
             t.appendChild(r); 
         }); 
     }
@@ -382,7 +416,7 @@ function dynamicDrawNewCard(e, t) {
             o.setAttribute("data-meno", a.n); o.setAttribute("data-pnum", e.toString()); o.setAttribute("data-row", a.row); o.setAttribute("data-pwr", realPwr); 
             if (a.isSpy) o.setAttribute("data-isspy", "true"); 
             if ("S" === a.cls) o.classList.add("karta-s-class-aura"); 
-            o.innerText = (realPwr > 0 ? realPwr + " - " + a.n : a.n) + " [" + a.cls + "]"; 
+            o.innerHTML = vytvorHTMLKarty(a.n, realPwr, a.cls, a.row, a.p); 
             n.appendChild(o); 
         } 
     }
@@ -420,7 +454,7 @@ function ozivKartuZArchivu(pNum) {
     div.setAttribute('data-pwr', realPwr); 
     if ("S" === k.cls) div.classList.add("karta-s-class-aura");
     
-    div.innerText = (realPwr > 0 ? realPwr + " - " + k.n : k.n) + " [" + k.cls + "]"; 
+    div.innerHTML = vytvorHTMLKarty(k.n, realPwr, k.cls, k.row, k.p); 
     div.setAttribute('data-pnum', tPNum.toString()); 
     k.pNum = tPNum; 
     if (jeSpy) div.setAttribute('data-isspy', "true");
@@ -517,12 +551,12 @@ function resetStolaBezReloadu(e) {
         var r = document.getElementById("r" + t); 
         if (r) { 
             var nazovRadu = "";
-            if (t === 1) nazovRadu = "3. Rad (Zvieratá/Podpora): ";
-            else if (t === 2) nazovRadu = "2. Rad (Ženy/Sestričky): ";
-            else if (t === 3) nazovRadu = "1. Rad (Chlapi/Bojovníci): ";
-            else if (t === 4) nazovRadu = "1. Rad (Chlapi/Bojovníci): ";
-            else if (t === 5) nazovRadu = "2. Rad (Ženy/Sestričky): ";
-            else if (t === 6) nazovRadu = "3. Rad (Zvieratá/Podpora): ";
+            if (t === 1) nazovRadu = "3. Rad (Zvieratá): ";
+            else if (t === 2) nazovRadu = "2. Rad (Ženy): ";
+            else if (t === 3) nazovRadu = "1. Rad (Muži): ";
+            else if (t === 4) nazovRadu = "1. Rad (Muži): ";
+            else if (t === 5) nazovRadu = "2. Rad (Ženy): ";
+            else if (t === 6) nazovRadu = "3. Rad (Zvieratá): ";
 
             r.innerHTML = nazovRadu + "<span class='skore-rad' id='s" + t + "'>0 b</span>";
         } 
@@ -860,8 +894,12 @@ function vzdajZapasUtek() {
     } 
 }
 
+/* =========================================================================
+   VYKRESLENIE DIELNE, ZOSTA VY A TRHOVISKA AKO KARTY
+   ========================================================================= */
+
 function aktualizujPanelDielne(){
-    var e=document.getElementById("dielna-zoznam");
+    var e = document.getElementById("dielna-zoznam");
     if(e){
         e.innerHTML = "";
         
@@ -873,47 +911,102 @@ function aktualizujPanelDielne(){
         e.appendChild(simBox);
 
         Object.keys(inventar.karty).forEach(function(t){
-            var r=inventar.karty[t],n=document.createElement("div");
-            n.className="dielna-polozka cls-"+r.aktivnaTrieda;
-            var i="<div class='dielna-info'><span>"+t+"</span> <span style='color:#ffcc00'>["+r.aktivnaTrieda+"]</span></div>";
-            i+="<div>Repliky: <strong>"+r.replikyC+"x</strong></div>",
-            i+="<div class='dielna-akcie'><button class='btn-forge' onclick=\"vylepsiKartuVoForge('"+t+"')\">🔨 Forge</button>",
-            i+="<button class='btn-recycle' style='background:#b91c1c' onclick=\"recyklujKartuDielne('"+t+"')\">♻️ Recyklovať</button></div>",
-            i+="<button class='btn-recycle' style='width:100%;font-size:.8em;margin-top:3px' onclick=\"kupKonkretnuKartu('"+t+"')\">🎯 Kúpiť (3000 m)</button>",
-            n.innerHTML=i,
-            e.appendChild(n)
+            var r = inventar.karty[t];
+            var reg = MASTER_REGISTRY[t] || { row: 0, p: 0 };
+            var wrapper = document.createElement("div");
+            wrapper.className = "karta-karta-wrapper";
+
+            var cardDiv = document.createElement("div");
+            cardDiv.className = "karta cls-" + r.aktivnaTrieda;
+            if ("S" === r.aktivnaTrieda) cardDiv.classList.add("karta-s-class-aura");
+            
+            var basePwr = isSpecialCard(t) ? "none" : reg.p;
+            cardDiv.innerHTML = vytvorHTMLKarty(t, basePwr, r.aktivnaTrieda, reg.row, reg.p);
+
+            var actions = "<div class='dielna-info' style='margin-top:6px;'>Repliky: <strong>" + r.replikyC + "x</strong></div>";
+            actions += "<div class='karta-akcie-box'><button class='btn-forge' onclick=\"vylepsiKartuVoForge('" + t + "')\">🔨 Forge</button>";
+            actions += "<button class='btn-recycle' style='background:#b91c1c' onclick=\"recyklujKartuDielne('" + t + "')\">♻️ Recyklovať</button>";
+            actions += "<button class='btn-recycle' style='font-size:.8em;' onclick=\"kupKonkretnuKartu('" + t + "')\">🎯 Kúpiť (3000 m)</button></div>";
+
+            wrapper.appendChild(cardDiv);
+            var actDiv = document.createElement("div");
+            actDiv.style.width = "100%";
+            actDiv.innerHTML = actions;
+            wrapper.appendChild(actDiv);
+
+            e.appendChild(wrapper);
         });
-        var t=document.getElementById("wallet-p1");
-        t&&(t.innerText=inventar.mince+" m")
+        var wallet = document.getElementById("wallet-p1");
+        if (wallet) wallet.innerText = inventar.mince + " m";
     }
 }
 
 function vygenerujRegalyTrhoviska(){
-    var e=document.getElementById("obchod-regaly-zoznam");if(e){e.innerHTML="",Object.keys(MASTER_REGISTRY).forEach(function(t){var r=document.createElement("div");r.className="obchod-polozka-karta";var a="<div class='karta-nazov'>"+t+"</div>";a+="<div class='karta-cena-label'>Cena: 3000 m</div>",a+="<button class='btn-obchod-nakup' style='background:#28a745;font-size:.85em;padding:6px' onclick=\"kupKonkretnuKartu('" + t + "')\">🎯 Kúpiť C-kopiu</button>",r.innerHTML=a,e.appendChild(r)})}
+    var e = document.getElementById("obchod-regaly-zoznam");
+    if(e){
+        e.innerHTML = "";
+        Object.keys(MASTER_REGISTRY).forEach(function(t){
+            var reg = MASTER_REGISTRY[t];
+            var inv = inventar.karty[t] || { aktivnaTrieda: "C" };
+            var wrapper = document.createElement("div");
+            wrapper.className = "karta-karta-wrapper";
+
+            var cardDiv = document.createElement("div");
+            cardDiv.className = "karta cls-" + inv.aktivnaTrieda;
+            var basePwr = isSpecialCard(t) ? "none" : reg.p;
+            cardDiv.innerHTML = vytvorHTMLKarty(t, basePwr, inv.aktivnaTrieda, reg.row, reg.p);
+
+            var actions = "<div style='font-size:0.85em; margin:6px 0;'>Cena: <strong>3000 m</strong></div>";
+            actions += "<button class='btn-obchod-nakup' style='background:#28a745; width:100%; font-size:.85em;' onclick=\"kupKonkretnuKartu('" + t + "')\">🎯 Kúpiť C-kópiu</button>";
+
+            wrapper.appendChild(cardDiv);
+            var actDiv = document.createElement("div");
+            actDiv.style.width = "100%";
+            actDiv.innerHTML = actions;
+            wrapper.appendChild(actDiv);
+
+            e.appendChild(wrapper);
+        });
+    }
 }
 
 function aktualizujZostavaPanel(){
-    var e=document.getElementById("zostava-mriezka");
+    var e = document.getElementById("zostava-mriezka");
     if(e){
-        e.innerHTML="";
+        e.innerHTML = "";
         Object.keys(MASTER_REGISTRY).forEach(function(t){
-            var r=document.createElement("div"), n=inventar.zostava.indexOf(t)!==-1;
-            r.className="zostava-polozka-karta"+(n?" v-zostave":"");
-            var i=inventar.karty[t]||{aktivnaTrieda:"C"}, o="<div style='font-weight:bold; font-size:1.05em;'>"+t+"</div>";
-            o+="<div style='font-size:0.85em; color:#ffcc00; margin-top:2px;'>[Trieda "+i.aktivnaTrieda+"]</div>";
-            o+="<div class='status-label'>"+(n?"✓ V ZOSTAVE":" ODOBRATÁ")+"</div>";
-            r.innerHTML=o;
-            r.onclick=function(){
-                var idx=inventar.zostava.indexOf(t);
-                if(idx!==-1){
-                    inventar.zostava.splice(idx,1);
+            var reg = MASTER_REGISTRY[t];
+            var n = inventar.zostava.indexOf(t) !== -1;
+            var inv = inventar.karty[t] || { aktivnaTrieda: "C" };
+
+            var wrapper = document.createElement("div");
+            wrapper.className = "karta-karta-wrapper" + (n ? " v-zostave" : "");
+
+            var cardDiv = document.createElement("div");
+            cardDiv.className = "karta cls-" + inv.aktivnaTrieda;
+            if ("S" === inv.aktivnaTrieda) cardDiv.classList.add("karta-s-class-aura");
+            var basePwr = isSpecialCard(t) ? "none" : reg.p;
+            cardDiv.innerHTML = vytvorHTMLKarty(t, basePwr, inv.aktivnaTrieda, reg.row, reg.p);
+
+            var label = "<div class='status-label' style='margin-top:8px; font-weight:bold; color:" + (n ? "#4ade80" : "#f87171") + ";'>" + (n ? "✓ V ZOSTAVE" : " ODOBRATÁ") + "</div>";
+
+            wrapper.appendChild(cardDiv);
+            var lblDiv = document.createElement("div");
+            lblDiv.innerHTML = label;
+            wrapper.appendChild(lblDiv);
+
+            wrapper.onclick = function(){
+                var idx = inventar.zostava.indexOf(t);
+                if(idx !== -1){
+                    inventar.zostava.splice(idx, 1);
                 } else {
                     inventar.zostava.push(t);
                 }
                 aktualizujZostavaPanel();
                 obnovPocitadlaZostavyVMenu();
             };
-            e.appendChild(r);
+
+            e.appendChild(wrapper);
         });
     }
 }
@@ -1002,7 +1095,6 @@ document.addEventListener("click", function(e) {
                 var g = h ? h.cls : "C";
                 var _ = { id: m, n: u, pNum: v, row: s, p: d, livePwr: d, cls: g, isSpy: l };
                 
-                // Opravené zrkadlové priraďovanie do HTML radov:
                 var x = (2 === v) 
                     ? (1 === s ? "r3" : (2 === s ? "r2" : "r1")) 
                     : (1 === s ? "r4" : (2 === s ? "r5" : "r6"));
