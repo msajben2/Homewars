@@ -1,4 +1,4 @@
-/* ZÁKLADNÉ ŠTÝLY PRE HOME WARS (v9.2.0 STREDOVEKÝ DIZAJN) */
+/* ZÁKLADNÉ ŠTÝLY PRE HOME WARS (v9.4.1 STREDOVEKÝ DIZAJN & CENTROVANIE) */
 body {
     background: #12100e url('https://www.transparenttextures.com/patterns/dark-wood.png');
     color: #e0d0b0;
@@ -229,7 +229,6 @@ main {
     border: 1px solid #5a4d3e;
 }
 
-/* SKRYTIE RUKY AI */
 .ruka-ai-skryta .karta {
     background: #110e0c !important;
     border-color: #3d3124 !important;
@@ -263,7 +262,7 @@ main {
 }
 
 /* =========================================================================
-   TCG ANATÓMIA KARTY (S TLAČIDLOM PRE NÁHĽAD 🔍)
+   TCG ANATÓMIA KARTY (PERFEKTNE CENTROVANÉ PEČATE)
    ========================================================================= */
 
 .karta {
@@ -337,7 +336,7 @@ main {
     color: #000;
 }
 
-/* KOVANÉ PEČATE NAMIESTO FAREBNÝCH KRÚŽKOV */
+/* KOVANÉ PEČATE - PERFEKTNÉ CENTROVANIE */
 .karta-kruh {
     position: absolute;
     width: 26px;
@@ -346,10 +345,13 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
+    text-align: center;
     font-weight: bold;
     font-size: 0.8em;
+    line-height: 1;
     box-shadow: 2px 2px 5px rgba(0,0,0,0.8);
     z-index: 2;
+    box-sizing: border-box;
 }
 
 .karta-kruh-pwr {
@@ -358,6 +360,7 @@ main {
     background: radial-gradient(circle, #5a4d3e 0%, #2a2118 100%);
     border: 2px solid #b89b5e;
     color: #fff;
+    padding-top: 1px;
 }
 
 .karta-kruh-pwr.buffed { color: #4ade80; border-color: #4ade80; background: #062612; }
@@ -392,8 +395,10 @@ main {
     bottom: -6px;
     right: -6px;
     background: #1a1612;
-    border: 2px solid #8b5cf6;
-    color: #c084fc;
+    border: 2px solid #b89b5e;
+    color: #f0e2c5;
+    font-family: serif;
+    font-size: 0.9em;
 }
 
 .karta-s-class-aura {
@@ -459,13 +464,13 @@ main {
     line-height: 1.4;
 }
 
-/* KOVÁČSKY MAGICKÝ RITUÁL (FORGE MODAL) */
+/* POMPÉZNY KOVÁČSKY MAGICKÝ RITUÁL (FORGE MODAL) */
 .forge-modal-overlay {
     display: none;
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(10, 8, 5, 0.92);
+    background: rgba(10, 8, 5, 0.95);
     z-index: 2000;
     justify-content: center;
     align-items: center;
@@ -482,10 +487,13 @@ main {
     margin-bottom: 30px;
 }
 
+.forge-title-S { color: #ffd700; text-shadow: 0 0 20px #ff8c00, 0 0 40px #ffd700; }
+.forge-title-A { color: #c0c0c0; text-shadow: 0 0 15px #ffffff; }
+
 .forge-arena {
     position: relative;
-    width: 250px;
-    height: 250px;
+    width: 260px;
+    height: 260px;
     margin: 0 auto;
     display: flex;
     justify-content: center;
@@ -495,31 +503,58 @@ main {
 .forge-target-card {
     transform: scale(1.4);
     z-index: 5;
-    transition: transform 0.5s ease, box-shadow 0.5s ease;
+    transition: transform 0.6s ease, box-shadow 0.6s ease;
 }
 
-.forge-sparkle-active {
+.forge-sparkle-active-B {
+    transform: scale(1.5) rotate(360deg) !important;
+    box-shadow: 0 0 25px #cd7f32 !important;
+}
+
+.forge-sparkle-active-A {
     transform: scale(1.6) rotate(360deg) !important;
-    box-shadow: 0 0 40px #ffd700, 0 0 80px #ff8c00 !important;
+    box-shadow: 0 0 35px #ffffff, 0 0 50px #c0c0c0 !important;
+}
+
+.forge-sparkle-active-S {
+    transform: scale(1.75) rotate(720deg) !important;
+    box-shadow: 0 0 50px #ffd700, 0 0 100px #ff4500, 0 0 150px #ffd700 !important;
 }
 
 .forge-orb {
     position: absolute;
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
-    background: radial-gradient(circle, #ffd700 0%, #ff4500 100%);
     box-shadow: 0 0 15px #ffcc00;
     animation: forgeOrbit 1.2s infinite linear;
 }
 
-.orb-1 { top: 0; left: 105px; animation-delay: 0s; }
+.orb-B { background: radial-gradient(circle, #cd7f32 0%, #5a2e0c 100%); }
+.orb-A { background: radial-gradient(circle, #ffffff 0%, #707070 100%); box-shadow: 0 0 20px #fff; }
+.orb-S { background: radial-gradient(circle, #ffd700 0%, #ff4500 100%); box-shadow: 0 0 30px #ff4500; animation-duration: 0.6s; }
+
+.orb-1 { top: 0; left: 110px; animation-delay: 0s; }
 .orb-2 { bottom: 20px; left: 20px; animation-delay: 0.4s; }
 .orb-3 { bottom: 20px; right: 20px; animation-delay: 0.8s; }
 
 @keyframes forgeOrbit {
-    0% { transform: rotate(0deg) translate(90px) rotate(0deg); }
-    100% { transform: rotate(360deg) translate(90px) rotate(-360deg); }
+    0% { transform: rotate(0deg) translate(95px) rotate(0deg); }
+    100% { transform: rotate(360deg) translate(95px) rotate(-360deg); }
+}
+
+/* ZLATÝ OHŇOSTROJ PRE S-CLASS */
+.forge-fireworks {
+    position: absolute;
+    width: 100%; height: 100%;
+    background: radial-gradient(circle, rgba(255,215,0,0.3) 0%, rgba(255,69,0,0.1) 70%, transparent 100%);
+    border-radius: 50%;
+    animation: fireworksPulse 0.5s infinite alternate;
+}
+
+@keyframes fireworksPulse {
+    0% { transform: scale(0.8); opacity: 0.3; }
+    100% { transform: scale(1.3); opacity: 0.9; }
 }
 
 .forge-status {
