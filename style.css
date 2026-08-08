@@ -1,4 +1,4 @@
-/* ZÁKLADNÉ ŠTÝLY PRE HOME WARS (v9.6.0 OBRAZOVÉ RÁMY & CINEMATIC FORGE) */
+/* ZÁKLADNÉ ŠTÝLY PRE HOME WARS (v9.7.0 LUXURY FRAMES & FIXES) */
 body {
     background: #12100e url('https://www.transparenttextures.com/patterns/dark-wood.png');
     color: #e0d0b0;
@@ -310,32 +310,33 @@ main {
     margin-top: 6px;
 }
 
-/* ODSTUPŇOVANÉ MASÍVNE RÁMY PRE KARTY */
+/* ODSTUPŇOVANÉ MASÍVNE VYREZÁVANÉ RÁMY PRE KARTY */
 .cls-C { 
-    border: 3px solid #5a4d3e; 
+    border: 4px solid #5a4d3e; 
+    border-style: ridge;
     box-shadow: inset 0 0 10px #000, 0 0 5px rgba(0,0,0,0.8); 
     background: linear-gradient(135deg, #2a2118 0%, #120f0b 100%); 
 }
 
 .cls-B { 
-    border: 5px solid #a86529; 
+    border: 6px solid #a86529; 
     border-style: ridge;
-    box-shadow: inset 0 0 12px #000, 0 0 8px #a86529; 
+    box-shadow: inset 0 0 12px #000, 0 0 10px #a86529; 
     background: linear-gradient(135deg, #3d2411 0%, #170d06 100%); 
 }
 
 .cls-A { 
-    border: 6px solid #c0c0c0; 
+    border: 7px solid #c0c0c0; 
     border-style: groove;
-    box-shadow: inset 0 0 15px #000, 0 0 15px rgba(255,255,255,0.6); 
+    box-shadow: inset 0 0 15px #000, 0 0 18px rgba(255,255,255,0.7); 
     background: linear-gradient(135deg, #404040 0%, #1a1a1a 100%); 
 }
 
 /* S-CLASS VYREZÁVANÝ KRÁĽOVSKÝ RÁM (NAJMASÍVNEJŠÍ) */
 .cls-S { 
-    border: 8px solid #d4af37; 
+    border: 9px solid #d4af37; 
     border-style: ridge;
-    box-shadow: inset 0 0 20px #000, 0 0 20px #d4af37, 0 0 35px #ff8c00; 
+    box-shadow: inset 0 0 20px #000, 0 0 22px #d4af37, 0 0 40px #ff8c00; 
     background: linear-gradient(135deg, #57410d 0%, #211803 100%); 
 }
 
@@ -365,7 +366,7 @@ main {
     color: #000;
 }
 
-/* KOVANÉ PEČATE */
+/* KOVANÉ PEČATE - PERFEKTNÉ CENTROVANIE */
 .karta-kruh {
     position: absolute;
     width: 26px;
@@ -448,7 +449,7 @@ main {
     width: calc(70vh * 0.7);
     max-width: 90vw;
     background: #1c1813;
-    border: 6px solid #d4af37;
+    border: 8px solid #d4af37;
     border-style: ridge;
     border-radius: 16px;
     padding: 25px;
