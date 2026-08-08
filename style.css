@@ -415,3 +415,12 @@ main {
     gap: 10px;
     min-width: 300px;
 }
+/* 4. PRAVÝ DOLNÝ ROH - Špeciálna funkcia */
+.karta-kruh-ability {
+    bottom: -8px;
+    right: -8px;
+    background: #111;
+    border: 2px solid #8b5cf6; /* Fialové lemovanie pre schopnosti */
+    color: #c084fc;
+    font-size: 0.8em;
+}
