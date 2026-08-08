@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.3.0 - CLEAN ABILITY BADGES)
+// RODINNÁ HRA - HOME WARS (VERZIA 9.0.0 - STREDOVEKÝ UPDATE A KARTY)
 // =========================================================================
 
 (function() {
@@ -13,21 +13,54 @@
     }
 })();
 
-var VERZIA = "8.3.0";
+var VERZIA = "9.0.0";
 
+// MASTER REGISTRAČNÁ TABUĽKA KARIET SO ZLOŽKOU Img A POPISMI
 var MASTER_REGISTRY = {
-    "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
-    "Duri": { row: 1, p: 6 }, "Doktor": { row: 1, p: 4 }, "Krcmar Boris": { row: 1, p: 5 }, 
-    "Neviditelny Mario": { row: 1, p: 4 }, "Martin": { row: 1, p: 4 }, "Tymko": { row: 1, p: 1 }, "Jaro": { row: 1, p: 5 },
-    "Oli": { row: 2, p: 8 }, "Sisa": { row: 2, p: 4 }, "Katy": { row: 2, p: 6 }, "Nela": { row: 2, p: 1 }, 
-    "Lula": { row: 2, p: 4 }, "Anka": { row: 2, p: 7 }, "Darinka": { row: 2, p: 5 }, "Viera": { row: 2, p: 6 }, "Sestricka": { row: 2, p: 3 },
-    "Kika": { row: 2, p: 3, isSpy: true }, "Zvedava suseda": { row: 2, p: 7, isSpy: true },
-    "Grobske Mravce 1": { row: 3, p: 1 }, "Grobske Mravce 2": { row: 3, p: 1 }, "Grobske Mravce 3": { row: 3, p: 1 },
-    "Petrzalske holuby 1": { row: 3, p: 1 }, "Petrzalske holuby 2": { row: 3, p: 1 }, "Petrzalske holuby 3": { row: 3, p: 1 },
-    "Kabelkovy pes": { row: 3, p: 3 }, "Patkaňe": { row: 3, p: 2 }, "Sviňa lesná": { row: 3, p: 4 },
-    "Zatúlaný tatranský medved": { row: 3, p: 5 }, "Pouličný mačiak": { row: 3, p: 3 }, "Komare": { row: 3, p: 3 },
-    "Alcohol": { row: 1, p: 0 }, "Kvety": { row: 2, p: 0 }, "Medove Orechy": { row: 3, p: 0 },
-    "Musíme sa porozprávať": { row: 0, p: 0 }, "Upokoj sa": { row: 0, p: 0 }, "Ohnostroj": { row: 0, p: 0 }, "Šicko v porádku": { row: 0, p: 0 }
+    // POSTAVY A JEDNOTKY
+    "Michal": { row: 1, p: 5, img: "Img/Michal.jpg", desc: "Bystrý obchodník. Váži zlato a pozná cenu každej veci." },
+    "Erik": { row: 1, p: 4, img: "Img/Erik.jpg", desc: "Geniálny taktik, ktorý plánuje každý krok nad mapou so šachovými figúrkami." },
+    "Marek": { row: 1, p: 4, img: "Img/Marek.jpg", desc: "Učený filozof vo fialovom plášti. Svojimi rečami zmäti každého protivníka." },
+    "Duri": { row: 1, p: 6, img: "Img/Ďuri.jpg", desc: "Veterán v plnej zbroji. Pevný pilier každej bitky." },
+    "Doktor": { row: 1, p: 5, img: "Img/Doktor.jpg", desc: "Hradný alchymista a lekár, ktorý vie namiešať liek aj silný jed." },
+    "Neviditelny Mario": { row: 1, p: 5, img: "Img/Neviditeľný Mário.png", desc: "Tajuplný zbojník v kapucni, ktorý udrie z tieňa a zmizne." },
+    "Martin": { row: 1, p: 3, img: "Img/Martin.jpg", desc: "Šikovný hraničiar a lovec, ktorý sa potichu krája tmavým lesom." },
+    "Tymko": { row: 1, p: 2, img: "Img/Tymko.jpg", desc: "Obranný 4-ročný bojovník s dreveným mečom a veľkým odhodlaním." },
+    "Jaro": { row: 1, p: 3, img: "Img/Jaro.png", desc: "Zručný kováč, z ktorého kovadliny vychádzajú tie najostrejšie meče." },
+    
+    "Oli": { row: 2, p: 8, img: "Img/Oli.jpg", desc: "Duchovná matka chrámu strážiaca svätý pokoj." },
+    "Sisa": { row: 2, p: 6, img: "Img/Sisa.jpg", desc: "Mocná vládkyňa hradu pripíjajúca na víťazstvo svojho vojska." },
+    "Katy": { row: 2, p: 2, img: "Img/Katy.jpg", desc: "Dobrosrdečná pekárenská pomocníčka s čerstvým chlebom." },
+    "Nela": { row: 2, p: 6, img: "Img/Nela.png", desc: "Malá princezná so žiariacim zvieraťom a magickým amuletom." },
+    "Lula": { row: 2, p: 4, img: "Img/Lula.jpg", desc: "Dvorná harfistka, ktorej hudba dokáže obmäkčiť aj srdce kata." },
+    "Anka": { row: 2, p: 4, img: "Img/Anka.jpg", desc: "Správkyňa hradných kľúčov. Bez jej povolenia sa neotvoria žiadne dvere." },
+    "Darinka": { row: 2, p: 3, img: "Img/Darinka.jpg", desc: "Majsterka tkáčka. Jej tkaniny chránia hradné dámy pred chladom." },
+    "Viera": { row: 2, p: 2, img: "Img/Viera.jpg", desc: "Hradná pekárka starajúca sa o zásoby chleba pre celú posádku." },
+    "Sestricka": { row: 2, p: 3, img: "Img/Sestricka.jpg", desc: "Milosrdná ošetrovateľka, ktorá stavia na nohy ranených bojovníkov." },
+    "Kika": { row: 2, p: 5, isSpy: true, img: "Img/Kika.jpg", desc: "Tajuplná hradná archivárka so zvinutými kráľovskými dekrétmi." },
+    "Zvedava suseda": { row: 2, p: 1, isSpy: true, img: "Img/Zvedavá suseda.jpg", desc: "Pozorné oko podhradia. Z okna jej neunikne jediný klep." },
+    
+    "Grobske Mravce 1": { row: 3, p: 1, img: "Img/Grobské mravce.jpg", desc: "Húževnatá svorka lesných mravcov. Sú malé, no v obrovskom počte." },
+    "Grobske Mravce 2": { row: 3, p: 1, img: "Img/Grobské mravce.jpg", desc: "Húževnatá svorka lesných mravcov." },
+    "Grobske Mravce 3": { row: 3, p: 1, img: "Img/Grobské mravce.jpg", desc: "Húževnatá svorka lesných mravcov." },
+    "Petrzalske holuby 1": { row: 3, p: 2, img: "Img/Petržalské holuby.jpg", desc: "Rýchli hradní posli prenášajúci tajné správy." },
+    "Petrzalske holuby 2": { row: 3, p: 2, img: "Img/Petržalské holuby.jpg", desc: "Rýchli hradní posli prenášajúci tajné správy." },
+    "Petrzalske holuby 3": { row: 3, p: 2, img: "Img/Petržalské holuby.jpg", desc: "Rýchli hradní posli prenášajúci tajné správy." },
+    "Kabelkovy pes": { row: 3, p: 2, img: "Img/Kabelkový pes.jpg", desc: "Panský miláčik usadený na vankúši. Breše viac, než hryzie." },
+    "Patkaňe": { row: 3, p: 1, img: "Img/Patkane.jpg", desc: "Hladná pivničná svorka. Kde sa objavia, tam nastane zmätok." },
+    "Sviňa lesná": { row: 3, p: 4, img: "Img/Sviňa lesná.jpg", desc: "Zúrivý lesný kanec, ktorý zmetie všetko, čo mu stojí v ceste." },
+    "Zatúlaný tatranský medved": { row: 3, p: 5, img: "Img/tatransky-medved.png", desc: "Obrovská horská šelma zosadajúca zo zasnežených štítov." },
+    "Pouličný mačiak": { row: 3, p: 2, img: "Img/poulicny-maciak.png", desc: "Tichý potulný kocúr obchádzajúci hradné múry." },
+    "Komare": { row: 3, p: 1, img: "Img/komare.png", desc: "Oravské húfy komárov trápiace zvierací rad." },
+    
+    // NEUTRÁLNE KARTY A VPLYVY
+    "Alcohol": { row: 1, p: 0, img: "Img/alkohol.png", desc: "Medovina a pálenka pre mužský rad. Zvyšuje bojovú náladu." },
+    "Kvety": { row: 2, p: 0, img: "Img/kvety.jpg", desc: "Kytica poľných kvetov pre radosť ženského radu." },
+    "Medove Orechy": { row: 3, p: 0, img: "Img/medove-orechy.png", desc: "Sladká odmena pre zvierací rad." },
+    "Musíme sa porozprávať": { row: 0, p: 0, img: "Img/musime-sa-porozpravat.png", desc: "Vážny rozhovor s hradnou paňou zmrazí silu mužského radu." },
+    "Upokoj sa": { row: 0, p: 0, img: "Img/upokoj-sa.png", desc: "Nevhodne zvolené slová vyvolajú hnev v ženskom rade!" },
+    "Ohnostroj": { row: 0, p: 0, img: "Img/ohnostroj.png", desc: "Rachot svetlíc vyplaší celý zvierací rad." },
+    "Šicko v porádku": { row: 0, p: 0, img: "Img/sicko-v-poradku.jpg", desc: "Šašo prinesie pokoj a vyčistí všetky nepriaznivé vplyvy na stole." }
 };
 
 var p1_played_cards = [], p2_played_cards = [];
@@ -66,10 +99,6 @@ function zratajRad(list, row) {
     return sum;
 }
 
-/* =========================================================================
-   GENEROVANIE KARTY A LOGIKA ODZNAKOV
-   ========================================================================= */
-
 function getRowLetterAndClass(row) {
     if (row === 1) return { text: "M", cls: "row-m" };
     if (row === 2) return { text: "Ž", cls: "row-z" };
@@ -88,10 +117,10 @@ function getAbilityBadge(meno) {
     if (meno.indexOf("Mravce") !== -1 || meno.indexOf("holuby") !== -1) return { text: "🤝", title: "Svorka" };
     if (meno === "Alcohol" || meno === "Kvety" || meno === "Medove Orechy") return { text: "🛠️", title: "Predmet" };
     if (isSpecialCard(meno)) return { text: "⚡", title: "Vplyv stola" };
-    
-    return null; // Obyčajné karty nemajú v 4. rohu nič
+    return null;
 }
 
+// VYKRESLENIE KARTY S KOVANÝMI PEČAŤAMI A OBRÁZKOM
 function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     var rInfo = getRowLetterAndClass(row);
     var pwrClass = "";
@@ -100,11 +129,15 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
         else if (livePwr < origPwr) pwrClass = "debuffed";
     }
 
+    var reg = MASTER_REGISTRY[meno] || {};
+    var imgPath = reg.img || "Img/default.jpg";
+
     var html = "";
     if (livePwr !== "none") {
         html += "<div class='karta-kruh karta-kruh-pwr " + pwrClass + "'>" + livePwr + "</div>";
     }
     html += "<div class='karta-kruh karta-kruh-cls cls-" + cls + "'>" + cls + "</div>";
+    html += "<div class='karta-foto' style=\"background-image: url('" + encodeURI(imgPath) + "');\"></div>";
     html += "<div class='karta-nazov'>" + meno + "</div>";
     html += "<div class='karta-kruh karta-kruh-row " + rInfo.cls + "'>" + rInfo.text + "</div>";
 
@@ -114,6 +147,35 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     }
 
     return html;
+}
+
+// OTTVORENIE DETAILU KARTY (ZOOM MODAL)
+function otvorDetailKarty(meno) {
+    var reg = MASTER_REGISTRY[meno];
+    if (!reg) return;
+
+    var modal = document.getElementById("card-modal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "card-modal";
+        modal.className = "card-modal";
+        modal.onclick = function() { modal.style.display = "none"; };
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div class="card-modal-content ${reg.cls || ''}" onclick="event.stopPropagation()">
+            <span class="card-modal-close" onclick="document.getElementById('card-modal').style.display='none'">&times;</span>
+            <div class="modal-foto" style="background-image: url('${encodeURI(reg.img)}');"></div>
+            <h2>${meno}</h2>
+            <div class="modal-stats">
+                ${reg.p !== undefined ? `<span>Základná Sila: <strong>${reg.p}b</strong></span>` : ''}
+                ${reg.row ? `<span>Rad: <strong>${reg.row}</strong></span>` : ''}
+            </div>
+            <p class="modal-desc">${reg.desc || 'Bez popisu.'}</p>
+        </div>
+    `;
+    modal.style.display = "flex";
 }
 
 function prepniSekciuVizualne(sekciaId) {
@@ -914,10 +976,6 @@ function vzdajZapasUtek() {
     } 
 }
 
-/* =========================================================================
-   VYKRESLENIE DIELNE, ZOSTA VY A TRHOVISKA AKO KARTY
-   ========================================================================= */
-
 function aktualizujPanelDielne(){
     var e = document.getElementById("dielna-zoznam");
     if(e){
@@ -1076,76 +1134,87 @@ document.addEventListener("click", function(e) {
         } 
     }
     
-    if (!draft_faza && r) {
+    if (r) {
         var jeVRuke = r.parentNode && (r.parentNode.id === "ruka-p1" || r.parentNode.id === "ruka-p2");
-        var i = !document.getElementById("panel-erik").classList.contains("schovany") || !document.getElementById("panel-marek").classList.contains("schovany");
         
-        if (jeVRuke && !blokujVykladanie && !i) {
-            var u = r.getAttribute("data-meno") || "", 
-                c = parseInt(r.getAttribute("data-pnum"), 10) || 1, 
-                s = parseInt(r.getAttribute("data-row"), 10) || 0, 
-                d = parseInt(r.getAttribute("data-pwr"), 10) || 0, 
-                l = "true" === r.getAttribute("data-isspy");
+        // Ak sa klikne na fotku na karte, otvorí sa Zoom Modal (zväčšenie)
+        if (e.target.classList.contains("karta-foto")) {
+            var menoKarty = r.getAttribute("data-meno");
+            if (menoKarty) {
+                otvorDetailKarty(menoKarty);
+                return;
+            }
+        }
 
-            if (c === aktualnyHrac && ((1 === c && !p1Pass) || (2 === c && !p2Pass))) {
-                var f = Math.floor(1e6 * Math.random()).toString(16), 
-                    p = (new Date).getTime().toString(16), 
-                    m = "c_" + c + "*" + u.replace(/\s+/g, "") + "*" + p + "_" + f; 
-                r.id = m;
+        if (!draft_faza && jeVRuke) {
+            var i = !document.getElementById("panel-erik").classList.contains("schovany") || !document.getElementById("panel-marek").classList.contains("schovany");
+            if (!blokujVykladanie && !i) {
+                var u = r.getAttribute("data-meno") || "", 
+                    c = parseInt(r.getAttribute("data-pnum"), 10) || 1, 
+                    s = parseInt(r.getAttribute("data-row"), 10) || 0, 
+                    d = parseInt(r.getAttribute("data-pwr"), 10) || 0, 
+                    l = "true" === r.getAttribute("data-isspy");
 
-                if (0 === s) {
-                    var k = document.getElementById("neutralny-riadok"); 
-                    if (k) {
-                        if ("Šicko v porádku" === u) {
-                            neutralne_vplyvy = []; 
-                            k.innerHTML = "⚡ Neutrálna zóna (Vplyvy stola)"; 
-                            r.remove();
-                        } else {
-                            if (0 === neutralne_vplyvy.length) k.innerHTML = ""; 
-                            k.appendChild(r); 
-                            neutralne_vplyvy.push({ id: m, n: u, pNum: c, row: 0, p: 0, livePwr: "none" });
+                if (c === aktualnyHrac && ((1 === c && !p1Pass) || (2 === c && !p2Pass))) {
+                    var f = Math.floor(1e6 * Math.random()).toString(16), 
+                        p = (new Date).getTime().toString(16), 
+                        m = "c_" + c + "*" + u.replace(/\s+/g, "") + "*" + p + "_" + f; 
+                    r.id = m;
+
+                    if (0 === s) {
+                        var k = document.getElementById("neutralny-riadok"); 
+                        if (k) {
+                            if ("Šicko v porádku" === u) {
+                                neutralne_vplyvy = []; 
+                                k.innerHTML = "⚡ Neutrálna zóna (Vplyvy stola)"; 
+                                r.remove();
+                            } else {
+                                if (0 === neutralne_vplyvy.length) k.innerHTML = ""; 
+                                k.appendChild(r); 
+                                neutralne_vplyvy.push({ id: m, n: u, pNum: c, row: 0, p: 0, livePwr: "none" });
+                            }
                         }
+                        ukonciTah(c); 
+                        return;
                     }
-                    ukonciTah(c); 
-                    return;
-                }
-                
-                var v = l ? (1 === c ? 2 : 1) : c;
-                var h = vytvorZoznamKariet(c).find(function(item) { return item.n === u; });
-                var g = h ? h.cls : "C";
-                var _ = { id: m, n: u, pNum: v, row: s, p: d, livePwr: d, cls: g, isSpy: l };
-                
-                var x = (2 === v) 
-                    ? (1 === s ? "r3" : (2 === s ? "r2" : "r1")) 
-                    : (1 === s ? "r4" : (2 === s ? "r5" : "r6"));
-                
-                var E = document.getElementById(x);
-                
-                if (E) { 
-                    E.appendChild(r); 
-                    r.className = "karta " + (1 === v ? "karta-h1" : "karta-h2"); 
-                    if ("S" === g) r.classList.add("karta-s-class-aura"); 
                     
-                    if (1 === v) p1_played_cards.push(_); else p2_played_cards.push(_); 
+                    var v = l ? (1 === c ? 2 : 1) : c;
+                    var h = vytvorZoznamKariet(c).find(function(item) { return item.n === u; });
+                    var g = h ? h.cls : "C";
+                    var _ = { id: m, n: u, pNum: v, row: s, p: d, livePwr: d, cls: g, isSpy: l };
                     
-                    if (l) { 
-                        dynamicDrawNewCard(c); 
-                        dynamicDrawNewCard(c); 
-                        if ("A" === g || "S" === g) { spustiSpyNakukanie(c); } 
-                    } 
-                    if ("Doktor" === u || "Sestricka" === u) ozivKartuZArchivu(c); 
-                }
-                
-                if ("Erik" === u) { 
-                    hracCakajuciNaAkciu = c; 
-                    blokujVykladanie = true; 
-                    setTimeout(function() { 1 === c ? document.getElementById("panel-erik").classList.remove("schovany") : spustiErikaAIJadro(2); }, 10); 
-                } else if ("Marek" === u) { 
-                    hracCakajuciNaAkciu = c; 
-                    blokujVykladanie = true; 
-                    setTimeout(function() { 1 === c ? spustiMarekaLogiku() : spustiMarekaAIJadro(2); }, 10); 
-                } else {
-                    ukonciTah(c);
+                    var x = (2 === v) 
+                        ? (1 === s ? "r3" : (2 === s ? "r2" : "r1")) 
+                        : (1 === s ? "r4" : (2 === s ? "r5" : "r6"));
+                    
+                    var E = document.getElementById(x);
+                    
+                    if (E) { 
+                        E.appendChild(r); 
+                        r.className = "karta " + (1 === v ? "karta-h1" : "karta-h2"); 
+                        if ("S" === g) r.classList.add("karta-s-class-aura"); 
+                        
+                        if (1 === v) p1_played_cards.push(_); else p2_played_cards.push(_); 
+                        
+                        if (l) { 
+                            dynamicDrawNewCard(c); 
+                            dynamicDrawNewCard(c); 
+                            if ("A" === g || "S" === g) { spustiSpyNakukanie(c); } 
+                        } 
+                        if ("Doktor" === u || "Sestricka" === u) ozivKartuZArchivu(c); 
+                    }
+                    
+                    if ("Erik" === u) { 
+                        hracCakajuciNaAkciu = c; 
+                        blokujVykladanie = true; 
+                        setTimeout(function() { 1 === c ? document.getElementById("panel-erik").classList.remove("schovany") : spustiErikaAIJadro(2); }, 10); 
+                    } else if ("Marek" === u) { 
+                        hracCakajuciNaAkciu = c; 
+                        blokujVykladanie = true; 
+                        setTimeout(function() { 1 === c ? spustiMarekaLogiku() : spustiMarekaAIJadro(2); }, 10); 
+                    } else {
+                        ukonciTah(c);
+                    }
                 }
             }
         }
