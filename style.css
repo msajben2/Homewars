@@ -1,4 +1,4 @@
-/* ZÁKLADNÉ ŠTÝLY PRE HOME WARS (v9.0.0 STREDOVEKÝ DIZAJN) */
+/* ZÁKLADNÉ ŠTÝLY PRE HOME WARS (v9.2.0 STREDOVEKÝ DIZAJN) */
 body {
     background: #12100e url('https://www.transparenttextures.com/patterns/dark-wood.png');
     color: #e0d0b0;
@@ -263,7 +263,7 @@ main {
 }
 
 /* =========================================================================
-   TCG ANATÓMIA KARTY (STREDOVEKÉ OBRÁZKY + KOVANÉ PEČATE)
+   TCG ANATÓMIA KARTY (S TLAČIDLOM PRE NÁHĽAD 🔍)
    ========================================================================= */
 
 .karta {
@@ -301,7 +301,6 @@ main {
     word-break: break-word;
 }
 
-/* VÝREZ OBRÁZKA KARTY */
 .karta-foto {
     width: 100%;
     height: 90px;
@@ -310,6 +309,32 @@ main {
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.15);
     margin-top: 6px;
+}
+
+/* TLAČIDLO PRE NÁHĽAD (🔍 LUPA) */
+.karta-btn-inspect {
+    position: absolute;
+    top: 2px;
+    right: 22px;
+    width: 20px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #d4af37;
+    border-radius: 50%;
+    color: #d4af37;
+    font-size: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.karta-btn-inspect:hover {
+    transform: scale(1.2);
+    background: #d4af37;
+    color: #000;
 }
 
 /* KOVANÉ PEČATE NAMIESTO FAREBNÝCH KRÚŽKOV */
@@ -327,7 +352,6 @@ main {
     z-index: 2;
 }
 
-/* 1. ĽAVÝ HORNÝ ROH - SILA KARTY */
 .karta-kruh-pwr {
     top: -6px;
     left: -6px;
@@ -336,19 +360,9 @@ main {
     color: #fff;
 }
 
-.karta-kruh-pwr.buffed { 
-    color: #4ade80; 
-    border-color: #4ade80; 
-    background: #062612;
-}
+.karta-kruh-pwr.buffed { color: #4ade80; border-color: #4ade80; background: #062612; }
+.karta-kruh-pwr.debuffed { color: #f87171; border-color: #f87171; background: #2b0b0b; }
 
-.karta-kruh-pwr.debuffed { 
-    color: #f87171; 
-    border-color: #f87171; 
-    background: #2b0b0b;
-}
-
-/* 2. PRAVÝ HORNÝ ROH - TRIEDA KARTY (C, B, A, S) */
 .karta-kruh-cls {
     top: -6px;
     right: -6px;
@@ -361,7 +375,6 @@ main {
 .cls-A { border: 3px solid #c0c0c0; color: #000; border-color: #fff; background: #a0a0a0; }
 .cls-S { border: 3px solid #d4af37; color: #000; border-color: #fff; box-shadow: 0 0 10px #d4af37; background: #ffd700; }
 
-/* 3. ĽAVÝ DOLNÝ ROH - TYP RADU (M, Ž, Z, ⚡) */
 .karta-kruh-row {
     bottom: -6px;
     left: -6px;
@@ -375,7 +388,6 @@ main {
 .row-a { border-color: #10b981; color: #34d399; }
 .row-n { border-color: #f59e0b; color: #fbbf24; }
 
-/* 4. PRAVÝ DOLNÝ ROH - SCHOPNOSŤ */
 .karta-kruh-ability {
     bottom: -6px;
     right: -6px;
@@ -389,7 +401,7 @@ main {
     box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
 }
 
-/* CARD ZOOM MODAL (ZVÄČŠENIE KARTY PO KLIKNUTÍ) */
+/* CARD ZOOM MODAL */
 .card-modal {
     display: none;
     position: fixed;
@@ -447,7 +459,77 @@ main {
     line-height: 1.4;
 }
 
-/* MRIEŽKY PRE DIELŇU, ZOSTE VU A TRHOVISKO */
+/* KOVÁČSKY MAGICKÝ RITUÁL (FORGE MODAL) */
+.forge-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(10, 8, 5, 0.92);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.forge-ritual-box {
+    text-align: center;
+    color: #d4af37;
+}
+
+.forge-title {
+    font-size: 1.8em;
+    text-shadow: 0 0 10px #ffcc00;
+    margin-bottom: 30px;
+}
+
+.forge-arena {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.forge-target-card {
+    transform: scale(1.4);
+    z-index: 5;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.forge-sparkle-active {
+    transform: scale(1.6) rotate(360deg) !important;
+    box-shadow: 0 0 40px #ffd700, 0 0 80px #ff8c00 !important;
+}
+
+.forge-orb {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ffd700 0%, #ff4500 100%);
+    box-shadow: 0 0 15px #ffcc00;
+    animation: forgeOrbit 1.2s infinite linear;
+}
+
+.orb-1 { top: 0; left: 105px; animation-delay: 0s; }
+.orb-2 { bottom: 20px; left: 20px; animation-delay: 0.4s; }
+.orb-3 { bottom: 20px; right: 20px; animation-delay: 0.8s; }
+
+@keyframes forgeOrbit {
+    0% { transform: rotate(0deg) translate(90px) rotate(0deg); }
+    100% { transform: rotate(360deg) translate(90px) rotate(-360deg); }
+}
+
+.forge-status {
+    margin-top: 30px;
+    font-size: 1.1em;
+    font-style: italic;
+    color: #e0d0b0;
+}
+
+/* MRIEŽKY PRE DIELŇU, ZOSTA VU A TRHOVISKO */
 .zostava-grid, .dielna-grid, .obchod-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
