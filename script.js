@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 8.2.9 - HARD FIX HTML RENDERINGU KARIET)
+// RODINNÁ HRA - HOME WARS (VERZIA 8.3.0 - CLEAN ABILITY BADGES)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "8.2.9";
+var VERZIA = "8.3.0";
 
 var MASTER_REGISTRY = {
     "Michal": { row: 1, p: 4 }, "Erik": { row: 1, p: 3 }, "Marek": { row: 1, p: 4 },
@@ -67,7 +67,7 @@ function zratajRad(list, row) {
 }
 
 /* =========================================================================
-   GENEROVANIE KARTY S 3 KRUHOVÝMI ODZNAKMI
+   GENEROVANIE KARTY A LOGIKA ODZNAKOV
    ========================================================================= */
 
 function getRowLetterAndClass(row) {
@@ -75,6 +75,21 @@ function getRowLetterAndClass(row) {
     if (row === 2) return { text: "Ž", cls: "row-z" };
     if (row === 3) return { text: "Z", cls: "row-a" };
     return { text: "⚡", cls: "row-n" };
+}
+
+function getAbilityBadge(meno) {
+    if (meno === "Kika" || meno === "Zvedava suseda") return { text: "🕵️", title: "Špión" };
+    if (meno === "Marek") return { text: "🧹", title: "Filozof" };
+    if (meno === "Erik" || meno === "Sisa" || meno === "Michal" || meno === "Duri") return { text: "📢", title: "Buff / Taktik" };
+    if (meno === "Katy") return { text: "💖", title: "Láskavosť" };
+    if (meno === "Oli") return { text: "✝️", title: "Imunita" };
+    if (meno === "Nela") return { text: "🛡️", title: "Amulet / Zámok" };
+    if (meno === "Doktor" || meno === "Sestricka") return { text: "🏥", title: "Oživenie" };
+    if (meno.indexOf("Mravce") !== -1 || meno.indexOf("holuby") !== -1) return { text: "🤝", title: "Svorka" };
+    if (meno === "Alcohol" || meno === "Kvety" || meno === "Medove Orechy") return { text: "🛠️", title: "Predmet" };
+    if (isSpecialCard(meno)) return { text: "⚡", title: "Vplyv stola" };
+    
+    return null; // Obyčajné karty nemajú v 4. rohu nič
 }
 
 function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
@@ -92,6 +107,11 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     html += "<div class='karta-kruh karta-kruh-cls cls-" + cls + "'>" + cls + "</div>";
     html += "<div class='karta-nazov'>" + meno + "</div>";
     html += "<div class='karta-kruh karta-kruh-row " + rInfo.cls + "'>" + rInfo.text + "</div>";
+
+    var ab = getAbilityBadge(meno);
+    if (ab) {
+        html += "<div class='karta-kruh karta-kruh-ability' title='" + ab.title + "'>" + ab.text + "</div>";
+    }
 
     return html;
 }
