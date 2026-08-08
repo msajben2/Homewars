@@ -1,4 +1,4 @@
-/* ZÁKLADNÉ ŠTÝLY PRE HOME WARS */
+/* ZÁKLADNÉ ŠTÝLY PRE HOME WARS (v8.2.8) */
 body {
     background-color: #121212;
     color: #e0e0e0;
@@ -40,11 +40,7 @@ header {
     font-weight: bold;
 }
 
-.schovana-sekcia {
-    display: none !important;
-}
-
-.schovany {
+.schovana-sekcia, .schovany {
     display: none !important;
 }
 
@@ -171,7 +167,7 @@ main {
     padding: 10px 15px;
     border-radius: 5px;
     border: 1px dashed #444;
-    min-height: 100px;
+    min-height: 120px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -223,27 +219,51 @@ main {
     border-radius: 6px;
 }
 
+/* SKRYTIE RUKY AI */
+.ruka-ai-skryta .karta {
+    background: #1a1a1a !important;
+    border-color: #444 !important;
+    color: transparent !important;
+    box-shadow: none !important;
+}
+
+.ruka-ai-skryta .karta * {
+    display: none !important;
+}
+
+.ruka-ai-skryta .karta::after {
+    content: "HW";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #555;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
 .karty-ruka-flex {
     display: flex;
     gap: 12px;
     overflow-x: auto;
-    min-height: 170px;
+    min-height: 160px;
     padding: 10px;
     align-items: center;
 }
 
 /* =========================================================================
-   NOVÁ ANATÓMIA A TCG DESIGN KARTY
+   TCG ANATÓMIA KARTY (v8.2.8) - TROJICA KRUHOVÝCH ODZNAKOV
    ========================================================================= */
 
 .karta {
     position: relative;
-    width: 110px;
-    height: 150px;
-    background: #2a2a2a;
-    border: 2px solid #555;
-    border-radius: 8px;
-    padding: 8px;
+    width: 105px;
+    height: 145px;
+    background: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%);
+    border: 2px solid #444;
+    border-radius: 10px;
+    padding: 10px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -259,91 +279,119 @@ main {
 .karta:hover {
     transform: translateY(-8px) scale(1.05);
     z-index: 20;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.7);
 }
 
-/* Názov karty v strede */
 .karta-nazov {
     font-weight: bold;
-    font-size: 0.85em;
+    font-size: 0.82em;
     color: #fff;
-    margin-top: 8px;
+    margin-top: 5px;
     word-break: break-word;
-    line-height: 1.2;
+    line-height: 1.25;
 }
 
-/* 1. ĽAVÝ HORNÝ ROH - Kruh s interaktívnou silou */
-.karta-badge-pwr {
+/* SPOLOČNÝ KRUHOVÝ ŠTÝL PRE ODZNAKY */
+.karta-kruh {
     position: absolute;
-    top: -8px;
-    left: -8px;
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: #111;
-    border: 2px solid #ffcc00;
-    color: #ffcc00;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 0.9em;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    font-size: 0.85em;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
     z-index: 2;
 }
 
-.karta-badge-pwr.buffed { 
+/* 1. ĽAVÝ HORNÝ ROH - SILA KARTY */
+.karta-kruh-pwr {
+    top: -8px;
+    left: -8px;
+    background: #111;
+    border: 2px solid #ffcc00;
+    color: #ffcc00;
+}
+
+.karta-kruh-pwr.buffed { 
     color: #4ade80; 
     border-color: #4ade80; 
     background: #062612;
 }
 
-.karta-badge-pwr.debuffed { 
+.karta-kruh-pwr.debuffed { 
     color: #f87171; 
     border-color: #f87171; 
     background: #2b0b0b;
 }
 
-/* 2. PRAVÝ HORNÝ ROH - Trieda karty */
-.karta-badge-cls {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.7em;
-    font-weight: bold;
+/* 2. PRAVÝ HORNÝ ROH - TRIEDA KARTY (C, B, A, S) */
+.karta-kruh-cls {
+    top: -8px;
+    right: -8px;
+    border: 2px solid #fff;
     color: #fff;
-    border: 1px solid rgba(255,255,255,0.3);
-    z-index: 2;
 }
 
-.cls-C { background: #555; }
-.cls-B { background: #cd7f32; }
-.cls-A { background: #c0c0c0; color: #000; }
-.cls-S { background: #ffd700; color: #000; box-shadow: 0 0 8px #ffd700; }
+.cls-C { background: #555; border-color: #888; }
+.cls-B { background: #cd7f32; border-color: #ffa54f; }
+.cls-A { background: #c0c0c0; color: #000; border-color: #fff; }
+.cls-S { background: #ffd700; color: #000; border-color: #fff; box-shadow: 0 0 10px #ffd700; }
 
-/* 3. ĽAVÝ DOLNÝ ROH - Ikona radu */
-.karta-badge-row {
-    position: absolute;
-    bottom: 4px;
-    left: 6px;
-    font-size: 0.85em;
-    opacity: 0.85;
+/* 3. ĽAVÝ DOLNÝ ROH - TYP RADU (M, Ž, Z, ⚡) */
+.karta-kruh-row {
+    bottom: -8px;
+    left: -8px;
+    background: #222;
+    border: 2px solid #666;
+    color: #e0e0e0;
+    font-size: 0.8em;
 }
+
+.row-m { border-color: #3b82f6; color: #60a5fa; } /* Muži - Modrá */
+.row-z { border-color: #ec4899; color: #f472b6; } /* Ženy - Ružová */
+.row-a { border-color: #10b981; color: #34d399; } /* Zvieratá - Zelená */
+.row-n { border-color: #f59e0b; color: #fbbf24; } /* Neutrál - Oranžová */
 
 /* S-Class Zlatá Aura */
 .karta-s-class-aura {
     border-color: #ffd700 !important;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
 }
 
-/* ========================================================================= */
+/* MRIEŽKY PRE DIELŇU, ZOSTA V U A TRHOVISKO */
+.zostava-grid, .dielna-grid, .obchod-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    justify-items: center;
+}
 
-.akcne-tlacidla-bar {
+.karta-karta-wrapper {
     display: flex;
-    gap: 10px;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    background: #222;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.karta-karta-wrapper.v-zostave {
+    border-color: #198754;
+    background: #11291b;
+}
+
+.karta-akcie-box {
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .modal-overlay {
@@ -367,53 +415,3 @@ main {
     gap: 10px;
     min-width: 300px;
 }
-
-.zostava-grid, .dielna-grid, .obchod-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-}
-
-.zostava-polozka-karta, .dielna-polozka, .obchod-polozka-karta {
-    background: #242424;
-    border: 1px solid #444;
-    padding: 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    text-align: center;
-}
-
-.zostava-polozka-karta.v-zostave {
-    border-color: #198754;
-    background: #11291b;
-}
-
-.status-label {
-    font-size: 0.8em;
-    margin-top: 5px;
-    color: #aaa;
-}
-
-.dielna-info {
-    font-weight: bold;
-    margin-bottom: 6px;
-}
-
-.dielna-akcie {
-    display: flex;
-    gap: 5px;
-    margin-top: 8px;
-}
-
-.btn-forge, .btn-recycle, .btn-obchod-nakup {
-    flex: 1;
-    border: none;
-    padding: 6px;
-    border-radius: 4px;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 0.85em;
-}
-
-.btn-forge { background: #ffc107; color: #000; }
