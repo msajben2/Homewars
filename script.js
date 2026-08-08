@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 9.5.0 - CINEMATIC FORGE & BIG ZOOM)
+// RODINNÁ HRA - HOME WARS (VERZIA 9.6.0 - SPARKS & FRAMES UPDATE)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "9.5.0";
+var VERZIA = "9.6.0";
 
 // MASTER REGISTRAČNÁ TABUĽKA KARIET
 var MASTER_REGISTRY = {
@@ -41,7 +41,7 @@ var MASTER_REGISTRY = {
     "Kika": { row: 2, p: 3, isSpy: true, img: "Img/kika.jpg", desc: "Tajuplná hradná archivárka so zvinutými kráľovskými dekrétmi.", abilityDesc: "🕵️ Špión: Vykladá sa na SÚPEROVU stranu stola! Za odmenu ti však okamžite potiahne 2 NOVÉ KARTY z balíčka." },
     "Zvedava suseda": { row: 2, p: 7, isSpy: true, img: "Img/zvedava-suseda.jpg", desc: "Pozorné oko podhradia. Z okna jej neunikne ani jediný klep.", abilityDesc: "🕵️ Špión: Vykladá sa na SÚPEROVU stranu stola a dá ti 2 nové karty z balíčka." },
     
-    // ZVIERATÁ A SVORKY
+    // ZVIERATÁ A SVORKY (OPRAVENÉ ČÍSLOVANIE A VYHĽADÁVANIE OBRÁZKOV)
     "Grobske Mravce 1": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov. Sú malé, no v obrovskom počte nepremožiteľné.", abilityDesc: "🤝 Svorka: Ak vyložíš 2 mravce, ich sila stúpne na 2b. Ak vyložíš všetky 3 mravce, ich sila stúpne na 4b za každého!" },
     "Grobske Mravce 2": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
     "Grobske Mravce 3": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
@@ -73,7 +73,9 @@ var p1_used_mulligan = false, p2_used_mulligan = false, p1_confirmed_mulligan = 
 var draft_faza = true; var p1_spalene = [], p2_spalene = [], neutralne_vplyvy = [];
 var jeSingleplayer = false; var obtiaznostAI = "B"; var inventar = { mince: 500, karty: {}, zostava: [] };
 
+// UNIVERZÁLNE VYHĽADÁVANIE REGISTRÁCIE (BEZPEČNÉ PRE MRAVCE A HOLUBY)
 function getRegistryCard(meno) {
+    if (!meno) return {};
     if (MASTER_REGISTRY[meno]) return MASTER_REGISTRY[meno];
     var zaklad = meno.replace(/\s\d$/, "");
     if (MASTER_REGISTRY[zaklad]) return MASTER_REGISTRY[zaklad];
@@ -158,7 +160,6 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     return html;
 }
 
-// ZVÄČŠENIE KARTY NA 70% OBRAZOVKY S POPISOM SCHOPNOSTÍ
 function otvorDetailKarty(meno) {
     var reg = getRegistryCard(meno);
     if (!reg) return;
@@ -190,7 +191,6 @@ function otvorDetailKarty(meno) {
     modal.style.display = "flex";
 }
 
-// OKNO NÁVODU A PRAVIDIEL
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
     if (!modal) {
@@ -217,7 +217,7 @@ function otvoriťNavodHry() {
                 </ul>
 
                 <h3 style="color:#ffcc00; margin-top:10px;">3. Triedy Kariet & Kováčstvo</h3>
-                <p>Každá karta má 4 úrovne kvality: <strong>C (Bronz)</strong>, <strong>B (Striebro)</strong>, <strong>A (Zlato)</strong> a <strong>S (Legendárna)</strong>. Vyššia trieda dáva karte bonusové body a silnejšiu auru!</p>
+                <p>Každá karta má 4 úrovne kvality: <strong>C (Bronz)</strong>, <strong>B (Striebro)</strong>, <strong>A (Zlato)</strong> a <strong>S (Legendárna)</strong>. Vyššia trieda dáva karte bonusové body a masívny zberateľský rám!</p>
 
                 <h3 style="color:#ffcc00; margin-top:10px;">4. Špeciálne Schopnosti</h3>
                 <ul>
@@ -230,6 +230,31 @@ function otvoriťNavodHry() {
         </div>
     `;
     modal.style.display = "flex";
+}
+
+// GENERÁTOR SKUTOČNÝCH KOVÁČSKYCH ISKIER
+function vygenerujKovacieIskry(arenaEl, pocet, farba) {
+    var iskryBox = document.createElement("div");
+    iskryBox.className = "sparks-container";
+    arenaEl.appendChild(iskryBox);
+
+    for (var i = 0; i < pocet; i++) {
+        var iskra = document.createElement("div");
+        iskra.className = "spark spark-" + farba;
+        
+        var uhol = Math.random() * 360;
+        var vzdialenost = 80 + Math.random() * 180;
+        var dx = Math.cos(uhol * Math.PI / 180) * vzdialenost;
+        var dy = Math.sin(uhol * Math.PI / 180) * vzdialenost;
+        
+        iskra.style.setProperty('--dx', dx + 'px');
+        iskra.style.setProperty('--dy', dy + 'px');
+        iskra.style.left = '50%';
+        iskra.style.top = '50%';
+        iskra.style.animationDelay = (Math.random() * 1.5) + 's';
+        
+        iskryBox.appendChild(iskra);
+    }
 }
 
 // POMPÉZNY KOVÁČSKY MAGICKÝ RITUÁL
@@ -249,8 +274,7 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
     var html = `
         <div class="forge-ritual-box">
             <h2 class="forge-title forge-title-${novaTrieda}">🔨 MAGICKÉ KOVANIE (${novaTrieda}-CLASS)</h2>
-            <div class="forge-arena">
-                <div class="forge-sparks sparks-${novaTrieda}"></div>
+            <div class="forge-arena" id="forge-arena-box">
                 <div class="forge-orb orb-1 orb-${novaTrieda}"></div>
                 <div class="forge-orb orb-2 orb-${novaTrieda}"></div>
                 <div class="forge-orb orb-3 orb-${novaTrieda}"></div>
@@ -266,6 +290,10 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
     
     modal.innerHTML = html;
     modal.style.display = "flex";
+
+    var arena = document.getElementById("forge-arena-box");
+    var pocetIskier = (novaTrieda === "S") ? 80 : ((novaTrieda === "A") ? 50 : 30);
+    if (arena) vygenerujKovacieIskry(arena, pocetIskier, novaTrieda);
 
     setTimeout(function() {
         var card = document.getElementById("forge-target-card");
@@ -1207,7 +1235,6 @@ document.addEventListener("DOMContentLoaded", function() {
     if (r) r.addEventListener("click", function() { prepniSekciuVizualne("sekcia-dielna"), aktualizujPanelDielne() }); 
     if (n) n.addEventListener("click", function() { prepniSekciuVizualne("sekcia-trhovisko"), vygenerujRegalyTrhoviska(), aktualizujPanelDielne() }); 
     
-    // Pridanie tlačidla Návodu do hlavného menu, ak tam neexistuje
     var header = document.querySelector("header");
     if (header && !document.getElementById("menu-btn-navod")) {
         var btnNavod = document.createElement("button");
