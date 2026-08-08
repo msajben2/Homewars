@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 9.6.0 - SPARKS & FRAMES UPDATE)
+// RODINNÁ HRA - HOME WARS (VERZIA 9.7.0 - LUXURY FRAMES & FIXES)
 // =========================================================================
 
 (function() {
@@ -13,14 +13,14 @@
     }
 })();
 
-var VERZIA = "9.6.0";
+var VERZIA = "9.7.0";
 
 // MASTER REGISTRAČNÁ TABUĽKA KARIET
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
     "Michal": { row: 1, p: 4, img: "Img/michal.png", desc: "Bystrý obchodník. Váži zlato a pozná presnú cenu každej veci v kráľovstve.", abilityDesc: "📢 Taktik: Ak nie je na stole Nela, zdvojnásobuje bodovú hodnotu neutrálnych predmetov vo svojom rade." },
     "Erik": { row: 1, p: 3, img: "Img/erik.png", desc: "Geniálny taktik, ktorý plánuje každý krok nad bojovou mapou so šachovými figúrkami.", abilityDesc: "📢 Buff: Po vyložení si vyberieš jeden rad (1, 2 alebo 3), ktorému pridá +100% k základnej sile kariet." },
-    "Marek": { row: 1, p: 4, img: "Img/marek.png", desc: "Učený filozof vo fialovom plášti. Svojimi rečami zmäti a odstráni každého protivníka.", abilityDesc: "🧹 Filozof: Po vyložení ti umožní vybrať a spáliť (odstrániť z hry) jednu súpeľovu kartu." },
+    "Marek": { row: 1, p: 4, img: "Img/marek.png", desc: "Učený filozof vo fialovom plášti.", abilityDesc: "🧹 Filozof: Svojím otravným filozofovaním úplne zmatie zvolenú kartu súpera a odstráni ju z hry do archívu." },
     "Duri": { row: 1, p: 6, img: "Img/duri.png", desc: "Veterán v plnej zbroji. Pevný a neoblomný pilier každej bitky.", abilityDesc: "📢 Taktik: V kombinácii s Alkoholom dáva extra posilnenie celému mužskému radu." },
     "Doktor": { row: 1, p: 5, img: "Img/doktor.png", desc: "Hradný alchymista a lekár, ktorý vie namiešať liečivý elixír aj nebezpečný jed.", abilityDesc: "🏥 Oživenie: Po vyložení ihneď vytiahne a vráti do hry poslednú spálenú kartu z tvojho archívu." },
     "Neviditelny Mario": { row: 1, p: 4, img: "Img/neviditelny-mario.png", desc: "Tajuplný zbojník v kapucni, ktorý nečakane udrie z tieňa a znova zmizne.", abilityDesc: "Tichý útočník s vysokou útočnou silou." },
@@ -41,7 +41,7 @@ var MASTER_REGISTRY = {
     "Kika": { row: 2, p: 3, isSpy: true, img: "Img/kika.jpg", desc: "Tajuplná hradná archivárka so zvinutými kráľovskými dekrétmi.", abilityDesc: "🕵️ Špión: Vykladá sa na SÚPEROVU stranu stola! Za odmenu ti však okamžite potiahne 2 NOVÉ KARTY z balíčka." },
     "Zvedava suseda": { row: 2, p: 7, isSpy: true, img: "Img/zvedava-suseda.jpg", desc: "Pozorné oko podhradia. Z okna jej neunikne ani jediný klep.", abilityDesc: "🕵️ Špión: Vykladá sa na SÚPEROVU stranu stola a dá ti 2 nové karty z balíčka." },
     
-    // ZVIERATÁ A SVORKY (OPRAVENÉ ČÍSLOVANIE A VYHĽADÁVANIE OBRÁZKOV)
+    // ZVIERATÁ A SVORKY
     "Grobske Mravce 1": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov. Sú malé, no v obrovskom počte nepremožiteľné.", abilityDesc: "🤝 Svorka: Ak vyložíš 2 mravce, ich sila stúpne na 2b. Ak vyložíš všetky 3 mravce, ich sila stúpne na 4b za každého!" },
     "Grobske Mravce 2": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
     "Grobske Mravce 3": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
@@ -73,7 +73,6 @@ var p1_used_mulligan = false, p2_used_mulligan = false, p1_confirmed_mulligan = 
 var draft_faza = true; var p1_spalene = [], p2_spalene = [], neutralne_vplyvy = [];
 var jeSingleplayer = false; var obtiaznostAI = "B"; var inventar = { mince: 500, karty: {}, zostava: [] };
 
-// UNIVERZÁLNE VYHĽADÁVANIE REGISTRÁCIE (BEZPEČNÉ PRE MRAVCE A HOLUBY)
 function getRegistryCard(meno) {
     if (!meno) return {};
     if (MASTER_REGISTRY[meno]) return MASTER_REGISTRY[meno];
@@ -191,6 +190,7 @@ function otvorDetailKarty(meno) {
     modal.style.display = "flex";
 }
 
+// GRAMATICKY SKONTROLOVANÝ NÁVOD HROVÝCH PRAVIDIEL
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
     if (!modal) {
@@ -207,23 +207,23 @@ function otvoriťNavodHry() {
             <h2 style="color:#d4af37; border-bottom:2px solid #5a4d3e; padding-bottom:10px;">📜 NÁVOD & PRAVIDLÁ HOME WARS</h2>
             <div style="text-align:left; font-size:0.9em; line-height:1.5; color:#e0d0b0; max-height:60vh; overflow-y:auto; padding-right:10px;">
                 <h3 style="color:#ffcc00; margin-top:10px;">1. Cieľ Hry</h3>
-                <p>Home Wars je stredoveká kartová hra na 2 víťazné kolá. Tvojím cieľom je získať v kole viac celkových bodov ako súprer vykladaním postav a zvierat do 3 radov.</p>
+                <p>Home Wars je stredoveká taktická kartová hra na 2 víťazné kolá. Tvojím cieľom je získať v každom kole viac celkových bodov ako súper vykladaním postav a zvierat do 3 bočných radov.</p>
 
                 <h3 style="color:#ffcc00; margin-top:10px;">2. Herné Rady</h3>
                 <ul>
-                    <li><strong>1. Rad (Muži - M):</strong> Bojovníci, kováči a taktici. Posilňuje ich Medovina/Alkohol.</li>
-                    <li><strong>2. Rad (Ženy - Ž):</strong> Kráľovné, pekárky a ošetrovateľky. Posilňujú ich Kvety.</li>
-                    <li><strong>3. Rad (Zvieratá - Z):</strong> Mravce, holuby a šelmy. Posilňujú ich Medové orechy.</li>
+                    <li><strong>1. Rad (Muži - M):</strong> Bojovníci, kováči a hradní taktici. Posilňuje ich Medovina/Alkohol.</li>
+                    <li><strong>2. Rad (Ženy - Ž):</strong> Kráľovné, pekárky a ošetrovateľky. Posilňujú ich čerstvé Kvety.</li>
+                    <li><strong>3. Rad (Zvieratá - Z):</strong> Mravce, holuby a horské šelmy. Posilňujú ich Medové orechy.</li>
                 </ul>
 
                 <h3 style="color:#ffcc00; margin-top:10px;">3. Triedy Kariet & Kováčstvo</h3>
-                <p>Každá karta má 4 úrovne kvality: <strong>C (Bronz)</strong>, <strong>B (Striebro)</strong>, <strong>A (Zlato)</strong> a <strong>S (Legendárna)</strong>. Vyššia trieda dáva karte bonusové body a masívny zberateľský rám!</p>
+                <p>Každá karta má 4 úrovne kvality: <strong>C (Základná / Casual)</strong>, <strong>B (Bronzová)</strong>, <strong>A (Strieborná)</strong> a <strong>S (Zlatá Kráľovská)</strong>. Vyššia trieda pridáva karte bonusové body a masívny vyrezávaný rám!</p>
 
                 <h3 style="color:#ffcc00; margin-top:10px;">4. Špeciálne Schopnosti</h3>
                 <ul>
                     <li><strong>🕵️ Špión (ᛟ):</strong> Vyloží sa súpeľovi, no okamžite ti potiahne 2 nové karty z balíčka.</li>
-                    <li><strong>🧹 Filozof (ᚠ - Marek):</strong> Zničí a odstráni zvolenú súpeľovu kartu zo stola.</li>
-                    <li><strong>🏥 Oživenie (ᛞ - Doktor, Sestrička):</strong> Vráti spálenú kartu z hradného archívu späť do hry.</li>
+                    <li><strong>🧹 Filozof (ᚠ - Marek):</strong> Svojím otravným filozofovaním úplne zmatie zvolenú kartu súpera a odstráni ju z hry.</li>
+                    <li><strong>🏥 Oživenie (ᛞ - Doktor, Sestrička):</strong> Vráti padlú kartu z hradného archívu späť do plnej bitky.</li>
                     <li><strong>🤝 Svorka (ᚷ - Mravce, Holuby):</strong> Čím viac rovnakých kariet svorky je v rade, tým masívnejšie násobia svoju silu.</li>
                 </ul>
             </div>
