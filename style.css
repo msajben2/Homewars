@@ -1,33 +1,36 @@
-/* ZÁKLADNÉ ŠTÝLY PRE HOME WARS (v8.2.8) */
+/* ZÁKLADNÉ ŠTÝLY PRE HOME WARS (v9.0.0 STREDOVEKÝ DIZAJN) */
 body {
-    background-color: #121212;
-    color: #e0e0e0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #12100e url('https://www.transparenttextures.com/patterns/dark-wood.png');
+    color: #e0d0b0;
+    font-family: 'Georgia', serif;
     margin: 0;
     padding: 0;
 }
 
 header {
-    background: #1f1f1f;
+    background: #1a1612;
     padding: 10px 20px;
     display: flex;
     gap: 10px;
     align-items: center;
-    border-bottom: 2px solid #333;
+    border-bottom: 2px solid #5a4d3e;
 }
 
 .menu-tab {
-    background: #2c2c2c;
-    color: #fff;
-    border: none;
+    background: #2a2118;
+    color: #e0d0b0;
+    border: 1px solid #5a4d3e;
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
+    font-family: 'Georgia', serif;
 }
 
 .menu-tab.aktivna-tab {
-    background: #0d6efd;
+    background: #8b5cf6;
+    color: #fff;
+    border-color: #c084fc;
 }
 
 .menu-wallet {
@@ -49,10 +52,11 @@ main {
 }
 
 .predzapas-box, .herna-ploch-grid, .zostava-grid, .dielna-grid, .obchod-grid {
-    background: #1a1a1a;
+    background: rgba(26, 22, 18, 0.9);
     border-radius: 8px;
     padding: 20px;
-    border: 1px solid #333;
+    border: 1px solid #5a4d3e;
+    box-shadow: 0 0 15px rgba(0,0,0,0.8);
 }
 
 .predzapas-box {
@@ -86,8 +90,9 @@ main {
 .ai-diff-box {
     margin-top: 15px;
     padding: 10px;
-    background: #222;
+    background: #110e0c;
     border-radius: 6px;
+    border: 1px solid #3d3124;
 }
 
 .btn-diff {
@@ -106,10 +111,11 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #222;
+    background: #1a1612;
     padding: 10px 15px;
     border-radius: 6px;
     margin-bottom: 15px;
+    border: 1px solid #5a4d3e;
 }
 
 .herna-ploch-grid {
@@ -119,42 +125,44 @@ main {
 }
 
 .panel-hrac {
-    background: #222;
+    background: #1a1612;
     padding: 10px;
     border-radius: 6px;
+    border: 1px solid #5a4d3e;
 }
 
 .archiv-box {
-    background: #151515;
+    background: #110e0c;
     min-height: 200px;
     max-height: 350px;
     overflow-y: auto;
     padding: 8px;
     border-radius: 4px;
-    border: 1px solid #444;
+    border: 1px solid #3d3124;
     font-size: 0.9em;
 }
 
 .archiv-polozka {
-    background: #2b2b2b;
+    background: #2a2118;
     padding: 4px 6px;
     margin-bottom: 4px;
     border-radius: 3px;
-    border-left: 3px solid #0d6efd;
+    border-left: 3px solid #8b5cf6;
 }
 
 .stred-stola {
-    background: #1e1e1e;
+    background: #15110d;
     padding: 15px;
     border-radius: 6px;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    border: 1px solid #3d3124;
 }
 
 .turn-banner {
     text-align: center;
-    background: #0d6efd;
+    background: #8b5cf6;
     color: white;
     padding: 6px;
     border-radius: 4px;
@@ -163,10 +171,10 @@ main {
 }
 
 .riadok-hraca {
-    background: #262626;
+    background: #1a1612;
     padding: 10px 15px;
     border-radius: 5px;
-    border: 1px dashed #444;
+    border: 1px dashed #5a4d3e;
     min-height: 120px;
     display: flex;
     align-items: center;
@@ -197,13 +205,14 @@ main {
 }
 
 .skore-bar-spodna {
-    background: #111;
+    background: #110e0c;
     text-align: center;
     padding: 8px;
     border-radius: 4px;
     font-weight: bold;
     font-size: 1.1em;
     color: #4ade80;
+    border: 1px solid #3d3124;
 }
 
 .spodny-ovladaci-panel {
@@ -214,15 +223,16 @@ main {
 }
 
 .ruka-kontajner {
-    background: #222;
+    background: #1a1612;
     padding: 10px;
     border-radius: 6px;
+    border: 1px solid #5a4d3e;
 }
 
 /* SKRYTIE RUKY AI */
 .ruka-ai-skryta .karta {
-    background: #1a1a1a !important;
-    border-color: #444 !important;
+    background: #110e0c !important;
+    border-color: #3d3124 !important;
     color: transparent !important;
     box-shadow: none !important;
 }
@@ -238,7 +248,7 @@ main {
     justify-content: center;
     width: 100%;
     height: 100%;
-    color: #555;
+    color: #5a4d3e;
     font-weight: bold;
     font-size: 1.2em;
 }
@@ -247,72 +257,83 @@ main {
     display: flex;
     gap: 12px;
     overflow-x: auto;
-    min-height: 160px;
+    min-height: 165px;
     padding: 10px;
     align-items: center;
 }
 
 /* =========================================================================
-   TCG ANATÓMIA KARTY (v8.2.8) - TROJICA KRUHOVÝCH ODZNAKOV
+   TCG ANATÓMIA KARTY (STREDOVEKÉ OBRÁZKY + KOVANÉ PEČATE)
    ========================================================================= */
 
 .karta {
     position: relative;
-    width: 105px;
-    height: 145px;
-    background: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%);
-    border: 2px solid #444;
-    border-radius: 10px;
-    padding: 10px;
+    width: 110px;
+    height: 155px;
+    background: #1a1612;
+    border-radius: 8px;
+    padding: 4px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    text-align: center;
-    user-select: none;
+    justify-content: space-between;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    user-select: none;
     flex-shrink: 0;
 }
 
 .karta:hover {
-    transform: translateY(-8px) scale(1.05);
+    transform: translateY(-6px) scale(1.04);
     z-index: 20;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.8);
 }
 
 .karta-nazov {
     font-weight: bold;
-    font-size: 0.82em;
-    color: #fff;
-    margin-top: 5px;
+    font-size: 0.78em;
+    color: #f0e2c5;
+    text-shadow: 1px 1px 2px #000;
+    margin-bottom: 2px;
+    text-align: center;
+    line-height: 1.1;
     word-break: break-word;
-    line-height: 1.25;
 }
 
-/* SPOLOČNÝ KRUHOVÝ ŠTÝL PRE ODZNAKY */
+/* VÝREZ OBRÁZKA KARTY */
+.karta-foto {
+    width: 100%;
+    height: 90px;
+    background-size: cover;
+    background-position: center top;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    margin-top: 6px;
+}
+
+/* KOVANÉ PEČATE NAMIESTO FAREBNÝCH KRÚŽKOV */
 .karta-kruh {
     position: absolute;
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 0.85em;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    font-size: 0.8em;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.8);
     z-index: 2;
 }
 
 /* 1. ĽAVÝ HORNÝ ROH - SILA KARTY */
 .karta-kruh-pwr {
-    top: -8px;
-    left: -8px;
-    background: #111;
-    border: 2px solid #ffcc00;
-    color: #ffcc00;
+    top: -6px;
+    left: -6px;
+    background: radial-gradient(circle, #5a4d3e 0%, #2a2118 100%);
+    border: 2px solid #b89b5e;
+    color: #fff;
 }
 
 .karta-kruh-pwr.buffed { 
@@ -329,39 +350,104 @@ main {
 
 /* 2. PRAVÝ HORNÝ ROH - TRIEDA KARTY (C, B, A, S) */
 .karta-kruh-cls {
-    top: -8px;
-    right: -8px;
+    top: -6px;
+    right: -6px;
     border: 2px solid #fff;
     color: #fff;
 }
 
-.cls-C { background: #555; border-color: #888; }
-.cls-B { background: #cd7f32; border-color: #ffa54f; }
-.cls-A { background: #c0c0c0; color: #000; border-color: #fff; }
-.cls-S { background: #ffd700; color: #000; border-color: #fff; box-shadow: 0 0 10px #ffd700; }
+.cls-C { border: 3px solid #6e6b66; box-shadow: inset 0 0 8px #000; background: #444; }
+.cls-B { border: 3px solid #a86529; box-shadow: 0 0 5px #a86529, inset 0 0 8px #000; background: #8a4812; }
+.cls-A { border: 3px solid #c0c0c0; color: #000; border-color: #fff; background: #a0a0a0; }
+.cls-S { border: 3px solid #d4af37; color: #000; border-color: #fff; box-shadow: 0 0 10px #d4af37; background: #ffd700; }
 
 /* 3. ĽAVÝ DOLNÝ ROH - TYP RADU (M, Ž, Z, ⚡) */
 .karta-kruh-row {
-    bottom: -8px;
-    left: -8px;
-    background: #222;
-    border: 2px solid #666;
-    color: #e0e0e0;
-    font-size: 0.8em;
+    bottom: -6px;
+    left: -6px;
+    background: #1a1612;
+    border: 2px solid #5a4d3e;
+    color: #e0d0b0;
 }
 
-.row-m { border-color: #3b82f6; color: #60a5fa; } /* Muži - Modrá */
-.row-z { border-color: #ec4899; color: #f472b6; } /* Ženy - Ružová */
-.row-a { border-color: #10b981; color: #34d399; } /* Zvieratá - Zelená */
-.row-n { border-color: #f59e0b; color: #fbbf24; } /* Neutrál - Oranžová */
+.row-m { border-color: #3b82f6; color: #60a5fa; }
+.row-z { border-color: #ec4899; color: #f472b6; }
+.row-a { border-color: #10b981; color: #34d399; }
+.row-n { border-color: #f59e0b; color: #fbbf24; }
 
-/* S-Class Zlatá Aura */
+/* 4. PRAVÝ DOLNÝ ROH - SCHOPNOSŤ */
+.karta-kruh-ability {
+    bottom: -6px;
+    right: -6px;
+    background: #1a1612;
+    border: 2px solid #8b5cf6;
+    color: #c084fc;
+}
+
 .karta-s-class-aura {
     border-color: #ffd700 !important;
     box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
 }
 
-/* MRIEŽKY PRE DIELŇU, ZOSTA V U A TRHOVISKO */
+/* CARD ZOOM MODAL (ZVÄČŠENIE KARTY PO KLIKNUTÍ) */
+.card-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-modal-content {
+    position: relative;
+    width: 320px;
+    background: #1c1813;
+    border: 4px solid #d4af37;
+    border-radius: 12px;
+    padding: 20px;
+    color: #f0e2c5;
+    text-align: center;
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
+}
+
+.modal-foto {
+    width: 100%;
+    height: 220px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px;
+    border: 2px solid #5a4d3e;
+    margin-bottom: 15px;
+}
+
+.card-modal-close {
+    position: absolute;
+    top: 10px; right: 15px;
+    font-size: 24px;
+    color: #d4af37;
+    cursor: pointer;
+}
+
+.modal-stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 10px 0;
+    background: rgba(0,0,0,0.4);
+    padding: 6px;
+    border-radius: 6px;
+}
+
+.modal-desc {
+    font-size: 13px;
+    font-style: italic;
+    color: #c4b59d;
+    line-height: 1.4;
+}
+
+/* MRIEŽKY PRE DIELŇU, ZOSTE VU A TRHOVISKO */
 .zostava-grid, .dielna-grid, .obchod-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -373,10 +459,10 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #222;
+    background: #1a1612;
     padding: 12px;
     border-radius: 8px;
-    border: 1px solid #333;
+    border: 1px solid #5a4d3e;
     width: 100%;
     box-sizing: border-box;
 }
@@ -405,22 +491,13 @@ main {
 }
 
 .modal-content {
-    background: #222;
+    background: #1a1612;
     padding: 25px;
     border-radius: 8px;
-    border: 2px solid #555;
+    border: 2px solid #5a4d3e;
     text-align: center;
     display: flex;
     flex-direction: column;
     gap: 10px;
     min-width: 300px;
-}
-/* 4. PRAVÝ DOLNÝ ROH - Špeciálna funkcia */
-.karta-kruh-ability {
-    bottom: -8px;
-    right: -8px;
-    background: #111;
-    border: 2px solid #8b5cf6; /* Fialové lemovanie pre schopnosti */
-    color: #c084fc;
-    font-size: 0.8em;
 }
