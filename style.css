@@ -1,4 +1,4 @@
-/* ZÁKLADNÉ ŠTÝLY PRE HOME WARS (v9.5.0 CINEMATIC FORGE & BIG ZOOM) */
+/* ZÁKLADNÉ ŠTÝLY PRE HOME WARS (v9.6.0 OBRAZOVÉ RÁMY & CINEMATIC FORGE) */
 body {
     background: #12100e url('https://www.transparenttextures.com/patterns/dark-wood.png');
     color: #e0d0b0;
@@ -262,7 +262,7 @@ main {
 }
 
 /* =========================================================================
-   TCG ANATÓMIA KARTY
+   TCG ANATÓMIA KARTY (MASÍVNE STRUKTUROVANÉ OBRAZOVÉ RÁMY)
    ========================================================================= */
 
 .karta {
@@ -286,7 +286,7 @@ main {
 .karta:hover {
     transform: translateY(-6px) scale(1.04);
     z-index: 20;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.9);
 }
 
 .karta-nazov {
@@ -310,6 +310,36 @@ main {
     margin-top: 6px;
 }
 
+/* ODSTUPŇOVANÉ MASÍVNE RÁMY PRE KARTY */
+.cls-C { 
+    border: 3px solid #5a4d3e; 
+    box-shadow: inset 0 0 10px #000, 0 0 5px rgba(0,0,0,0.8); 
+    background: linear-gradient(135deg, #2a2118 0%, #120f0b 100%); 
+}
+
+.cls-B { 
+    border: 5px solid #a86529; 
+    border-style: ridge;
+    box-shadow: inset 0 0 12px #000, 0 0 8px #a86529; 
+    background: linear-gradient(135deg, #3d2411 0%, #170d06 100%); 
+}
+
+.cls-A { 
+    border: 6px solid #c0c0c0; 
+    border-style: groove;
+    box-shadow: inset 0 0 15px #000, 0 0 15px rgba(255,255,255,0.6); 
+    background: linear-gradient(135deg, #404040 0%, #1a1a1a 100%); 
+}
+
+/* S-CLASS VYREZÁVANÝ KRÁĽOVSKÝ RÁM (NAJMASÍVNEJŠÍ) */
+.cls-S { 
+    border: 8px solid #d4af37; 
+    border-style: ridge;
+    box-shadow: inset 0 0 20px #000, 0 0 20px #d4af37, 0 0 35px #ff8c00; 
+    background: linear-gradient(135deg, #57410d 0%, #211803 100%); 
+}
+
+/* TLAČIDLO PRE NÁHĽAD (🔍 LUPA) */
 .karta-btn-inspect {
     position: absolute;
     top: 2px;
@@ -335,6 +365,7 @@ main {
     color: #000;
 }
 
+/* KOVANÉ PEČATE */
 .karta-kruh {
     position: absolute;
     width: 26px;
@@ -371,11 +402,6 @@ main {
     color: #fff;
 }
 
-.cls-C { border: 3px solid #6e6b66; box-shadow: inset 0 0 8px #000; background: #444; }
-.cls-B { border: 3px solid #a86529; box-shadow: 0 0 5px #a86529, inset 0 0 8px #000; background: #8a4812; }
-.cls-A { border: 3px solid #c0c0c0; color: #000; border-color: #fff; background: #a0a0a0; }
-.cls-S { border: 3px solid #d4af37; color: #000; border-color: #fff; box-shadow: 0 0 10px #d4af37; background: #ffd700; }
-
 .karta-kruh-row {
     bottom: -6px;
     left: -6px;
@@ -401,10 +427,10 @@ main {
 
 .karta-s-class-aura {
     border-color: #ffd700 !important;
-    box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
 }
 
-/* CARD ZOOM MODAL (ZVAČŠENIE NA 70% OBRAZOVKY) */
+/* CARD ZOOM MODAL */
 .card-modal {
     display: none;
     position: fixed;
@@ -422,7 +448,8 @@ main {
     width: calc(70vh * 0.7);
     max-width: 90vw;
     background: #1c1813;
-    border: 4px solid #d4af37;
+    border: 6px solid #d4af37;
+    border-style: ridge;
     border-radius: 16px;
     padding: 25px;
     color: #f0e2c5;
@@ -479,7 +506,7 @@ main {
     text-align: left;
 }
 
-/* CINEMATIC FORGE MODAL (OBROVSKÉ ISKRY A ZLATÁ AURA DO POLKY OBRAZOVKY) */
+/* CINEMATIC FORGE MODAL S ISKRAMI */
 .forge-modal-overlay {
     display: none;
     position: fixed;
@@ -539,10 +566,33 @@ main {
     box-shadow: 0 0 60px #ffffff, 0 0 100px #c0c0c0, 0 0 150px #ffffff !important;
 }
 
-/* S-CLASS AURA DO POLKY OBRAZOVKY */
 .forge-sparkle-active-S {
     transform: scale(1.9) rotate(720deg) !important;
     box-shadow: 0 0 100px #ffd700, 0 0 200px #ff4500, 0 0 350px #ffd700, 0 0 500px #ff8c00 !important;
+}
+
+/* ANIMÁCIA LIETAJÚCICH KOVÁČSKYCH ISKIER */
+.sparks-container {
+    position: absolute;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 8;
+}
+
+.spark {
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    animation: sparkFly 1.5s infinite ease-out;
+}
+
+.spark-B { background: #ffaa33; box-shadow: 0 0 8px #ff8800; }
+.spark-A { background: #ffffff; box-shadow: 0 0 10px #c0c0c0; }
+.spark-S { background: #ffd700; box-shadow: 0 0 12px #ff4500, 0 0 20px #ffd700; width: 6px; height: 6px; }
+
+@keyframes sparkFly {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
 }
 
 .forge-golden-beam {
