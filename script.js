@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.4.0 - EPIC S-SPY & DYNAMIC BARS)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.5.0 - EXACT MATH & CLEAN MARKET)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.4.0";
+var VERZIA = "10.5.0";
 
 // MASTER REGISTRAČNÁ TABUĽKA KARIET
 var MASTER_REGISTRY = {
@@ -38,8 +38,8 @@ var MASTER_REGISTRY = {
     "Darinka": { row: 2, p: 5, img: "Img/darinka.png", desc: "Majsterka tkáčka. Jej nádherné tkaniny chránia hradné dámy pred chladom." },
     "Viera": { row: 2, p: 6, img: "Img/viera.jpg", desc: "Hradná pekárka starajúca sa o bohaté zásoby chleba pre celú posádku." },
     "Sestrička": { row: 2, p: 3, img: "Img/sestricka.jpg", desc: "Milosrdná ošetrovateľka, ktorá stavia na nohy ranených bojovníkov z archívu.", abilityDesc: "🏥 Oživenie: Po vyložení oživí a vráti do hry kartu z tvojho hradného archívu." },
-    "Kika": { row: 2, p: 3, isSpy: true, img: "Img/kika.jpg", desc: "Tajuplná hradná archivárka so zvinutými kráľovskými dekrétmi.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola! Za odmenu ti potiahne 2 karty (S-Class potiahne až 3 karty!)." },
-    "Zvedavá suseda": { row: 2, p: 7, isSpy: true, img: "Img/zvedava-suseda.jpg", desc: "Pozorné oko podhradia. Z okna jej neunikne ani jediný klep.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola a dá ti 2 nové karty z balíčka (S-Class dá až 3 karty!)." },
+    "Kika": { row: 2, p: 3, isSpy: true, img: "Img/kika.jpg", desc: "Tajuplná hradná archivárka so zvinutými kráľovskými dekrétmi.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola! Za odmenu ti potiahne 2 karty (S-Class potiahne 3 karty!)." },
+    "Zvedavá suseda": { row: 2, p: 7, isSpy: true, img: "Img/zvedava-suseda.jpg", desc: "Pozorné oko podhradia. Z okna jej neunikne ani jediný klep.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola a dá ti 2 nové karty z balíčka (S-Class dá 3 karty!)." },
     
     // ZVIERATÁ A SVORKY
     "Grobské Mravce 1": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov. Sú malé, no v obrovskom počte nepremožiteľné.", abilityDesc: "🤝 Svorka: Ak vyložíš 2 mravce, ich sila stúpne na 2b. Ak vyložíš všetky 3 mravce, ich sila stúpne na 4b za každého!" },
@@ -61,7 +61,7 @@ var MASTER_REGISTRY = {
     "Alcohol": { row: 1, p: 0, img: "Img/alkohol.png", desc: "Súdok medoviny a pálenka pre mužský rad. Výrazne zvyšuje bojovú náladu.", abilityDesc: "🛠️ Predmet: Vykladá sa do 1. radu. Pridáva +50% až +100% k sile mužov." },
     "Kvety": { row: 2, p: 0, img: "Img/kvety.jpg", desc: "Kytica čerstvých poľných kvetov pre radosť a povzbudenie ženského radu.", abilityDesc: "🛠️ Predmet: Vykladá sa do 2. radu. Posilňuje všetky ženy na tvojej strane." },
     "Medove Orechy": { row: 3, p: 0, img: "Img/medove-orechy.png", desc: "Sladká odmena posilňujúca verný zvierací rad.", abilityDesc: "🛠️ Predmet: Vykladá sa do 3. radu. Zvyšuje silu zvierat." },
-    "Musíme sa porozprávať": { row: 0, p: 0, img: "Img/musime-sa-porozpravat.png", desc: "Vážny rozhovor s hradnou paňou okamžite zmrazí silu mužského radu.", abilityDesc: "⚡ Vplyv stola: Zníži silu všetkých mužov (v 1. rade oboch hráčov) na základný 1 bod!" },
+    "Musíme sa porozprávať": { row: 0, p: 0, img: "Img/musime-sa-porozprávať.png", desc: "Vážny rozhovor s hradnou paňou okamžite zmrazí silu mužského radu.", abilityDesc: "⚡ Vplyv stola: Zníži silu všetkých mužov (v 1. rade oboch hráčov) na základný 1 bod!" },
     "Upokoj sa": { row: 0, p: 0, img: "Img/upokoj-sa.png", desc: "Nevhodne zvolené slová vyvolajú obrovský hnev v ženskom rade!", abilityDesc: "⚡ Vplyv stola: Zníži silu všetkých žien (v 2. rade oboch hráčov) na 1 bod!" },
     "Ohnostroj": { row: 0, p: 0, img: "Img/ohnostroj.png", desc: "Rachot svetlíc a výbuchov vyplaší celý zvierací rad.", abilityDesc: "⚡ Vplyv stola: Vyplaší a zníži silu všetkých zvierat na 1 bod!" },
     "Šicko v porádku": { row: 0, p: 0, img: "Img/sicko-v-poradku.jpg", desc: "Dvorný šašo prinesie smiech a vyčistí všetky nepriaznivé vplyvy na stole.", abilityDesc: "⚡ Očistenie: Odstráni zo stola všetky negatívne vplyvy (Ohňostroj, Upokoj sa, Rozhovor)." }
@@ -197,6 +197,7 @@ function otvorDetailKarty(meno) {
     modal.style.display = "flex";
 }
 
+// NÁVOD BEZ OPISU VZHĽADU RÁMOV A S ČISTOU TABUĽKOU
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
     if (!modal) {
@@ -239,25 +240,25 @@ function otvoriťNavodHry() {
                             <td style="padding:8px; font-weight:bold; color:#a0a0a0; text-align:center;">C<br><small>(Základná)</small></td>
                             <td style="padding:8px;">Základná sila karty.</td>
                             <td style="padding:8px;">Vyložením odovzdáš súperovi plnú základnú silu. Potiahne ti 2 nové karty.</td>
-                            <td style="padding:8px;">Základný účinok kúzla / predmetu.</td>
+                            <td style="padding:8px;">Základný účinok.</td>
                         </tr>
                         <tr style="border-bottom:1px solid #3d3124;">
                             <td style="padding:8px; font-weight:bold; color:#a86529; text-align:center;">B<br><small>(Bronzová)</small></td>
                             <td style="padding:8px; color:#4ade80;">+1 Bod k celkovej sile.</td>
                             <td style="padding:8px; color:#4ade80;">-1 Bod z vlastnej sily (súper dostane menej bodov). Potiahne 2 karty.</td>
-                            <td style="padding:8px; color:#888;">Vyžaduje premena cez 5 replík.</td>
+                            <td style="padding:8px; color:#666;">–</td>
                         </tr>
                         <tr style="border-bottom:1px solid #3d3124;">
                             <td style="padding:8px; font-weight:bold; color:#c0c0c0; text-align:center;">A<br><small>(Strieborná)</small></td>
                             <td style="padding:8px; color:#4ade80;">+2 Body k sile + ⚡ 2× predmetový bonus pre seba!</td>
                             <td style="padding:8px; color:#4ade80;">-2 Body z vlastnej sily + 👁️ Nakuknutie na 3 karty v súperovej ruke na 4s!</td>
-                            <td style="padding:8px; color:#888;">Vyžaduje premena cez 25 replík.</td>
+                            <td style="padding:8px; color:#666;">–</td>
                         </tr>
                         <tr>
                             <td style="padding:8px; font-weight:bold; color:#ffd700; text-align:center;">S<br><small>(Zlatá)</small></td>
                             <td style="padding:8px; color:#4ade80;">+3 Body k sile + ⚡ 2× predmetový bonus + 👑 S-Aura (+50% k sile ostatným v rade).</td>
                             <td style="padding:8px; color:#4ade80;">-3 Body z vlastnej sily + 👁️ Nakuknutie + 🃏 <strong>POTIAHNE AŽ 3 KARTY!</strong></td>
-                            <td style="padding:8px; color:#ffd700;">Vyžaduje 1000 replík (Priamy skok C ➔ S s masívnym vizuálnym zábleskom).</td>
+                            <td style="padding:8px; color:#ffd700;">Vyžaduje 1000 replík (Priamy skok C ➔ S).</td>
                         </tr>
                     </tbody>
                 </table>
@@ -436,6 +437,7 @@ function aktualizujStavZamkuMenu() {
     if (!draft_faza) { menuEl.classList.add('zamknute-menu'); } else { menuEl.classList.remove('zamknute-menu'); }
 }
 
+// ČISTÝ A PRESNÝ VÝPOČET SILA Kariet V DUELI
 function spustiPrepocty() {
     aktualizujStavZamkuMenu();
     var vsetky = p1_played_cards.concat(p2_played_cards).filter(function(k) { return k && "object" === typeof k && k.n; });
@@ -526,7 +528,6 @@ function spustiPrepocty() {
 
             if (pr) { 
                 var zB = ("S" === pr.cls) ? 1.0 : 0.5; 
-                // A-CLASS A S-CLASS ZDVOJNÁSOBENIE PREDMETU PRE SEBA
                 if ("A" === c.cls || "S" === c.cls) { zB = zB * 2; }
                 pct += zB; 
             }
@@ -693,7 +694,6 @@ function dynamicDrawNewCard(e, t) {
     }
 }
 
-// BEZPEČNÉ NAKUKNUTIE NA SÚPEROVE KARTY V RUKE (ZVÁDRA AJ MENEJ AKO 3 KARTY)
 function spustiSpyNakukanie(pNum) {
     var sR = document.getElementById(1 === pNum ? "ruka-p2" : "ruka-p1"); if (!sR) return; 
     var kS = sR.querySelectorAll('.karta'); if (0 === kS.length) return;
@@ -740,7 +740,7 @@ function ozivKartuZArchivu(pNum) {
         
         if (jeSpy) { 
             dynamicDrawNewCard(pNum); dynamicDrawNewCard(pNum);
-            if ("S" === k.cls) dynamicDrawNewCard(pNum); // S-Class potiahne 3. kartu!
+            if ("S" === k.cls) dynamicDrawNewCard(pNum); 
             if ("A" === k.cls || "S" === k.cls) spustiSpyNakukanie(pNum); 
         } 
         if (("Doktor" === k.n || "Sestrička" === k.n) && list.length > 0) {
@@ -1232,20 +1232,20 @@ function aktualizujPanelDielne(){
     }
 }
 
+// TRHOVISKO - ČISTÝ C-CLASS VZHĽAD S ZÁKLADNOU SILOU S
 function vygenerujRegalyTrhoviska(){
     var e = document.getElementById("obchod-regaly-zoznam");
     if(e){
         e.innerHTML = "";
         Object.keys(MASTER_REGISTRY).forEach(function(t){
             var reg = MASTER_REGISTRY[t];
-            var inv = inventar.karty[t] || { aktivnaTrieda: "C" };
             var wrapper = document.createElement("div");
             wrapper.className = "karta-karta-wrapper";
 
             var cardDiv = document.createElement("div");
-            cardDiv.className = "karta cls-" + inv.aktivnaTrieda;
-            var basePwr = isSpecialCard(t) ? "none" : reg.p;
-            cardDiv.innerHTML = vytvorHTMLKarty(t, basePwr, inv.aktivnaTrieda, reg.row, reg.p);
+            cardDiv.className = "karta cls-C"; // Trhovisko zobrazuje vždy C-rám
+            var basePwr = isSpecialCard(t) ? "none" : reg.p; // Trhovisko zobrazuje vždy C-silu
+            cardDiv.innerHTML = vytvorHTMLKarty(t, basePwr, "C", reg.row, reg.p);
 
             var actions = "<div style='font-size:0.85em; margin:6px 0;'>Cena: <strong>3000 m</strong></div>";
             actions += "<button class='btn-obchod-nakup' style='background:#28a745; width:100%; font-size:.85em;' onclick=\"kupKonkretnuKartu('" + t + "')\">🎯 Kúpiť C-kópiu</button>";
