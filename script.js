@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.6.5 - PERCENTAGE AI ACCURACY ENGINE)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.6.6 - SMART DELTA AI & BUGFIX PASS)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.6.5";
+var VERZIA = "10.6.6";
 
 // MASTER REGISTRAČNÁ TABUĽKA KARIET
 var MASTER_REGISTRY = {
@@ -374,7 +374,6 @@ function prepniSekciuVizualne(sekciaId) {
     if (sekciaId === 'sekcia-trhovisko') document.getElementById('menu-btn-trhovisko').classList.add('aktivna-tab');
 }
 
-// STAVBA AI BALÍČKA PODĽA TIERU
 function vytvorZoznamKariet(pNum) {
     var rawList = Object.keys(MASTER_REGISTRY).filter(function(key) {
         return key !== "Grobské Mravce" && key !== "Petržalské holuby" && key !== "Musime sa porozpravat";
@@ -402,11 +401,11 @@ function vytvorZoznamKariet(pNum) {
         } else {
             var jeVTop15 = top15Set.has(idx);
             if ("B" === obtiaznostAI) {
-                tK = jeVTop15 ? "B" : "C"; // 15x B + 15x C
+                tK = jeVTop15 ? "B" : "C";
             } else if ("A" === obtiaznostAI) {
-                tK = jeVTop15 ? "A" : "B"; // 15x A + 15x B
+                tK = jeVTop15 ? "A" : "B";
             } else if ("S" === obtiaznostAI) {
-                tK = jeVTop15 ? "S" : "A"; // 15x S + 15x A
+                tK = jeVTop15 ? "S" : "A";
             }
         }
         return { n: m.replace(/\s+\d+$/, "").trim(), row: dR.row, p: dR.p, pNum: pNum, isSpy: dR.isSpy || false, cls: tK };
@@ -882,7 +881,7 @@ function resetStolaBezReloadu(e) {
     }
 }
 
-// PERCENTUÁLNY DECISION ENGINE PRE AI PODĽA OBTIAŽNOSTÍ (65%, 80%, 95%)
+// OPRAVENÁ SMART DECISION ENGINE AI (BEZ PREDČASNÉHO PASOVANIA A S DELTA CHECKOM)
 function spustiTahAI() {
     if (!jeSingleplayer || p2Pass || draft_faza || blokujVykladanie) return; 
     var rA = document.getElementById('ruka-p2'); if (!rA) return;
@@ -891,53 +890,77 @@ function spustiTahAI() {
     if (0 === k.length) { p2Pass = true; hracPasolAI(); return; }
     spustiPrepocty(); 
     
+    // AK AI UŽ VEDIE A HRÁČ PASOVAL, AI PASUJE A UŠETRÍ KARTY
     if (p1Pass && sc2 > sc1) { p2Pass = true; hracPasolAI(); return; }
     
-    // TAKTICKÉ PASOVANIE PODĽA OBTIAŽNOSTÍ
-    if (!(1 === r1 && 1 === r2)) {
-        if ("B" === obtiaznostAI && sc2 > sc1 && sc2 - sc1 >= 18 && k.length <= 4) { p2Pass = true; hracPasolAI(); return; }
-        if ("A" === obtiaznostAI && ((p1Pass && sc2 > sc1) || (sc2 > sc1 && sc2 - sc1 >= 12 && k.length <= 4))) { p2Pass = true; hracPasolAI(); return; }
-        if ("S" === obtiaznostAI && ((p1Pass && sc2 > sc1) || (sc2 > sc1 && sc2 - sc1 >= 10 && k.length <= 5))) { p2Pass = true; hracPasolAI(); return; }
-    }
-    
-    var vK = null; var pst = []; var efk = [];
-    for (var i = 0; i < k.length; i++) { 
-        var mK = k[i].getAttribute('data-meno') || ""; 
-        var rK = parseInt(k[i].getAttribute('data-row'), 10) || 0; 
-        if (0 === rK || "Alcohol" === mK || "Kvety" === mK || "Medove Orechy" === mK) efk.push(k[i]); 
-        else pst.push(k[i]); 
-    }
-    
-    // DEFINÍCIA PERCENTUÁLNEJ PRESNOSTI AI (65%, 80%, 95%)
+    // PRENOST AI PODĽA OBTIAŽNOSTI
     var presnost = 0.65;
     if ("A" === obtiaznostAI) presnost = 0.80;
     if ("S" === obtiaznostAI) presnost = 0.95;
 
     var spraviChytryTah = Math.random() < presnost;
 
-    if (pst.length > 0) {
-        if (spraviChytryTah) {
-            // IDEÁLNE ROZHODNUTIE (DOKONALÝ POČÍTAČ)
-            var spyCard = Array.from(pst).find(function(c) { return "true" === c.getAttribute('data-isspy'); });
-            if (spyCard) {
-                vK = spyCard;
-            } else {
-                var sorted = Array.from(pst).sort(function(a, b) { 
-                    return (parseInt(b.getAttribute('data-pwr'), 10) || 0) - (parseInt(a.getAttribute('data-pwr'), 10) || 0); 
-                });
-                vK = sorted[0];
+    var vK = null;
+    var moznosti = Array.from(k);
+
+    if (p1Pass && sc1 >= sc2) {
+        // AK HRÁČ PASOVAL A VYHRÁVA (NEBO JE REMÍZA), AI MUSÍ ZAHRAT KARTU, KTORÁ ZVÝŠI JEJ SKÓRE
+        var najlepsiKandidat = null;
+        var maxPwr = -999;
+
+        moznosti.forEach(function(c) {
+            var mK = c.getAttribute('data-meno') || "";
+            var pwr = parseInt(c.getAttribute('data-pwr'), 10) || 0;
+            var isSpy = "true" === c.getAttribute('data-isspy');
+
+            // Ak je špión, pridáva body súperovi, čo v závere pri p1Pass zhorší skóre
+            if (isSpy) return;
+
+            // Ak je predmet, zistíme, či má AI v danom rade jednotky
+            var rowK = parseInt(c.getAttribute('data-row'), 10) || 0;
+            if (0 === rowK || "Alcohol" === mK || "Kvety" === mK || "Medove Orechy" === mK) {
+                var pocetJednotiekVRade = p2_played_cards.filter(function(pk) { return pk.row === rowK; }).length;
+                if (pocetJednotiekVRade > 0) pwr = pocetJednotiekVRade * 2; // Odhad prínosu predmetu
+                else pwr = 0;
             }
+
+            if (pwr > maxPwr && pwr > 0) {
+                maxPwr = pwr;
+                najlepsiKandidat = c;
+            }
+        });
+
+        if (najlepsiKandidat) {
+            vK = najlepsiKandidat;
         } else {
-            // NÁHODNÝ / SUBOPTIMÁLNY ŤAH
-            var idx = Math.floor(Math.random() * pst.length);
-            vK = pst[idx];
+            // AI nemá v ruke žiadnu kartu, ktorou by zvýšila svoje skóre -> až vtedy pasuje
+            p2Pass = true;
+            hracPasolAI();
+            return;
         }
-    } else if (efk.length > 0) { 
-        if (p1Pass && sc1 > sc2) { p2Pass = true; hracPasolAI(); return; } 
-        vK = efk[0]; 
+    } else {
+        // ŠTANDARDNÝ ŤAH POČAS HRY
+        if (spraviChytryTah) {
+            var sorted = moznosti.sort(function(a, b) { 
+                var pA = parseInt(a.getAttribute('data-pwr'), 10) || 0;
+                var pB = parseInt(b.getAttribute('data-pwr'), 10) || 0;
+                if ("true" === a.getAttribute('data-isspy')) pA += 10; // Špióni sú prioritou v priebehu hry
+                if ("true" === b.getAttribute('data-isspy')) pB += 10;
+                return pB - pA;
+            });
+            vK = sorted[0];
+        } else {
+            var idx = Math.floor(Math.random() * moznosti.length);
+            vK = moznosti[idx];
+        }
     }
-    
-    if (vK) { setTimeout(function() { if (!p2Pass) vK.click(); }, 800); } else { p2Pass = true; hracPasolAI(); }
+
+    if (vK) { 
+        setTimeout(function() { if (!p2Pass) vK.click(); }, 800); 
+    } else { 
+        p2Pass = true; 
+        hracPasolAI(); 
+    }
 }
 
 function hracPasolAI() { 
@@ -1346,7 +1369,7 @@ function obnovPocitadlaZostavyVMenu() {
 }
 
 // =========================================================================
-// DEV CONSOLE & PERCENTAGE ACCURACY MONTE CARLO SIMULATOR
+// DEV CONSOLE & REALISTIC AUTO SIMULATOR MODULE
 // =========================================================================
 
 function inicializujDevConsole() {
@@ -1460,7 +1483,7 @@ function devTestPresetSisaKvety() {
     spustiPrepocty();
 }
 
-// REALISTICKÝ MONTE CARLO SIMULÁTOR S PRESNOSŤOU AI
+// SIMULÁTOR S REÁLNOU SCHOPNOSŤOU POKRAČOVAŤ PRI p1Pass KÝM JE ŠANCA NA VÝHRU
 function devSpustiPokrociluSimulaciu(pocetZapasov) {
     var diffSelect = document.getElementById("sim-diff-select");
     var zvolenaDiff = diffSelect ? diffSelect.value : "S";
@@ -1475,7 +1498,6 @@ function devSpustiPokrociluSimulaciu(pocetZapasov) {
     jeSingleplayer = true;
     obtiaznostAI = zvolenaDiff;
 
-    // PRESNOSŤ AI: B=65%, A=80%, S=95%
     var presnostAI = 0.65;
     if ("A" === zvolenaDiff) presnostAI = 0.80;
     if ("S" === zvolenaDiff) presnostAI = 0.95;
@@ -1508,10 +1530,10 @@ function devSpustiPokrociluSimulaciu(pocetZapasov) {
         if (sCountP2 > 0) sum2 = Math.floor(sum2 * (1 + sCountP2 * 0.15));
 
         // ZAPOČÍTANIE TAKTICKEJ PRESNOSTI AI
-        var aiTaktickyBonus = presnostAI * 0.20; // 95% AI má vyšší taktický bonus
+        var aiTaktickyBonus = presnostAI * 0.18;
         sum2 = Math.floor(sum2 * (1 + aiTaktickyBonus));
 
-        // REALISTICKÁ PRESNOŠŤ HRÁČA 1 (85% PRECIZNOSŤ BEŽNÉHO HRÁČA)
+        // REALISTICKÝ ŠUM HUMAN HRÁČA
         sum1 = Math.floor(sum1 * (0.85 + Math.random() * 0.15));
 
         celkoveSkoreP1 += sum1;
