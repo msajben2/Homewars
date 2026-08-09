@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.8.0 - BATCH C-COPIES CHESTS & COINS DROP)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.0 - REAL CHEST GRAPHICS & C-COPIES DROP)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.8.0";
+var VERZIA = "10.9.0";
 
 // MASTER REGISTRAČNÁ TABUĽKA KARIET
 var MASTER_REGISTRY = {
@@ -765,7 +765,7 @@ function aktualizujArchivyVizualne() {
     }
 }
 
-// NOVÁ MECHANIKA OTVÁRANIA TRUHIEL S HROMADNÝMI C-KÓPIAMI A MINCAMI
+// NOVÁ MECHANIKA OTVÁRANIA TRUHIEL S REÁLNOU ANIMÁCIOU TRUHLICE
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
     
@@ -774,7 +774,6 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     var ziskaneMince = jeVitaz ? 300 : 100;
     
     inventar.mince += ziskaneMince;
-
     var vyžrebovanéKartyMap = {};
 
     for (var i = 0; i < pocetZrebovani; i++) {
@@ -784,13 +783,11 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
         var pocetKusov = 1;
 
         if (jeVitaz) {
-            // Šance pre Truhlu Víťaza (3 losovania)
             if (roll < 0.5) pocetKusov = 100;
             else if (roll < 10) pocetKusov = 20;
             else if (roll < 30) pocetKusov = 5;
             else pocetKusov = 1;
         } else {
-            // Šance pre Truhlu Účastníka (10 losovaní)
             if (roll < 0.01) pocetKusov = 100;
             else if (roll < 2.01) pocetKusov = 20;
             else if (roll < 12.0) pocetKusov = 5;
@@ -805,7 +802,6 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
         vyžrebovanéKartyMap[cisteMeno] = (vyžrebovanéKartyMap[cisteMeno] || 0) + pocetKusov;
     }
 
-    // CINEMATIC MODAL S ANIMÁCIOU VÝLETU MINCÍ A KARIET
     var cModal = document.getElementById("chest-anim-modal");
     if (!cModal) {
         cModal = document.createElement("div");
@@ -814,26 +810,25 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
         document.body.appendChild(cModal);
     }
 
-    var typTruhlyClass = jeVitaz ? "chest-vitaz" : "chest-ucastnik";
+    var modelTruhly = jeVitaz ? "chest-model-vitaz" : "chest-model-ucastnik";
     var titulok = jeVitaz ? "🏆 TRUHLA VÍŤAZA" : (jeRemizaZapasu ? "📦 TRUHLA ZA REMÍZU" : "📦 TRUHLA ÚČASTNÍKA");
-    var ikonka = jeVitaz ? "👑" : "📦";
 
-    var zoznamHTML = `<div class="drop-reward-item coin-fly-effect">🪙 +${ziskaneMince} Zlatých mincí vyletelo z truhly!</div>`;
+    var zoznamHTML = `<div class="drop-reward-item coin-fly-effect">🪙 +${ziskaneMince} Zlatých mincí vyskočilo z truhly!</div>`;
     
+    var delay = 0.1;
     Object.keys(vyžrebovanéKartyMap).forEach(function(kMeno) {
-        zoznamHTML += `<div class="drop-reward-item">✨ +${vyžrebovanéKartyMap[kMeno]}x kópia karty: <strong>${kMeno} (C)</strong></div>`;
+        zoznamHTML += `<div class="drop-reward-item" style="animation-delay: ${delay}s;">✨ +${vyžrebovanéKartyMap[kMeno]}x kópia karty: <strong>${kMeno} (C)</strong></div>`;
+        delay += 0.08;
     });
 
     cModal.innerHTML = `
         <div class="chest-box-container">
-            <h2 style="color:#d4af37; text-shadow:0 0 10px #ffcc00; font-size:1.8em; margin:0;">${titulok}</h2>
-            <div class="chest-graphic ${typTruhlyClass}">
-                <span>${ikonka}</span>
-            </div>
+            <h2 style="color:#d4af37; text-shadow:0 0 12px #ffcc00; font-size:1.9em; margin:0 0 5px 0;">${titulok}</h2>
+            <div class="chest-graphic-real ${modelTruhly}"></div>
             <div class="drop-rewards-box">
                 ${zoznamHTML}
             </div>
-            <button onclick="document.getElementById('chest-anim-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:10px 25px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:1.1em; box-shadow:0 0 10px #28a745;">Zozbierať odmeny</button>
+            <button onclick="document.getElementById('chest-anim-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:12px 30px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:1.1em; box-shadow:0 0 15px #28a745; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Zozbierať odmeny</button>
         </div>
     `;
     cModal.style.display = "flex";
@@ -1416,7 +1411,7 @@ function obnovPocitadlaZostavyVMenu() {
     if (pStranka) { if (aktualnyPocet < 30) { pStranka.innerText = aktualnyPocet + " / 30"; pStranka.style.color = "#dc3545"; } else { pStranka.innerText = aktualnyPocet + " kariet"; pStranka.style.color = "#28a745"; } }
 }
 
-// DEV CONSOLE & PERCENTAGE ACCURACY SIMULATOR
+// DEV CONSOLE & SIMULATOR MODULE
 function inicializujDevConsole() {
     var header = document.querySelector("header");
     if (header && !document.getElementById("btn-dev-toggle")) {
