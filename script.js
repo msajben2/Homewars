@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.0 - REAL CHEST GRAPHICS & C-COPIES DROP)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.0 - 3D CHEST OPENING & BATCH C-DROPS)
 // =========================================================================
 
 (function() {
@@ -765,7 +765,7 @@ function aktualizujArchivyVizualne() {
     }
 }
 
-// NOVÁ MECHANIKA OTVÁRANIA TRUHIEL S REÁLNOU ANIMÁCIOU TRUHLICE
+// CINEMATIC 3D OTVÁRANIE TRUHLICE S ANIMÁCIOU MINCÍ A KARIET
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
     
@@ -798,7 +798,6 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
             inventar.karty[randomMeno] = { replikyC: 0, aktivnaTrieda: "C" };
         }
         inventar.karty[randomMeno].replikyC += pocetKusov;
-
         vyžrebovanéKartyMap[cisteMeno] = (vyžrebovanéKartyMap[cisteMeno] || 0) + pocetKusov;
     }
 
@@ -810,28 +809,58 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
         document.body.appendChild(cModal);
     }
 
-    var modelTruhly = jeVitaz ? "chest-model-vitaz" : "chest-model-ucastnik";
+    var bodyClass = jeVitaz ? "vitaz-body" : "ucastnik-body";
+    var lidClass = jeVitaz ? "vitaz-lid" : "ucastnik-lid";
     var titulok = jeVitaz ? "🏆 TRUHLA VÍŤAZA" : (jeRemizaZapasu ? "📦 TRUHLA ZA REMÍZU" : "📦 TRUHLA ÚČASTNÍKA");
 
-    var zoznamHTML = `<div class="drop-reward-item coin-fly-effect">🪙 +${ziskaneMince} Zlatých mincí vyskočilo z truhly!</div>`;
-    
-    var delay = 0.1;
+    var minceHTML = "";
+    for (var m = 0; m < 18; m++) {
+        var angle = Math.random() * Math.PI * 2;
+        var dist = 80 + Math.random() * 140;
+        var dx = Math.cos(angle) * dist + "px";
+        var dy = (Math.sin(angle) * dist - 60) + "px";
+        var delay = (Math.random() * 0.3) + "s";
+        minceHTML += `<div class="chest-coin-particle" style="--dx:${dx}; --dy:${dy}; animation-delay:${delay};"></div>`;
+    }
+
+    var kartyHTML = "";
+    var cardDelay = 0.4;
     Object.keys(vyžrebovanéKartyMap).forEach(function(kMeno) {
-        zoznamHTML += `<div class="drop-reward-item" style="animation-delay: ${delay}s;">✨ +${vyžrebovanéKartyMap[kMeno]}x kópia karty: <strong>${kMeno} (C)</strong></div>`;
-        delay += 0.08;
+        kartyHTML += `<div class="chest-card-drop" style="transition-delay: ${cardDelay}s;">✨ +${vyžrebovanéKartyMap[kMeno]}x ${kMeno} (C)</div>`;
+        cardDelay += 0.12;
     });
 
     cModal.innerHTML = `
-        <div class="chest-box-container">
-            <h2 style="color:#d4af37; text-shadow:0 0 12px #ffcc00; font-size:1.9em; margin:0 0 5px 0;">${titulok}</h2>
-            <div class="chest-graphic-real ${modelTruhly}"></div>
-            <div class="drop-rewards-box">
-                ${zoznamHTML}
+        <div class="chest-stage" id="chest-stage-box">
+            <h2 style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2em; margin:0 0 10px 0;">${titulok}</h2>
+            <div class="chest-light-ray"></div>
+            
+            <div class="chest-3d-wrapper">
+                <div class="chest-lid ${lidClass}"></div>
+                <div class="chest-interior-glow"></div>
+                <div class="chest-body ${bodyClass}"></div>
+                ${minceHTML}
             </div>
-            <button onclick="document.getElementById('chest-anim-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:12px 30px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:1.1em; box-shadow:0 0 15px #28a745; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Zozbierať odmeny</button>
+
+            <div style="color:#ffcc00; font-weight:bold; font-size:1.2em; margin-bottom:15px; text-shadow:0 0 8px #000;">🪙 +${ziskaneMince} Zlatých mincí</div>
+
+            <div class="chest-cards-container">
+                ${kartyHTML}
+            </div>
+
+            <button id="chest-close-btn" onclick="document.getElementById('chest-anim-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:12px 30px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:1.1em; margin-top:20px; box-shadow:0 0 15px #28a745; opacity:0; transition:opacity 0.5s ease 1s;">Zozbierať odmeny</button>
         </div>
     `;
+
     cModal.style.display = "flex";
+
+    setTimeout(function() {
+        var stage = document.getElementById("chest-stage-box");
+        var btn = document.getElementById("chest-close-btn");
+        if (stage) stage.classList.add("open");
+        if (btn) btn.style.opacity = "1";
+    }, 200);
+
     aktualizujPanelDielne();
 }
 
@@ -1411,7 +1440,7 @@ function obnovPocitadlaZostavyVMenu() {
     if (pStranka) { if (aktualnyPocet < 30) { pStranka.innerText = aktualnyPocet + " / 30"; pStranka.style.color = "#dc3545"; } else { pStranka.innerText = aktualnyPocet + " kariet"; pStranka.style.color = "#28a745"; } }
 }
 
-// DEV CONSOLE & SIMULATOR MODULE
+// DEV CONSOLE MODULE
 function inicializujDevConsole() {
     var header = document.querySelector("header");
     if (header && !document.getElementById("btn-dev-toggle")) {
