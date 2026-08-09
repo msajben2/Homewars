@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.0.0 - SISA JPEG, LOCKED DUEL, REAL STATS)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.1.0 - DIAKRITIKA & TABUĽKA TRIED)
 // =========================================================================
 
 (function() {
@@ -13,49 +13,49 @@
     }
 })();
 
-var VERZIA = "10.0.0";
+var VERZIA = "10.1.0";
 
-// MASTER REGISTRAČNÁ TABUĽKA KARIET
+// MASTER REGISTRAČNÁ TABUĽKA KARIET S KOMPLETNOU DIAKRITIKOU
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
     "Michal": { row: 1, p: 4, img: "Img/michal.png", desc: "Bystrý obchodník. Váži zlato a pozná presnú cenu každej veci v kráľovstve.", abilityDesc: "📢 Obchodník: Ak nie je na stole Nela, dáva sám sebe automatický samo-buff +100% k svojej základnej sile." },
     "Erik": { row: 1, p: 3, img: "Img/erik.png", desc: "Geniálny taktik, ktorý plánuje každý krok nad bojovou mapou so šachovými figúrkami.", abilityDesc: "📢 Buff: Po vyložení si vyberieš jeden rad (1, 2 alebo 3), ktorému pridá +100% k základnej sile kariet." },
     "Marek": { row: 1, p: 4, img: "Img/marek.png", desc: "Učený filozof vo fialovom plášti.", abilityDesc: "🧹 Filozof: Svojím otravným filozofovaním úplne zmatie zvolenú kartu súpera a odstráni ju z hry do archívu." },
-    "Duri": { row: 1, p: 6, img: "Img/duri.png", desc: "Veterán v plnej zbroji. Pevný a neoblomný pilier každej bitky.", abilityDesc: "📢 Taktik: Ak je na stole vyložený Alkohol, posilňuje úplne všetky tvoje rady o +50%." },
+    "Ďuri": { row: 1, p: 6, img: "Img/duri.png", desc: "Veterán v plnej zbroji. Pevný a neoblomný pilier každej bitky.", abilityDesc: "📢 Taktik: Ak je na stole vyložený Alkohol, posilňuje úplne všetky tvoje rady o +50%." },
     "Doktor": { row: 1, p: 5, img: "Img/doktor.png", desc: "Hradný alchymista a lekár, ktorý vie namiešať liečivý elixír aj nebezpečný jed.", abilityDesc: "🏥 Oživenie: Po vyložení ihneď vytiahne a vráti do hry poslednú spálenú kartu z tvojho archívu." },
-    "Neviditelny Mario": { row: 1, p: 4, img: "Img/neviditelny-mario.png", desc: "Tajuplný zbojník v kapucni, ktorý nečakane udrie z tieňa a znova zmizne." },
+    "Neviditeľný Mário": { row: 1, p: 4, img: "Img/neviditelny-mario.png", desc: "Tajuplný zbojník v kapucni, ktorý nečakane udrie z tieňa a znova zmizne." },
     "Martin": { row: 1, p: 4, img: "Img/martin.png", desc: "Šikovný hraničiar a lovec, ktorý sa potichu kráča tmavým lesom." },
-    "Tymko": { row: 1, p: 1, img: "Img/tymko.png", desc: "Obranný štvorročný bojovník s dreveným mečom a obrovským odhodlaním." },
+    "Timko": { row: 1, p: 1, img: "Img/tymko.png", desc: "Obranný štvorročný bojovník s dreveným mečom a obrovským odhodlaním." },
     "Jaro": { row: 1, p: 5, img: "Img/jaro.png", desc: "Zručný kováč, z ktorého kovadliny vychádzajú tie najostrejšie meče." },
     
     // POSTAVY A JEDNOTKY (ŽENY)
     "Oli": { row: 2, p: 8, img: "Img/oli.png", desc: "Duchovná matka chrámu, strážiaca svätý pokoj a imunitu pred kúzlam.", abilityDesc: "✝️ Imunita: Jej sila 8b je stála a nedá sa znížiť kúzlam ani negatívnymi vplyvmi stola." },
-    "Sisa": { row: 2, p: 4, img: "Img/sisa.jpeg", desc: "Mocná vládkyňa hradu pripíjajúca na víťazstvo svojho verného vojska.", abilityDesc: "📢 Vládkyňa: Zvyšuje silu celého mužského radu o 100%." },
-    "Katy": { row: 2, p: 6, img: "Img/katy.png", desc: "Dobrosrdečná pekárenská pomocníčka s čerstvým chlebom a láskavým srdcom.", abilityDesc: "💖 Láskavosť: Pridáva +1b všetkým tvojim kartám na stole a uberá -1b všetkým súpeľovým kartám." },
-    "Nela": { row: 2, p: 1, img: "Img/nela.png", desc: "Malá princezná so žiariacim zvieraťom a magickým ochranným amuletom.", abilityDesc: "🛡️ Amulet / Zámok: Zmrazí stôl! Kým je Nela v hre, žiadne karty nedostávajú percentuálne bonusy ani buffy." },
+    "Sisa": { row: 2, p: 4, img: "Img/sisa.jpg", desc: "Dvorná dáma, ktorá motivuje chlapov v boji.", abilityDesc: "📢 Dvorná dáma: Zvyšuje silu celého mužského radu o 100%." },
+    "Katy": { row: 2, p: 6, img: "Img/katy.png", desc: "Vždy pomôže, ako je treba – hladným dá chlieb, nevládnym pomocnú ruku.", abilityDesc: "💖 Pomoc: Pridáva +1b všetkým tvojim kartám na stole a uberá -1b všetkým súpeľovým kartám." },
+    "Nela": { row: 2, p: 1, img: "Img/nela.png", desc: "Malá princezná s ochranným amuletom.", abilityDesc: "🛡️ Štít: Zmrazí stôl! Kým je Nela v hre, žiadne karty nedostávajú percentuálne bonusy ani buffy." },
     "Lula": { row: 2, p: 4, img: "Img/lula.png", desc: "Dvorná harfistka, ktorej čarovná hudba dokáže obmäkčiť aj srdce kata." },
     "Anka": { row: 2, p: 7, img: "Img/anka.png", desc: "Správkyňa hradných kľúčov. Bez jej povolenia sa neotvoria žiadne dvere." },
     "Darinka": { row: 2, p: 5, img: "Img/darinka.png", desc: "Majsterka tkáčka. Jej nádherné tkaniny chránia hradné dámy pred chladom." },
     "Viera": { row: 2, p: 6, img: "Img/viera.jpg", desc: "Hradná pekárka starajúca sa o bohaté zásoby chleba pre celú posádku." },
-    "Sestricka": { row: 2, p: 3, img: "Img/sestricka.jpg", desc: "Milosrdná ošetrovateľka, ktorá stavia na nohy ranených bojovníkov z archívu.", abilityDesc: "🏥 Oživenie: Po vyložení oživí a vráti do hry kartu z tvojho hradného archívu." },
-    "Kika": { row: 2, p: 3, isSpy: true, img: "Img/kika.jpg", desc: "Tajuplná hradná archivárka so zvinutými kráľovskými dekrétmi.", abilityDesc: "🕵️ Špión: Vykladá sa na SÚPEROVU stranu stola! Za odmenu ti však okamžite potiahne 2 NOVÉ KARTY z balíčka." },
-    "Zvedava suseda": { row: 2, p: 7, isSpy: true, img: "Img/zvedava-suseda.jpg", desc: "Pozorné oko podhradia. Z okna jej neunikne ani jediný klep.", abilityDesc: "🕵️ Špión: Vykladá sa na SÚPEROVU stranu stola a dá ti 2 nové karty z balíčka." },
+    "Sestrička": { row: 2, p: 3, img: "Img/sestricka.jpg", desc: "Milosrdná ošetrovateľka, ktorá stavia na nohy ranených bojovníkov z archívu.", abilityDesc: "🏥 Oživenie: Po vyložení oživí a vráti do hry kartu z tvojho hradného archívu." },
+    "Kika": { row: 2, p: 3, isSpy: true, img: "Img/kika.jpg", desc: "Tajuplná hradná archivárka so zvinutými kráľovskými dekrétmi.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola! Za odmenu ti však okamžite potiahne 2 NOVÉ KARTY z balíčka." },
+    "Zvedavá suseda": { row: 2, p: 7, isSpy: true, img: "Img/zvedava-suseda.jpg", desc: "Pozorné oko podhradia. Z okna jej neunikne ani jediný klep.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola a dá ti 2 nové karty z balíčka." },
     
-    // ZVIERATÁ A SVORKY (PRESNE 3X)
-    "Grobske Mravce 1": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov. Sú malé, no v obrovskom počte nepremožiteľné.", abilityDesc: "🤝 Svorka: Ak vyložíš 2 mravce, ich sila stúpne na 2b. Ak vyložíš všetky 3 mravce, ich sila stúpne na 4b za každého!" },
-    "Grobske Mravce 2": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
-    "Grobske Mravce 3": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
+    // ZVIERATÁ A SVORKY
+    "Grobské Mravce 1": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov. Sú malé, no v obrovskom počte nepremožiteľné.", abilityDesc: "🤝 Svorka: Ak vyložíš 2 mravce, ich sila stúpne na 2b. Ak vyložíš všetky 3 mravce, ich sila stúpne na 4b za každého!" },
+    "Grobské Mravce 2": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
+    "Grobské Mravce 3": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
     
-    "Petrzalske holuby 1": { row: 3, p: 1, img: "Img/petrzalske-holuby.png", desc: "Rýchli hradní posli prenášajúci tajné správy naprieč kráľovstvom.", abilityDesc: "🤝 Svorka: Fungujú rovnako ako mravce. Viac holubov na stole = znásobená sila!" },
-    "Petrzalske holuby 2": { row: 3, p: 1, img: "Img/petrzalske-holuby.png", desc: "Rýchli hradní posli prenášajúci tajné správy.", abilityDesc: "🤝 Svorka: Násobí silu holubej letky." },
-    "Petrzalske holuby 3": { row: 3, p: 1, img: "Img/petrzalske-holuby.png", desc: "Rýchli hradní posli prenášajúci tajné správy.", abilityDesc: "🤝 Svorka: Násobí silu holubej letky." },
+    "Petržalské holuby 1": { row: 3, p: 1, img: "Img/petrzalske-holuby.png", desc: "Rýchli hradní posli prenášajúci tajné správy naprieč kráľovstvom.", abilityDesc: "🤝 Svorka: Fungujú rovnako ako mravce. Viac holubov na stole = znásobená sila!" },
+    "Petržalské holuby 2": { row: 3, p: 1, img: "Img/petrzalske-holuby.png", desc: "Rýchli hradní posli prenášajúci tajné správy.", abilityDesc: "🤝 Svorka: Násobí silu holubej letky." },
+    "Petržalské holuby 3": { row: 3, p: 1, img: "Img/petrzalske-holuby.png", desc: "Rýchli hradní posli prenášajúci tajné správy.", abilityDesc: "🤝 Svorka: Násobí silu holubej letky." },
     
-    "Kabelkovy pes": { row: 3, p: 3, img: "Img/kabelkovy-pes.png", desc: "Panský miláčik usadený na hodvábnom vankúši. Breše viac, než hryzie." },
+    "Kabelkový pes": { row: 3, p: 3, img: "Img/kabelkovy-pes.png", desc: "Panský miláčik usadený na hodvábnom vankúši. Breše viac, než hryzie." },
     "Patkaňe": { row: 3, p: 2, img: "Img/patkane.jpg", desc: "Hladná pivničná svorka. Kde sa objavia, tam nastane chaos a zmätok." },
     "Sviňa lesná": { row: 3, p: 4, img: "Img/svina-lesna.png", desc: "Zúrivý lesný kanec, ktorý zmetie všetko, čo mu stojí v ceste." },
-    "Zatúlaný tatranský medved": { row: 3, p: 5, img: "Img/tatransky-medved.png", desc: "Obrovská horská šelma zosadajúca zo zasnežených štítov." },
+    "Zatúlaný tatranský medveď": { row: 3, p: 5, img: "Img/tatransky-medved.png", desc: "Obrovská horská šelma zosadajúca zo zasnežených štítov." },
     "Pouličný mačiak": { row: 3, p: 3, img: "Img/poulicny-maciak.png", desc: "Tichý potulný kocúr obchádzajúci hradné múry a hľadajúci korisť." },
-    "Komare": { row: 3, p: 3, img: "Img/komare.png", desc: "Dotieravé hradné húfy komárov neúprosne trápiace zvierací rad." },
+    "Komáre": { row: 3, p: 3, img: "Img/komare.png", desc: "Dotieravé hradné húfy komárov neúprosne trápiace zvierací rad." },
     
     // NEUTRÁLNE KARTY A VPLYVY
     "Alcohol": { row: 1, p: 0, img: "Img/alkohol.png", desc: "Súdok medoviny a pálenka pre mužský rad. Výrazne zvyšuje bojovú náladu.", abilityDesc: "🛠️ Predmet: Vykladá sa do 1. radu. Pridáva +50% až +100% k sile mužov." },
@@ -120,13 +120,13 @@ function getRowLetterAndClass(row) {
 
 function getAbilityBadge(meno) {
     if (isSpecialCard(meno)) return null;
-    if (meno === "Kika" || meno === "Zvedava suseda") return { text: "ᛟ", title: "Špión" };
+    if (meno === "Kika" || meno === "Zvedavá suseda") return { text: "ᛟ", title: "Špión" };
     if (meno === "Marek") return { text: "ᚠ", title: "Filozof" };
-    if (meno === "Erik" || meno === "Sisa" || meno === "Michal" || meno === "Duri") return { text: "ᛏ", title: "Buff / Taktik" };
+    if (meno === "Erik" || meno === "Sisa" || meno === "Michal" || meno === "Ďuri") return { text: "ᛏ", title: "Buff / Taktik" };
     if (meno === "Katy") return { text: "ᛒ", title: "Láskavosť" };
     if (meno === "Oli") return { text: "ᛖ", title: "Imunita" };
-    if (meno === "Nela") return { text: "ᛉ", title: "Amulet / Zámok" };
-    if (meno === "Doktor" || meno === "Sestricka") return { text: "ᛞ", title: "Oživenie" };
+    if (meno === "Nela") return { text: "ᛉ", title: "Štít" };
+    if (meno === "Doktor" || meno === "Sestrička") return { text: "ᛞ", title: "Oživenie" };
     if (meno.indexOf("Mravce") !== -1 || meno.indexOf("holuby") !== -1) return { text: "ᚷ", title: "Svorka" };
     return null;
 }
@@ -195,30 +195,7 @@ function otvorDetailKarty(meno) {
     modal.style.display = "flex";
 }
 
-// ZAMKNUTIE ODCHODU Z DUELU
-function prepniSekciuVizualne(sekciaId) {
-    // Ak prebieha duel, nepustíme hráča preč!
-    var duelBezi = document.getElementById("hraci-stol-kontajner") && !document.getElementById("hraci-stol-kontajner").classList.contains("schovany");
-    
-    if (duelBezi && sekciaId !== 'sekcia-hra') {
-        alert("🔒 Zápas prebieha! Najprv musíte dokončiť duel alebo sa vzdať cez tlačidlo 'Vzdať zápas'!");
-        return;
-    }
-
-    var sekcie = document.querySelectorAll('.sekcia-obsah');
-    sekcie.forEach(function(s) { s.classList.add('schovana-sekcia'); });
-    var ciel = document.getElementById(sekciaId);
-    if (ciel) ciel.classList.remove('schovana-sekcia');
-
-    var taby = document.querySelectorAll('.menu-tab');
-    taby.forEach(function(t) { t.classList.remove('aktivna-tab'); });
-    
-    if (sekciaId === 'sekcia-hra') document.getElementById('menu-btn-hra').classList.add('aktivna-tab');
-    if (sekciaId === 'sekcia-zostava') document.getElementById('menu-btn-zostava').classList.add('aktivna-tab');
-    if (sekciaId === 'sekcia-dielna') document.getElementById('menu-btn-dielna').classList.add('aktivna-tab');
-    if (sekciaId === 'sekcia-trhovisko') document.getElementById('menu-btn-trhovisko').classList.add('aktivna-tab');
-}
-
+// NÁVOD SO SPUSTENOU TABUĽKOU TRIED A VYLEPŠENÍ
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
     if (!modal) {
@@ -245,11 +222,47 @@ function otvoriťNavodHry() {
                 </ul>
 
                 <h3 style="color:#ffcc00; margin-top:10px;">3. Triedy Kariet & Kováčstvo</h3>
-                <p>Každá karta má 4 úrovne kvality: <strong>C (Základná / Casual)</strong>, <strong>B (Bronzová)</strong>, <strong>A (Strieborná)</strong> a <strong>S (Zlatá Kráľovská)</strong>. Vyššia trieda pridáva karte bonusové body a masívny vyrezávaný rám!</p>
+                <p>Vylepšovanie v Dielni vylepšuje silu karty a pridáva luxusný vyrezávaný rám:</p>
+                <table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:0.85em; text-align:center; background:rgba(0,0,0,0.4); border:1px solid #5a4d3e;">
+                    <thead>
+                        <tr style="background:#2a2118; color:#d4af37; border-bottom:1px solid #5a4d3e;">
+                            <th style="padding:6px;">Trieda</th>
+                            <th style="padding:6px;">Názov</th>
+                            <th style="padding:6px;">Bojové Jednotky</th>
+                            <th style="padding:6px;">Špióni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom:1px solid #3d3124;">
+                            <td style="padding:6px; font-weight:bold; color:#a0a0a0;">C</td>
+                            <td style="padding:6px;">Základná</td>
+                            <td style="padding:6px;">Základná sila</td>
+                            <td style="padding:6px;">Základné body pre súpera</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid #3d3124;">
+                            <td style="padding:6px; font-weight:bold; color:#a86529;">B</td>
+                            <td style="padding:6px;">Bronzová</td>
+                            <td style="padding:6px; color:#4ade80;">+1 Bod k sile</td>
+                            <td style="padding:6px; color:#4ade80;">-1 Bod pre súpera</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid #3d3124;">
+                            <td style="padding:6px; font-weight:bold; color:#c0c0c0;">A</td>
+                            <td style="padding:6px;">Strieborná</td>
+                            <td style="padding:6px; color:#4ade80;">+2 Body k sile</td>
+                            <td style="padding:6px; color:#4ade80;">-2 Body pre súpera</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px; font-weight:bold; color:#ffd700;">S</td>
+                            <td style="padding:6px;">Zlatá Kráľovská</td>
+                            <td style="padding:6px; color:#4ade80;">+3 Body k sile</td>
+                            <td style="padding:6px; color:#4ade80;">-3 Body pre súpera</td>
+                        </tr>
+                    </tbody>
+                </table>
 
                 <h3 style="color:#ffcc00; margin-top:10px;">4. Špeciálne Schopnosti</h3>
                 <ul>
-                    <li><strong>🕵️ Špión (ᛟ):</strong> Vyloží sa súpeľovi, no okamžite ti potiahne 2 nové karty z balíčka.</li>
+                    <li><strong>🕵️ Špión (ᛟ):</strong> Vyloží sa súperovi, no okamžite ti potiahne 2 nové karty z balíčka.</li>
                     <li><strong>🧹 Filozof (ᚠ - Marek):</strong> Svojím otravným filozofovaním úplne zmatie zvolenú kartu súpera a odstráni ju z hry.</li>
                     <li><strong>🏥 Oživenie (ᛞ - Doktor, Sestrička):</strong> Vráti padlú kartu z hradného archívu späť do plnej bitky.</li>
                     <li><strong>🤝 Svorka (ᚷ - Mravce, Holuby):</strong> Čím viac rovnakých kariet svorky je v rade, tým masívnejšie násobia svoju silu.</li>
@@ -334,11 +347,31 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
     }, trvanie);
 }
 
-// GENEROVANIE KOLEKCIE - DÔSLEDNE MAXIMALNE 3 MRAVCE A 3 HOLUBY
+function prepniSekciuVizualne(sekciaId) {
+    var duelBezi = document.getElementById("hraci-stol-kontajner") && !document.getElementById("hraci-stol-kontajner").classList.contains("schovany");
+    
+    if (duelBezi && sekciaId !== 'sekcia-hra') {
+        alert("🔒 Zápas prebieha! Najprv musíte dokončiť duel alebo sa vzdať cez tlačidlo 'Vzdať zápas'!");
+        return;
+    }
+
+    var sekcie = document.querySelectorAll('.sekcia-obsah');
+    sekcie.forEach(function(s) { s.classList.add('schovana-sekcia'); });
+    var ciel = document.getElementById(sekciaId);
+    if (ciel) ciel.classList.remove('schovana-sekcia');
+
+    var taby = document.querySelectorAll('.menu-tab');
+    taby.forEach(function(t) { t.classList.remove('aktivna-tab'); });
+    
+    if (sekciaId === 'sekcia-hra') document.getElementById('menu-btn-hra').classList.add('aktivna-tab');
+    if (sekciaId === 'sekcia-zostava') document.getElementById('menu-btn-zostava').classList.add('aktivna-tab');
+    if (sekciaId === 'sekcia-dielna') document.getElementById('menu-btn-dielna').classList.add('aktivna-tab');
+    if (sekciaId === 'sekcia-trhovisko') document.getElementById('menu-btn-trhovisko').classList.add('aktivna-tab');
+}
+
 function vytvorZoznamKariet(pNum) {
     var rawList = Object.keys(MASTER_REGISTRY).filter(function(key) {
-        // Vynecháme záložné kľúče bez čísel, aby neboli v balíčku duplicity
-        return key !== "Grobske Mravce" && key !== "Petrzalske holuby";
+        return key !== "Grobské Mravce" && key !== "Petržalské holuby";
     });
 
     if (1 === pNum && 0 === Object.keys(inventar.karty).length) {
@@ -485,13 +518,13 @@ function spustiPrepocty() {
         if (!nelaPritomna) {
             if ("Michal" === cMeno) pct += 1.0; 
             var pr = vsetky.find(function(k) { return k && k.pNum === c.pNum && k.row === c.row && ("Alcohol" === k.n || "Kvety" === k.n || "Medove Orechy" === k.n); });
-            var dR = vsetky.some(function(k) { return k && -1 !== k.n.indexOf('Duri') && k.pNum === c.pNum && 1 === k.row; });
+            var dR = vsetky.some(function(k) { return k && -1 !== k.n.indexOf('Ďuri') && k.pNum === c.pNum && 1 === k.row; });
 
             if (pr) { var zB = ("S" === pr.cls) ? 1.0 : 0.5; pct += zB; if ("A" === c.cls || "S" === c.cls) pct += 0.5; }
             
             if (1 === c.row) { 
                 if (vsetky.some(function(k) { return k && -1 !== k.n.indexOf('Sisa') && k.pNum === c.pNum; })) pct += 1.0; 
-                if (dR && pr && "Alcohol" === pr.n && "Duri" !== cMeno) pct += 0.5; 
+                if (dR && pr && "Alcohol" === pr.n && "Ďuri" !== cMeno) pct += 0.5; 
             }
             if ((1 === c.pNum ? p1_erik_buff_row : p2_erik_buff_row) !== null && c.row === parseInt(1 === c.pNum ? p1_erik_buff_row : p2_erik_buff_row, 10) && "Erik" !== cMeno) pct += 1.0;
             if ("S" !== c.cls) { pct += (sClassRiadkyBonus[cId] || 0); }
@@ -670,7 +703,7 @@ function ozivKartuZArchivu(pNum) {
     var k = list.pop(); 
     if (!k) return;
     
-    var jeSpy = ("Zvedava suseda" === k.n || "Kika" === k.n); 
+    var jeSpy = ("Zvedavá suseda" === k.n || "Kika" === k.n); 
     var tPNum = jeSpy ? (1 === pNum ? 2 : 1) : pNum;
     var div = document.createElement('div'); 
     div.className = "karta karta-nova cls-" + k.cls + " " + (1 === k.pNum ? "karta-h1" : "karta-h2"); 
@@ -697,7 +730,7 @@ function ozivKartuZArchivu(pNum) {
             dynamicDrawNewCard(pNum); dynamicDrawNewCard(pNum);
             if ("A" === k.cls || "S" === k.cls) spustiSpyNakukanie(pNum); 
         } 
-        if (("Doktor" === k.n || "Sestricka" === k.n) && list.length > 0) {
+        if (("Doktor" === k.n || "Sestrička" === k.n) && list.length > 0) {
             ozivKartuZArchivu(pNum); 
         }
     }
@@ -1146,7 +1179,6 @@ function aktualizujPanelDielne(){
             cardDiv.className = "karta cls-" + r.aktivnaTrieda;
             if ("S" === r.aktivnaTrieda) cardDiv.classList.add("karta-s-class-aura");
             
-            // Výpočet reálnej aktuálnej sily karty podľa jej triedy pre Kováča
             var vylepsenaSila = reg.p;
             if (!isSpecialCard(t) && reg.p > 0) {
                 if ("B" === r.aktivnaTrieda) vylepsenaSila += 1;
@@ -1351,7 +1383,7 @@ document.addEventListener("click", function(e) {
                         dynamicDrawNewCard(c); 
                         if ("A" === g || "S" === g) { spustiSpyNakukanie(c); } 
                     } 
-                    if ("Doktor" === u || "Sestricka" === u) ozivKartuZArchivu(c); 
+                    if ("Doktor" === u || "Sestrička" === u) ozivKartuZArchivu(c); 
                 }
                 
                 if ("Erik" === u) { 
