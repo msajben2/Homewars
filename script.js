@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.5.1 - FULL CLEANUP & STABLE MATH)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.6.0 - DEV CONSOLE & AUTO SIMULATOR)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.5.1";
+var VERZIA = "10.6.0";
 
 // MASTER REGISTRAČNÁ TABUĽKA KARIET
 var MASTER_REGISTRY = {
@@ -436,7 +436,6 @@ function aktualizujStavZamkuMenu() {
     if (!draft_faza) { menuEl.classList.add('zamknute-menu'); } else { menuEl.classList.remove('zamknute-menu'); }
 }
 
-// PERFEKTNÁ LOGIKA PREPOČTOV BEZ PRENÁŠANIA STADY
 function spustiPrepocty() {
     aktualizujStavZamkuMenu();
     var vsetky = p1_played_cards.concat(p2_played_cards).filter(function(k) { return k && "object" === typeof k && k.n; });
@@ -1309,6 +1308,168 @@ function obnovPocitadlaZostavyVMenu() {
     if (pStranka) { if (aktualnyPocet < 30) { pStranka.innerText = aktualnyPocet + " / 30"; pStranka.style.color = "#dc3545"; } else { pStranka.innerText = aktualnyPocet + " kariet"; pStranka.style.color = "#28a745"; } }
 }
 
+// =========================================================================
+// DEV CONSOLE & AUTO SIMULATOR MODULE
+// =========================================================================
+
+function inicializujDevConsole() {
+    var header = document.querySelector("header");
+    if (header && !document.getElementById("btn-dev-toggle")) {
+        var btnDev = document.createElement("button");
+        btnDev.id = "btn-dev-toggle";
+        btnDev.className = "menu-tab";
+        btnDev.style.cssText = "background: #7c2d12; color: #ffcc00; border-color: #d97706;";
+        btnDev.innerHTML = "🛠️ DEV CONSOLE";
+        btnDev.onclick = function() {
+            var bar = document.getElementById("dev-bar");
+            if (bar) bar.style.display = (bar.style.display === "none" || !bar.style.display) ? "flex" : "none";
+        };
+        header.appendChild(btnDev);
+    }
+
+    if (!document.getElementById("dev-bar")) {
+        var devBar = document.createElement("div");
+        devBar.id = "dev-bar";
+        devBar.style.cssText = "display:none; background:#1e140a; border-bottom:2px solid #d97706; padding:8px 15px; gap:10px; align-items:center; flex-wrap:wrap; font-size:0.85em; z-index:999; position:relative;";
+        
+        var selectKarta = "<select id='dev-card-select' style='background:#2a2118; color:#fff; border:1px solid #5a4d3e; padding:4px; border-radius:4px;'>";
+        Object.keys(MASTER_REGISTRY).forEach(function(k) {
+            selectKarta += "<option value='" + k + "'>" + k + "</option>";
+        });
+        selectKarta += "</select>";
+
+        devBar.innerHTML = `
+            <span style="color:#d97706; font-weight:bold;">🛠️ TESTER:</span>
+            ${selectKarta}
+            <button onclick="devPridajKartuDoRuky()" style="background:#059669; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">➕ Pridať do ruky</button>
+            <button onclick="devTestPresetSisaKvety()" style="background:#d97706; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">🧪 Test: Sisa A + Kvety</button>
+            <button onclick="devPridajMince(5000)" style="background:#eab308; color:#000; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">💰 +5000 Mincí</button>
+            <button onclick="devPridajReplikyVsetkym(100)" style="background:#8b5cf6; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">🛠️ +100 Replík všetkým</button>
+            <button onclick="devVycistiStol()" style="background:#dc2626; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">🧹 Vyčistiť stôl</button>
+            <button onclick="devSpustiHeadlessSimulaciu(1000)" style="background:#2563eb; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold; margin-left:auto;">🤖 Odohrať 1000 AI zápasov</button>
+        `;
+        document.body.insertBefore(devBar, document.body.firstChild);
+    }
+}
+
+function devPridajKartuDoRuky() {
+    var sel = document.getElementById("dev-card-select");
+    if (!sel) return;
+    var meno = sel.value;
+    var reg = MASTER_REGISTRY[meno];
+    if (!reg) return;
+
+    var inv = inventar.karty[meno] || { aktivnaTrieda: "C" };
+    var kartaObj = { n: meno, row: reg.row, p: reg.p, pNum: 1, isSpy: reg.isSpy || false, cls: inv.aktivnaTrieda };
+    dynamicDrawNewCard(1, kartaObj);
+    spustiPrepocty();
+}
+
+function devPridajMince(pocet) {
+    inventar.mince += pocet;
+    var wallet = document.getElementById("wallet-p1");
+    if (wallet) wallet.innerText = inventar.mince + " m";
+    alert("💰 Pridaných " + pocet + " mincí!");
+}
+
+function devPridajReplikyVsetkym(pocet) {
+    Object.keys(MASTER_REGISTRY).forEach(function(k) {
+        if (!inventar.karty[k]) inventar.karty[k] = { replikyC: 0, aktivnaTrieda: "C" };
+        inventar.karty[k].replikyC += pocet;
+    });
+    aktualizujPanelDielne();
+    alert("🛠️ Pridaných " + pocet + " replík pre všetky karty!");
+}
+
+function devVycistiStol() {
+    resetStolaBezReloadu(true);
+}
+
+function devTestPresetSisaKvety() {
+    resetStolaBezReloadu(true);
+    
+    // Vyloženie Sisy A-class
+    var sisaCard = { id: "dev_sisa", n: "Sisa", pNum: 1, row: 2, p: 4, livePwr: 6, cls: "A", isSpy: false };
+    p1_played_cards.push(sisaCard);
+    
+    // Vyloženie Kvetov
+    var kvetyCard = { id: "dev_kvety", n: "Kvety", pNum: 1, row: 2, p: 0, livePwr: "none", cls: "C", isSpy: false };
+    p1_played_cards.push(kvetyCard);
+
+    var r5 = document.getElementById("r5");
+    if (r5) {
+        r5.innerHTML = "2. Rad (Ženy): <span class='skore-rad' id='s5'>0 b</span>";
+        
+        var d1 = document.createElement("div");
+        d1.className = "karta karta-h1 cls-A";
+        d1.id = "dev_sisa";
+        d1.innerHTML = vytvorHTMLKarty("Sisa", 6, "A", 2, 4);
+        
+        var d2 = document.createElement("div");
+        d2.className = "karta karta-h1 cls-C";
+        d2.id = "dev_kvety";
+        d2.innerHTML = vytvorHTMLKarty("Kvety", "none", "C", 2, 0);
+
+        r5.appendChild(d1);
+        r5.appendChild(d2);
+    }
+    
+    spustiPrepocty();
+}
+
+// FAST HEADLESS MONTE CARLO SIMULATOR (1000 GAMES IN 1 SEC)
+function devSpustiHeadlessSimulaciu(pocetZapasov) {
+    var p1Výhry = 0, p2Výhry = 0, remízy = 0;
+    var celkoveSkoreP1 = 0, celkoveSkoreP2 = 0;
+
+    for (var i = 0; i < pocetZapasov; i++) {
+        var deck1 = vytvorZoznamKariet(1);
+        var deck2 = vytvorZoznamKariet(2);
+
+        var hand1 = deck1.splice(0, 10);
+        var hand2 = deck2.splice(0, 10);
+
+        var sum1 = 0, sum2 = 0;
+        hand1.forEach(function(k) { sum1 += getRealPower(k); });
+        hand2.forEach(function(k) { sum2 += getRealPower(k); });
+
+        celkoveSkoreP1 += sum1;
+        celkoveSkoreP2 += sum2;
+
+        if (sum1 > sum2) p1Výhry++;
+        else if (sum2 > sum1) p2Výhry++;
+        else remízy++;
+    }
+
+    var winRateP1 = ((p1Výhry / pocetZapasov) * 100).toFixed(1);
+    var winRateP2 = ((p2Výhry / pocetZapasov) * 100).toFixed(1);
+
+    var resModal = document.getElementById("sim-result-modal");
+    if (!resModal) {
+        resModal = document.createElement("div");
+        resModal.id = "sim-result-modal";
+        resModal.className = "card-modal";
+        resModal.onclick = function() { resModal.style.display = "none"; };
+        document.body.appendChild(resModal);
+    }
+
+    resModal.innerHTML = `
+        <div class="card-modal-content cls-S" style="width:500px;" onclick="event.stopPropagation()">
+            <span class="card-modal-close" onclick="document.getElementById('sim-result-modal').style.display='none'">&times;</span>
+            <h2 style="color:#d4af37;">📊 VÝSLEDKY SIMULÁCIE (${pocetZapasov} DUELOV)</h2>
+            <div style="text-align:left; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px; line-height:1.8;">
+                <p>🏆 <strong>Hráč 1 Výhry:</strong> ${p1Výhry} (${winRateP1}%)</p>
+                <p>🤖 <strong>AI / Hráč 2 Výhry:</strong> ${p2Výhry} (${winRateP2}%)</p>
+                <p>⚖️ <strong>Remízy:</strong> ${remízy}</p>
+                <hr style="border-color:#5a4d3e;">
+                <p>📈 <strong>Priemerné skóre P1 na zápas:</strong> ${(celkoveSkoreP1 / pocetZapasov).toFixed(1)} b</p>
+                <p>📈 <strong>Priemerné skóre P2 na zápas:</strong> ${(celkoveSkoreP2 / pocetZapasov).toFixed(1)} b</p>
+            </div>
+        </div>
+    `;
+    resModal.style.display = "flex";
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     var e = document.getElementById("menu-btn-hra"), t = document.getElementById("menu-btn-zostava"), r = document.getElementById("menu-btn-dielna"), n = document.getElementById("menu-btn-trhovisko");
     if (e) e.addEventListener("click", function() { prepniSekciuVizualne("sekcia-hra") }); 
@@ -1326,6 +1487,7 @@ document.addEventListener("DOMContentLoaded", function() {
         header.insertBefore(btnNavod, header.children[header.children.length - 1]);
     }
 
+    inicializujDevConsole();
     p1_full_deck = vytvorZoznamKariet(1); obnovPocitadlaZostavyVMenu();
 });
 
