@@ -1,193 +1,368 @@
 /* =========================================================================
-   3D STREDOVEKÁ TRUHLA A ANIMÁCIE OTVÁRANIA (CINEMATIC CHEST OPENING)
+   HOME WARS - COMPLETE STYLESHEET (v10.9.0)
    ========================================================================= */
 
-.chest-modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(4, 3, 2, 0.96);
-    z-index: 3000;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
+body {
+    background: #12100e url('https://www.transparenttextures.com/patterns/dark-wood.png');
+    color: #e0d0b0;
+    font-family: 'Georgia', serif;
+    margin: 0;
+    padding: 0;
 }
 
-.chest-stage {
-    position: relative;
+header#hlavne-menu {
+    background: #1a1612;
+    padding: 12px 25px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    perspective: 1000px;
-    width: 100%;
-    max-width: 600px;
+    gap: 12px;
+    max-width: 750px;
+    margin: 15px auto;
+    border: 4px ridge #d4af37;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.9), inset 0 0 15px #000;
 }
 
-/* MAGICKÁ ŽIARA ZA TRUHLOU */
-.chest-light-ray {
-    position: absolute;
-    width: 350px;
-    height: 350px;
-    background: radial-gradient(circle, rgba(255, 215, 0, 0.5) 0%, rgba(255, 140, 0, 0.2) 50%, transparent 75%);
-    border-radius: 50%;
-    top: 20px;
-    z-index: 1;
-    opacity: 0;
-    transition: opacity 0.6s ease, transform 0.6s ease;
-    transform: scale(0.5);
-}
-
-.chest-stage.open .chest-light-ray {
-    opacity: 1;
-    transform: scale(1.4);
-    animation: rayPulse 1.5s infinite alternate ease-in-out;
-}
-
-@keyframes rayPulse {
-    0% { transform: scale(1.3); opacity: 0.8; }
-    100% { transform: scale(1.6); opacity: 1; }
-}
-
-/* 3D KONŠTRUKCIA TRUHLICE */
-.chest-3d-wrapper {
-    position: relative;
-    width: 200px;
-    height: 130px;
-    z-index: 5;
-    margin: 30px 0;
-    cursor: pointer;
-    transform-style: preserve-3d;
-    transition: transform 0.3s ease;
-}
-
-.chest-3d-wrapper:hover {
-    transform: scale(1.05);
-}
-
-/* Telo truhly */
-.chest-body {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 85px;
-    border-radius: 0 0 8px 8px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.9);
-    z-index: 2;
-}
-
-/* Večko truhly s pántami na zadnej strane */
-.chest-lid {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 50px;
-    border-radius: 12px 12px 2px 2px;
-    transform-origin: top center;
-    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 3;
-}
-
-/* Otvorenie veka */
-.chest-stage.open .chest-lid {
-    transform: rotateX(-110deg);
-}
-
-/* Vnútro truhly (Zlaté svetlo po otvorení) */
-.chest-interior-glow {
-    position: absolute;
-    top: 40px;
-    left: 10px;
-    width: 180px;
-    height: 40px;
-    background: radial-gradient(ellipse at center, #ffe600 0%, #ff8800 60%, transparent 100%);
-    opacity: 0;
-    transition: opacity 0.5s ease 0.3s;
-    z-index: 1;
-    border-radius: 50%;
-    filter: blur(4px);
-}
-
-.chest-stage.open .chest-interior-glow {
-    opacity: 1;
-}
-
-/* DESIGN: TRUHLA ÚČASTNÍKA (Robustné drevo + železo) */
-.ucastnik-body {
-    background: linear-gradient(180deg, #4d3319 0%, #291a0c 100%);
-    border: 4px solid #1a1006;
-    border-top: 2px solid #5d3d1e;
-}
-.ucastnik-lid {
-    background: linear-gradient(180deg, #664121 0%, #3d2912 100%);
-    border: 4px solid #1a1006;
-    border-bottom: 3px solid #110a04;
-}
-
-/* DESIGN: TRUHLA VÍŤAZA (Tmavé drevo + Zlaté vybitie) */
-.vitaz-body {
-    background: linear-gradient(180deg, #5c4314 0%, #261704 100%);
-    border: 4px solid #d4af37;
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
-}
-.vitaz-lid {
-    background: linear-gradient(180deg, #8a651b 0%, #4a360a 100%);
-    border: 4px solid #ffd700;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-}
-
-/* ANIMOVANÉ VYLETUJÚCE MINCE */
-.chest-coin-particle {
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    background: radial-gradient(circle at 30% 30%, #fff7a1, #ffd700 60%, #b8860b);
-    border: 1px solid #ffe600;
-    border-radius: 50%;
-    top: 50px;
-    left: 50%;
-    z-index: 10;
-    pointer-events: none;
-    opacity: 0;
-    box-shadow: 0 0 8px #ffd700;
-}
-
-.chest-stage.open .chest-coin-particle {
-    animation: coinBurst 0.9s ease-out forwards;
-}
-
-@keyframes coinBurst {
-    0% { transform: translate(-50%, 0) scale(0.5) rotate(0deg); opacity: 1; }
-    50% { opacity: 1; }
-    100% { transform: translate(var(--dx), var(--dy)) scale(1.1) rotate(360deg); opacity: 0; }
-}
-
-/* CONTAINER PRE VYLETENÉ KARTY */
-.chest-cards-container {
+.menu-nav-box {
     display: flex;
-    gap: 15px;
+    gap: 10px;
     flex-wrap: wrap;
     justify-content: center;
-    max-width: 550px;
-    z-index: 20;
-    margin-top: 10px;
-    min-height: 120px;
 }
 
-.chest-card-drop {
-    background: linear-gradient(135deg, #2a2118 0%, #140e0a 100%);
-    border: 2px solid #d4af37;
-    border-radius: 8px;
-    padding: 10px 16px;
-    color: #ffcc00;
+.menu-tab {
+    background: linear-gradient(135deg, #3d2b1f 0%, #1a120b 100%);
+    color: #e0d0b0;
+    border: 2px solid #5a4d3e;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
     font-weight: bold;
-    font-size: 0.95em;
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-    opacity: 0;
-    transform: translateY(40px) scale(0.5);
-    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-family: 'Georgia', serif;
+    transition: all 0.2s ease;
 }
 
-.chest-stage.open .chest-card-drop {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+.menu-tab:hover {
+    border-color: #d4af37;
+    color: #fff;
+    transform: translateY(-2px);
 }
+
+.menu-tab.aktivna-tab {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+    color: #fff;
+    border-color: #c084fc;
+    box-shadow: 0 0 12px #8b5cf6;
+}
+
+.menu-wallet {
+    background: #2b2611;
+    color: #ffcc00;
+    padding: 6px 16px;
+    border-radius: 6px;
+    border: 2px solid #ffcc00;
+    font-weight: bold;
+    font-size: 1.05em;
+    text-shadow: 1px 1px 2px #000;
+}
+
+.schovana-sekcia, .schovany {
+    display: none !important;
+}
+
+main {
+    padding: 20px;
+}
+
+.predzapas-box, .herna-ploch-grid, .zostava-grid, .dielna-grid, .obchod-grid {
+    background: rgba(26, 22, 18, 0.95);
+    border-radius: 10px;
+    padding: 20px;
+    border: 2px solid #5a4d3e;
+    box-shadow: 0 0 20px rgba(0,0,0,0.9);
+}
+
+.predzapas-box {
+    max-width: 600px;
+    margin: 30px auto;
+    text-align: center;
+}
+
+.btn-hlavny {
+    background: #198754;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1em;
+    margin: 5px;
+}
+
+.btn-vzdaj {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.ai-diff-box {
+    margin-top: 15px;
+    padding: 10px;
+    background: #110e0c;
+    border-radius: 6px;
+    border: 1px solid #3d3124;
+}
+
+.btn-diff {
+    padding: 8px 14px;
+    margin: 4px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.diff-b { background: #cd7f32; color: #fff; }
+.diff-a { background: #c0c0c0; color: #000; }
+.diff-s { background: #ffd700; color: #000; }
+
+.stol-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1a1612;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    border: 1px solid #5a4d3e;
+}
+
+.herna-ploch-grid {
+    display: grid;
+    grid-template-columns: 220px 1fr 220px;
+    gap: 15px;
+}
+
+.panel-hrac {
+    background: #1a1612;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #5a4d3e;
+}
+
+.archiv-box {
+    background: #110e0c;
+    min-height: 200px;
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #3d3124;
+    font-size: 0.9em;
+}
+
+.archiv-polozka {
+    background: #2a2118;
+    padding: 4px 6px;
+    margin-bottom: 4px;
+    border-radius: 3px;
+    border-left: 3px solid #8b5cf6;
+}
+
+.stred-stola {
+    background: #15110d;
+    padding: 15px;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid #3d3124;
+}
+
+.turn-banner {
+    text-align: center;
+    background: #8b5cf6;
+    color: white;
+    padding: 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.riadok-hraca {
+    background: #1a1612;
+    padding: 10px 15px;
+    border-radius: 5px;
+    border: 1px dashed #5a4d3e;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.skore-rad {
+    margin-left: auto;
+    font-weight: bold;
+    color: #ffcc00;
+}
+
+.neutralna-zona {
+    background: #2b2111;
+    border: 1px solid #d97706;
+    color: #fcd34d;
+    text-align: center;
+    padding: 8px;
+    border-radius: 5px;
+    font-weight: bold;
+    min-height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.skore-bar-spodna {
+    background: #110e0c;
+    text-align: center;
+    padding: 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #4ade80;
+    border: 1px solid #3d3124;
+}
+
+.spodny-ovladaci-panel {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ruka-kontajner {
+    background: #1a1612;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #5a4d3e;
+}
+
+.ruka-ai-skryta .karta {
+    background: #110e0c !important;
+    border-color: #3d3124 !important;
+    color: transparent !important;
+    box-shadow: none !important;
+}
+
+.ruka-ai-skryta .karta * {
+    display: none !important;
+}
+
+.ruka-ai-skryta .karta::after {
+    content: "HW";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #5a4d3e;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.karty-ruka-flex {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    min-height: 165px;
+    padding: 10px;
+    align-items: center;
+}
+
+/* TCG KARTY & RÁMY */
+.karta {
+    position: relative;
+    width: 110px;
+    height: 155px;
+    background: #1a1612;
+    border-radius: 8px;
+    padding: 4px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.karta:hover {
+    transform: translateY(-6px) scale(1.04);
+    z-index: 20;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.9);
+}
+
+.karta-nazov {
+    font-weight: bold;
+    font-size: 0.78em;
+    color: #f0e2c5;
+    text-shadow: 1px 1px 2px #000;
+    margin-bottom: 2px;
+    text-align: center;
+    line-height: 1.1;
+    word-break: break-word;
+}
+
+.karta-foto {
+    width: 100%;
+    height: 90px;
+    background-size: cover;
+    background-position: center top;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    margin-top: 6px;
+}
+
+.cls-C { 
+    border: 3px solid #5a4d3e !important; 
+    border-style: ridge !important;
+    box-shadow: inset 0 0 8px #000, 0 0 5px rgba(0,0,0,0.8); 
+    background: linear-gradient(135deg, #2a2118 0%, #120f0b 100%); 
+}
+
+.cls-B { 
+    border: 6px solid #a86529 !important; 
+    border-style: ridge !important;
+    box-shadow: inset 0 0 10px #000, 0 0 10px #a86529; 
+    background: linear-gradient(135deg, #3d2411 0%, #170d06 100%); 
+}
+
+.cls-A { 
+    border: 8px solid #c0c0c0 !important; 
+    border-style: groove !important;
+    box-shadow: inset 0 0 12px #000, 0 0 15px rgba(255,255,255,0.7); 
+    background: linear-gradient(135deg, #404040 0%, #1a1a1a 100%); 
+}
+
+.cls-S { 
+    border: 11px solid #d4af37 !important; 
+    border-style: ridge !important;
+    box-shadow: inset 0 0 15px #000, 0 0 22px #d4af37, 0 0 40px #ff8c00; 
+    background: linear-gradient(135deg, #57410d 0%, #211803 100%); 
+}
+
+.karta-btn-inspect {
+    position: absolute;
+    top: 2px;
+    right: 22px;
+    width: 20px;
+    height: 20px;
+    background: rgba(0, 0,
