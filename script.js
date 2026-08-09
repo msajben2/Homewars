@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.3.0 - PERFECT S-CLASS & FAIR BUFFS)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.4.0 - EPIC S-SPY & DYNAMIC BARS)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.3.0";
+var VERZIA = "10.4.0";
 
 // MASTER REGISTRAČNÁ TABUĽKA KARIET
 var MASTER_REGISTRY = {
@@ -38,8 +38,8 @@ var MASTER_REGISTRY = {
     "Darinka": { row: 2, p: 5, img: "Img/darinka.png", desc: "Majsterka tkáčka. Jej nádherné tkaniny chránia hradné dámy pred chladom." },
     "Viera": { row: 2, p: 6, img: "Img/viera.jpg", desc: "Hradná pekárka starajúca sa o bohaté zásoby chleba pre celú posádku." },
     "Sestrička": { row: 2, p: 3, img: "Img/sestricka.jpg", desc: "Milosrdná ošetrovateľka, ktorá stavia na nohy ranených bojovníkov z archívu.", abilityDesc: "🏥 Oživenie: Po vyložení oživí a vráti do hry kartu z tvojho hradného archívu." },
-    "Kika": { row: 2, p: 3, isSpy: true, img: "Img/kika.jpg", desc: "Tajuplná hradná archivárka so zvinutými kráľovskými dekrétmi.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola! Za odmenu ti však okamžite potiahne 2 NOVÉ KARTY z balíčka." },
-    "Zvedavá suseda": { row: 2, p: 7, isSpy: true, img: "Img/zvedava-suseda.jpg", desc: "Pozorné oko podhradia. Z okna jej neunikne ani jediný klep.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola a dá ti 2 nové karty z balíčka." },
+    "Kika": { row: 2, p: 3, isSpy: true, img: "Img/kika.jpg", desc: "Tajuplná hradná archivárka so zvinutými kráľovskými dekrétmi.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola! Za odmenu ti potiahne 2 karty (S-Class potiahne až 3 karty!)." },
+    "Zvedavá suseda": { row: 2, p: 7, isSpy: true, img: "Img/zvedava-suseda.jpg", desc: "Pozorné oko podhradia. Z okna jej neunikne ani jediný klep.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola a dá ti 2 nové karty z balíčka (S-Class dá až 3 karty!)." },
     
     // ZVIERATÁ A SVORKY
     "Grobské Mravce 1": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov. Sú malé, no v obrovskom počte nepremožiteľné.", abilityDesc: "🤝 Svorka: Ak vyložíš 2 mravce, ich sila stúpne na 2b. Ak vyložíš všetky 3 mravce, ich sila stúpne na 4b za každého!" },
@@ -244,19 +244,19 @@ function otvoriťNavodHry() {
                         <tr style="border-bottom:1px solid #3d3124;">
                             <td style="padding:8px; font-weight:bold; color:#a86529; text-align:center;">B<br><small>(Bronzová)</small></td>
                             <td style="padding:8px; color:#4ade80;">+1 Bod k celkovej sile.</td>
-                            <td style="padding:8px; color:#4ade80;">-1 Bod z vlastnej sily (súper dostane menej bodov).</td>
+                            <td style="padding:8px; color:#4ade80;">-1 Bod z vlastnej sily (súper dostane menej bodov). Potiahne 2 karty.</td>
                             <td style="padding:8px; color:#888;">Vyžaduje premena cez 5 replík.</td>
                         </tr>
                         <tr style="border-bottom:1px solid #3d3124;">
                             <td style="padding:8px; font-weight:bold; color:#c0c0c0; text-align:center;">A<br><small>(Strieborná)</small></td>
-                            <td style="padding:8px; color:#4ade80;">+2 Body k sile + ⚡ 2× predmetový bonus pre seba (napriklad 50% ➔ 100%)!</td>
+                            <td style="padding:8px; color:#4ade80;">+2 Body k sile + ⚡ 2× predmetový bonus pre seba!</td>
                             <td style="padding:8px; color:#4ade80;">-2 Body z vlastnej sily + 👁️ Nakuknutie na 3 karty v súperovej ruke na 4s!</td>
                             <td style="padding:8px; color:#888;">Vyžaduje premena cez 25 replík.</td>
                         </tr>
                         <tr>
                             <td style="padding:8px; font-weight:bold; color:#ffd700; text-align:center;">S<br><small>(Zlatá)</small></td>
                             <td style="padding:8px; color:#4ade80;">+3 Body k sile + ⚡ 2× predmetový bonus + 👑 S-Aura (+50% k sile ostatným v rade).</td>
-                            <td style="padding:8px; color:#4ade80;">-3 Body z vlastnej sily + 👁️ Nakuknutie na 3 karty súpera!</td>
+                            <td style="padding:8px; color:#4ade80;">-3 Body z vlastnej sily + 👁️ Nakuknutie + 🃏 <strong>POTIAHNE AŽ 3 KARTY!</strong></td>
                             <td style="padding:8px; color:#ffd700;">Vyžaduje 1000 replík (Priamy skok C ➔ S s masívnym vizuálnym zábleskom).</td>
                         </tr>
                     </tbody>
@@ -264,7 +264,7 @@ function otvoriťNavodHry() {
 
                 <h3 style="color:#ffcc00; margin-top:10px;">4. Prehľad Špeciálnych Symbolov (Rún)</h3>
                 <ul>
-                    <li><strong>🕵️ Špión (ᛟ):</strong> Vyloží sa súperovi na stranu stola. Odmena: Ihneď ti potiahne 2 nové karty z balíčka!</li>
+                    <li><strong>🕵️ Špión (ᛟ):</strong> Vyloží sa súperovi na stranu stola. Odmena: Ihneď ti potiahne 2 nové karty z balíčka (S-Class potiahne 3 karty)!</li>
                     <li><strong>🧹 Filozof (ᚠ - Marek):</strong> Svojím otravným filozofovaním úplne zmatie zvolenú kartu súpera a odstráni ju z hry.</li>
                     <li><strong>🏥 Oživenie (ᛞ - Doktor, Sestrička):</strong> Vráti padlú kartu z hradného archívu späť do plnej bitky.</li>
                     <li><strong>🤝 Svorka (ᚷ - Mravce, Holuby):</strong> Čím viac rovnakých kariet svorky je v rade, tým masívnejšie násobia svoju silu (1b -> 2b -> 4b za kus).</li>
@@ -436,7 +436,6 @@ function aktualizujStavZamkuMenu() {
     if (!draft_faza) { menuEl.classList.add('zamknute-menu'); } else { menuEl.classList.remove('zamknute-menu'); }
 }
 
-// PERFEKTNÝ VÝPOČET S DVOJNÁSOBNÝM PREDMETOVÝM BONUSOM PRE A-CLASS AJ S-CLASS KARTY
 function spustiPrepocty() {
     aktualizujStavZamkuMenu();
     var vsetky = p1_played_cards.concat(p2_played_cards).filter(function(k) { return k && "object" === typeof k && k.n; });
@@ -527,7 +526,7 @@ function spustiPrepocty() {
 
             if (pr) { 
                 var zB = ("S" === pr.cls) ? 1.0 : 0.5; 
-                // A-CLASS A S-CLASS PRAVIDLO: ZDVOJNÁSOBENIE PREDMETOVÉHO BONUSU PRE SEBA
+                // A-CLASS A S-CLASS ZDVOJNÁSOBENIE PREDMETU PRE SEBA
                 if ("A" === c.cls || "S" === c.cls) { zB = zB * 2; }
                 pct += zB; 
             }
@@ -538,7 +537,6 @@ function spustiPrepocty() {
             }
             if ((1 === c.pNum ? p1_erik_buff_row : p2_erik_buff_row) !== null && c.row === parseInt(1 === c.pNum ? p1_erik_buff_row : p2_erik_buff_row, 10) && "Erik" !== cMeno) pct += 1.0;
             
-            // S-CLASS AURA PRE OSTATNÝCH V RADE
             if ("S" !== c.cls) { pct += (sClassRiadkyBonus[cId] || 0); }
         }
 
@@ -695,6 +693,7 @@ function dynamicDrawNewCard(e, t) {
     }
 }
 
+// BEZPEČNÉ NAKUKNUTIE NA SÚPEROVE KARTY V RUKE (ZVÁDRA AJ MENEJ AKO 3 KARTY)
 function spustiSpyNakukanie(pNum) {
     var sR = document.getElementById(1 === pNum ? "ruka-p2" : "ruka-p1"); if (!sR) return; 
     var kS = sR.querySelectorAll('.karta'); if (0 === kS.length) return;
@@ -705,7 +704,7 @@ function spustiSpyNakukanie(pNum) {
         if (-1 === idxs.indexOf(r)) idxs.push(r); 
     }
     idxs.forEach(function(idx) { kS[idx].style.background = "#d97706"; kS[idx].style.boxShadow = "0 0 15px #ffcc00"; });
-    setTimeout(function() { idxs.forEach(function(idx) { if (kS[idx]) { kS[idx].style.background = "#444"; kS[idx].style.boxShadow = "none"; } }); }, 4000);
+    setTimeout(function() { idxs.forEach(function(idx) { if (kS[idx]) { kS[idx].style.background = "#1a1612"; kS[idx].style.boxShadow = "none"; } }); }, 4000);
 }
 
 function ozivKartuZArchivu(pNum) {
@@ -738,8 +737,10 @@ function ozivKartuZArchivu(pNum) {
     if (rEl) { 
         rEl.appendChild(div); 
         if (1 === tPNum) p1_played_cards.push(k); else p2_played_cards.push(k); 
+        
         if (jeSpy) { 
             dynamicDrawNewCard(pNum); dynamicDrawNewCard(pNum);
+            if ("S" === k.cls) dynamicDrawNewCard(pNum); // S-Class potiahne 3. kartu!
             if ("A" === k.cls || "S" === k.cls) spustiSpyNakukanie(pNum); 
         } 
         if (("Doktor" === k.n || "Sestrička" === k.n) && list.length > 0) {
@@ -1169,7 +1170,6 @@ function vzdajZapasUtek() {
     } 
 }
 
-// DIELŇA SO ZOBRAZENÍM PROGRESS BARU
 function aktualizujPanelDielne(){
     var e = document.getElementById("dielna-zoznam");
     if(e){
@@ -1404,8 +1404,8 @@ document.addEventListener("click", function(e) {
                     if (1 === v) p1_played_cards.push(_); else p2_played_cards.push(_); 
                     
                     if (l) { 
-                        dynamicDrawNewCard(c); 
-                        dynamicDrawNewCard(c); 
+                        dynamicDrawNewCard(c); dynamicDrawNewCard(c);
+                        if ("S" === g) dynamicDrawNewCard(c); // S-Class Špión potiahne 3. kartu!
                         if ("A" === g || "S" === g) { spustiSpyNakukanie(c); } 
                     } 
                     if ("Doktor" === u || "Sestrička" === u) ozivKartuZArchivu(c); 
