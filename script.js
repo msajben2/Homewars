@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.6.3 - BALANCED AI DECKBUILDING & AI BRAIN)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.6.5 - PERCENTAGE AI ACCURACY ENGINE)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.6.3";
+var VERZIA = "10.6.5";
 
 // MASTER REGISTRAČNÁ TABUĽKA KARIET
 var MASTER_REGISTRY = {
@@ -374,7 +374,7 @@ function prepniSekciuVizualne(sekciaId) {
     if (sekciaId === 'sekcia-trhovisko') document.getElementById('menu-btn-trhovisko').classList.add('aktivna-tab');
 }
 
-// PRESNE SKÁLOVANÝ DECKBUILDING PODĽA ŠPECIFIKÁCIE PRE AI
+// STAVBA AI BALÍČKA PODĽA TIERU
 function vytvorZoznamKariet(pNum) {
     var rawList = Object.keys(MASTER_REGISTRY).filter(function(key) {
         return key !== "Grobské Mravce" && key !== "Petržalské holuby" && key !== "Musime sa porozpravat";
@@ -392,23 +392,21 @@ function vytvorZoznamKariet(pNum) {
         fList = rawList.slice().sort(function() { return 0.5 - Math.random(); }).slice(0, 30);
     }
 
-    // Zamiešanie pre určenie presne 10 vyšších kariet
     var shuffledIndices = Array.from({length: 30}, function(_, i) { return i; }).sort(function() { return 0.5 - Math.random(); });
-    var top10Set = new Set(shuffledIndices.slice(0, 10));
+    var top15Set = new Set(shuffledIndices.slice(0, 15));
 
     return fList.map(function(m, idx) {
         var dR = MASTER_REGISTRY[m]; var tK = "C";
         if (1 === pNum) { 
             tK = inventar.karty[m] ? inventar.karty[m].aktivnaTrieda : "C"; 
         } else {
-            // PRESNÉ URČENIE 20 S BAZICKOU TRIEDOU + 10 VYŠŠÍCH KARIET
-            var jeVTop10 = top10Set.has(idx);
+            var jeVTop15 = top15Set.has(idx);
             if ("B" === obtiaznostAI) {
-                tK = jeVTop10 ? "B" : "C"; // 20x C + 10x B
+                tK = jeVTop15 ? "B" : "C"; // 15x B + 15x C
             } else if ("A" === obtiaznostAI) {
-                tK = jeVTop10 ? "A" : "B"; // 20x B + 10x A
+                tK = jeVTop15 ? "A" : "B"; // 15x A + 15x B
             } else if ("S" === obtiaznostAI) {
-                tK = jeVTop10 ? "S" : "A"; // 20x A + 10x S
+                tK = jeVTop15 ? "S" : "A"; // 15x S + 15x A
             }
         }
         return { n: m.replace(/\s+\d+$/, "").trim(), row: dR.row, p: dR.p, pNum: pNum, isSpy: dR.isSpy || false, cls: tK };
@@ -884,7 +882,7 @@ function resetStolaBezReloadu(e) {
     }
 }
 
-// INTELIGENTNÝ ENGINE ROZHOVODOV AI AI PODĽA OBTIAŽNOSTÍ
+// PERCENTUÁLNY DECISION ENGINE PRE AI PODĽA OBTIAŽNOSTÍ (65%, 80%, 95%)
 function spustiTahAI() {
     if (!jeSingleplayer || p2Pass || draft_faza || blokujVykladanie) return; 
     var rA = document.getElementById('ruka-p2'); if (!rA) return;
@@ -910,31 +908,29 @@ function spustiTahAI() {
         else pst.push(k[i]); 
     }
     
+    // DEFINÍCIA PERCENTUÁLNEJ PRESNOSTI AI (65%, 80%, 95%)
+    var presnost = 0.65;
+    if ("A" === obtiaznostAI) presnost = 0.80;
+    if ("S" === obtiaznostAI) presnost = 0.95;
+
+    var spraviChytryTah = Math.random() < presnost;
+
     if (pst.length > 0) {
-        if ("S" === obtiaznostAI) {
-            // S-Class AI hrá v 85% prípadov optimálnu kartu (Špión / S-Class), v 15% umožní hráčovi priestor
-            var spraviChybu = Math.random() < 0.15;
+        if (spraviChytryTah) {
+            // IDEÁLNE ROZHODNUTIE (DOKONALÝ POČÍTAČ)
             var spyCard = Array.from(pst).find(function(c) { return "true" === c.getAttribute('data-isspy'); });
-            
-            if (spyCard && !spraviChybu) { 
-                vK = spyCard; 
+            if (spyCard) {
+                vK = spyCard;
             } else {
-                var maxP = -1; 
-                for (var j = 0; j < pst.length; j++) { 
-                    var pwr = parseInt(pst[j].getAttribute('data-pwr'), 10) || 0; 
-                    if (pwr > maxP) { maxP = pwr; vK = pst[j]; } 
-                } 
+                var sorted = Array.from(pst).sort(function(a, b) { 
+                    return (parseInt(b.getAttribute('data-pwr'), 10) || 0) - (parseInt(a.getAttribute('data-pwr'), 10) || 0); 
+                });
+                vK = sorted[0];
             }
-        } else if ("A" === obtiaznostAI) {
-            // A-Class AI preferuje vyššie karty
-            var sorted = Array.from(pst).sort(function(a, b) { 
-                return (parseInt(b.getAttribute('data-pwr'), 10) || 0) - (parseInt(a.getAttribute('data-pwr'), 10) || 0); 
-            });
-            vK = (Math.random() < 0.7) ? sorted[0] : sorted[Math.floor(Math.random() * sorted.length)];
-        } else { 
-            // B-Class AI hrá náhodne
-            var l = Math.floor(Math.random() * pst.length); 
-            vK = pst[l]; 
+        } else {
+            // NÁHODNÝ / SUBOPTIMÁLNY ŤAH
+            var idx = Math.floor(Math.random() * pst.length);
+            vK = pst[idx];
         }
     } else if (efk.length > 0) { 
         if (p1Pass && sc1 > sc2) { p2Pass = true; hracPasolAI(); return; } 
@@ -1350,7 +1346,7 @@ function obnovPocitadlaZostavyVMenu() {
 }
 
 // =========================================================================
-// DEV CONSOLE & AUTO SIMULATOR MODULE
+// DEV CONSOLE & PERCENTAGE ACCURACY MONTE CARLO SIMULATOR
 // =========================================================================
 
 function inicializujDevConsole() {
@@ -1391,9 +1387,9 @@ function inicializujDevConsole() {
             
             <span style="color:#2563eb; font-weight:bold; margin-left:auto;">🤖 SIMULÁTOR AI:</span>
             <select id="sim-diff-select" style="background:#1e3a8a; color:#fff; border:1px solid #3b82f6; padding:4px; border-radius:4px; font-weight:bold;">
-                <option value="B">AI Trieda B (Začiatočník)</option>
-                <option value="A">AI Trieda A (Pokročilý)</option>
-                <option value="S">AI Trieda S (Expert)</option>
+                <option value="B">AI Trieda B (65% Presnosť)</option>
+                <option value="A">AI Trieda A (80% Presnosť)</option>
+                <option value="S">AI Trieda S (95% Presnosť)</option>
             </select>
             <button onclick="devSpustiPokrociluSimulaciu(1000)" style="background:#2563eb; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">🚀 Odohrať 1000 zápasov</button>
         `;
@@ -1437,11 +1433,9 @@ function devVycistiStol() {
 function devTestPresetSisaKvety() {
     resetStolaBezReloadu(true);
     
-    // Vyloženie Sisy A-class
     var sisaCard = { id: "dev_sisa", n: "Sisa", pNum: 1, row: 2, p: 4, livePwr: 6, cls: "A", isSpy: false };
     p1_played_cards.push(sisaCard);
     
-    // Vyloženie Kvetov
     var kvetyCard = { id: "dev_kvety", n: "Kvety", pNum: 1, row: 2, p: 0, livePwr: "none", cls: "C", isSpy: false };
     p1_played_cards.push(kvetyCard);
 
@@ -1466,7 +1460,7 @@ function devTestPresetSisaKvety() {
     spustiPrepocty();
 }
 
-// SIMULÁTOR S PRESNOU SKÁLOVANOU STRATÉGIOU AI PODĽA OBTIAŽNOSTI
+// REALISTICKÝ MONTE CARLO SIMULÁTOR S PRESNOSŤOU AI
 function devSpustiPokrociluSimulaciu(pocetZapasov) {
     var diffSelect = document.getElementById("sim-diff-select");
     var zvolenaDiff = diffSelect ? diffSelect.value : "S";
@@ -1480,6 +1474,11 @@ function devSpustiPokrociluSimulaciu(pocetZapasov) {
     var staryDiff = obtiaznostAI;
     jeSingleplayer = true;
     obtiaznostAI = zvolenaDiff;
+
+    // PRESNOSŤ AI: B=65%, A=80%, S=95%
+    var presnostAI = 0.65;
+    if ("A" === zvolenaDiff) presnostAI = 0.80;
+    if ("S" === zvolenaDiff) presnostAI = 0.95;
 
     for (var i = 0; i < pocetZapasov; i++) {
         var deck1 = vytvorZoznamKariet(1);
@@ -1508,12 +1507,12 @@ function devSpustiPokrociluSimulaciu(pocetZapasov) {
         if (sCountP1 > 0) sum1 = Math.floor(sum1 * (1 + sCountP1 * 0.15));
         if (sCountP2 > 0) sum2 = Math.floor(sum2 * (1 + sCountP2 * 0.15));
 
-        // Taktický bonus podľa inteligencie AI
-        if ("S" === zvolenaDiff) {
-            sum2 = Math.floor(sum2 * 1.10); // Vyššia efektivita komb
-        } else if ("A" === zvolenaDiff) {
-            sum2 = Math.floor(sum2 * 1.04);
-        }
+        // ZAPOČÍTANIE TAKTICKEJ PRESNOSTI AI
+        var aiTaktickyBonus = presnostAI * 0.20; // 95% AI má vyšší taktický bonus
+        sum2 = Math.floor(sum2 * (1 + aiTaktickyBonus));
+
+        // REALISTICKÁ PRESNOŠŤ HRÁČA 1 (85% PRECIZNOSŤ BEŽNÉHO HRÁČA)
+        sum1 = Math.floor(sum1 * (0.85 + Math.random() * 0.15));
 
         celkoveSkoreP1 += sum1;
         celkoveSkoreP2 += sum2;
@@ -1566,7 +1565,7 @@ function devSpustiPokrociluSimulaciu(pocetZapasov) {
             <span class="card-modal-close" onclick="document.getElementById('sim-result-modal').style.display='none'">&times;</span>
             <h2 style="color:#d4af37;">📊 VÝSLEDKY SIMULÁCIE (${pocetZapasov} DUELOV)</h2>
             <div style="text-align:left; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px; line-height:1.8;">
-                <p>🎯 <strong>Testovaná obťažnosť AI:</strong> <span style="color:#ffcc00; font-weight:bold;">Trieda ${zvolenaDiff}</span></p>
+                <p>🎯 <strong>Testovaná obťažnosť AI:</strong> <span style="color:#ffcc00; font-weight:bold;">Trieda ${zvolenaDiff} (${(presnostAI * 100)}% Presnosť)</span></p>
                 <hr style="border-color:#5a4d3e;">
                 <p>🏆 <strong>Hráč 1 Výhry:</strong> ${p1Vyhry} (${winRateP1}%)</p>
                 <p>🤖 <strong>AI (Trieda ${zvolenaDiff}) Výhry:</strong> ${p2Vyhry} (${winRateP2}%)</p>
