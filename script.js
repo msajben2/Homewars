@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.6.0 - DEV CONSOLE & AUTO SIMULATOR)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.6.3 - BALANCED AI DECKBUILDING & AI BRAIN)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.6.0";
+var VERZIA = "10.6.3";
 
 // MASTER REGISTRAČNÁ TABUĽKA KARIET
 var MASTER_REGISTRY = {
@@ -92,7 +92,7 @@ function isSpecialCard(name) {
 }
 
 function getRealPower(card) {
-    if (!card || isSpecialCard(card.n) || card.p === 0) return card.p;
+    if (!card || isSpecialCard(card.n) || card.p === 0) return 0;
     var bonus = 0;
     if (card.isSpy) {
         if ("B" === card.cls) bonus = -1;
@@ -374,6 +374,7 @@ function prepniSekciuVizualne(sekciaId) {
     if (sekciaId === 'sekcia-trhovisko') document.getElementById('menu-btn-trhovisko').classList.add('aktivna-tab');
 }
 
+// PRESNE SKÁLOVANÝ DECKBUILDING PODĽA ŠPECIFIKÁCIE PRE AI
 function vytvorZoznamKariet(pNum) {
     var rawList = Object.keys(MASTER_REGISTRY).filter(function(key) {
         return key !== "Grobské Mravce" && key !== "Petržalské holuby" && key !== "Musime sa porozpravat";
@@ -390,14 +391,25 @@ function vytvorZoznamKariet(pNum) {
     } else {
         fList = rawList.slice().sort(function() { return 0.5 - Math.random(); }).slice(0, 30);
     }
-    return fList.map(function(m) {
+
+    // Zamiešanie pre určenie presne 10 vyšších kariet
+    var shuffledIndices = Array.from({length: 30}, function(_, i) { return i; }).sort(function() { return 0.5 - Math.random(); });
+    var top10Set = new Set(shuffledIndices.slice(0, 10));
+
+    return fList.map(function(m, idx) {
         var dR = MASTER_REGISTRY[m]; var tK = "C";
-        if (1 === pNum) { tK = inventar.karty[m] ? inventar.karty[m].aktivnaTrieda : "C"; } 
-        else if (jeSingleplayer) {
-            var r = Math.random() * 30;
-            if ("B" === obtiaznostAI) tK = (r < 10) ? "B" : "C";
-            else if ("A" === obtiaznostAI) tK = (r < 10) ? "A" : "B";
-            else if ("S" === obtiaznostAI) tK = (r < 10) ? "S" : "A";
+        if (1 === pNum) { 
+            tK = inventar.karty[m] ? inventar.karty[m].aktivnaTrieda : "C"; 
+        } else {
+            // PRESNÉ URČENIE 20 S BAZICKOU TRIEDOU + 10 VYŠŠÍCH KARIET
+            var jeVTop10 = top10Set.has(idx);
+            if ("B" === obtiaznostAI) {
+                tK = jeVTop10 ? "B" : "C"; // 20x C + 10x B
+            } else if ("A" === obtiaznostAI) {
+                tK = jeVTop10 ? "A" : "B"; // 20x B + 10x A
+            } else if ("S" === obtiaznostAI) {
+                tK = jeVTop10 ? "S" : "A"; // 20x A + 10x S
+            }
         }
         return { n: m.replace(/\s+\d+$/, "").trim(), row: dR.row, p: dR.p, pNum: pNum, isSpy: dR.isSpy || false, cls: tK };
     });
@@ -420,11 +432,13 @@ function spustiDraft() {
     }
     
     if (document.getElementById("p1-mulligan-btn")) document.getElementById("p1-mulligan-btn").className = "";
-    if (document.getElementById("p2-mulligan-btn")) document.getElementById("p2-mulligan-btn").className = "";
+    if (document.getElementById("p2-mulligan-btn")) document.getElementById("p2-mulligan-btn").className = "schovany";
     if (document.getElementById("p1-pass-btn")) {
         document.getElementById("p1-pass-btn").innerText = "Potvrdiť ruku";
         document.getElementById("p1-pass-btn").style.background = "#28a745";
     }
+
+    if (jeSingleplayer) p2_confirmed_mulligan = true;
 
     vykresliDraftOkna();
     var r2K = document.getElementById('kontajner-ruka-p2');
@@ -448,7 +462,7 @@ function spustiPrepocty() {
 
     if (vsetky.length === 0) {
         for (var k = 1; k <= 6; k++) { if (document.getElementById('s' + k)) document.getElementById('s' + k).innerText = "0 b"; }
-        if (document.getElementById('body-skore')) { document.getElementById('body-skore').innerHTML = "Hráč 1: " + (p2_used_mulligan ? 7 : 0) + " b | Hráč 2: " + (p1_used_mulligan ? 7 : 0) + " b" + vTxt; }
+        if (document.getElementById('body-skore')) { document.getElementById('body-skore').innerHTML = "Hráč 1: 0 b | Hráč 2: 0 b" + vTxt; }
         return;
     }
     
@@ -553,15 +567,15 @@ function spustiPrepocty() {
         if (elS) elS.innerText = zratajRad(r > 3 ? p1_played_cards : p2_played_cards, r > 3 ? r - 3 : (r === 1 ? 3 : (r === 2 ? 2 : 1))) + " b"; 
     }
 
-    sc1 = p2_used_mulligan ? 7 : 0; p1_played_cards.forEach(function(card) { if (card && "number" == typeof card.livePwr) sc1 += card.livePwr; });
-    sc2 = p1_used_mulligan ? 7 : 0; p2_played_cards.forEach(function(card) { if (card && "number" == typeof card.livePwr) sc2 += card.livePwr; });
+    sc1 = 0; p1_played_cards.forEach(function(card) { if (card && "number" == typeof card.livePwr) sc1 += card.livePwr; });
+    sc2 = 0; p2_played_cards.forEach(function(card) { if (card && "number" == typeof card.livePwr) sc2 += card.livePwr; });
     if (document.getElementById('body-skore')) { document.getElementById('body-skore').innerHTML = "Hráč 1: " + sc1 + " b | Hráč 2: " + sc2 + " b" + vTxt; }
 }
 
 function vykresliDraftOkna() {
     var ind = document.getElementById('turn-indicator'); 
     if (draft_faza) {
-        if (ind) ind.innerText = "MULLIGAN FÁZA - Hráči potvrdzujú ruku.";
+        if (ind) ind.innerText = "MULLIGAN FÁZA - Hráč potvrdzuje ruku.";
         var r1 = document.getElementById('ruka-p1'); 
         if (r1) { 
             r1.innerHTML = ""; 
@@ -587,7 +601,7 @@ function vykresliDraftOkna() {
             }); 
         }
         var b1 = document.getElementById('p1-pass-btn'); if (b1) b1.style.display = p1_confirmed_mulligan ? "none" : "inline-block";
-        var b2 = document.getElementById('p2-pass-btn'); if (b2) b2.style.display = (p2_confirmed_mulligan || jeSingleplayer) ? "none" : "inline-block";
+        var b2 = document.getElementById('p2-pass-btn'); if (b2) b2.style.display = "none";
     }
 }
 
@@ -637,14 +651,6 @@ function Admin_vynutVymenu(e) {
                 if (p1_full_deck.length > 0) {
                     var kartaObj = p1_full_deck.splice(Math.floor(Math.random() * p1_full_deck.length), 1)[0];
                     if (kartaObj) p1_draft_hand.push(kartaObj);
-                }
-            }
-        } else {
-            p2_used_mulligan = true; p2_confirmed_mulligan = true; p2_draft_hand = []; 
-            for (var t = 0; t < 10; t++) {
-                if (p2_full_deck.length > 0) {
-                    var kartaObj2 = p2_full_deck.splice(Math.floor(Math.random() * p2_full_deck.length), 1)[0];
-                    if (kartaObj2) p2_draft_hand.push(kartaObj2);
                 }
             }
         }
@@ -878,8 +884,10 @@ function resetStolaBezReloadu(e) {
     }
 }
 
+// INTELIGENTNÝ ENGINE ROZHOVODOV AI AI PODĽA OBTIAŽNOSTÍ
 function spustiTahAI() {
-    if (!jeSingleplayer || p2Pass || draft_faza || blokujVykladanie) return; var rA = document.getElementById('ruka-p2'); if (!rA) return;
+    if (!jeSingleplayer || p2Pass || draft_faza || blokujVykladanie) return; 
+    var rA = document.getElementById('ruka-p2'); if (!rA) return;
     var k = rA.querySelectorAll('.karta'); 
     
     if (0 === k.length) { p2Pass = true; hracPasolAI(); return; }
@@ -887,11 +895,13 @@ function spustiTahAI() {
     
     if (p1Pass && sc2 > sc1) { p2Pass = true; hracPasolAI(); return; }
     
+    // TAKTICKÉ PASOVANIE PODĽA OBTIAŽNOSTÍ
     if (!(1 === r1 && 1 === r2)) {
-        if ("B" === obtiaznostAI && sc2 > sc1 && sc2 - sc1 >= 20 && k.length <= 4) { p2Pass = true; hracPasolAI(); return; }
-        if ("A" === obtiaznostAI && ((p1Pass && sc2 > sc1) || (sc2 > sc1 && sc2 - sc1 >= 15 && k.length <= 3))) { p2Pass = true; hracPasolAI(); return; }
-        if ("S" === obtiaznostAI && ((p1Pass && sc2 > sc1) || (sc1 > sc2 && sc1 - sc2 > 18 && k.length <= 4 && 0 === r2))) { p2Pass = true; hracPasolAI(); return; }
+        if ("B" === obtiaznostAI && sc2 > sc1 && sc2 - sc1 >= 18 && k.length <= 4) { p2Pass = true; hracPasolAI(); return; }
+        if ("A" === obtiaznostAI && ((p1Pass && sc2 > sc1) || (sc2 > sc1 && sc2 - sc1 >= 12 && k.length <= 4))) { p2Pass = true; hracPasolAI(); return; }
+        if ("S" === obtiaznostAI && ((p1Pass && sc2 > sc1) || (sc2 > sc1 && sc2 - sc1 >= 10 && k.length <= 5))) { p2Pass = true; hracPasolAI(); return; }
     }
+    
     var vK = null; var pst = []; var efk = [];
     for (var i = 0; i < k.length; i++) { 
         var mK = k[i].getAttribute('data-meno') || ""; 
@@ -899,10 +909,38 @@ function spustiTahAI() {
         if (0 === rK || "Alcohol" === mK || "Kvety" === mK || "Medove Orechy" === mK) efk.push(k[i]); 
         else pst.push(k[i]); 
     }
+    
     if (pst.length > 0) {
-        if ("S" === obtiaznostAI) { var maxP = -1; for (var j = 0; j < pst.length; j++) { var pwr = parseInt(pst[j].getAttribute('data-pwr'), 10) || 0; if (pwr > maxP) { maxP = pwr; vK = pst[j]; } } } 
-        else { var l = ("B" === obtiaznostAI && Math.random() < 0.4) ? Math.floor(Math.random() * pst.length) : 0; vK = pst[l]; }
-    } else if (efk.length > 0) { if (p1Pass && sc1 > sc2) { p2Pass = true; hracPasolAI(); return; } vK = efk[0]; }
+        if ("S" === obtiaznostAI) {
+            // S-Class AI hrá v 85% prípadov optimálnu kartu (Špión / S-Class), v 15% umožní hráčovi priestor
+            var spraviChybu = Math.random() < 0.15;
+            var spyCard = Array.from(pst).find(function(c) { return "true" === c.getAttribute('data-isspy'); });
+            
+            if (spyCard && !spraviChybu) { 
+                vK = spyCard; 
+            } else {
+                var maxP = -1; 
+                for (var j = 0; j < pst.length; j++) { 
+                    var pwr = parseInt(pst[j].getAttribute('data-pwr'), 10) || 0; 
+                    if (pwr > maxP) { maxP = pwr; vK = pst[j]; } 
+                } 
+            }
+        } else if ("A" === obtiaznostAI) {
+            // A-Class AI preferuje vyššie karty
+            var sorted = Array.from(pst).sort(function(a, b) { 
+                return (parseInt(b.getAttribute('data-pwr'), 10) || 0) - (parseInt(a.getAttribute('data-pwr'), 10) || 0); 
+            });
+            vK = (Math.random() < 0.7) ? sorted[0] : sorted[Math.floor(Math.random() * sorted.length)];
+        } else { 
+            // B-Class AI hrá náhodne
+            var l = Math.floor(Math.random() * pst.length); 
+            vK = pst[l]; 
+        }
+    } else if (efk.length > 0) { 
+        if (p1Pass && sc1 > sc2) { p2Pass = true; hracPasolAI(); return; } 
+        vK = efk[0]; 
+    }
+    
     if (vK) { setTimeout(function() { if (!p2Pass) vK.click(); }, 800); } else { p2Pass = true; hracPasolAI(); }
 }
 
@@ -1110,7 +1148,7 @@ function kupKonkretnuKartu(e) {
     inventar.mince -= 3000; 
     if (!inventar.karty[e]) inventar.karty[e] = { replikyC: 0, aktivnaTrieda: "C" }; 
     inventar.karty[e].replikyC++; 
-    alert("🛒 Kúpená C-kópia: " + kName); 
+    alert("🛒 Kúpená C-kópiu: " + kName); 
     aktualizujPanelDielne(); 
     aktualizujZostavaPanel();
 }
@@ -1428,29 +1466,54 @@ function devTestPresetSisaKvety() {
     spustiPrepocty();
 }
 
-// POKROČILÝ MONTE CARLO SIMULÁTOR S ANALÝZOU DOPADU KARIET
+// SIMULÁTOR S PRESNOU SKÁLOVANOU STRATÉGIOU AI PODĽA OBTIAŽNOSTI
 function devSpustiPokrociluSimulaciu(pocetZapasov) {
     var diffSelect = document.getElementById("sim-diff-select");
-    var zvolenaDiff = diffSelect ? diffSelect.value : "B";
+    var zvolenaDiff = diffSelect ? diffSelect.value : "S";
 
     var p1Vyhry = 0, p2Vyhry = 0, remizy = 0;
     var celkoveSkoreP1 = 0, celkoveSkoreP2 = 0;
 
     var kartaStats = {};
 
+    var starySP = jeSingleplayer;
+    var staryDiff = obtiaznostAI;
+    jeSingleplayer = true;
+    obtiaznostAI = zvolenaDiff;
+
     for (var i = 0; i < pocetZapasov; i++) {
-        var tempAI = obtiaznostAI;
-        obtiaznostAI = zvolenaDiff;
         var deck1 = vytvorZoznamKariet(1);
         var deck2 = vytvorZoznamKariet(2);
-        obtiaznostAI = tempAI;
 
         var hand1 = deck1.splice(0, 10);
         var hand2 = deck2.splice(0, 10);
 
         var sum1 = 0, sum2 = 0;
-        hand1.forEach(function(k) { sum1 += getRealPower(k); });
-        hand2.forEach(function(k) { sum2 += getRealPower(k); });
+        var sCountP1 = 0, sCountP2 = 0;
+
+        hand1.forEach(function(k) {
+            var pwr = getRealPower(k);
+            if (k.isSpy) sum2 += pwr;
+            else sum1 += pwr;
+            if ("S" === k.cls) sCountP1++;
+        });
+
+        hand2.forEach(function(k) {
+            var pwr = getRealPower(k);
+            if (k.isSpy) sum1 += pwr;
+            else sum2 += pwr;
+            if ("S" === k.cls) sCountP2++;
+        });
+
+        if (sCountP1 > 0) sum1 = Math.floor(sum1 * (1 + sCountP1 * 0.15));
+        if (sCountP2 > 0) sum2 = Math.floor(sum2 * (1 + sCountP2 * 0.15));
+
+        // Taktický bonus podľa inteligencie AI
+        if ("S" === zvolenaDiff) {
+            sum2 = Math.floor(sum2 * 1.10); // Vyššia efektivita komb
+        } else if ("A" === zvolenaDiff) {
+            sum2 = Math.floor(sum2 * 1.04);
+        }
 
         celkoveSkoreP1 += sum1;
         celkoveSkoreP2 += sum2;
@@ -1466,6 +1529,9 @@ function devSpustiPokrociluSimulaciu(pocetZapasov) {
             if (p1Vyhral) kartaStats[k.n].wins++;
         });
     }
+
+    jeSingleplayer = starySP;
+    obtiaznostAI = staryDiff;
 
     var topKarta = "-";
     var topWinRate = 0;
