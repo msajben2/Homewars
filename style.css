@@ -1,4 +1,4 @@
-/* ZÁKLADNÉ ŠTÝLY PRE HOME WARS (v9.8.0 MASÍVNE VYREZÁVANÉ RÁMY DĽA TRIEDY) */
+/* ZÁKLADNÉ ŠTÝLY PRE HOME WARS (v10.0.0 MASÍVNE RÁMY & DYNAMICKÝ FORGE) */
 body {
     background: #12100e url('https://www.transparenttextures.com/patterns/dark-wood.png');
     color: #e0d0b0;
@@ -262,7 +262,7 @@ main {
 }
 
 /* =========================================================================
-   TCG ANATÓMIA KARTY & RÁMY PODĽA TRIEDY (ZÁKLAD, BRONZ, STRIEBRO, ZLATO)
+   TCG ANATÓMIA KARTY & MASÍVNE RÁMY
    ========================================================================= */
 
 .karta {
@@ -310,7 +310,7 @@ main {
     margin-top: 6px;
 }
 
-/* ODSTUPŇOVANÉ RÁMY KARTY - SMEROM DOVNÚTRA (DOVNÚTORNÉ RÁMENIE) */
+/* ODSTUPŇOVANÉ MASÍVNE VYREZÁVANÉ RÁMY PRE KARTY */
 .cls-C { 
     border: 3px solid #5a4d3e !important; 
     border-style: ridge !important;
