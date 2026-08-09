@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.1.0 - DIAKRITIKA & TABUĽKA TRIED)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.3.0 - PERFECT S-CLASS & FAIR BUFFS)
 // =========================================================================
 
 (function() {
@@ -13,9 +13,9 @@
     }
 })();
 
-var VERZIA = "10.1.0";
+var VERZIA = "10.3.0";
 
-// MASTER REGISTRAČNÁ TABUĽKA KARIET S KOMPLETNOU DIAKRITIKOU
+// MASTER REGISTRAČNÁ TABUĽKA KARIET
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
     "Michal": { row: 1, p: 4, img: "Img/michal.png", desc: "Bystrý obchodník. Váži zlato a pozná presnú cenu každej veci v kráľovstve.", abilityDesc: "📢 Obchodník: Ak nie je na stole Nela, dáva sám sebe automatický samo-buff +100% k svojej základnej sile." },
@@ -78,8 +78,10 @@ var jeSingleplayer = false; var obtiaznostAI = "B"; var inventar = { mince: 500,
 function getRegistryCard(meno) {
     if (!meno) return {};
     if (MASTER_REGISTRY[meno]) return MASTER_REGISTRY[meno];
-    var zaklad = meno.replace(/\s+\d+$/, "").trim();
-    if (MASTER_REGISTRY[zaklad]) return MASTER_REGISTRY[zaklad];
+    var cisty = meno.replace(/\s+\d+$/, "").trim();
+    if (MASTER_REGISTRY[cisty]) return MASTER_REGISTRY[cisty];
+    if (cisty.indexOf("Mravce") !== -1) return MASTER_REGISTRY["Grobské Mravce 1"];
+    if (cisty.indexOf("holuby") !== -1) return MASTER_REGISTRY["Petržalské holuby 1"];
     return MASTER_REGISTRY[meno] || {};
 }
 
@@ -195,7 +197,6 @@ function otvorDetailKarty(meno) {
     modal.style.display = "flex";
 }
 
-// NÁVOD SO SPUSTENOU TABUĽKOU TRIED A VYLEPŠENÍ
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
     if (!modal) {
@@ -209,7 +210,7 @@ function otvoriťNavodHry() {
     modal.innerHTML = `
         <div class="card-modal-content navod-modal-content cls-S" onclick="event.stopPropagation()">
             <span class="card-modal-close" onclick="document.getElementById('navod-modal').style.display='none'">&times;</span>
-            <h2 style="color:#d4af37; border-bottom:2px solid #5a4d3e; padding-bottom:10px;">📜 NÁVOD & PRAVIDLÁ HOME WARS</h2>
+            <h2 style="color:#d4af37; border-bottom:2px solid #5a4d3e; padding-bottom:10px;">📜 NÁVOD, PRAVIDLÁ & SCHOPNOSTI KARIET</h2>
             <div style="text-align:left; font-size:0.9em; line-height:1.5; color:#e0d0b0; max-height:60vh; overflow-y:auto; padding-right:10px;">
                 <h3 style="color:#ffcc00; margin-top:10px;">1. Cieľ Hry</h3>
                 <p>Home Wars je stredoveká taktická kartová hra na 2 víťazné kolá. Tvojím cieľom je získať v každom kole viac celkových bodov ako súper vykladaním postav a zvierat do 3 bočných radov.</p>
@@ -221,51 +222,54 @@ function otvoriťNavodHry() {
                     <li><strong>3. Rad (Zvieratá - Z):</strong> Mravce, holuby a horské šelmy. Posilňujú ich Medové orechy.</li>
                 </ul>
 
-                <h3 style="color:#ffcc00; margin-top:10px;">3. Triedy Kariet & Kováčstvo</h3>
-                <p>Vylepšovanie v Dielni vylepšuje silu karty a pridáva luxusný vyrezávaný rám:</p>
-                <table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:0.85em; text-align:center; background:rgba(0,0,0,0.4); border:1px solid #5a4d3e;">
+                <h3 style="color:#ffcc00; margin-top:10px;">3. Vylepšovanie Kariet v Dielni (Triedy C, B, A, S)</h3>
+                <p>Vylepšovanie v Dielni zvyšuje silu tvojej karty, znižuje body špiónov odovzdávané súperovi a odomyká špeciálne efekty:</p>
+                
+                <table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:0.83em; text-align:left; background:rgba(0,0,0,0.5); border:1px solid #5a4d3e;">
                     <thead>
-                        <tr style="background:#2a2118; color:#d4af37; border-bottom:1px solid #5a4d3e;">
-                            <th style="padding:6px;">Trieda</th>
-                            <th style="padding:6px;">Názov</th>
-                            <th style="padding:6px;">Bojové Jednotky</th>
-                            <th style="padding:6px;">Špióni</th>
+                        <tr style="background:#2a2118; color:#d4af37; border-bottom:1px solid #5a4d3e; text-align:center;">
+                            <th style="padding:8px;">Trieda</th>
+                            <th style="padding:8px;">Bojové Jednotky</th>
+                            <th style="padding:8px;">Špióni (Kika, Suseda)</th>
+                            <th style="padding:8px;">Predmety / Vplyvy</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr style="border-bottom:1px solid #3d3124;">
-                            <td style="padding:6px; font-weight:bold; color:#a0a0a0;">C</td>
-                            <td style="padding:6px;">Základná</td>
-                            <td style="padding:6px;">Základná sila</td>
-                            <td style="padding:6px;">Základné body pre súpera</td>
+                            <td style="padding:8px; font-weight:bold; color:#a0a0a0; text-align:center;">C<br><small>(Základná)</small></td>
+                            <td style="padding:8px;">Základná sila karty.</td>
+                            <td style="padding:8px;">Vyložením odovzdáš súperovi plnú základnú silu. Potiahne ti 2 nové karty.</td>
+                            <td style="padding:8px;">Základný účinok kúzla / predmetu.</td>
                         </tr>
                         <tr style="border-bottom:1px solid #3d3124;">
-                            <td style="padding:6px; font-weight:bold; color:#a86529;">B</td>
-                            <td style="padding:6px;">Bronzová</td>
-                            <td style="padding:6px; color:#4ade80;">+1 Bod k sile</td>
-                            <td style="padding:6px; color:#4ade80;">-1 Bod pre súpera</td>
+                            <td style="padding:8px; font-weight:bold; color:#a86529; text-align:center;">B<br><small>(Bronzová)</small></td>
+                            <td style="padding:8px; color:#4ade80;">+1 Bod k celkovej sile.</td>
+                            <td style="padding:8px; color:#4ade80;">-1 Bod z vlastnej sily (súper dostane menej bodov).</td>
+                            <td style="padding:8px; color:#888;">Vyžaduje premena cez 5 replík.</td>
                         </tr>
                         <tr style="border-bottom:1px solid #3d3124;">
-                            <td style="padding:6px; font-weight:bold; color:#c0c0c0;">A</td>
-                            <td style="padding:6px;">Strieborná</td>
-                            <td style="padding:6px; color:#4ade80;">+2 Body k sile</td>
-                            <td style="padding:6px; color:#4ade80;">-2 Body pre súpera</td>
+                            <td style="padding:8px; font-weight:bold; color:#c0c0c0; text-align:center;">A<br><small>(Strieborná)</small></td>
+                            <td style="padding:8px; color:#4ade80;">+2 Body k sile + ⚡ 2× predmetový bonus pre seba (napriklad 50% ➔ 100%)!</td>
+                            <td style="padding:8px; color:#4ade80;">-2 Body z vlastnej sily + 👁️ Nakuknutie na 3 karty v súperovej ruke na 4s!</td>
+                            <td style="padding:8px; color:#888;">Vyžaduje premena cez 25 replík.</td>
                         </tr>
                         <tr>
-                            <td style="padding:6px; font-weight:bold; color:#ffd700;">S</td>
-                            <td style="padding:6px;">Zlatá Kráľovská</td>
-                            <td style="padding:6px; color:#4ade80;">+3 Body k sile</td>
-                            <td style="padding:6px; color:#4ade80;">-3 Body pre súpera</td>
+                            <td style="padding:8px; font-weight:bold; color:#ffd700; text-align:center;">S<br><small>(Zlatá)</small></td>
+                            <td style="padding:8px; color:#4ade80;">+3 Body k sile + ⚡ 2× predmetový bonus + 👑 S-Aura (+50% k sile ostatným v rade).</td>
+                            <td style="padding:8px; color:#4ade80;">-3 Body z vlastnej sily + 👁️ Nakuknutie na 3 karty súpera!</td>
+                            <td style="padding:8px; color:#ffd700;">Vyžaduje 1000 replík (Priamy skok C ➔ S s masívnym vizuálnym zábleskom).</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <h3 style="color:#ffcc00; margin-top:10px;">4. Špeciálne Schopnosti</h3>
+                <h3 style="color:#ffcc00; margin-top:10px;">4. Prehľad Špeciálnych Symbolov (Rún)</h3>
                 <ul>
-                    <li><strong>🕵️ Špión (ᛟ):</strong> Vyloží sa súperovi, no okamžite ti potiahne 2 nové karty z balíčka.</li>
+                    <li><strong>🕵️ Špión (ᛟ):</strong> Vyloží sa súperovi na stranu stola. Odmena: Ihneď ti potiahne 2 nové karty z balíčka!</li>
                     <li><strong>🧹 Filozof (ᚠ - Marek):</strong> Svojím otravným filozofovaním úplne zmatie zvolenú kartu súpera a odstráni ju z hry.</li>
                     <li><strong>🏥 Oživenie (ᛞ - Doktor, Sestrička):</strong> Vráti padlú kartu z hradného archívu späť do plnej bitky.</li>
-                    <li><strong>🤝 Svorka (ᚷ - Mravce, Holuby):</strong> Čím viac rovnakých kariet svorky je v rade, tým masívnejšie násobia svoju silu.</li>
+                    <li><strong>🤝 Svorka (ᚷ - Mravce, Holuby):</strong> Čím viac rovnakých kariet svorky je v rade, tým masívnejšie násobia svoju silu (1b -> 2b -> 4b za kus).</li>
+                    <li><strong>🛡️ Štít (ᛉ - Nela):</strong> Zmrazí stôl! Kým je Nela v hre, žiadne karty nedostávajú percentuálne bonusy ani buffy.</li>
+                    <li><strong>✝️ Imunita (ᛖ - Oli):</strong> Jej sila 8b je stála a nedá sa znížiť kúzlam ani negatívnymi vplyvmi stola.</li>
                 </ul>
             </div>
         </div>
@@ -432,6 +436,7 @@ function aktualizujStavZamkuMenu() {
     if (!draft_faza) { menuEl.classList.add('zamknute-menu'); } else { menuEl.classList.remove('zamknute-menu'); }
 }
 
+// PERFEKTNÝ VÝPOČET S DVOJNÁSOBNÝM PREDMETOVÝM BONUSOM PRE A-CLASS AJ S-CLASS KARTY
 function spustiPrepocty() {
     aktualizujStavZamkuMenu();
     var vsetky = p1_played_cards.concat(p2_played_cards).filter(function(k) { return k && "object" === typeof k && k.n; });
@@ -520,13 +525,20 @@ function spustiPrepocty() {
             var pr = vsetky.find(function(k) { return k && k.pNum === c.pNum && k.row === c.row && ("Alcohol" === k.n || "Kvety" === k.n || "Medove Orechy" === k.n); });
             var dR = vsetky.some(function(k) { return k && -1 !== k.n.indexOf('Ďuri') && k.pNum === c.pNum && 1 === k.row; });
 
-            if (pr) { var zB = ("S" === pr.cls) ? 1.0 : 0.5; pct += zB; if ("A" === c.cls || "S" === c.cls) pct += 0.5; }
+            if (pr) { 
+                var zB = ("S" === pr.cls) ? 1.0 : 0.5; 
+                // A-CLASS A S-CLASS PRAVIDLO: ZDVOJNÁSOBENIE PREDMETOVÉHO BONUSU PRE SEBA
+                if ("A" === c.cls || "S" === c.cls) { zB = zB * 2; }
+                pct += zB; 
+            }
             
             if (1 === c.row) { 
                 if (vsetky.some(function(k) { return k && -1 !== k.n.indexOf('Sisa') && k.pNum === c.pNum; })) pct += 1.0; 
                 if (dR && pr && "Alcohol" === pr.n && "Ďuri" !== cMeno) pct += 0.5; 
             }
             if ((1 === c.pNum ? p1_erik_buff_row : p2_erik_buff_row) !== null && c.row === parseInt(1 === c.pNum ? p1_erik_buff_row : p2_erik_buff_row, 10) && "Erik" !== cMeno) pct += 1.0;
+            
+            // S-CLASS AURA PRE OSTATNÝCH V RADE
             if ("S" !== c.cls) { pct += (sClassRiadkyBonus[cId] || 0); }
         }
 
@@ -1157,6 +1169,7 @@ function vzdajZapasUtek() {
     } 
 }
 
+// DIELŇA SO ZOBRAZENÍM PROGRESS BARU
 function aktualizujPanelDielne(){
     var e = document.getElementById("dielna-zoznam");
     if(e){
@@ -1189,8 +1202,20 @@ function aktualizujPanelDielne(){
             
             cardDiv.innerHTML = vytvorHTMLKarty(t, basePwr, r.aktivnaTrieda, reg.row, reg.p);
 
-            var actions = "<div class='dielna-info' style='margin-top:6px;'>Repliky: <strong>" + r.replikyC + "x</strong></div>";
-            actions += "<div class='karta-akcie-box'><button class='btn-forge' onclick=\"vylepsiKartuVoForge('" + t + "')\">🔨 Forge</button>";
+            var ciel = 5;
+            if (isSpecialCard(t)) ciel = 1000;
+            else {
+                if ("B" === r.aktivnaTrieda) ciel = 25;
+                if ("A" === r.aktivnaTrieda) ciel = 125;
+                if ("S" === r.aktivnaTrieda) ciel = 1;
+            }
+            
+            var percento = ("S" === r.aktivnaTrieda && !isSpecialCard(t)) ? 100 : Math.min(100, Math.floor((r.replikyC / ciel) * 100));
+            var barColor = percento >= 100 ? "#28a745" : "#ffcc00";
+
+            var actions = "<div class='dielna-info' style='margin-top:6px; font-size:0.82em;'>Repliky: <strong>" + r.replikyC + " / " + (("S" === r.aktivnaTrieda && !isSpecialCard(t)) ? "MAX" : ciel) + "</strong></div>";
+            actions += "<div class='forge-progress-bg'><div class='forge-progress-fill' style='width:" + percento + "%; background:" + barColor + ";'></div></div>";
+            actions += "<div class='karta-akcie-box'><button class='btn-forge' " + (percento >= 100 ? "style='border-color:#28a745; box-shadow:0 0 10px #28a745;'" : "") + " onclick=\"vylepsiKartuVoForge('" + t + "')\">🔨 Forge</button>";
             actions += "<button class='btn-recycle' style='background:#b91c1c' onclick=\"recyklujKartuDielne('" + t + "')\">♻️ Recyklovať</button>";
             actions += "<button class='btn-recycle' style='font-size:.8em;' onclick=\"kupKonkretnuKartu('" + t + "')\">🎯 Kúpiť (3000 m)</button></div>";
 
