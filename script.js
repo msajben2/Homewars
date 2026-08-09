@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.6.6 - SMART DELTA AI & BUGFIX PASS)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.8.0 - BATCH C-COPIES CHESTS & COINS DROP)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.6.6";
+var VERZIA = "10.8.0";
 
 // MASTER REGISTRAČNÁ TABUĽKA KARIET
 var MASTER_REGISTRY = {
@@ -765,22 +765,78 @@ function aktualizujArchivyVizualne() {
     }
 }
 
+// NOVÁ MECHANIKA OTVÁRANIA TRUHIEL S HROMADNÝMI C-KÓPIAMI A MINCAMI
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
-    var hMena = Object.keys(MASTER_REGISTRY); var pC = jeVitaz ? 3 : 10; var zMena = [];
-    for (var i = 0; i < pC; i++) {
-        var nMeno = hMena[Math.floor(Math.random() * hMena.length)]; var r = 100 * Math.random(); var vCls = "C";
-        
-        if (!isSpecialCard(nMeno)) {
-            if (jeVitaz) { if (r < 0.5) vCls = "S"; else if (r < 10) vCls = "A"; else if (r < 30) vCls = "B"; } 
-            else { if (r < 0.01) vCls = "S"; else if (r < 2) vCls = "A"; else if (r < 12) vCls = "B"; }
+    
+    var hMena = Object.keys(MASTER_REGISTRY).filter(function(k) { return k !== "Musime sa porozpravat"; });
+    var pocetZrebovani = jeVitaz ? 3 : 10;
+    var ziskaneMince = jeVitaz ? 300 : 100;
+    
+    inventar.mince += ziskaneMince;
+
+    var vyžrebovanéKartyMap = {};
+
+    for (var i = 0; i < pocetZrebovani; i++) {
+        var randomMeno = hMena[Math.floor(Math.random() * hMena.length)];
+        var cisteMeno = randomMeno.replace(/\s+\d+$/, "").trim();
+        var roll = Math.random() * 100;
+        var pocetKusov = 1;
+
+        if (jeVitaz) {
+            // Šance pre Truhlu Víťaza (3 losovania)
+            if (roll < 0.5) pocetKusov = 100;
+            else if (roll < 10) pocetKusov = 20;
+            else if (roll < 30) pocetKusov = 5;
+            else pocetKusov = 1;
+        } else {
+            // Šance pre Truhlu Účastníka (10 losovaní)
+            if (roll < 0.01) pocetKusov = 100;
+            else if (roll < 2.01) pocetKusov = 20;
+            else if (roll < 12.0) pocetKusov = 5;
+            else pocetKusov = 1;
         }
 
-        if (!inventar.karty[nMeno]) inventar.karty[nMeno] = { replikyC: 0, aktivnaTrieda: "C" };
-        var pR = 1; if ("B" === vCls) pR = 5; if ("A" === vCls) pR = 25; if ("S" === vCls) pR = 125;
-        inventar.karty[nMeno].replikyC += pR; zMena.push(nMeno.replace(/\s+\d+$/, "").trim() + " (" + vCls + ")");
+        if (!inventar.karty[randomMeno]) {
+            inventar.karty[randomMeno] = { replikyC: 0, aktivnaTrieda: "C" };
+        }
+        inventar.karty[randomMeno].replikyC += pocetKusov;
+
+        vyžrebovanéKartyMap[cisteMeno] = (vyžrebovanéKartyMap[cisteMeno] || 0) + pocetKusov;
     }
-    alert((jeVitaz ? "🏆 TRUHLA VÍŤAZA" : (jeRemizaZapasu ? "📦 TRUHLA ZA REMÍZU 2:2" : "📦 TRUHLA ÚČASTNÍKA")) + "\n" + zMena.join("\n")); 
+
+    // CINEMATIC MODAL S ANIMÁCIOU VÝLETU MINCÍ A KARIET
+    var cModal = document.getElementById("chest-anim-modal");
+    if (!cModal) {
+        cModal = document.createElement("div");
+        cModal.id = "chest-anim-modal";
+        cModal.className = "chest-modal-overlay";
+        document.body.appendChild(cModal);
+    }
+
+    var typTruhlyClass = jeVitaz ? "chest-vitaz" : "chest-ucastnik";
+    var titulok = jeVitaz ? "🏆 TRUHLA VÍŤAZA" : (jeRemizaZapasu ? "📦 TRUHLA ZA REMÍZU" : "📦 TRUHLA ÚČASTNÍKA");
+    var ikonka = jeVitaz ? "👑" : "📦";
+
+    var zoznamHTML = `<div class="drop-reward-item coin-fly-effect">🪙 +${ziskaneMince} Zlatých mincí vyletelo z truhly!</div>`;
+    
+    Object.keys(vyžrebovanéKartyMap).forEach(function(kMeno) {
+        zoznamHTML += `<div class="drop-reward-item">✨ +${vyžrebovanéKartyMap[kMeno]}x kópia karty: <strong>${kMeno} (C)</strong></div>`;
+    });
+
+    cModal.innerHTML = `
+        <div class="chest-box-container">
+            <h2 style="color:#d4af37; text-shadow:0 0 10px #ffcc00; font-size:1.8em; margin:0;">${titulok}</h2>
+            <div class="chest-graphic ${typTruhlyClass}">
+                <span>${ikonka}</span>
+            </div>
+            <div class="drop-rewards-box">
+                ${zoznamHTML}
+            </div>
+            <button onclick="document.getElementById('chest-anim-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:10px 25px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:1.1em; box-shadow:0 0 10px #28a745;">Zozbierať odmeny</button>
+        </div>
+    `;
+    cModal.style.display = "flex";
     aktualizujPanelDielne();
 }
 
@@ -881,7 +937,7 @@ function resetStolaBezReloadu(e) {
     }
 }
 
-// OPRAVENÁ SMART DECISION ENGINE AI (BEZ PREDČASNÉHO PASOVANIA A S DELTA CHECKOM)
+// SMART DELTA AI ENGINE
 function spustiTahAI() {
     if (!jeSingleplayer || p2Pass || draft_faza || blokujVykladanie) return; 
     var rA = document.getElementById('ruka-p2'); if (!rA) return;
@@ -890,10 +946,8 @@ function spustiTahAI() {
     if (0 === k.length) { p2Pass = true; hracPasolAI(); return; }
     spustiPrepocty(); 
     
-    // AK AI UŽ VEDIE A HRÁČ PASOVAL, AI PASUJE A UŠETRÍ KARTY
     if (p1Pass && sc2 > sc1) { p2Pass = true; hracPasolAI(); return; }
     
-    // PRENOST AI PODĽA OBTIAŽNOSTI
     var presnost = 0.65;
     if ("A" === obtiaznostAI) presnost = 0.80;
     if ("S" === obtiaznostAI) presnost = 0.95;
@@ -904,7 +958,6 @@ function spustiTahAI() {
     var moznosti = Array.from(k);
 
     if (p1Pass && sc1 >= sc2) {
-        // AK HRÁČ PASOVAL A VYHRÁVA (NEBO JE REMÍZA), AI MUSÍ ZAHRAT KARTU, KTORÁ ZVÝŠI JEJ SKÓRE
         var najlepsiKandidat = null;
         var maxPwr = -999;
 
@@ -913,14 +966,12 @@ function spustiTahAI() {
             var pwr = parseInt(c.getAttribute('data-pwr'), 10) || 0;
             var isSpy = "true" === c.getAttribute('data-isspy');
 
-            // Ak je špión, pridáva body súperovi, čo v závere pri p1Pass zhorší skóre
             if (isSpy) return;
 
-            // Ak je predmet, zistíme, či má AI v danom rade jednotky
             var rowK = parseInt(c.getAttribute('data-row'), 10) || 0;
             if (0 === rowK || "Alcohol" === mK || "Kvety" === mK || "Medove Orechy" === mK) {
                 var pocetJednotiekVRade = p2_played_cards.filter(function(pk) { return pk.row === rowK; }).length;
-                if (pocetJednotiekVRade > 0) pwr = pocetJednotiekVRade * 2; // Odhad prínosu predmetu
+                if (pocetJednotiekVRade > 0) pwr = pocetJednotiekVRade * 2;
                 else pwr = 0;
             }
 
@@ -933,18 +984,16 @@ function spustiTahAI() {
         if (najlepsiKandidat) {
             vK = najlepsiKandidat;
         } else {
-            // AI nemá v ruke žiadnu kartu, ktorou by zvýšila svoje skóre -> až vtedy pasuje
             p2Pass = true;
             hracPasolAI();
             return;
         }
     } else {
-        // ŠTANDARDNÝ ŤAH POČAS HRY
         if (spraviChytryTah) {
             var sorted = moznosti.sort(function(a, b) { 
                 var pA = parseInt(a.getAttribute('data-pwr'), 10) || 0;
                 var pB = parseInt(b.getAttribute('data-pwr'), 10) || 0;
-                if ("true" === a.getAttribute('data-isspy')) pA += 10; // Špióni sú prioritou v priebehu hry
+                if ("true" === a.getAttribute('data-isspy')) pA += 10;
                 if ("true" === b.getAttribute('data-isspy')) pB += 10;
                 return pB - pA;
             });
@@ -1274,8 +1323,7 @@ function aktualizujPanelDielne(){
             var actions = "<div class='dielna-info' style='margin-top:6px; font-size:0.82em;'>Repliky: <strong>" + r.replikyC + " / " + (("S" === r.aktivnaTrieda && !isSpecialCard(t)) ? "MAX" : ciel) + "</strong></div>";
             actions += "<div class='forge-progress-bg'><div class='forge-progress-fill' style='width:" + percento + "%; background:" + barColor + ";'></div></div>";
             actions += "<div class='karta-akcie-box'><button class='btn-forge' " + (percento >= 100 ? "style='border-color:#28a745; box-shadow:0 0 10px #28a745;'" : "") + " onclick=\"vylepsiKartuVoForge('" + t + "')\">🔨 Forge</button>";
-            actions += "<button class='btn-recycle' style='background:#b91c1c' onclick=\"recyklujKartuDielne('" + t + "')\">♻️ Recyklovať</button>";
-            actions += "<button class='btn-recycle' style='font-size:.8em;' onclick=\"kupKonkretnuKartu('" + t + "')\">🎯 Kúpiť (3000 m)</button></div>";
+            actions += "<button class='btn-recycle' onclick=\"recyklujKartuDielne('" + t + "')\">♻️ Recyklovať</button></div>";
 
             wrapper.appendChild(cardDiv);
             var actDiv = document.createElement("div");
@@ -1368,10 +1416,7 @@ function obnovPocitadlaZostavyVMenu() {
     if (pStranka) { if (aktualnyPocet < 30) { pStranka.innerText = aktualnyPocet + " / 30"; pStranka.style.color = "#dc3545"; } else { pStranka.innerText = aktualnyPocet + " kariet"; pStranka.style.color = "#28a745"; } }
 }
 
-// =========================================================================
-// DEV CONSOLE & REALISTIC AUTO SIMULATOR MODULE
-// =========================================================================
-
+// DEV CONSOLE & PERCENTAGE ACCURACY SIMULATOR
 function inicializujDevConsole() {
     var header = document.querySelector("header");
     if (header && !document.getElementById("btn-dev-toggle")) {
@@ -1483,7 +1528,6 @@ function devTestPresetSisaKvety() {
     spustiPrepocty();
 }
 
-// SIMULÁTOR S REÁLNOU SCHOPNOSŤOU POKRAČOVAŤ PRI p1Pass KÝM JE ŠANCA NA VÝHRU
 function devSpustiPokrociluSimulaciu(pocetZapasov) {
     var diffSelect = document.getElementById("sim-diff-select");
     var zvolenaDiff = diffSelect ? diffSelect.value : "S";
@@ -1529,11 +1573,9 @@ function devSpustiPokrociluSimulaciu(pocetZapasov) {
         if (sCountP1 > 0) sum1 = Math.floor(sum1 * (1 + sCountP1 * 0.15));
         if (sCountP2 > 0) sum2 = Math.floor(sum2 * (1 + sCountP2 * 0.15));
 
-        // ZAPOČÍTANIE TAKTICKEJ PRESNOSTI AI
         var aiTaktickyBonus = presnostAI * 0.18;
         sum2 = Math.floor(sum2 * (1 + aiTaktickyBonus));
 
-        // REALISTICKÝ ŠUM HUMAN HRÁČA
         sum1 = Math.floor(sum1 * (0.85 + Math.random() * 0.15));
 
         celkoveSkoreP1 += sum1;
@@ -1618,7 +1660,16 @@ document.addEventListener("DOMContentLoaded", function() {
         btnNavod.className = "menu-tab";
         btnNavod.innerHTML = "📜 NÁVOD";
         btnNavod.onclick = otvoriťNavodHry;
-        header.insertBefore(btnNavod, header.children[header.children.length - 1]);
+        
+        var navBox = document.createElement("div");
+        navBox.className = "menu-nav-box";
+        
+        while (header.children.length > 0) {
+            if (header.children[0].classList.contains("menu-wallet")) break;
+            navBox.appendChild(header.children[0]);
+        }
+        navBox.appendChild(btnNavod);
+        header.insertBefore(navBox, header.firstChild);
     }
 
     inicializujDevConsole();
