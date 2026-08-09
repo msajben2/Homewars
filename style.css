@@ -707,3 +707,18 @@ main {
     gap: 10px;
     min-width: 300px;
 }
+/* ŠTÝLY PRE TABUĽKU V NÁVODE */
+.navod-modal-content {
+    width: 450px !important;
+    max-width: 95vw;
+}
+
+.navod-modal-content table th, 
+.navod-modal-content table td {
+    border: 1px solid #5a4d3e;
+    padding: 6px 8px;
+}
+
+.navod-modal-content table tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.03);
+}
