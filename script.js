@@ -61,7 +61,8 @@ var MASTER_REGISTRY = {
     "Alcohol": { row: 1, p: 0, img: "Img/alkohol.png", desc: "Súdok medoviny a pálenka pre mužský rad. Výrazne zvyšuje bojovú náladu.", abilityDesc: "🛠️ Predmet: Vykladá sa do 1. radu. Pridáva +50% až +100% k sile mužov." },
     "Kvety": { row: 2, p: 0, img: "Img/kvety.jpg", desc: "Kytica čerstvých poľných kvetov pre radosť a povzbudenie ženského radu.", abilityDesc: "🛠️ Predmet: Vykladá sa do 2. radu. Posilňuje všetky ženy na tvojej strane." },
     "Medove Orechy": { row: 3, p: 0, img: "Img/medove-orechy.png", desc: "Sladká odmena posilňujúca verný zvierací rad.", abilityDesc: "🛠️ Predmet: Vykladá sa do 3. radu. Zvyšuje silu zvierat." },
-    "Musíme sa porozprávať": { row: 0, p: 0, img: "Img/musime-sa-porozprávať.png", desc: "Vážny rozhovor s hradnou paňou okamžite zmrazí silu mužského radu.", abilityDesc: "⚡ Vplyv stola: Zníži silu všetkých mužov (v 1. rade oboch hráčov) na základný 1 bod!" },
+    "Musíme sa porozprávať": { row: 0, p: 0, img: "Img/musime-sa-porozpravat.png", desc: "Vážny rozhovor s hradnou paňou okamžite zmrazí silu mužského radu.", abilityDesc: "⚡ Vplyv stola: Zníži silu všetkých mužov (v 1. rade oboch hráčov) na základný 1 bod!" },
+    "Musime sa porozpravat": { row: 0, p: 0, img: "Img/musime-sa-porozpravat.png", desc: "Vážny rozhovor s hradnou paňou okamžite zmrazí silu mužského radu.", abilityDesc: "⚡ Vplyv stola: Zníži silu všetkých mužov (v 1. rade oboch hráčov) na základný 1 bod!" },
     "Upokoj sa": { row: 0, p: 0, img: "Img/upokoj-sa.png", desc: "Nevhodne zvolené slová vyvolajú obrovský hnev v ženskom rade!", abilityDesc: "⚡ Vplyv stola: Zníži silu všetkých žien (v 2. rade oboch hráčov) na 1 bod!" },
     "Ohnostroj": { row: 0, p: 0, img: "Img/ohnostroj.png", desc: "Rachot svetlíc a výbuchov vyplaší celý zvierací rad.", abilityDesc: "⚡ Vplyv stola: Vyplaší a zníži silu všetkých zvierat na 1 bod!" },
     "Šicko v porádku": { row: 0, p: 0, img: "Img/sicko-v-poradku.jpg", desc: "Dvorný šašo prinesie smiech a vyčistí všetky nepriaznivé vplyvy na stole.", abilityDesc: "⚡ Očistenie: Odstráni zo stola všetky negatívne vplyvy (Ohňostroj, Upokoj sa, Rozhovor)." }
@@ -86,7 +87,7 @@ function getRegistryCard(meno) {
 }
 
 function isSpecialCard(name) {
-    var spec = ["Musíme sa porozprávať", "Upokoj sa", "Ohnostroj", "Šicko v porádku", "Alcohol", "Kvety", "Medove Orechy"];
+    var spec = ["Musíme sa porozprávať", "Musime sa porozpravat", "Upokoj sa", "Ohnostroj", "Šicko v porádku", "Alcohol", "Kvety", "Medove Orechy"];
     return spec.indexOf(name) !== -1;
 }
 
@@ -375,7 +376,7 @@ function prepniSekciuVizualne(sekciaId) {
 
 function vytvorZoznamKariet(pNum) {
     var rawList = Object.keys(MASTER_REGISTRY).filter(function(key) {
-        return key !== "Grobské Mravce" && key !== "Petržalské holuby";
+        return key !== "Grobské Mravce" && key !== "Petržalské holuby" && key !== "Musime sa porozpravat";
     });
 
     if (1 === pNum && 0 === Object.keys(inventar.karty).length) {
@@ -441,7 +442,7 @@ function spustiPrepocty() {
     var vsetky = p1_played_cards.concat(p2_played_cards).filter(function(k) { return k && "object" === typeof k && k.n; });
     var vTxt = " | Mince: " + inventar.mince;
     
-    var vChlapov = neutralne_vplyvy.find(function(k) { return k && "Musíme sa porozprávať" === k.n; });
+    var vChlapov = neutralne_vplyvy.find(function(k) { return k && ("Musíme sa porozprávať" === k.n || "Musime sa porozpravat" === k.n); });
     var vZien = neutralne_vplyvy.find(function(k) { return k && "Upokoj sa" === k.n; });
     var vZvierat = neutralne_vplyvy.find(function(k) { return k && "Ohnostroj" === k.n; });
 
@@ -1237,6 +1238,7 @@ function vygenerujRegalyTrhoviska(){
     if(e){
         e.innerHTML = "";
         Object.keys(MASTER_REGISTRY).forEach(function(t){
+            if (t === "Musime sa porozpravat") return;
             var reg = MASTER_REGISTRY[t];
             var wrapper = document.createElement("div");
             wrapper.className = "karta-karta-wrapper";
@@ -1265,6 +1267,7 @@ function aktualizujZostavaPanel(){
     if(e){
         e.innerHTML = "";
         Object.keys(MASTER_REGISTRY).forEach(function(t){
+            if (t === "Musime sa porozpravat") return;
             var reg = MASTER_REGISTRY[t];
             var n = inventar.zostava.indexOf(t) !== -1;
             var inv = inventar.karty[t] || { aktivnaTrieda: "C" };
@@ -1334,6 +1337,7 @@ function inicializujDevConsole() {
         
         var selectKarta = "<select id='dev-card-select' style='background:#2a2118; color:#fff; border:1px solid #5a4d3e; padding:4px; border-radius:4px;'>";
         Object.keys(MASTER_REGISTRY).forEach(function(k) {
+            if (k === "Musime sa porozpravat") return;
             selectKarta += "<option value='" + k + "'>" + k + "</option>";
         });
         selectKarta += "</select>";
@@ -1344,9 +1348,16 @@ function inicializujDevConsole() {
             <button onclick="devPridajKartuDoRuky()" style="background:#059669; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">➕ Pridať do ruky</button>
             <button onclick="devTestPresetSisaKvety()" style="background:#d97706; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">🧪 Test: Sisa A + Kvety</button>
             <button onclick="devPridajMince(5000)" style="background:#eab308; color:#000; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">💰 +5000 Mincí</button>
-            <button onclick="devPridajReplikyVsetkym(100)" style="background:#8b5cf6; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">🛠️ +100 Replík všetkým</button>
+            <button onclick="devPridajReplikyVsetkym(100)" style="background:#8b5cf6; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">🛠️ +100 Replík</button>
             <button onclick="devVycistiStol()" style="background:#dc2626; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">🧹 Vyčistiť stôl</button>
-            <button onclick="devSpustiHeadlessSimulaciu(1000)" style="background:#2563eb; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold; margin-left:auto;">🤖 Odohrať 1000 AI zápasov</button>
+            
+            <span style="color:#2563eb; font-weight:bold; margin-left:auto;">🤖 SIMULÁTOR AI:</span>
+            <select id="sim-diff-select" style="background:#1e3a8a; color:#fff; border:1px solid #3b82f6; padding:4px; border-radius:4px; font-weight:bold;">
+                <option value="B">AI Trieda B (Začiatočník)</option>
+                <option value="A">AI Trieda A (Pokročilý)</option>
+                <option value="S">AI Trieda S (Expert)</option>
+            </select>
+            <button onclick="devSpustiPokrociluSimulaciu(1000)" style="background:#2563eb; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">🚀 Odohrať 1000 zápasov</button>
         `;
         document.body.insertBefore(devBar, document.body.firstChild);
     }
@@ -1417,14 +1428,22 @@ function devTestPresetSisaKvety() {
     spustiPrepocty();
 }
 
-// FAST HEADLESS MONTE CARLO SIMULATOR (1000 GAMES IN 1 SEC)
-function devSpustiHeadlessSimulaciu(pocetZapasov) {
-    var p1Výhry = 0, p2Výhry = 0, remízy = 0;
+// POKROČILÝ MONTE CARLO SIMULÁTOR S ANALÝZOU DOPADU KARIET
+function devSpustiPokrociluSimulaciu(pocetZapasov) {
+    var diffSelect = document.getElementById("sim-diff-select");
+    var zvolenaDiff = diffSelect ? diffSelect.value : "B";
+
+    var p1Vyhry = 0, p2Vyhry = 0, remizy = 0;
     var celkoveSkoreP1 = 0, celkoveSkoreP2 = 0;
 
+    var kartaStats = {};
+
     for (var i = 0; i < pocetZapasov; i++) {
+        var tempAI = obtiaznostAI;
+        obtiaznostAI = zvolenaDiff;
         var deck1 = vytvorZoznamKariet(1);
         var deck2 = vytvorZoznamKariet(2);
+        obtiaznostAI = tempAI;
 
         var hand1 = deck1.splice(0, 10);
         var hand2 = deck2.splice(0, 10);
@@ -1436,13 +1455,36 @@ function devSpustiHeadlessSimulaciu(pocetZapasov) {
         celkoveSkoreP1 += sum1;
         celkoveSkoreP2 += sum2;
 
-        if (sum1 > sum2) p1Výhry++;
-        else if (sum2 > sum1) p2Výhry++;
-        else remízy++;
+        var p1Vyhral = sum1 > sum2;
+        if (p1Vyhral) p1Vyhry++;
+        else if (sum2 > sum1) p2Vyhry++;
+        else remizy++;
+
+        hand1.forEach(function(k) {
+            if (!kartaStats[k.n]) kartaStats[k.n] = { played: 0, wins: 0 };
+            kartaStats[k.n].played++;
+            if (p1Vyhral) kartaStats[k.n].wins++;
+        });
     }
 
-    var winRateP1 = ((p1Výhry / pocetZapasov) * 100).toFixed(1);
-    var winRateP2 = ((p2Výhry / pocetZapasov) * 100).toFixed(1);
+    var topKarta = "-";
+    var topWinRate = 0;
+    var topOdohrané = 0;
+
+    Object.keys(kartaStats).forEach(function(meno) {
+        var st = kartaStats[meno];
+        if (st.played >= 30) {
+            var wr = (st.wins / st.played) * 100;
+            if (wr > topWinRate) {
+                topWinRate = wr;
+                topKarta = meno;
+                topOdohrané = st.played;
+            }
+        }
+    });
+
+    var winRateP1 = ((p1Vyhry / pocetZapasov) * 100).toFixed(1);
+    var winRateP2 = ((p2Vyhry / pocetZapasov) * 100).toFixed(1);
 
     var resModal = document.getElementById("sim-result-modal");
     if (!resModal) {
@@ -1454,16 +1496,21 @@ function devSpustiHeadlessSimulaciu(pocetZapasov) {
     }
 
     resModal.innerHTML = `
-        <div class="card-modal-content cls-S" style="width:500px;" onclick="event.stopPropagation()">
+        <div class="card-modal-content cls-S" style="width:520px;" onclick="event.stopPropagation()">
             <span class="card-modal-close" onclick="document.getElementById('sim-result-modal').style.display='none'">&times;</span>
             <h2 style="color:#d4af37;">📊 VÝSLEDKY SIMULÁCIE (${pocetZapasov} DUELOV)</h2>
             <div style="text-align:left; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px; line-height:1.8;">
-                <p>🏆 <strong>Hráč 1 Výhry:</strong> ${p1Výhry} (${winRateP1}%)</p>
-                <p>🤖 <strong>AI / Hráč 2 Výhry:</strong> ${p2Výhry} (${winRateP2}%)</p>
-                <p>⚖️ <strong>Remízy:</strong> ${remízy}</p>
+                <p>🎯 <strong>Testovaná obťažnosť AI:</strong> <span style="color:#ffcc00; font-weight:bold;">Trieda ${zvolenaDiff}</span></p>
                 <hr style="border-color:#5a4d3e;">
-                <p>📈 <strong>Priemerné skóre P1 na zápas:</strong> ${(celkoveSkoreP1 / pocetZapasov).toFixed(1)} b</p>
-                <p>📈 <strong>Priemerné skóre P2 na zápas:</strong> ${(celkoveSkoreP2 / pocetZapasov).toFixed(1)} b</p>
+                <p>🏆 <strong>Hráč 1 Výhry:</strong> ${p1Vyhry} (${winRateP1}%)</p>
+                <p>🤖 <strong>AI (Trieda ${zvolenaDiff}) Výhry:</strong> ${p2Vyhry} (${winRateP2}%)</p>
+                <p>⚖️ <strong>Remízy:</strong> ${remizy}</p>
+                <hr style="border-color:#5a4d3e;">
+                <p>📈 <strong>Priemerné skóre P1:</strong> ${(celkoveSkoreP1 / pocetZapasov).toFixed(1)} b</p>
+                <p>📈 <strong>Priemerné skóre AI:</strong> ${(celkoveSkoreP2 / pocetZapasov).toFixed(1)} b</p>
+                <hr style="border-color:#5a4d3e;">
+                <p style="color:#4ade80; font-size:1.05em;">👑 <strong>Karta s najväčším dopadom na výhru:</strong><br>
+                <strong style="color:#fff; font-size:1.1em;">${topKarta}</strong> — Win Rate: <strong>${topWinRate.toFixed(1)}%</strong> (z ${topOdohrané} zápasov)</p>
             </div>
         </div>
     `;
