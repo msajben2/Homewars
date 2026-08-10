@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.8 - THREE.JS GLTF 3D CHEST & FORGE)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.9 - THREE.JS 3D CHEST & FIXES)
 // =========================================================================
 
 import * as THREE from 'three';
@@ -17,7 +17,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     }
 })();
 
-var VERZIA = "10.9.8";
+var VERZIA = "10.9.9";
 
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
@@ -647,7 +647,7 @@ function aktualizujArchivyVizualne() {
 }
 
 // =========================================================================
-// THREE.JS REAL 3D ENGINE PRE TRUHLU (S GLTF SÚBOROM & LOOT EXPLOSION)
+// THREE.JS REAL 3D ENGINE PRE TRUHLU (VYLEPŠENÁ KAMERA & CELOOBRAZOVKOVO)
 // =========================================================================
 function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, onOpenCallback) {
     containerEl.innerHTML = "";
@@ -655,13 +655,15 @@ function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, onOpenCallback) {
     var chestTier = jeVitaz ? 'S' : 'B';
 
     var scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0d0d11);
+    scene.background = null; 
 
-    var camera = new THREE.PerspectiveCamera(45, containerEl.clientWidth / containerEl.clientHeight, 0.1, 1000);
-    camera.position.set(0, 1.0, 4.5);
+    // Kamera usadená ideálne zhora aj z diaľky pre vycentrovanie truhlice
+    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 1.8, 5.5);
+    camera.lookAt(0, 0, 0);
 
     var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(containerEl.clientWidth, containerEl.clientHeight);
+    renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
     containerEl.appendChild(renderer.domElement);
@@ -669,10 +671,9 @@ function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, onOpenCallback) {
     var controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.enablePan = true;
+    controls.enablePan = false;
     controls.target.set(0, 0, 0);
 
-    // SVETLÁ
     var ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
     scene.add(ambientLight);
 
@@ -693,17 +694,16 @@ function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, onOpenCallback) {
         aktualnaTruhla = gltf.scene;
         scene.add(aktualnaTruhla);
 
-        aktualnaTruhla.position.set(0, -0.3, 0);
-        aktualnaTruhla.scale.set(1.2, 1.2, 1.2);
+        aktualnaTruhla.position.set(0, -0.6, 0);
+        aktualnaTruhla.scale.set(1.0, 1.0, 1.0);
 
         var tierColors = {
-            'B': { metal: 0xcd7f32 }, // Bronz
-            'A': { metal: 0xc0c0c0 }, // Striebro
-            'S': { metal: 0xffd700 }  // Zlato
+            'B': { metal: 0xcd7f32 },
+            'A': { metal: 0xc0c0c0 },
+            'S': { metal: 0xffd700 }
         };
         var currentTheme = tierColors[chestTier] || tierColors['B'];
 
-        // Prefarbenie kovových častí
         aktualnaTruhla.traverse((child) => {
             if (child.isMesh && (child.name.toLowerCase().includes('metal') || child.name.toLowerCase().includes('iron') || child.name.toLowerCase().includes('lock') || child.name.toLowerCase().includes('hinge'))) {
                 child.material.color.setHex(currentTheme.metal);
@@ -712,7 +712,6 @@ function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, onOpenCallback) {
             }
         });
 
-        // 3D Punc na čelo truhly
         vytvorPunc(aktualnaTruhla, chestTier, currentTheme.metal);
     }, undefined, (error) => {
         console.error("Chyba pri načítavaní Img/truhla.glb:", error);
@@ -765,9 +764,9 @@ function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, onOpenCallback) {
             vypadnutyLoot.push(loot);
 
             var angle = (i / itemsCount) * Math.PI * 2;
-            var forceX = Math.cos(angle) * (0.6 + Math.random() * 0.8);
-            var forceZ = Math.sin(angle) * (0.6 + Math.random() * 0.8);
-            var targetY = -0.3;
+            var forceX = Math.cos(angle) * (1.0 + Math.random() * 0.8);
+            var forceZ = Math.sin(angle) * (1.0 + Math.random() * 0.8);
+            var targetY = -0.6;
 
             let t = 0;
             let startX = loot.position.x;
@@ -779,7 +778,7 @@ function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, onOpenCallback) {
                     t += 0.03;
                     loot.position.x = startX + forceX * t;
                     loot.position.z = startZ + forceZ * t;
-                    loot.position.y = startY + (targetY - startY) * t + Math.sin(t * Math.PI) * 1.0;
+                    loot.position.y = startY + (targetY - startY) * t + Math.sin(t * Math.PI) * 1.2;
                     loot.rotation.x += 0.1;
                     loot.rotation.y += 0.15;
                     requestAnimationFrame(animateLoot);
@@ -944,14 +943,11 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
         var basePwr = isSpecialCard(drop.meno) ? "none" : reg.p;
         
         kartyHTML += `
-            <div class="chest-card-wrapper" style="animation-delay: ${cardDelay}s;">
-                <div class="chest-card-flipper">
-                    <div class="chest-card-back">HW</div>
-                    <div class="karta cls-C chest-card-front">
-                        ${vytvorHTMLKarty(drop.meno, basePwr, "C", reg.row, reg.p)}
-                        <div class="chest-card-badge">+${drop.davka}x</div>
-                    </div>
+            <div class="chest-card-wrapper" style="animation-delay: ${cardDelay}s; display: flex; flex-direction: column; align-items: center;">
+                <div class="karta cls-C chest-card-front">
+                    ${vytvorHTMLKarty(drop.meno, basePwr, "C", reg.row, reg.p)}
                 </div>
+                <div style="background: #221a0f; color: #ffcc00; border: 1px solid #ffcc00; padding: 2px 10px; border-radius: 12px; font-weight: bold; font-size: 0.9em; margin-top: 6px; box-shadow: 0 0 8px #000;">+${drop.davka}x</div>
             </div>
         `;
         cardDelay += 0.18;
@@ -1002,7 +998,7 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     aktualizujPanelDielne();
 }
 
-// MAGICKÝ KOVÁČSKY RITUÁL V DIELNI (CANVAS FORGE FLOW WITH FIX COLORS)
+// MAGICKÝ KOVÁČSKY RITUÁL V DIELNI
 function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) {
     var modal = document.getElementById("forge-modal");
     if (!modal) {
@@ -2071,6 +2067,7 @@ document.getElementById("marek-burn-btn").addEventListener("click", function(e) 
 });
 
 spustiDraft();
+
 // =========================================================================
 // GLOBÁLNE PREPOJENIE FUNKCIÍ PRE HTML ONCLICK TLAČIDLÁ
 // =========================================================================
