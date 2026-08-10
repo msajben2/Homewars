@@ -1,5 +1,5 @@
 /* =========================================================================
-   HOME WARS - COMPLETE STYLESHEET (v10.9.6 - FORGE FLOW & NO-LOCK MODALS)
+   HOME WARS - COMPLETE STYLESHEET (v10.9.7 - THREE.JS 3D VIEWPORT & STYLES)
    ========================================================================= */
 
 body {
@@ -286,7 +286,7 @@ main {
 }
 
 /* =========================================================================
-   TCG ANATÓMIA KARTY (NOVÝ SPODNÝ KOVANÝ ŠTÍTOK A OSTRÝ TEXT)
+   TCG ANATÓMIA KARTY (SPODNÝ KOVANÝ ŠTÍTOK A OSTRÝ TEXT)
    ========================================================================= */
 
 .karta {
@@ -329,7 +329,6 @@ main {
     display: block !important;
 }
 
-/* SPODNÝ KOVANÝ ŠTÍTOK */
 .karta-stitok-spodok {
     position: absolute;
     bottom: 8px;
@@ -583,7 +582,7 @@ main {
     100% { transform: translateY(5px); opacity: 1; }
 }
 
-/* 3D TRUHLA */
+/* THREE.JS 3D VIEWPORT PRE TRUHLU */
 .chest-modal-overlay {
     display: none;
     position: fixed;
@@ -599,104 +598,32 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    perspective: 1000px;
     width: 100%;
     max-width: 850px;
 }
 
-.chest-3d-box {
+.chest-3d-viewport {
     position: relative;
-    width: 220px;
-    height: 140px;
-    margin: 20px auto;
+    width: 300px;
+    height: 220px;
+    margin: 10px auto;
     cursor: pointer;
-    transform-style: preserve-3d;
-    animation: chestDrop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #chest-fx-canvas {
     position: absolute;
-    top: -120px;
-    left: -190px;
+    top: -90px;
+    left: -150px;
     pointer-events: none;
     z-index: 15;
 }
 
-@keyframes chestDrop {
-    0% { transform: translateY(-500px) scale(0.3); opacity: 0; }
-    70% { transform: translateY(20px) scale(1.05); opacity: 1; }
-    85% { transform: translateY(-10px) scale(0.95); }
-    100% { transform: translateY(0) scale(1); opacity: 1; }
-}
-
-.chest-3d-base {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 90px;
-    border-radius: 0 0 8px 8px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.9);
-    z-index: 2;
-}
-
-.chest-3d-lid {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 55px;
-    border-radius: 12px 12px 2px 2px;
-    transform-origin: top center;
-    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 3;
-}
-
-.chest-stage.open .chest-3d-lid {
-    transform: rotateX(-110deg);
-}
-
-.chest-3d-glow {
-    position: absolute;
-    top: 40px;
-    left: 10px;
-    width: 200px;
-    height: 40px;
-    background: radial-gradient(ellipse at center, #ffe600 0%, #ff8800 60%, transparent 100%);
-    opacity: 0;
-    transition: opacity 0.5s ease 0.3s;
-    z-index: 1;
-    border-radius: 50%;
-    filter: blur(4px);
-}
-
-.chest-stage.open .chest-3d-glow {
-    opacity: 1;
-}
-
-.ucastnik-body {
-    background: linear-gradient(180deg, #4d3319 0%, #291a0c 100%);
-    border: 4px solid #1a1006;
-    border-top: 2px solid #5d3d1e;
-}
-.ucastnik-lid {
-    background: linear-gradient(180deg, #664121 0%, #3d2912 100%);
-    border: 4px solid #1a1006;
-    border-bottom: 3px solid #110a04;
-}
-
-.vitaz-body {
-    background: linear-gradient(180deg, #5c4314 0%, #261704 100%);
-    border: 4px solid #d4af37;
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
-}
-.vitaz-lid {
-    background: linear-gradient(180deg, #8a651b 0%, #4a360a 100%);
-    border: 4px solid #ffd700;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-}
-
 .chest-prompt-text {
     position: absolute;
-    bottom: -35px;
+    bottom: -15px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.85);
