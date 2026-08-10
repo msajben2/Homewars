@@ -1,10 +1,6 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.10 - THREE.JS 3D CHEST & UPRIGHT LOOT)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.11 - MP4 VIDEO CHEST ENGINE)
 // =========================================================================
-
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 (function() {
     var TAJNY_KOD_HESLA = "dGVzdGVyMTIzIQ=="; 
@@ -17,7 +13,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     }
 })();
 
-var VERZIA = "10.9.10";
+var VERZIA = "10.9.11";
 
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
@@ -647,210 +643,8 @@ function aktualizujArchivyVizualne() {
 }
 
 // =========================================================================
-// THREE.JS REAL 3D ENGINE PRE TRUHLU (VYCENTROVANÁ & UPRIGHT LOOT SPREAD)
+// ELEGANTNÝ MP4 VIDEO CHEST ENGINE (FULLSCREEN OVERLAY)
 // =========================================================================
-function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, vyrebrovaneKarty, onOpenCallback) {
-    containerEl.innerHTML = "";
-    
-    var chestTier = jeVitaz ? 'S' : 'B';
-
-    var scene = new THREE.Scene();
-    scene.background = null; 
-
-    // Správne nastavená kamera so stabilným odstupom
-    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 2.2, 6.5);
-    camera.lookAt(0, 0, 0);
-
-    var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.shadowMap.enabled = true;
-    containerEl.appendChild(renderer.domElement);
-
-    var controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.enablePan = false;
-    controls.target.set(0, 0, 0);
-
-    // OSVETLENIE
-    scene.add(new THREE.AmbientLight(0xffffff, 1.5));
-    var dirLight = new THREE.DirectionalLight(0xffffff, 2.5);
-    dirLight.position.set(5, 10, 7);
-    scene.add(dirLight);
-
-    var pointLight = new THREE.PointLight(0xffaa00, 2.0, 10);
-    pointLight.position.set(0, 1, 1);
-    scene.add(pointLight);
-
-    var aktualnaTruhla = null;
-    var isOpening = false;
-
-    var loader = new GLTFLoader();
-    loader.load('Img/truhla.glb', (gltf) => {
-        aktualnaTruhla = gltf.scene;
-        
-        // 1. AUTOMATICKÉ VYCENTROVANIE A ZMENŠENIE MODELU
-        var box = new THREE.Box3().setFromObject(aktualnaTruhla);
-        var center = box.getCenter(new THREE.Vector3());
-        var size = box.getSize(new THREE.Vector3());
-
-        aktualnaTruhla.position.x -= center.x;
-        aktualnaTruhla.position.y -= center.y;
-        aktualnaTruhla.position.z -= center.z;
-
-        var maxDim = Math.max(size.x, size.y, size.z);
-        var scale = 2.2 / maxDim; // Presná mierka pre vycentrovanie do stredu
-        aktualnaTruhla.scale.set(scale, scale, scale);
-
-        var wrapperGroup = new THREE.Group();
-        wrapperGroup.add(aktualnaTruhla);
-        wrapperGroup.position.set(0, 0.2, 0); // Truhlica presne v strede
-        scene.add(wrapperGroup);
-
-        // Prefarbenie kovov podľa triedy
-        var tierColors = {
-            'B': { metal: 0xcd7f32 },
-            'A': { metal: 0xc0c0c0 },
-            'S': { metal: 0xffd700 }
-        };
-        var currentTheme = tierColors[chestTier] || tierColors['B'];
-
-        aktualnaTruhla.traverse((child) => {
-            if (child.isMesh && (child.name.toLowerCase().includes('metal') || child.name.toLowerCase().includes('iron') || child.name.toLowerCase().includes('lock') || child.name.toLowerCase().includes('hinge'))) {
-                child.material.color.setHex(currentTheme.metal);
-                child.material.metalness = 0.9;
-                child.material.roughness = 0.2;
-            }
-        });
-
-        // 2. PUNC NALEPENÝ PRIAMO NA PREDNEJ DOSKE
-        vytvorPunc(wrapperGroup, chestTier, currentTheme.metal, (size.z * scale) / 2);
-
-        // Kliknutie na otvorenie truhlice
-        containerEl.onclick = function() {
-            if (!isOpening) {
-                isOpening = true;
-                
-                let lid = null;
-                aktualnaTruhla.traverse((child) => {
-                    if (child.name.toLowerCase().includes('lid') || child.name.toLowerCase().includes('top') || child.name.toLowerCase().includes('cover')) {
-                        lid = child;
-                    }
-                });
-
-                let openProgress = 0;
-                function animateOpen() {
-                    if (openProgress < 1) {
-                        openProgress += 0.025;
-                        if (lid) {
-                            lid.rotation.x = -Math.PI * 0.45 * Math.sin(openProgress * Math.PI / 2);
-                        }
-                        requestAnimationFrame(animateOpen);
-                    } else {
-                        // 3. VYSTRELENIE MINCÍ A KARIET NASTOJATO OKOLO TRUHLE
-                        vybuchLootuNaStojato(scene, vyrebrovaneKarty);
-                        if (onOpenCallback) onOpenCallback();
-                    }
-                }
-                animateOpen();
-            }
-        };
-
-    }, undefined, (error) => {
-        console.error("Chyba pri načítavaní Img/truhla.glb:", error);
-    });
-
-    function vytvorPunc(parent, tier, metalColor, offsetZ) {
-        var canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 256;
-        var ctx = canvas.getContext('2d');
-
-        ctx.fillStyle = '#' + metalColor.toString(16).padStart(6, '0');
-        ctx.beginPath();
-        ctx.arc(128, 128, 100, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.lineWidth = 14;
-        ctx.strokeStyle = '#ffffff';
-        ctx.stroke();
-
-        ctx.fillStyle = '#000000';
-        ctx.font = 'bold 120px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(tier, 128, 128);
-
-        var texture = new THREE.CanvasTexture(canvas);
-        var badgeGeo = new THREE.PlaneGeometry(0.55, 0.55);
-        var badgeMat = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-        var badgeMesh = new THREE.Mesh(badgeGeo, badgeMat);
-
-        badgeMesh.position.set(0, 0.1, offsetZ + 0.03);
-        parent.add(badgeMesh);
-    }
-
-    // 4. VYSTRELENIE A ROZLOŽENIE KARIET NASTOJATO (VRCH HORE, SPODOK DOLE)
-    function vybuchLootuNaStojato(scene, kartyData) {
-        var totalItems = kartyData.length + 8;
-        var radius = 2.4; 
-
-        for (var i = 0; i < totalItems; i++) {
-            var isCard = i < kartyData.length;
-            var mesh;
-
-            if (isCard) {
-                var cardGeo = new THREE.BoxGeometry(0.55, 0.8, 0.01);
-                var cardMat = new THREE.MeshStandardMaterial({ color: 0x3b82f6, metalness: 0.3, roughness: 0.4 });
-                mesh = new THREE.Mesh(cardGeo, cardMat);
-            } else {
-                var coinGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.03, 16);
-                var coinMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.1 });
-                mesh = new THREE.Mesh(coinGeo, coinMat);
-            }
-
-            mesh.position.set(0, 0.4, 0);
-            scene.add(mesh);
-
-            var angle = (i / totalItems) * Math.PI * 2;
-            var targetX = Math.cos(angle) * (radius + Math.random() * 0.3);
-            var targetZ = Math.sin(angle) * (radius + Math.random() * 0.3);
-            var targetY = -0.5;
-
-            (function(item, tx, tz, ty, cardCheck) {
-                let t = 0;
-                function animujLoot() {
-                    if (t < 1) {
-                        t += 0.035;
-                        item.position.x = tx * t;
-                        item.position.z = tz * t;
-                        item.position.y = 0.4 + (ty - 0.4) * t + Math.sin(t * Math.PI) * 1.5;
-                        item.rotation.y += 0.2;
-                        requestAnimationFrame(animujLoot);
-                    } else {
-                        item.position.set(tx, ty, tz);
-                        if (cardCheck) {
-                            // KARTA STOJÍ VERTIKÁLNE (VRCH HORE) A SMRUJE KU KAMERE
-                            item.rotation.set(0, 0, 0); 
-                        } else {
-                            item.rotation.set(Math.PI / 2, 0, 0); 
-                        }
-                    }
-                }
-                setTimeout(animujLoot, i * 45);
-            })(mesh, targetX, targetZ, targetY, isCard);
-        }
-    }
-
-    function animate() {
-        requestAnimationFrame(animate);
-        if (controls) controls.update();
-        if (renderer && scene && camera) renderer.render(scene, camera);
-    }
-    animate();
-}
-
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
     
@@ -895,7 +689,7 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (!cModal) {
         cModal = document.createElement("div");
         cModal.id = "chest-anim-modal";
-        cModal.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.92); backdrop-filter:blur(10px); display:none; justify-content:center; align-items:center; z-index:99999;";
+        cModal.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.95); backdrop-filter:blur(10px); display:none; justify-content:center; align-items:center; z-index:99999;";
         cModal.onclick = function(e) {
             if (e.target === cModal) cModal.style.display = "none";
         };
@@ -905,20 +699,20 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     var titulok = jeVitaz ? "🏆 TRUHLA VÍŤAZA" : (jeRemizaZapasu ? "📦 TRUHLA ZA REMÍZU" : "📦 TRUHLA ÚČASTNÍKA");
 
     var kartyHTML = "";
-    var cardDelay = 0.15;
+    var cardDelay = 0.1;
     vyžrebovanéKartyZoznam.forEach(function(drop) {
         var reg = drop.reg;
         var basePwr = isSpecialCard(drop.meno) ? "none" : reg.p;
         
         kartyHTML += `
-            <div class="chest-card-wrapper" style="animation-delay: ${cardDelay}s; display: flex; flex-direction: column; align-items: center; margin: 8px;">
+            <div class="chest-card-wrapper" style="animation-delay: ${cardDelay}s; display: flex; flex-direction: column; align-items: center; margin: 10px;">
                 <div class="karta cls-C chest-card-front">
                     ${vytvorHTMLKarty(drop.meno, basePwr, "C", reg.row, reg.p)}
                 </div>
-                <div style="background: #110d06; color: #ffcc00; border: 1px solid #ffcc00; padding: 3px 12px; border-radius: 12px; font-weight: bold; font-size: 0.95em; margin-top: 8px; box-shadow: 0 0 10px #000;">+${drop.davka}x</div>
+                <div style="background: #110d06; color: #ffcc00; border: 1px solid #ffcc00; padding: 4px 14px; border-radius: 12px; font-weight: bold; font-size: 1.0em; margin-top: 8px; box-shadow: 0 0 10px #000;">+${drop.davka}x</div>
             </div>
         `;
-        cardDelay += 0.15;
+        cardDelay += 0.12;
     });
 
     cModal.innerHTML = `
@@ -927,13 +721,16 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
             
             <h2 style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2.2em; margin:10px 0 0 0; z-index:10;">${titulok}</h2>
             
-            <div id="chest-three-container" style="position:absolute; top:0; left:0; width:100vw; height:100vh; z-index:1; pointer-events:auto;"></div>
+            <!-- NAČÍTANIE VIDEA MP4 -->
+            <div id="chest-video-container" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:auto; height:auto; max-width:80vw; max-height:60vh; z-index:2; pointer-events:auto; cursor:pointer;">
+                <video id="chest-mp4-video" src="truhla.mp4" playsinline style="width:100%; height:100%; max-height:55vh; border-radius:12px; box-shadow:0 0 25px rgba(255,204,0,0.3); object-fit:contain;"></video>
+            </div>
             
-            <div id="chest-click-prompt" style="color:#fff; font-size:1.3em; font-weight:bold; text-shadow:0 0 10px #ffcc00; margin-top:auto; margin-bottom:20px; z-index:10; animation: pulse 1.5s infinite;">✨ KLIKNI NA TRUHLU PRE OTVORENIE ✨</div>
+            <div id="chest-click-prompt" style="color:#fff; font-size:1.4em; font-weight:bold; text-shadow:0 0 12px #ffcc00; margin-top:auto; margin-bottom:40px; z-index:10; pointer-events:auto; cursor:pointer;">✨ KLIKNI NA TRUHLU PRE OTVORENIE ✨</div>
 
-            <div id="chest-rewards-box" style="display:flex; flex-direction:column; align-items:center; z-index:10; pointer-events:auto; opacity:0; transition:opacity 0.8s ease; max-width:90vw;">
-                <div id="chest-gold-text" style="color:#ffcc00; font-weight:bold; font-size:1.4em; margin-bottom:10px; text-shadow:0 0 10px #000;">🪙 +${ziskaneMince} Zlatých mincí</div>
-                <div style="display:flex; flex-wrap:wrap; justify-content:center; max-height:40vh; overflow-y:auto; padding:10px; background:rgba(0,0,0,0.7); border-radius:12px; border:1px solid rgba(255,204,0,0.4);">
+            <div id="chest-rewards-box" style="display:none; flex-direction:column; align-items:center; z-index:10; pointer-events:auto; opacity:0; transition:opacity 0.8s ease; width:100%; max-width:1200px; margin-bottom:20px;">
+                <div id="chest-gold-text" style="color:#ffcc00; font-weight:bold; font-size:1.6em; margin-bottom:12px; text-shadow:0 0 10px #000;">🪙 +${ziskaneMince} Zlatých mincí</div>
+                <div style="display:flex; flex-wrap:wrap; justify-content:center; max-height:50vh; overflow-y:auto; padding:15px; background:rgba(0,0,0,0.8); border-radius:12px; border:1px solid rgba(255,204,0,0.4); width:100%;">
                     ${kartyHTML}
                 </div>
                 <button id="chest-close-btn" onclick="document.getElementById('chest-anim-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:12px 35px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1.1em; margin-top:15px; box-shadow:0 0 15px #28a745;">Zozbierať odmeny</button>
@@ -943,14 +740,33 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
 
     cModal.style.display = "flex";
 
-    var threeBox = document.getElementById("chest-three-container");
-    if (threeBox) {
-        inicializujThreeJS3DTruhlu(threeBox, jeVitaz, vyžrebovanéKartyZoznam, function() {
-            document.getElementById("chest-click-prompt").style.display = "none";
-            var rewardsBox = document.getElementById("chest-rewards-box");
-            if (rewardsBox) rewardsBox.style.opacity = "1";
-        });
+    var video = document.getElementById("chest-mp4-video");
+    var videoBox = document.getElementById("chest-video-container");
+    var promptText = document.getElementById("chest-click-prompt");
+    var rewardsBox = document.getElementById("chest-rewards-box");
+
+    var isPlayed = false;
+
+    function spustiVideoOtvorenia() {
+        if (!isPlayed && video) {
+            isPlayed = true;
+            promptText.style.display = "none";
+            
+            video.play().catch(function(err) {
+                console.error("Video sa nedalo spustiť:", err);
+            });
+
+            video.onended = function() {
+                rewardsBox.style.display = "flex";
+                setTimeout(function() {
+                    rewardsBox.style.opacity = "1";
+                }, 50);
+            };
+        }
     }
+
+    if (videoBox) videoBox.onclick = spustiVideoOtvorenia;
+    if (promptText) promptText.onclick = spustiVideoOtvorenia;
 
     aktualizujPanelDielne();
 }
