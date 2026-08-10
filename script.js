@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.4 - FULL WEBP & 3D CHEST CARDS ENGINE)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.5 - CANVAS CHEST & FORGE RITUAL)
 // =========================================================================
 
 (function() {
@@ -13,9 +13,8 @@
     }
 })();
 
-var VERZIA = "10.9.4";
+var VERZIA = "10.9.5";
 
-// MASTER REGISTRAČNÁ TABUĽKA KARIET
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
     "Michal": { row: 1, p: 4, img: "Img/michal.webp", desc: "Bystrý obchodník. Váži zlato a pozná presnú cenu každej veci v kráľovstve.", abilityDesc: "📢 Obchodník: Ak nie je na stole Nela, dáva sám sebe automatický samo-buff +100% k svojej základnej sile." },
@@ -262,16 +261,6 @@ function otvoriťNavodHry() {
                         </tr>
                     </tbody>
                 </table>
-
-                <h3 style="color:#ffcc00; margin-top:10px;">4. Prehľad Špeciálnych Symbolov (Rún)</h3>
-                <ul>
-                    <li><strong>🕵️ Špión (ᛟ):</strong> Vyloží sa súperovi na stranu stola. Odmena: Ihneď ti potiahne 2 nové karty z balíčka (S-Class potiahne 3 karty)!</li>
-                    <li><strong>🧹 Filozof (ᚠ - Marek):</strong> Svojím otravným filozofovaním úplne zmatie zvolenú kartu súpera a odstráni ju z hry.</li>
-                    <li><strong>🏥 Oživenie (ᛞ - Doktor, Sestrička):</strong> Vráti padlú kartu z hradného archívu späť do plnej bitky.</li>
-                    <li><strong>🤝 Svorka (ᚷ - Mravce, Holuby):</strong> Čím viac rovnakých kariet svorky je v rade, tým masívnejšie násobia svoju silu (1b -> 2b -> 4b za kus).</li>
-                    <li><strong>🛡️ Štít (ᛉ - Nela):</strong> Zmrazí stôl! Kým je Nela v hre, žiadne karty nedostávajú percentuálne bonusy ani buffy.</li>
-                    <li><strong>✝️ Imunita (ᛖ - Oli):</strong> Jej sila 8b je stála a nedá sa znížiť kúzlam ani negatívnymi vplyvmi stola.</li>
-                </ul>
             </div>
         </div>
     `;
@@ -691,7 +680,60 @@ function aktualizujArchivyVizualne() {
     }
 }
 
-// OTVÁRANIE TRUHLICE S CHROMA KEY VIDEO EFEKTOM A 3D FLIP KARTAMI
+// 3D CSS3 + CANVAS PARTICLES ENGINE PRE TRUHLICE
+function spustiMinceCanvasFX(canvasEl) {
+    var ctx = canvasEl.getContext("2d");
+    var width = canvasEl.width = 600;
+    var height = canvasEl.height = 400;
+    
+    var castice = [];
+    var pocet = 70;
+    
+    for (var i = 0; i < pocet; i++) {
+        castice.push({
+            x: width / 2,
+            y: height / 2 + 20,
+            vx: (Math.random() - 0.5) * 14,
+            vy: -Math.random() * 12 - 4,
+            gravity: 0.4,
+            size: Math.random() * 7 + 5,
+            color: Math.random() > 0.3 ? "#ffd700" : "#ffae00",
+            rotation: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 0.2
+        });
+    }
+    
+    function loop() {
+        ctx.clearRect(0, 0, width, height);
+        var esteBezia = false;
+        
+        castice.forEach(function(p) {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += p.gravity;
+            p.rotation += p.vRot;
+            
+            if (p.y < height - 20) esteBezia = true;
+            else p.y = height - 20; // Dopad na dno
+            
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation);
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(0, 0, p.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#fff7a1";
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.restore();
+        });
+        
+        if (esteBezia) requestAnimationFrame(loop);
+    }
+    loop();
+}
+
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
     
@@ -709,15 +751,15 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
         var davka = 1;
 
         if (jeVitaz) {
-            if (roll < 0.5) davka = 100;          // 0,5%
-            else if (roll < 10.0) davka = 20;     // 9,5%
-            else if (roll < 30.0) davka = 5;      // 20,0%
-            else davka = 1;                      // 69,5%
+            if (roll < 0.5) davka = 100;
+            else if (roll < 10.0) davka = 20;
+            else if (roll < 30.0) davka = 5;
+            else davka = 1;
         } else {
-            if (roll < 0.01) davka = 100;         // 0,01%
-            else if (roll < 2.01) davka = 20;     // 2,00%
-            else if (roll < 12.01) davka = 5;     // 10,00%
-            else davka = 1;                       // 87,99%
+            if (roll < 0.01) davka = 100;
+            else if (roll < 2.01) davka = 20;
+            else if (roll < 12.01) davka = 5;
+            else davka = 1;
         }
 
         if (!inventar.karty[randomMeno]) {
@@ -741,6 +783,8 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     }
 
     var titulok = jeVitaz ? "🏆 TRUHLA VÍŤAZA" : (jeRemizaZapasu ? "📦 TRUHLA ZA REMÍZU" : "📦 TRUHLA ÚČASTNÍKA");
+    var bodyClass = jeVitaz ? "vitaz-body" : "ucastnik-body";
+    var lidClass = jeVitaz ? "vitaz-lid" : "ucastnik-lid";
 
     var kartyHTML = "";
     var cardDelay = 0.15;
@@ -764,11 +808,13 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
 
     cModal.innerHTML = `
         <div class="chest-stage" id="chest-stage-box">
-            <h2 style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2em; margin:0 0 10px 0;">${titulok}</h2>
+            <h2 style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2.2em; margin:0 0 10px 0;">${titulok}</h2>
             
-            <div class="chest-video-container" id="chest-click-trigger">
-                <video id="chest-raw-video" src="Img/truhla-open.mp4" playsinline muted style="display:none;"></video>
-                <canvas id="chest-canvas-render" width="480" height="480" class="chest-drop-anim"></canvas>
+            <div class="chest-3d-box" id="chest-click-trigger">
+                <canvas id="chest-fx-canvas"></canvas>
+                <div class="chest-3d-lid ${lidClass}"></div>
+                <div class="chest-3d-glow"></div>
+                <div class="chest-3d-base ${bodyClass}"></div>
                 <div id="chest-click-prompt" class="chest-prompt-text">✨ KLIKNI PRE OTVORENIE ✨</div>
             </div>
 
@@ -784,59 +830,238 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
 
     cModal.style.display = "flex";
 
-    var video = document.getElementById("chest-raw-video");
-    var canvas = document.getElementById("chest-canvas-render");
-    var ctx = canvas.getContext("2d");
     var trigger = document.getElementById("chest-click-trigger");
     var isOpened = false;
-
-    function renderFrame() {
-        if (!video.paused && !video.ended) {
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            var frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            var l = frame.data.length / 4;
-
-            for (var i = 0; i < l; i++) {
-                var r = frame.data[i * 4 + 0];
-                var g = frame.data[i * 4 + 1];
-                var b = frame.data[i * 4 + 2];
-                if (g > 90 && r < 120 && b < 120 && g > r * 1.2) {
-                    frame.data[i * 4 + 3] = 0;
-                }
-            }
-            ctx.putImageData(frame, 0, 0);
-            requestAnimationFrame(renderFrame);
-        }
-    }
-
-    video.addEventListener("play", function() {
-        renderFrame();
-    });
-
-    video.addEventListener("loadeddata", function() {
-        video.currentTime = 0;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    });
 
     trigger.onclick = function() {
         if (isOpened) return;
         isOpened = true;
 
         document.getElementById("chest-click-prompt").style.display = "none";
-        video.play();
+        var stage = document.getElementById("chest-stage-box");
+        if (stage) stage.classList.add("open");
+
+        var fxCanvas = document.getElementById("chest-fx-canvas");
+        if (fxCanvas) spustiMinceCanvasFX(fxCanvas);
 
         setTimeout(function() {
-            var stage = document.getElementById("chest-stage-box");
             var goldText = document.getElementById("chest-gold-text");
             var btn = document.getElementById("chest-close-btn");
 
-            if (stage) stage.classList.add("open");
             if (goldText) goldText.style.opacity = "1";
             if (btn) btn.style.display = "inline-block";
-        }, 1200);
+        }, 800);
     };
 
     aktualizujPanelDielne();
+}
+
+// MAGICKÝ KOVÁČSKY RITUÁL V DIELNI (CANVAS FORGE)
+function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) {
+    var modal = document.getElementById("forge-modal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "forge-modal";
+        modal.className = "forge-modal-overlay";
+        document.body.appendChild(modal);
+    }
+
+    var reg = getRegistryCard(meno);
+    var imgPath = reg.img || "Img/default.webp";
+    var trvanie = (novaTrieda === "S") ? 5000 : ((novaTrieda === "A") ? 3800 : 2800);
+
+    var html = `
+        <div class="forge-ritual-box">
+            <h2 class="forge-title forge-title-${novaTrieda}">🔨 MAGICKÉ KOVANIE (${novaTrieda}-CLASS)</h2>
+            <div class="forge-arena" id="forge-arena-box">
+                <canvas id="forge-canvas-fx" width="450" height="350"></canvas>
+                <div class="karta cls-${staraTrieda} forge-target-card" id="forge-target-card">
+                    ${vytvorHTMLKarty(meno, reg.p, staraTrieda, reg.row, reg.p)}
+                </div>
+            </div>
+            <div class="forge-status">Spájanie ${spotrebovaneRepliky}x materiálu na kovadline...</div>
+        </div>
+    `;
+    
+    modal.innerHTML = html;
+    modal.style.display = "flex";
+
+    var canvas = document.getElementById("forge-canvas-fx");
+    if (canvas) {
+        var ctx = canvas.getContext("2d");
+        var iskry = [];
+        var farba = novaTrieda === "S" ? "#ffd700" : (novaTrieda === "A" ? "#c0c0c0" : "#cd7f32");
+        
+        for (var i = 0; i < 80; i++) {
+            iskry.push({
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                vx: (Math.random() - 0.5) * 16,
+                vy: (Math.random() - 0.5) * 16,
+                size: Math.random() * 5 + 2,
+                alpha: 1
+            });
+        }
+
+        function animujForge() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            iskry.forEach(function(p) {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.015;
+                if (p.alpha < 0) p.alpha = 0;
+
+                ctx.fillStyle = farba;
+                ctx.globalAlpha = p.alpha;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            if (iskry.some(function(p) { return p.alpha > 0; })) {
+                requestAnimationFrame(animujForge);
+            }
+        }
+        animujForge();
+    }
+
+    setTimeout(function() {
+        var card = document.getElementById("forge-target-card");
+        if (card) {
+            var regN = getRegistryCard(meno);
+            card.className = "karta cls-" + novaTrieda + " forge-target-card";
+            if (novaTrieda === "S") card.classList.add("karta-s-class-aura");
+            card.innerHTML = vytvorHTMLKarty(meno, regN.p, novaTrieda, regN.row, regN.p);
+        }
+    }, trvanie / 2);
+
+    setTimeout(function() {
+        modal.style.display = "none";
+    }, trvanie);
+}
+
+function vylepsiKartuVoForge(e) { 
+    var t = inventar.karty[e]; 
+    if (t) { 
+        var r = t.aktivnaTrieda, n = false, novaTrieda = "", spotrebovane = 0; 
+        
+        if (isSpecialCard(e)) {
+            if ("C" === r && t.replikyC >= 1000) {
+                t.replikyC -= 1000;
+                t.aktivnaTrieda = "S";
+                novaTrieda = "S";
+                spotrebovane = 1000;
+                n = true;
+            } else if ("S" === r) {
+                alert("Špeciálna karta je už na maximálnej triede S!");
+                return;
+            } else {
+                alert("Na vykovanie špeciálnej karty na triedu S potrebuješ 1000 replík!");
+                return;
+            }
+        } else {
+            if ("C" === r && t.replikyC >= 5) { t.replikyC -= 5; t.aktivnaTrieda = "B"; novaTrieda = "B"; spotrebovane = 5; n = true; } 
+            else if ("B" === r && t.replikyC >= 25) { t.replikyC -= 25; t.aktivnaTrieda = "A"; novaTrieda = "A"; spotrebovane = 25; n = true; } 
+            else if ("A" === r && t.replikyC >= 125) { t.replikyC -= 125; t.aktivnaTrieda = "S"; novaTrieda = "S"; spotrebovane = 125; n = true; } 
+        }
+
+        if (n) { 
+            spustiKovaciRitual(e, r, novaTrieda, spotrebovane);
+            aktualizujPanelDielne(); 
+            aktualizujZostavaPanel();
+            if (!draft_faza) spustiPrepocty(); 
+        } else {
+            alert("Málo replík!"); 
+        }
+    } 
+}
+
+function recyklujKartuDielne(e) { 
+    var t = inventar.karty[e]; 
+    if (t && t.replikyC > 0) { 
+        t.replikyC--; 
+        inventar.mince += 15; 
+        alert("♻ Recyklované (+15m)"); 
+        aktualizujPanelDielne(); 
+        aktualizujZostavaPanel();
+    } 
+}
+
+function kupNahodnyBooster() { 
+    if (inventar.mince < 100) { alert("Nemáš dostatok mincí!"); return; } 
+    var e = Object.keys(MASTER_REGISTRY), t = e[Math.floor(Math.random() * e.length)]; 
+    inventar.mince -= 100; 
+    if (!inventar.karty[t]) inventar.karty[t] = { replikyC: 0, aktivnaTrieda: "C" }; 
+    inventar.karty[t].replikyC++; 
+    alert("🎁 Booster: " + t); 
+    aktualizujPanelDielne(); 
+    aktualizujZostavaPanel();
+}
+
+function kupKonkretnuKartu(e) { 
+    if (inventar.mince < 3000) { alert("Nemáš dostatok mincí (potrebuješ 3000m)!"); return; } 
+    var kName = e.replace(/\s+\d+$/, "").trim();
+    inventar.mince -= 3000; 
+    if (!inventar.karty[e]) inventar.karty[e] = { replikyC: 0, aktivnaTrieda: "C" }; 
+    inventar.karty[e].replikyC++; 
+    alert("🛒 Kúpená C-kópiu: " + kName); 
+    aktualizujPanelDielne(); 
+    aktualizujZostavaPanel();
+}
+
+function overMoznostStartuHry() { 
+    if (!inventar.zostava || inventar.zostava.length < 30) { alert("Zostava musí mať 30 kariet!"); return false; } 
+    return true; 
+}
+
+function zobraziťMenuAI() {
+    var subMenu = document.getElementById("ai-difficulty-options");
+    if (subMenu) subMenu.classList.remove("schovany");
+}
+
+function spustitZapasProtiAI(obtiaznost) { 
+    if (overMoznostStartuHry()) { 
+        jeSingleplayer = true; 
+        obtiaznostAI = obtiaznost; 
+        if (document.getElementById("rezim-zapasu-oznam")) document.getElementById("rezim-zapasu-oznam").innerText = "🤖 PROTI AI - Trieda " + obtiaznost; 
+        document.getElementById("predzapasove-menu").className = "schovany"; 
+        document.getElementById("hraci-stol-kontajner").className = ""; 
+        r1 = 0; r2 = 0; 
+        resetStolaBezReloadu(false); 
+    } 
+}
+
+function spustitZapasLokálnePVP() { 
+    if (overMoznostStartuHry()) { 
+        jeSingleplayer = false; 
+        if (document.getElementById("rezim-zapasu-oznam")) document.getElementById("rezim-zapasu-oznam").innerText = "👥 MULTIPLAYER 1v1"; 
+        document.getElementById("predzapasove-menu").className = "schovany"; 
+        document.getElementById("hraci-stol-kontajner").className = ""; 
+        r1 = 0; r2 = 0; 
+        resetStolaBezReloadu(false); 
+    } 
+}
+
+function vzdajZapasUtek() { 
+    if (confirm("Vzdať sériu a vrátiť sa do menu?")) { 
+        document.getElementById("hraci-stol-kontajner").className = "schovany"; 
+        document.getElementById("predzapasove-menu").className = ""; 
+        draft_faza = true; 
+        p1Pass = false; p2Pass = false;
+        r1 = 0; r2 = 0; 
+        p1_played_cards = []; p2_played_cards = []; neutralne_vplyvy = [];
+        p1_draft_hand = []; p2_draft_hand = [];
+        p1_confirmed_mulligan = false; p2_confirmed_mulligan = false;
+        p1_erik_buff_row = null; p2_erik_buff_row = null;
+        
+        p1_spalene = []; p2_spalene = [];
+        aktualizujArchivyVizualne();
+        
+        if (document.getElementById('kola-skore')) {
+            document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2";
+        }
+        
+        aktualizujStavZamkuMenu(); 
+    } 
 }
 
 function vyhodnot() {
@@ -1149,42 +1374,6 @@ function ukonciTah(pNum, info) {
     spustiPrepocty(); 
     if (document.getElementById('turn-indicator')) document.getElementById('turn-indicator').innerText = "Na ťahu: Hráč " + aktualnyHrac + (info ? " | " + info : ""); 
     if (jeSingleplayer && 2 === aktualnyHrac && !p2Pass) setTimeout(spustiTahAI, 800); 
-}
-
-function vylepsiKartuVoForge(e) { 
-    var t = inventar.karty[e]; 
-    if (t) { 
-        var r = t.aktivnaTrieda, n = false, novaTrieda = "", spotrebovane = 0; 
-        
-        if (isSpecialCard(e)) {
-            if ("C" === r && t.replikyC >= 1000) {
-                t.replikyC -= 1000;
-                t.aktivnaTrieda = "S";
-                novaTrieda = "S";
-                spotrebovane = 1000;
-                n = true;
-            } else if ("S" === r) {
-                alert("Špeciálna karta je už na maximálnej triede S!");
-                return;
-            } else {
-                alert("Na vykovanie špeciálnej karty na triedu S potrebuješ 1000 replík!");
-                return;
-            }
-        } else {
-            if ("C" === r && t.replikyC >= 5) { t.replikyC -= 5; t.aktivnaTrieda = "B"; novaTrieda = "B"; spotrebovane = 5; n = true; } 
-            else if ("B" === r && t.replikyC >= 25) { t.replikyC -= 25; t.aktivnaTrieda = "A"; novaTrieda = "A"; spotrebovane = 25; n = true; } 
-            else if ("A" === r && t.replikyC >= 125) { t.replikyC -= 125; t.aktivnaTrieda = "S"; novaTrieda = "S"; spotrebovane = 125; n = true; } 
-        }
-
-        if (n) { 
-            spustiKovaciRitual(e, r, novaTrieda, spotrebovane);
-            aktualizujPanelDielne(); 
-            aktualizujZostavaPanel();
-            if (!draft_faza) spustiPrepocty(); 
-        } else {
-            alert("Málo replík!"); 
-        }
-    } 
 }
 
 function recyklujKartuDielne(e) { 
