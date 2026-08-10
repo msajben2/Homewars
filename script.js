@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.12 - MP4 VIDEO & LONG FORGE RITUALS)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.13 - CHROMA KEY, LOOT FX & FORGE GLOW)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.9.12";
+var VERZIA = "10.9.13";
 
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
@@ -643,8 +643,125 @@ function aktualizujArchivyVizualne() {
 }
 
 // =========================================================================
-// ELEGANTNÝ MP4 VIDEO CHEST ENGINE (FULLSCREEN OVERLAY + Img/truhla.mp4)
+// CHROMA KEY MP4 CANVAS ENGINE (BEZ ZELENEJ OBRAZOVKY) & LOOT BURST
 // =========================================================================
+function spustiChromaKeyVideo(containerEl, onVideoEnded) {
+    containerEl.innerHTML = "";
+    
+    var video = document.createElement("video");
+    video.src = "Img/truhla.mp4";
+    video.playsInline = true;
+    video.muted = true;
+    video.crossOrigin = "anonymous";
+
+    var canvas = document.createElement("canvas");
+    canvas.width = 640;
+    canvas.height = 480;
+    canvas.style.cssText = "width:100%; height:100%; max-height:45vh; object-fit:contain; cursor:pointer;";
+    containerEl.appendChild(canvas);
+
+    var ctx = canvas.getContext("2d");
+    var animFrameId = null;
+
+    // ODSTRÁNENIE ZELENEJ FARBY Z VIDEA V REÁLNOM ČASE
+    function renderFrame() {
+        if (video.paused || video.ended) return;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        var frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        var l = frame.data.length / 4;
+
+        for (var i = 0; i < l; i++) {
+            var r = frame.data[i * 4 + 0];
+            var g = frame.data[i * 4 + 1];
+            var b = frame.data[i * 4 + 2];
+
+            // Detekcia zelenej farby
+            if (g > 90 && r < 120 && b < 120) {
+                frame.data[i * 4 + 3] = 0; // Priehľadnosť
+            }
+        }
+        ctx.putImageData(frame, 0, 0);
+        animFrameId = requestAnimationFrame(renderFrame);
+    }
+
+    video.addEventListener("play", function() {
+        renderFrame();
+    });
+
+    video.addEventListener("ended", function() {
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+        if (onVideoEnded) onVideoEnded();
+    });
+
+    return {
+        play: function() { video.play(); },
+        element: canvas
+    };
+}
+
+function spustiLootBurstFX(canvasEl) {
+    var ctx = canvasEl.getContext("2d");
+    var width = canvasEl.width = window.innerWidth;
+    var height = canvasEl.height = window.innerHeight;
+    var castice = [];
+
+    // VYTRESNUTIE MINCÍ A KARIET Z TRUHLE
+    for (var i = 0; i < 70; i++) {
+        var isCoin = Math.random() > 0.35;
+        castice.push({
+            x: width / 2,
+            y: height / 2 - 50,
+            vx: (Math.random() - 0.5) * 22,
+            vy: -Math.random() * 16 - 6,
+            gravity: 0.5,
+            size: isCoin ? Math.random() * 8 + 6 : Math.random() * 12 + 10,
+            color: isCoin ? "#ffd700" : "#3b82f6",
+            isCoin: isCoin,
+            rotation: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 0.3
+        });
+    }
+
+    function loop() {
+        ctx.clearRect(0, 0, width, height);
+        var esteBezia = false;
+
+        castice.forEach(function(p) {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += p.gravity;
+            p.rotation += p.vRot;
+
+            if (p.y < height - 50) esteBezia = true;
+            else p.y = height - 50;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation);
+            ctx.fillStyle = p.color;
+
+            if (p.isCoin) {
+                ctx.beginPath();
+                ctx.arc(0, 0, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = "#fff7a1";
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            } else {
+                ctx.fillRect(-p.size / 2, -p.size * 0.7, p.size, p.size * 1.4);
+                ctx.strokeStyle = "#ffffff";
+                ctx.lineWidth = 1;
+                ctx.strokeRect(-p.size / 2, -p.size * 0.7, p.size, p.size * 1.4);
+            }
+            ctx.restore();
+        });
+
+        if (esteBezia) requestAnimationFrame(loop);
+    }
+    loop();
+}
+
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
     
@@ -689,7 +806,7 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (!cModal) {
         cModal = document.createElement("div");
         cModal.id = "chest-anim-modal";
-        cModal.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.95); backdrop-filter:blur(10px); display:none; justify-content:center; align-items:center; z-index:99999;";
+        cModal.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.96); backdrop-filter:blur(12px); display:none; justify-content:center; align-items:center; z-index:99999;";
         cModal.onclick = function(e) {
             if (e.target === cModal) cModal.style.display = "none";
         };
@@ -721,19 +838,16 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
             
             <h2 style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2.2em; margin:10px 0 0 0; z-index:10;">${titulok}</h2>
             
-            <!-- NAČÍTANIE VIDEA MP4 ZO ZLOŽKY Img/ -->
-            <div id="chest-video-container" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:auto; height:auto; max-width:80vw; max-height:60vh; z-index:2; pointer-events:auto; cursor:pointer;">
-                <video id="chest-mp4-video" playsinline style="width:100%; height:100%; max-height:55vh; border-radius:12px; box-shadow:0 0 25px rgba(255,204,0,0.3); object-fit:contain;">
-                    <source src="Img/truhla.mp4" type="video/mp4">
-                    <source src="truhla.mp4" type="video/mp4">
-                </video>
-            </div>
+            <canvas id="chest-burst-canvas" style="position:absolute; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:5;"></canvas>
+
+            <!-- CHROMA KEY CANVAS PRE TRUHLU BEZ ZELENEJ -->
+            <div id="chest-video-container" style="position:absolute; top:45%; left:50%; transform:translate(-50%, -50%); width:100%; max-width:600px; height:auto; z-index:2; pointer-events:auto; cursor:pointer;"></div>
             
             <div id="chest-click-prompt" style="color:#fff; font-size:1.4em; font-weight:bold; text-shadow:0 0 12px #ffcc00; margin-top:auto; margin-bottom:40px; z-index:10; pointer-events:auto; cursor:pointer;">✨ KLIKNI NA TRUHLU PRE OTVORENIE ✨</div>
 
             <div id="chest-rewards-box" style="display:none; flex-direction:column; align-items:center; z-index:10; pointer-events:auto; opacity:0; transition:opacity 0.8s ease; width:100%; max-width:1200px; margin-bottom:20px;">
                 <div id="chest-gold-text" style="color:#ffcc00; font-weight:bold; font-size:1.6em; margin-bottom:12px; text-shadow:0 0 10px #000;">🪙 +${ziskaneMince} Zlatých mincí</div>
-                <div style="display:flex; flex-wrap:wrap; justify-content:center; max-height:50vh; overflow-y:auto; padding:15px; background:rgba(0,0,0,0.8); border-radius:12px; border:1px solid rgba(255,204,0,0.4); width:100%;">
+                <div style="display:flex; flex-wrap:wrap; justify-content:center; max-height:50vh; overflow-y:auto; padding:15px; background:rgba(0,0,0,0.85); border-radius:12px; border:1px solid rgba(255,204,0,0.4); width:100%;">
                     ${kartyHTML}
                 </div>
                 <button id="chest-close-btn" onclick="document.getElementById('chest-anim-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:12px 35px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1.1em; margin-top:15px; box-shadow:0 0 15px #28a745;">Zozbierať odmeny</button>
@@ -743,38 +857,35 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
 
     cModal.style.display = "flex";
 
-    var video = document.getElementById("chest-mp4-video");
     var videoBox = document.getElementById("chest-video-container");
     var promptText = document.getElementById("chest-click-prompt");
     var rewardsBox = document.getElementById("chest-rewards-box");
+    var burstCanvas = document.getElementById("chest-burst-canvas");
 
     var isPlayed = false;
+    var chromaEngine = spustiChromaKeyVideo(videoBox, function() {
+        if (burstCanvas) spustiLootBurstFX(burstCanvas);
+        rewardsBox.style.display = "flex";
+        setTimeout(function() {
+            rewardsBox.style.opacity = "1";
+        }, 100);
+    });
 
-    function spustiVideoOtvorenia() {
-        if (!isPlayed && video) {
+    function spustiOtvorenie() {
+        if (!isPlayed) {
             isPlayed = true;
             promptText.style.display = "none";
-            
-            video.play().catch(function(err) {
-                console.error("Video sa nedalo spustiť:", err);
-            });
-
-            video.onended = function() {
-                rewardsBox.style.display = "flex";
-                setTimeout(function() {
-                    rewardsBox.style.opacity = "1";
-                }, 50);
-            };
+            chromaEngine.play();
         }
     }
 
-    if (videoBox) videoBox.onclick = spustiVideoOtvorenia;
-    if (promptText) promptText.onclick = spustiVideoOtvorenia;
+    if (videoBox) videoBox.onclick = spustiOtvorenie;
+    if (promptText) promptText.onclick = spustiOtvorenie;
 
     aktualizujPanelDielne();
 }
 
-// MAGICKÝ KOVÁČSKY RITUÁL V DIELNI (S NASTAVITEĽNOU DĹŽKOU podla TRIEDY)
+// MAGICKÝ KOVÁČSKY RITUÁL V DIELNI (S MOCNÝM ŽIARIVÝM ZÁBLESKOM FX)
 function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) {
     var modal = document.getElementById("forge-modal");
     if (!modal) {
@@ -791,10 +902,9 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
     var invObj = inventar.karty[meno] || { replikyC: 0 };
     var aktualneRepliky = invObj.replikyC;
 
-    // NASTAVENIE TRVANIA ANIMÁCIE (v sekundách)
-    var trvanieSekundy = 5; // C -> B = 5s
-    if (novaTrieda === "A") trvanieSekundy = 10; // B -> A = 10s
-    if (novaTrieda === "S") trvanieSekundy = 15; // A -> S = 15s
+    var trvanieSekundy = 5; 
+    if (novaTrieda === "A") trvanieSekundy = 10; 
+    if (novaTrieda === "S") trvanieSekundy = 15; 
 
     var html = `
         <div class="forge-ritual-box" onclick="event.stopPropagation()">
@@ -815,11 +925,12 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
                     <div class="forge-arrow-icon">⬇</div>
                 </div>
 
-                <div class="forge-card-node">
+                <div class="forge-card-node" style="position:relative;">
                     <div class="forge-node-label">CIEĽOVÁ KARTA</div>
-                    <div class="karta cls-${staraTrieda}" id="forge-target-card">
+                    <div class="karta cls-${staraTrieda}" id="forge-target-card" style="transition: transform 0.5s ease, box-shadow 0.5s ease;">
                         ${vytvorHTMLKarty(meno, reg.p, staraTrieda, reg.row, reg.p)}
                     </div>
+                    <div id="forge-glow-effect" style="position:absolute; top:0; left:0; width:100%; height:100%; border-radius:10px; pointer-events:none; opacity:0; transition:opacity 0.6s ease, box-shadow 0.6s ease;"></div>
                     <div class="forge-class-badge">Trieda: ${novaTrieda}</div>
                 </div>
             </div>
@@ -850,7 +961,6 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
 
         var counterEl = document.getElementById("forge-replica-counter");
         var startCount = aktualneRepliky + spotrebovaneRepliky;
-        var endCount = aktualneRepliky;
         
         var startCas = performance.now();
         var trvanieMs = trvanieSekundy * 1000;
@@ -883,12 +993,29 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
                 requestAnimationFrame(animujPrud);
             } else {
                 var card = document.getElementById("forge-target-card");
+                var glow = document.getElementById("forge-glow-effect");
                 var btn = document.getElementById("forge-done-btn");
+                
                 if (card) {
                     card.className = "karta cls-" + novaTrieda + " forge-target-card";
                     if (novaTrieda === "S") card.classList.add("karta-s-class-aura");
                     card.innerHTML = vytvorHTMLKarty(meno, reg.p, novaTrieda, reg.row, reg.p);
                 }
+
+                // ZÁBLESK A ŽIARA PODĽA TRIEDY
+                if (glow) {
+                    var shadowColor = "#cd7f32"; // Bronz
+                    if (novaTrieda === "A") shadowColor = "#ffffff"; // Striebro
+                    if (novaTrieda === "S") shadowColor = "#ffd700"; // Zlato
+
+                    glow.style.boxShadow = "0 0 50px 20px " + shadowColor;
+                    glow.style.opacity = "1";
+                    
+                    setTimeout(function() {
+                        glow.style.opacity = "0.4";
+                    }, 800);
+                }
+
                 if (btn) btn.style.opacity = "1";
             }
         }
