@@ -2071,3 +2071,25 @@ document.getElementById("marek-burn-btn").addEventListener("click", function(e) 
 });
 
 spustiDraft();
+// =========================================================================
+// GLOBÁLNE PREPOJENIE FUNKCIÍ PRE HTML ONCLICK TLAČIDLÁ
+// =========================================================================
+window.spustitZapasLokálnePVP = spustitZapasLokálnePVP;
+window.zobraziťMenuAI = zobraziťMenuAI;
+window.spustitZapasProtiAI = spustitZapasProtiAI;
+window.vzdajZapasUtek = vzdajZapasUtek;
+window.Admin_vynutVymenu = Admin_vynutVymenu;
+window.vylepsiKartuVoForge = vylepsiKartuVoForge;
+window.recyklujKartuDielne = recyklujKartuDielne;
+window.kupNahodnyBooster = kupNahodnyBooster;
+window.kupKonkretnuKartu = kupKonkretnuKartu;
+window.otvorTruhlu = otvorTruhlu;
+window.otvorDetailKarty = otvorDetailKarty;
+
+// Dev Console funkcie
+window.devPridajKartuDoRuky = devPridajKartuDoRuky;
+window.devPridajMince = devPridajMince;
+window.devPridajReplikyVsetkym = devPridajReplikyVsetkym;
+window.devVycistiStol = devVycistiStol;
+window.devTestPresetSisaKvety = devTestPresetSisaKvety;
+window.devSpustiPokrociluSimulaciu = devSpustiPokrociluSimulaciu;
