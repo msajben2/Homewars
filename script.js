@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.3 - FULL WEBP ENGINE & CLEANED FRAMES)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.4 - FULL WEBP & 3D CHEST CARDS ENGINE)
 // =========================================================================
 
 (function() {
@@ -13,9 +13,9 @@
     }
 })();
 
-var VERZIA = "10.9.3";
+var VERZIA = "10.9.4";
 
-// MASTER REGISTRAČNÁ TABUĽKA KARIET - VŠETKY SÚBORY NASTAVENÉ NA .WEBP
+// MASTER REGISTRAČNÁ TABUĽKA KARIET
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
     "Michal": { row: 1, p: 4, img: "Img/michal.webp", desc: "Bystrý obchodník. Váži zlato a pozná presnú cenu každej veci v kráľovstve.", abilityDesc: "📢 Obchodník: Ak nie je na stole Nela, dáva sám sebe automatický samo-buff +100% k svojej základnej sile." },
@@ -185,7 +185,7 @@ function otvorDetailKarty(meno) {
         <div class="card-modal-content cls-${triedaRamu}" onclick="event.stopPropagation()">
             <span class="card-modal-close" onclick="document.getElementById('card-modal').style.display='none'">&times;</span>
             <div class="modal-foto" style="background-image: url('${encodeURI(reg.img)}');"></div>
-            <h2>${cisteMeno}</h2>
+            <h2 style="margin-top: 15px;">${cisteMeno}</h2>
             <div class="modal-stats">
                 ${reg.p !== undefined ? `<span>Základná Sila: <strong>${reg.p}b</strong></span>` : ''}
                 ${reg.row ? `<span>Rad: <strong>${reg.row}. Rad</strong></span>` : ''}
@@ -276,80 +276,6 @@ function otvoriťNavodHry() {
         </div>
     `;
     modal.style.display = "flex";
-}
-
-function vygenerujKovacieIskry(arenaEl, pocet, farba) {
-    var iskryBox = document.createElement("div");
-    iskryBox.className = "sparks-container";
-    arenaEl.appendChild(iskryBox);
-
-    for (var i = 0; i < pocet; i++) {
-        var iskra = document.createElement("div");
-        iskra.className = "spark spark-" + farba;
-        
-        var uhol = Math.random() * 360;
-        var vzdialenost = 80 + Math.random() * 180;
-        var dx = Math.cos(uhol * Math.PI / 180) * vzdialenost;
-        var dy = Math.sin(uhol * Math.PI / 180) * vzdialenost;
-        
-        iskra.style.setProperty('--dx', dx + 'px');
-        iskra.style.setProperty('--dy', dy + 'px');
-        iskra.style.left = '50%';
-        iskra.style.top = '50%';
-        iskra.style.animationDelay = (Math.random() * 1.5) + 's';
-        
-        iskryBox.appendChild(iskra);
-    }
-}
-
-function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) {
-    var modal = document.getElementById("forge-modal");
-    if (!modal) {
-        modal = document.createElement("div");
-        modal.id = "forge-modal";
-        modal.className = "forge-modal-overlay";
-        document.body.appendChild(modal);
-    }
-
-    var reg = getRegistryCard(meno);
-    var imgPath = reg.img || "Img/default.webp";
-    var trvanie = (novaTrieda === "S") ? 15000 : ((novaTrieda === "A") ? 10000 : 6000);
-
-    var html = `
-        <div class="forge-ritual-box">
-            <h2 class="forge-title forge-title-${novaTrieda}">🔨 MAGICKÉ KOVANIE (${novaTrieda}-CLASS)</h2>
-            <div class="forge-arena" id="forge-arena-box">
-                <div class="forge-orb orb-1 orb-${novaTrieda}"></div>
-                <div class="forge-orb orb-2 orb-${novaTrieda}"></div>
-                <div class="forge-orb orb-3 orb-${novaTrieda}"></div>
-                ${novaTrieda === 'S' ? '<div class="forge-fireworks-epic"></div><div class="forge-golden-beam"></div>' : ''}
-                <div class="karta cls-${staraTrieda} forge-target-card" id="forge-target-card">
-                    <div class="karta-foto" style="background-image: url('${encodeURI(imgPath)}');"></div>
-                    <div class="karta-nazov">${meno}</div>
-                </div>
-            </div>
-            <div class="forge-status">Spájanie ${spotrebovaneRepliky}x materiálu do nespútanej rúny...</div>
-        </div>
-    `;
-    
-    modal.innerHTML = html;
-    modal.style.display = "flex";
-
-    var arena = document.getElementById("forge-arena-box");
-    var pocetIskier = (novaTrieda === "S") ? 80 : ((novaTrieda === "A") ? 50 : 30);
-    if (arena) vygenerujKovacieIskry(arena, pocetIskier, novaTrieda);
-
-    setTimeout(function() {
-        var card = document.getElementById("forge-target-card");
-        if (card) {
-            card.className = "karta cls-" + novaTrieda + " forge-target-card forge-sparkle-active-" + novaTrieda;
-            if (novaTrieda === "S") card.classList.add("karta-s-class-aura");
-        }
-    }, (novaTrieda === "S") ? 4000 : ((novaTrieda === "A") ? 3000 : 2000));
-
-    setTimeout(function() {
-        modal.style.display = "none";
-    }, trvanie);
 }
 
 function prepniSekciuVizualne(sekciaId) {
@@ -765,7 +691,7 @@ function aktualizujArchivyVizualne() {
     }
 }
 
-// CINEMATIC 3D OTVÁRANIE TRUHLICE S ANIMÁCIOU MINCÍ A KARIET
+// OTVÁRANIE TRUHLICE S CHROMA KEY VIDEO EFEKTOM A 3D FLIP KARTAMI
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
     
@@ -774,31 +700,36 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     var ziskaneMince = jeVitaz ? 300 : 100;
     
     inventar.mince += ziskaneMince;
-    var vyžrebovanéKartyMap = {};
+    var vyžrebovanéKartyZoznam = [];
 
     for (var i = 0; i < pocetZrebovani; i++) {
         var randomMeno = hMena[Math.floor(Math.random() * hMena.length)];
         var cisteMeno = randomMeno.replace(/\s+\d+$/, "").trim();
         var roll = Math.random() * 100;
-        var pocetKusov = 1;
+        var davka = 1;
 
         if (jeVitaz) {
-            if (roll < 0.5) pocetKusov = 100;
-            else if (roll < 10) pocetKusov = 20;
-            else if (roll < 30) pocetKusov = 5;
-            else pocetKusov = 1;
+            if (roll < 0.5) davka = 100;          // 0,5%
+            else if (roll < 10.0) davka = 20;     // 9,5%
+            else if (roll < 30.0) davka = 5;      // 20,0%
+            else davka = 1;                      // 69,5%
         } else {
-            if (roll < 0.01) pocetKusov = 100;
-            else if (roll < 2.01) pocetKusov = 20;
-            else if (roll < 12.0) pocetKusov = 5;
-            else pocetKusov = 1;
+            if (roll < 0.01) davka = 100;         // 0,01%
+            else if (roll < 2.01) davka = 20;     // 2,00%
+            else if (roll < 12.01) davka = 5;     // 10,00%
+            else davka = 1;                       // 87,99%
         }
 
         if (!inventar.karty[randomMeno]) {
             inventar.karty[randomMeno] = { replikyC: 0, aktivnaTrieda: "C" };
         }
-        inventar.karty[randomMeno].replikyC += pocetKusov;
-        vyžrebovanéKartyMap[cisteMeno] = (vyžrebovanéKartyMap[cisteMeno] || 0) + pocetKusov;
+        inventar.karty[randomMeno].replikyC += davka;
+
+        vyžrebovanéKartyZoznam.push({
+            meno: cisteMeno,
+            davka: davka,
+            reg: getRegistryCard(cisteMeno)
+        });
     }
 
     var cModal = document.getElementById("chest-anim-modal");
@@ -809,57 +740,101 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
         document.body.appendChild(cModal);
     }
 
-    var bodyClass = jeVitaz ? "vitaz-body" : "ucastnik-body";
-    var lidClass = jeVitaz ? "vitaz-lid" : "ucastnik-lid";
     var titulok = jeVitaz ? "🏆 TRUHLA VÍŤAZA" : (jeRemizaZapasu ? "📦 TRUHLA ZA REMÍZU" : "📦 TRUHLA ÚČASTNÍKA");
 
-    var minceHTML = "";
-    for (var m = 0; m < 18; m++) {
-        var angle = Math.random() * Math.PI * 2;
-        var dist = 80 + Math.random() * 140;
-        var dx = Math.cos(angle) * dist + "px";
-        var dy = (Math.sin(angle) * dist - 60) + "px";
-        var delay = (Math.random() * 0.3) + "s";
-        minceHTML += `<div class="chest-coin-particle" style="--dx:${dx}; --dy:${dy}; animation-delay:${delay};"></div>`;
-    }
-
     var kartyHTML = "";
-    var cardDelay = 0.4;
-    Object.keys(vyžrebovanéKartyMap).forEach(function(kMeno) {
-        kartyHTML += `<div class="chest-card-drop" style="transition-delay: ${cardDelay}s;">✨ +${vyžrebovanéKartyMap[kMeno]}x ${kMeno} (C)</div>`;
-        cardDelay += 0.12;
+    var cardDelay = 0.15;
+    vyžrebovanéKartyZoznam.forEach(function(drop) {
+        var reg = drop.reg;
+        var basePwr = isSpecialCard(drop.meno) ? "none" : reg.p;
+        
+        kartyHTML += `
+            <div class="chest-card-wrapper" style="animation-delay: ${cardDelay}s;">
+                <div class="chest-card-flipper">
+                    <div class="chest-card-back">HW</div>
+                    <div class="karta cls-C chest-card-front">
+                        ${vytvorHTMLKarty(drop.meno, basePwr, "C", reg.row, reg.p)}
+                        <div class="chest-card-badge">+${drop.davka}x</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        cardDelay += 0.18;
     });
 
     cModal.innerHTML = `
         <div class="chest-stage" id="chest-stage-box">
             <h2 style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2em; margin:0 0 10px 0;">${titulok}</h2>
-            <div class="chest-light-ray"></div>
             
-            <div class="chest-3d-wrapper">
-                <div class="chest-lid ${lidClass}"></div>
-                <div class="chest-interior-glow"></div>
-                <div class="chest-body ${bodyClass}"></div>
-                ${minceHTML}
+            <div class="chest-video-container" id="chest-click-trigger">
+                <video id="chest-raw-video" src="Img/truhla-open.mp4" playsinline muted style="display:none;"></video>
+                <canvas id="chest-canvas-render" width="480" height="480" class="chest-drop-anim"></canvas>
+                <div id="chest-click-prompt" class="chest-prompt-text">✨ KLIKNI PRE OTVORENIE ✨</div>
             </div>
 
-            <div style="color:#ffcc00; font-weight:bold; font-size:1.2em; margin-bottom:15px; text-shadow:0 0 8px #000;">🪙 +${ziskaneMince} Zlatých mincí</div>
+            <div id="chest-gold-text" style="color:#ffcc00; font-weight:bold; font-size:1.3em; margin:10px 0; text-shadow:0 0 8px #000; opacity:0; transition:opacity 0.5s ease;">🪙 +${ziskaneMince} Zlatých mincí</div>
 
-            <div class="chest-cards-container">
+            <div class="chest-cards-container" id="chest-cards-box">
                 ${kartyHTML}
             </div>
 
-            <button id="chest-close-btn" onclick="document.getElementById('chest-anim-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:12px 30px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:1.1em; margin-top:20px; box-shadow:0 0 15px #28a745; opacity:0; transition:opacity 0.5s ease 1s;">Zozbierať odmeny</button>
+            <button id="chest-close-btn" onclick="document.getElementById('chest-anim-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:12px 30px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:1.1em; margin-top:20px; box-shadow:0 0 15px #28a745; display:none;">Zozbierať odmeny</button>
         </div>
     `;
 
     cModal.style.display = "flex";
 
-    setTimeout(function() {
-        var stage = document.getElementById("chest-stage-box");
-        var btn = document.getElementById("chest-close-btn");
-        if (stage) stage.classList.add("open");
-        if (btn) btn.style.opacity = "1";
-    }, 200);
+    var video = document.getElementById("chest-raw-video");
+    var canvas = document.getElementById("chest-canvas-render");
+    var ctx = canvas.getContext("2d");
+    var trigger = document.getElementById("chest-click-trigger");
+    var isOpened = false;
+
+    function renderFrame() {
+        if (!video.paused && !video.ended) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            var frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var l = frame.data.length / 4;
+
+            for (var i = 0; i < l; i++) {
+                var r = frame.data[i * 4 + 0];
+                var g = frame.data[i * 4 + 1];
+                var b = frame.data[i * 4 + 2];
+                if (g > 90 && r < 120 && b < 120 && g > r * 1.2) {
+                    frame.data[i * 4 + 3] = 0;
+                }
+            }
+            ctx.putImageData(frame, 0, 0);
+            requestAnimationFrame(renderFrame);
+        }
+    }
+
+    video.addEventListener("play", function() {
+        renderFrame();
+    });
+
+    video.addEventListener("loadeddata", function() {
+        video.currentTime = 0;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    });
+
+    trigger.onclick = function() {
+        if (isOpened) return;
+        isOpened = true;
+
+        document.getElementById("chest-click-prompt").style.display = "none";
+        video.play();
+
+        setTimeout(function() {
+            var stage = document.getElementById("chest-stage-box");
+            var goldText = document.getElementById("chest-gold-text");
+            var btn = document.getElementById("chest-close-btn");
+
+            if (stage) stage.classList.add("open");
+            if (goldText) goldText.style.opacity = "1";
+            if (btn) btn.style.display = "inline-block";
+        }, 1200);
+    };
 
     aktualizujPanelDielne();
 }
