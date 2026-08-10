@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.11 - MP4 VIDEO CHEST ENGINE)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.12 - MP4 VIDEO & LONG FORGE RITUALS)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.9.11";
+var VERZIA = "10.9.12";
 
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
@@ -643,7 +643,7 @@ function aktualizujArchivyVizualne() {
 }
 
 // =========================================================================
-// ELEGANTNÝ MP4 VIDEO CHEST ENGINE (FULLSCREEN OVERLAY)
+// ELEGANTNÝ MP4 VIDEO CHEST ENGINE (FULLSCREEN OVERLAY + Img/truhla.mp4)
 // =========================================================================
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
@@ -721,9 +721,12 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
             
             <h2 style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2.2em; margin:10px 0 0 0; z-index:10;">${titulok}</h2>
             
-            <!-- NAČÍTANIE VIDEA MP4 -->
+            <!-- NAČÍTANIE VIDEA MP4 ZO ZLOŽKY Img/ -->
             <div id="chest-video-container" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:auto; height:auto; max-width:80vw; max-height:60vh; z-index:2; pointer-events:auto; cursor:pointer;">
-                <video id="chest-mp4-video" src="truhla.mp4" playsinline style="width:100%; height:100%; max-height:55vh; border-radius:12px; box-shadow:0 0 25px rgba(255,204,0,0.3); object-fit:contain;"></video>
+                <video id="chest-mp4-video" playsinline style="width:100%; height:100%; max-height:55vh; border-radius:12px; box-shadow:0 0 25px rgba(255,204,0,0.3); object-fit:contain;">
+                    <source src="Img/truhla.mp4" type="video/mp4">
+                    <source src="truhla.mp4" type="video/mp4">
+                </video>
             </div>
             
             <div id="chest-click-prompt" style="color:#fff; font-size:1.4em; font-weight:bold; text-shadow:0 0 12px #ffcc00; margin-top:auto; margin-bottom:40px; z-index:10; pointer-events:auto; cursor:pointer;">✨ KLIKNI NA TRUHLU PRE OTVORENIE ✨</div>
@@ -771,7 +774,7 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     aktualizujPanelDielne();
 }
 
-// MAGICKÝ KOVÁČSKY RITUÁL V DIELNI
+// MAGICKÝ KOVÁČSKY RITUÁL V DIELNI (S NASTAVITEĽNOU DĹŽKOU podla TRIEDY)
 function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) {
     var modal = document.getElementById("forge-modal");
     if (!modal) {
@@ -787,6 +790,11 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
     var reg = getRegistryCard(meno);
     var invObj = inventar.karty[meno] || { replikyC: 0 };
     var aktualneRepliky = invObj.replikyC;
+
+    // NASTAVENIE TRVANIA ANIMÁCIE (v sekundách)
+    var trvanieSekundy = 5; // C -> B = 5s
+    if (novaTrieda === "A") trvanieSekundy = 10; // B -> A = 10s
+    if (novaTrieda === "S") trvanieSekundy = 15; // A -> S = 15s
 
     var html = `
         <div class="forge-ritual-box" onclick="event.stopPropagation()">
@@ -843,13 +851,16 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
         var counterEl = document.getElementById("forge-replica-counter");
         var startCount = aktualneRepliky + spotrebovaneRepliky;
         var endCount = aktualneRepliky;
-        var progress = 0;
+        
+        var startCas = performance.now();
+        var trvanieMs = trvanieSekundy * 1000;
 
-        function animujPrud() {
+        function animujPrud(terajsiCas) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            progress += 0.02;
+            var elapsed = terajsiCas - startCas;
+            var progress = Math.min(1.0, elapsed / trvanieMs);
 
-            if (counterEl && progress <= 1) {
+            if (counterEl) {
                 var currentVal = Math.round(startCount - (spotrebovaneRepliky * progress));
                 counterEl.innerText = "Repliky: " + currentVal;
             }
@@ -868,7 +879,7 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
                 ctx.fill();
             });
 
-            if (progress < 1.2) {
+            if (progress < 1.0) {
                 requestAnimationFrame(animujPrud);
             } else {
                 var card = document.getElementById("forge-target-card");
@@ -881,7 +892,7 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
                 if (btn) btn.style.opacity = "1";
             }
         }
-        animujPrud();
+        requestAnimationFrame(animujPrud);
     }
 }
 
