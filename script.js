@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.5 - CANVAS CHEST & FORGE RITUAL)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.6 - CANVAS FORGE RITUAL & FIX MODALS)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.9.5";
+var VERZIA = "10.9.6";
 
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
@@ -152,7 +152,17 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     html += "<div class='karta-kruh karta-kruh-cls cls-" + cls + "'>" + cls + "</div>";
     html += "<button class='karta-btn-inspect' title='Zväčšiť kartu' onclick='event.stopPropagation(); otvorDetailKarty(\"" + meno + "\");'>🔍</button>";
     html += "<div class='karta-foto' style=\"background-image: url('" + encodeURI(imgPath) + "');\"></div>";
-    html += "<div class='karta-nazov'>" + cisteMeno + "</div>";
+    
+    // SPODNÝ KOVANÝ ŠTÍTOK S NÁZVOM A POPISOM
+    html += "<div class='karta-stitok-spodok'>";
+    html += "  <div class='karta-nazov'>" + cisteMeno + "</div>";
+    if (reg.abilityDesc) {
+        html += "  <div class='karta-popis-short'>" + reg.abilityDesc + "</div>";
+    } else if (reg.desc) {
+        html += "  <div class='karta-popis-short'>" + reg.desc + "</div>";
+    }
+    html += "</div>";
+
     html += "<div class='karta-kruh karta-kruh-row " + rInfo.cls + "'>" + rInfo.text + "</div>";
 
     var ab = getAbilityBadge(meno);
@@ -223,44 +233,7 @@ function otvoriťNavodHry() {
                 </ul>
 
                 <h3 style="color:#ffcc00; margin-top:10px;">3. Vylepšovanie Kariet v Dielni (Triedy C, B, A, S)</h3>
-                <p>Vylepšovanie v Dielni zvyšuje silu tvojej karty, znižuje body špiónov odovzdávané súperovi a odomyká špeciálne efekty:</p>
-                
-                <table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:0.83em; text-align:left; background:rgba(0,0,0,0.5); border:1px solid #5a4d3e;">
-                    <thead>
-                        <tr style="background:#2a2118; color:#d4af37; border-bottom:1px solid #5a4d3e; text-align:center;">
-                            <th style="padding:8px;">Trieda</th>
-                            <th style="padding:8px;">Bojové Jednotky</th>
-                            <th style="padding:8px;">Špióni (Kika, Suseda)</th>
-                            <th style="padding:8px;">Predmety / Vplyvy</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr style="border-bottom:1px solid #3d3124;">
-                            <td style="padding:8px; font-weight:bold; color:#a0a0a0; text-align:center;">C<br><small>(Základná)</small></td>
-                            <td style="padding:8px;">Základná sila karty.</td>
-                            <td style="padding:8px;">Vyložením odovzdáš súperovi plnú základnú silu. Potiahne ti 2 nové karty.</td>
-                            <td style="padding:8px;">Základný účinok.</td>
-                        </tr>
-                        <tr style="border-bottom:1px solid #3d3124;">
-                            <td style="padding:8px; font-weight:bold; color:#a86529; text-align:center;">B<br><small>(Bronzová)</small></td>
-                            <td style="padding:8px; color:#4ade80;">+1 Bod k celkovej sile.</td>
-                            <td style="padding:8px; color:#4ade80;">-1 Bod z vlastnej sily (súper dostane menej bodov). Potiahne 2 karty.</td>
-                            <td style="padding:8px; color:#666;">–</td>
-                        </tr>
-                        <tr style="border-bottom:1px solid #3d3124;">
-                            <td style="padding:8px; font-weight:bold; color:#c0c0c0; text-align:center;">A<br><small>(Strieborná)</small></td>
-                            <td style="padding:8px; color:#4ade80;">+2 Body k sile + ⚡ 2× predmetový bonus pre seba!</td>
-                            <td style="padding:8px; color:#4ade80;">-2 Body z vlastnej sily + 👁️ Nakuknutie na 3 karty v súperovej ruke na 4s!</td>
-                            <td style="padding:8px; color:#666;">–</td>
-                        </tr>
-                        <tr>
-                            <td style="padding:8px; font-weight:bold; color:#ffd700; text-align:center;">S<br><small>(Zlatá)</small></td>
-                            <td style="padding:8px; color:#4ade80;">+3 Body k sile + ⚡ 2× predmetový bonus + 👑 S-Aura (+50% k sile ostatným v rade).</td>
-                            <td style="padding:8px; color:#4ade80;">-3 Body z vlastnej sily + 👁️ Nakuknutie + 🃏 <strong>POTIAHNE AŽ 3 KARTY!</strong></td>
-                            <td style="padding:8px; color:#ffd700;">Vyžaduje 1000 replík (Priamy skok C ➔ S).</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <p>Vylepšovanie v Dielni zvyšuje silu tvojej karty, znižuje body špiónov odovzdávané súperovi a odomyká špeciálne efekty.</p>
             </div>
         </div>
     `;
@@ -680,26 +653,24 @@ function aktualizujArchivyVizualne() {
     }
 }
 
-// 3D CSS3 + CANVAS PARTICLES ENGINE PRE TRUHLICE
+// 3D CANVAS PARTICLES FOR CHEST
 function spustiMinceCanvasFX(canvasEl) {
     var ctx = canvasEl.getContext("2d");
     var width = canvasEl.width = 600;
     var height = canvasEl.height = 400;
-    
     var castice = [];
-    var pocet = 70;
     
-    for (var i = 0; i < pocet; i++) {
+    for (var i = 0; i < 80; i++) {
         castice.push({
             x: width / 2,
-            y: height / 2 + 20,
-            vx: (Math.random() - 0.5) * 14,
-            vy: -Math.random() * 12 - 4,
-            gravity: 0.4,
+            y: height / 2 + 10,
+            vx: (Math.random() - 0.5) * 16,
+            vy: -Math.random() * 14 - 5,
+            gravity: 0.45,
             size: Math.random() * 7 + 5,
             color: Math.random() > 0.3 ? "#ffd700" : "#ffae00",
             rotation: Math.random() * Math.PI * 2,
-            vRot: (Math.random() - 0.5) * 0.2
+            vRot: (Math.random() - 0.5) * 0.25
         });
     }
     
@@ -714,7 +685,7 @@ function spustiMinceCanvasFX(canvasEl) {
             p.rotation += p.vRot;
             
             if (p.y < height - 20) esteBezia = true;
-            else p.y = height - 20; // Dopad na dno
+            else p.y = height - 20;
             
             ctx.save();
             ctx.translate(p.x, p.y);
@@ -779,6 +750,9 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
         cModal = document.createElement("div");
         cModal.id = "chest-anim-modal";
         cModal.className = "chest-modal-overlay";
+        cModal.onclick = function(e) {
+            if (e.target === cModal) cModal.style.display = "none";
+        };
         document.body.appendChild(cModal);
     }
 
@@ -807,7 +781,8 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     });
 
     cModal.innerHTML = `
-        <div class="chest-stage" id="chest-stage-box">
+        <div class="chest-stage" id="chest-stage-box" onclick="event.stopPropagation()">
+            <span class="card-modal-close" onclick="document.getElementById('chest-anim-modal').style.display='none'">&times;</span>
             <h2 style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2.2em; margin:0 0 10px 0;">${titulok}</h2>
             
             <div class="chest-3d-box" id="chest-click-trigger">
@@ -863,80 +838,116 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
         modal = document.createElement("div");
         modal.id = "forge-modal";
         modal.className = "forge-modal-overlay";
+        modal.onclick = function(e) {
+            if (e.target === modal) modal.style.display = "none";
+        };
         document.body.appendChild(modal);
     }
 
     var reg = getRegistryCard(meno);
-    var imgPath = reg.img || "Img/default.webp";
-    var trvanie = (novaTrieda === "S") ? 5000 : ((novaTrieda === "A") ? 3800 : 2800);
+    var invObj = inventar.karty[meno] || { replikyC: 0 };
+    var aktualneRepliky = invObj.replikyC;
 
     var html = `
-        <div class="forge-ritual-box">
-            <h2 class="forge-title forge-title-${novaTrieda}">🔨 MAGICKÉ KOVANIE (${novaTrieda}-CLASS)</h2>
-            <div class="forge-arena" id="forge-arena-box">
-                <canvas id="forge-canvas-fx" width="450" height="350"></canvas>
-                <div class="karta cls-${staraTrieda} forge-target-card" id="forge-target-card">
-                    ${vytvorHTMLKarty(meno, reg.p, staraTrieda, reg.row, reg.p)}
+        <div class="forge-ritual-box" onclick="event.stopPropagation()">
+            <span class="card-modal-close" onclick="document.getElementById('forge-modal').style.display='none'">&times;</span>
+            <h2 class="forge-title">🔨 MAGICKÉ KOVANIE (${novaTrieda}-CLASS)</h2>
+            
+            <div class="forge-flow-container">
+                <!-- HORNÁ ZDROJOVÁ KARTA -->
+                <div class="forge-card-node">
+                    <div class="forge-node-label">ZDROJ MATERIALU</div>
+                    <div class="karta cls-C">
+                        ${vytvorHTMLKarty(meno, reg.p, "C", reg.row, reg.p)}
+                    </div>
+                    <div class="forge-replica-badge" id="forge-replica-counter">Repliky: ${aktualneRepliky + spotrebovaneRepliky}</div>
+                </div>
+
+                <!-- STREDOVÝ PRÚD ENERGIE A ŠÍPKA -->
+                <div class="forge-stream-box">
+                    <canvas id="forge-stream-canvas" width="120" height="180"></canvas>
+                    <div class="forge-arrow-icon">⬇</div>
+                </div>
+
+                <!-- DOLNÁ CIEĽOVÁ KARTA -->
+                <div class="forge-card-node">
+                    <div class="forge-node-label">CIEĽOVÁ KARTA</div>
+                    <div class="karta cls-${staraTrieda}" id="forge-target-card">
+                        ${vytvorHTMLKarty(meno, reg.p, staraTrieda, reg.row, reg.p)}
+                    </div>
+                    <div class="forge-class-badge">Trieda: ${novaTrieda}</div>
                 </div>
             </div>
-            <div class="forge-status">Spájanie ${spotrebovaneRepliky}x materiálu na kovadline...</div>
+
+            <button id="forge-done-btn" onclick="document.getElementById('forge-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:10px 25px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:1em; margin-top:15px; box-shadow:0 0 12px #28a745; opacity:0; transition:opacity 0.5s ease;">Prevziať vylepšenú kartu</button>
         </div>
     `;
     
     modal.innerHTML = html;
     modal.style.display = "flex";
 
-    var canvas = document.getElementById("forge-canvas-fx");
+    // ANIMÁCIA PRÚDENIA ENERGIE CEZ CANVAS
+    var canvas = document.getElementById("forge-stream-canvas");
     if (canvas) {
         var ctx = canvas.getContext("2d");
         var iskry = [];
-        var farba = novaTrieda === "S" ? "#ffd700" : (novaTrieda === "A" ? "#c0c0c0" : "#cd7f32");
+        var farbaHore = "#cd7f32"; // Farba C-Class
+        var farbaDole = novaTrieda === "S" ? "#ffd700" : (novaTrieda === "A" ? "#c0c0c0" : "#cd7f32");
         
-        for (var i = 0; i < 80; i++) {
+        for (var i = 0; i < 60; i++) {
             iskry.push({
-                x: canvas.width / 2,
-                y: canvas.height / 2,
-                vx: (Math.random() - 0.5) * 16,
-                vy: (Math.random() - 0.5) * 16,
-                size: Math.random() * 5 + 2,
-                alpha: 1
+                x: canvas.width / 2 + (Math.random() - 0.5) * 20,
+                y: Math.random() * 20,
+                speed: Math.random() * 4 + 2,
+                size: Math.random() * 4 + 2
             });
         }
 
-        function animujForge() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            iskry.forEach(function(p) {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.alpha -= 0.015;
-                if (p.alpha < 0) p.alpha = 0;
+        var counterEl = document.getElementById("forge-replica-counter");
+        var startCount = aktualneRepliky + spotrebovaneRepliky;
+        var endCount = aktualneRepliky;
+        var progress = 0;
 
-                ctx.fillStyle = farba;
-                ctx.globalAlpha = p.alpha;
+        function animujPrud() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            progress += 0.02;
+
+            // Odčítavanie replík v reálnom čase
+            if (counterEl && progress <= 1) {
+                var currentVal = Math.round(startCount - (spotrebovaneRepliky * progress));
+                counterEl.innerText = "Repliky: " + currentVal;
+            }
+
+            iskry.forEach(function(p) {
+                p.y += p.speed;
+                if (p.y > canvas.height) {
+                    p.y = 0;
+                    p.x = canvas.width / 2 + (Math.random() - 0.5) * 20;
+                }
+
+                var t = p.y / canvas.height;
+                ctx.fillStyle = t < 0.5 ? farbaHore : farbaDole;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                 ctx.fill();
             });
-            if (iskry.some(function(p) { return p.alpha > 0; })) {
-                requestAnimationFrame(animujForge);
+
+            if (progress < 1.2) {
+                requestAnimationFrame(animujPrud);
+            } else {
+                // RITUÁL DOKONČENÝ - ZÁBLESK SPODNEJ KARTY
+                var card = document.getElementById("forge-target-card");
+                var btn = document.getElementById("forge-done-btn");
+                if (card) {
+                    card.className = "karta cls-" + novaTrieda + " forge-target-card";
+                    if (novaTrieda === "S") card.classList.add("karta-s-class-aura");
+                    card.innerHTML = vytvorHTMLKarty(meno, reg.p, novaTrieda, reg.row, reg.p);
+                }
+                if (btn) btn.style.opacity = "1";
             }
         }
-        animujForge();
+        animujPrud();
     }
-
-    setTimeout(function() {
-        var card = document.getElementById("forge-target-card");
-        if (card) {
-            var regN = getRegistryCard(meno);
-            card.className = "karta cls-" + novaTrieda + " forge-target-card";
-            if (novaTrieda === "S") card.classList.add("karta-s-class-aura");
-            card.innerHTML = vytvorHTMLKarty(meno, regN.p, novaTrieda, regN.row, regN.p);
-        }
-    }, trvanie / 2);
-
-    setTimeout(function() {
-        modal.style.display = "none";
-    }, trvanie);
 }
 
 function vylepsiKartuVoForge(e) { 
@@ -970,7 +981,7 @@ function vylepsiKartuVoForge(e) {
             aktualizujZostavaPanel();
             if (!draft_faza) spustiPrepocty(); 
         } else {
-            alert("Málo replík!"); 
+            alert("Málo replík na vylepšenie!"); 
         }
     } 
 }
@@ -1374,95 +1385,6 @@ function ukonciTah(pNum, info) {
     spustiPrepocty(); 
     if (document.getElementById('turn-indicator')) document.getElementById('turn-indicator').innerText = "Na ťahu: Hráč " + aktualnyHrac + (info ? " | " + info : ""); 
     if (jeSingleplayer && 2 === aktualnyHrac && !p2Pass) setTimeout(spustiTahAI, 800); 
-}
-
-function recyklujKartuDielne(e) { 
-    var t = inventar.karty[e]; 
-    if (t && t.replikyC > 0) { 
-        t.replikyC--; 
-        inventar.mince += 15; 
-        alert("♻ Recyklované (+15m)"); 
-        aktualizujPanelDielne(); 
-        aktualizujZostavaPanel();
-    } 
-}
-
-function kupNahodnyBooster() { 
-    if (inventar.mince < 100) { alert("Nemáš dostatok mincí!"); return; } 
-    var e = Object.keys(MASTER_REGISTRY), t = e[Math.floor(Math.random() * e.length)]; 
-    inventar.mince -= 100; 
-    if (!inventar.karty[t]) inventar.karty[t] = { replikyC: 0, aktivnaTrieda: "C" }; 
-    inventar.karty[t].replikyC++; 
-    alert("🎁 Booster: " + t); 
-    aktualizujPanelDielne(); 
-    aktualizujZostavaPanel();
-}
-
-function kupKonkretnuKartu(e) { 
-    if (inventar.mince < 3000) { alert("Nemáš dostatok mincí (potrebuješ 3000m)!"); return; } 
-    var kName = e.replace(/\s+\d+$/, "").trim();
-    inventar.mince -= 3000; 
-    if (!inventar.karty[e]) inventar.karty[e] = { replikyC: 0, aktivnaTrieda: "C" }; 
-    inventar.karty[e].replikyC++; 
-    alert("🛒 Kúpená C-kópiu: " + kName); 
-    aktualizujPanelDielne(); 
-    aktualizujZostavaPanel();
-}
-
-function overMoznostStartuHry() { 
-    if (!inventar.zostava || inventar.zostava.length < 30) { alert("Zostava musí mať 30 kariet!"); return false; } 
-    return true; 
-}
-
-function zobraziťMenuAI() {
-    var subMenu = document.getElementById("ai-difficulty-options");
-    if (subMenu) subMenu.classList.remove("schovany");
-}
-
-function spustitZapasProtiAI(obtiaznost) { 
-    if (overMoznostStartuHry()) { 
-        jeSingleplayer = true; 
-        obtiaznostAI = obtiaznost; 
-        if (document.getElementById("rezim-zapasu-oznam")) document.getElementById("rezim-zapasu-oznam").innerText = "🤖 PROTI AI - Trieda " + obtiaznost; 
-        document.getElementById("predzapasove-menu").className = "schovany"; 
-        document.getElementById("hraci-stol-kontajner").className = ""; 
-        r1 = 0; r2 = 0; 
-        resetStolaBezReloadu(false); 
-    } 
-}
-
-function spustitZapasLokálnePVP() { 
-    if (overMoznostStartuHry()) { 
-        jeSingleplayer = false; 
-        if (document.getElementById("rezim-zapasu-oznam")) document.getElementById("rezim-zapasu-oznam").innerText = "👥 MULTIPLAYER 1v1"; 
-        document.getElementById("predzapasove-menu").className = "schovany"; 
-        document.getElementById("hraci-stol-kontajner").className = ""; 
-        r1 = 0; r2 = 0; 
-        resetStolaBezReloadu(false); 
-    } 
-}
-
-function vzdajZapasUtek() { 
-    if (confirm("Vzdať sériu a vrátiť sa do menu?")) { 
-        document.getElementById("hraci-stol-kontajner").className = "schovany"; 
-        document.getElementById("predzapasove-menu").className = ""; 
-        draft_faza = true; 
-        p1Pass = false; p2Pass = false;
-        r1 = 0; r2 = 0; 
-        p1_played_cards = []; p2_played_cards = []; neutralne_vplyvy = [];
-        p1_draft_hand = []; p2_draft_hand = [];
-        p1_confirmed_mulligan = false; p2_confirmed_mulligan = false;
-        p1_erik_buff_row = null; p2_erik_buff_row = null;
-        
-        p1_spalene = []; p2_spalene = [];
-        aktualizujArchivyVizualne();
-        
-        if (document.getElementById('kola-skore')) {
-            document.getElementById('kola-skore').innerText = "Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2";
-        }
-        
-        aktualizujStavZamkuMenu(); 
-    } 
 }
 
 function aktualizujPanelDielne(){
