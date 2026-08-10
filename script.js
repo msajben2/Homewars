@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.0 - 3D CHEST OPENING & BATCH C-DROPS)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.3 - FULL WEBP ENGINE & CLEANED FRAMES)
 // =========================================================================
 
 (function() {
@@ -13,59 +13,59 @@
     }
 })();
 
-var VERZIA = "10.9.0";
+var VERZIA = "10.9.3";
 
-// MASTER REGISTRAČNÁ TABUĽKA KARIET
+// MASTER REGISTRAČNÁ TABUĽKA KARIET - VŠETKY SÚBORY NASTAVENÉ NA .WEBP
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
-    "Michal": { row: 1, p: 4, img: "Img/michal.png", desc: "Bystrý obchodník. Váži zlato a pozná presnú cenu každej veci v kráľovstve.", abilityDesc: "📢 Obchodník: Ak nie je na stole Nela, dáva sám sebe automatický samo-buff +100% k svojej základnej sile." },
-    "Erik": { row: 1, p: 3, img: "Img/erik.png", desc: "Geniálny taktik, ktorý plánuje každý krok nad bojovou mapou so šachovými figúrkami.", abilityDesc: "📢 Buff: Po vyložení si vyberieš jeden rad (1, 2 alebo 3), ktorému pridá +100% k základnej sile kariet." },
-    "Marek": { row: 1, p: 4, img: "Img/marek.png", desc: "Učený filozof vo fialovom plášti.", abilityDesc: "🧹 Filozof: Svojím otravným filozofovaním úplne zmatie zvolenú kartu súpera a odstráni ju z hry do archívu." },
-    "Ďuri": { row: 1, p: 6, img: "Img/duri.png", desc: "Veterán v plnej zbroji. Pevný a neoblomný pilier každej bitky.", abilityDesc: "📢 Taktik: Ak je na stole vyložený Alkohol, posilňuje úplne všetky tvoje rady o +50%." },
-    "Doktor": { row: 1, p: 5, img: "Img/doktor.png", desc: "Hradný alchymista a lekár, ktorý vie namiešať liečivý elixír aj nebezpečný jed.", abilityDesc: "🏥 Oživenie: Po vyložení ihneď vytiahne a vráti do hry poslednú spálenú kartu z tvojho archívu." },
-    "Neviditeľný Mário": { row: 1, p: 4, img: "Img/neviditelny-mario.png", desc: "Tajuplný zbojník v kapucni, ktorý nečakane udrie z tieňa a znova zmizne." },
-    "Martin": { row: 1, p: 4, img: "Img/martin.png", desc: "Šikovný hraničiar a lovec, ktorý sa potichu kráča tmavým lesom." },
-    "Timko": { row: 1, p: 1, img: "Img/tymko.png", desc: "Obranný štvorročný bojovník s dreveným mečom a obrovským odhodlaním." },
-    "Jaro": { row: 1, p: 5, img: "Img/jaro.png", desc: "Zručný kováč, z ktorého kovadliny vychádzajú tie najostrejšie meče." },
+    "Michal": { row: 1, p: 4, img: "Img/michal.webp", desc: "Bystrý obchodník. Váži zlato a pozná presnú cenu každej veci v kráľovstve.", abilityDesc: "📢 Obchodník: Ak nie je na stole Nela, dáva sám sebe automatický samo-buff +100% k svojej základnej sile." },
+    "Erik": { row: 1, p: 3, img: "Img/erik.webp", desc: "Geniálny taktik, ktorý plánuje každý krok nad bojovou mapou so šachovými figúrkami.", abilityDesc: "📢 Buff: Po vyložení si vyberieš jeden rad (1, 2 alebo 3), ktorému pridá +100% k základnej sile kariet." },
+    "Marek": { row: 1, p: 4, img: "Img/marek.webp", desc: "Učený filozof vo fialovom plášti.", abilityDesc: "🧹 Filozof: Svojím otravným filozofovaním úplne zmatie zvolenú kartu súpera a odstráni ju z hry do archívu." },
+    "Ďuri": { row: 1, p: 6, img: "Img/duri.webp", desc: "Veterán v plnej zbroji. Pevný a neoblomný pilier každej bitky.", abilityDesc: "📢 Taktik: Ak je na stole vyložený Alkohol, posilňuje úplne všetky tvoje rady o +50%." },
+    "Doktor": { row: 1, p: 5, img: "Img/doktor.webp", desc: "Hradný alchymista a lekár, ktorý vie namiešať liečivý elixír aj nebezpečný jed.", abilityDesc: "🏥 Oživenie: Po vyložení ihneď vytiahne a vráti do hry poslednú spálenú kartu z tvojho archívu." },
+    "Neviditeľný Mário": { row: 1, p: 4, img: "Img/neviditelny-mario.webp", desc: "Tajuplný zbojník v kapucni, ktorý nečakane udrie z tieňa a znova zmizne." },
+    "Martin": { row: 1, p: 4, img: "Img/martin.webp", desc: "Šikovný hraničiar a lovec, ktorý sa potichu kráča tmavým lesom." },
+    "Timko": { row: 1, p: 1, img: "Img/tymko.webp", desc: "Obranný štvorročný bojovník s dreveným mečom a obrovským odhodlaním." },
+    "Jaro": { row: 1, p: 5, img: "Img/jaro.webp", desc: "Zručný kováč, z ktorého kovadliny vychádzajú tie najostrejšie meče." },
     
     // POSTAVY A JEDNOTKY (ŽENY)
-    "Oli": { row: 2, p: 8, img: "Img/oli.png", desc: "Duchovná matka chrámu, strážiaca svätý pokoj a imunitu pred kúzlam.", abilityDesc: "✝️ Imunita: Jej sila 8b je stála a nedá sa znížiť kúzlam ani negatívnymi vplyvmi stola." },
-    "Sisa": { row: 2, p: 4, img: "Img/sisa.jpg", desc: "Dvorná dáma, ktorá motivuje chlapov v boji.", abilityDesc: "📢 Dvorná dáma: Zvyšuje silu celého mužského radu o 100%." },
-    "Katy": { row: 2, p: 6, img: "Img/katy.png", desc: "Vždy pomôže, ako je treba – hladným dá chlieb, nevládnym pomocnú ruku.", abilityDesc: "💖 Pomoc: Pridáva +1b všetkým tvojim kartám na stole a uberá -1b všetkým súpeľovým kartám." },
-    "Nela": { row: 2, p: 1, img: "Img/nela.png", desc: "Malá princezná s ochranným amuletom.", abilityDesc: "🛡️ Štít: Zmrazí stôl! Kým je Nela v hre, žiadne karty nedostávajú percentuálne bonusy ani buffy." },
-    "Lula": { row: 2, p: 4, img: "Img/lula.png", desc: "Dvorná harfistka, ktorej čarovná hudba dokáže obmäkčiť aj srdce kata." },
-    "Anka": { row: 2, p: 7, img: "Img/anka.png", desc: "Správkyňa hradných kľúčov. Bez jej povolenia sa neotvoria žiadne dvere." },
-    "Darinka": { row: 2, p: 5, img: "Img/darinka.png", desc: "Majsterka tkáčka. Jej nádherné tkaniny chránia hradné dámy pred chladom." },
-    "Viera": { row: 2, p: 6, img: "Img/viera.jpg", desc: "Hradná pekárka starajúca sa o bohaté zásoby chleba pre celú posádku." },
-    "Sestrička": { row: 2, p: 3, img: "Img/sestricka.jpg", desc: "Milosrdná ošetrovateľka, ktorá stavia na nohy ranených bojovníkov z archívu.", abilityDesc: "🏥 Oživenie: Po vyložení oživí a vráti do hry kartu z tvojho hradného archívu." },
-    "Kika": { row: 2, p: 3, isSpy: true, img: "Img/kika.jpg", desc: "Tajuplná hradná archivárka so zvinutými kráľovskými dekrétmi.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola! Za odmenu ti potiahne 2 karty (S-Class potiahne 3 karty!)." },
-    "Zvedavá suseda": { row: 2, p: 7, isSpy: true, img: "Img/zvedava-suseda.jpg", desc: "Pozorné oko podhradia. Z okna jej neunikne ani jediný klep.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola a dá ti 2 nové karty z balíčka (S-Class dá 3 karty!)." },
+    "Oli": { row: 2, p: 8, img: "Img/oli.webp", desc: "Duchovná matka chrámu, strážiaca svätý pokoj a imunitu pred kúzlam.", abilityDesc: "✝️ Imunita: Jej sila 8b je stála a nedá sa znížiť kúzlam ani negatívnymi vplyvmi stola." },
+    "Sisa": { row: 2, p: 4, img: "Img/sisa.webp", desc: "Dvorná dáma, ktorá motivuje chlapov v boji.", abilityDesc: "📢 Dvorná dáma: Zvyšuje silu celého mužského radu o 100%." },
+    "Katy": { row: 2, p: 6, img: "Img/katy.webp", desc: "Vždy pomôže, ako je treba – hladným dá chlieb, nevládnym pomocnú ruku.", abilityDesc: "💖 Pomoc: Pridáva +1b všetkým tvojim kartám na stole a uberá -1b všetkým súpeľovým kartám." },
+    "Nela": { row: 2, p: 1, img: "Img/nela.webp", desc: "Malá princezná s ochranným amuletom.", abilityDesc: "🛡️ Štít: Zmrazí stôl! Kým je Nela v hre, žiadne karty nedostávajú percentuálne bonusy ani buffy." },
+    "Lula": { row: 2, p: 4, img: "Img/lula.webp", desc: "Dvorná harfistka, ktorej čarovná hudba dokáže obmäkčiť aj srdce kata." },
+    "Anka": { row: 2, p: 7, img: "Img/anka.webp", desc: "Správkyňa hradných kľúčov. Bez jej povolenia sa neotvoria žiadne dvere." },
+    "Darinka": { row: 2, p: 5, img: "Img/darinka.webp", desc: "Majsterka tkáčka. Jej nádherné tkaniny chránia hradné dámy pred chladom." },
+    "Viera": { row: 2, p: 6, img: "Img/viera.webp", desc: "Hradná pekárka starajúca sa o bohaté zásoby chleba pre celú posádku." },
+    "Sestrička": { row: 2, p: 3, img: "Img/sestricka.webp", desc: "Milosrdná ošetrovateľka, ktorá stavia na nohy ranených bojovníkov z archívu.", abilityDesc: "🏥 Oživenie: Po vyložení oživí a vráti do hry kartu z tvojho hradného archívu." },
+    "Kika": { row: 2, p: 3, isSpy: true, img: "Img/kika.webp", desc: "Tajuplná hradná archivárka so zvinutými kráľovskými dekrétmi.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola! Za odmenu ti potiahne 2 karty (S-Class potiahne 3 karty!)." },
+    "Zvedavá suseda": { row: 2, p: 7, isSpy: true, img: "Img/zvedava-suseda.webp", desc: "Pozorné oko podhradia. Z okna jej neunikne ani jediný klep.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola a dá ti 2 nové karty z balíčka (S-Class dá 3 karty!)." },
     
     // ZVIERATÁ A SVORKY
-    "Grobské Mravce 1": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov. Sú malé, no v obrovskom počte nepremožiteľné.", abilityDesc: "🤝 Svorka: Ak vyložíš 2 mravce, ich sila stúpne na 2b. Ak vyložíš všetky 3 mravce, ich sila stúpne na 4b za každého!" },
-    "Grobské Mravce 2": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
-    "Grobské Mravce 3": { row: 3, p: 1, img: "Img/grobske-mravce.jpg", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
+    "Grobské Mravce 1": { row: 3, p: 1, img: "Img/grobske-mravce.webp", desc: "Húževnatá svorka lesných mravcov. Sú malé, no v obrovskom počte nepremožiteľné.", abilityDesc: "🤝 Svorka: Ak vyložíš 2 mravce, ich sila stúpne na 2b. Ak vyložíš všetky 3 mravce, ich sila stúpne na 4b za každého!" },
+    "Grobské Mravce 2": { row: 3, p: 1, img: "Img/grobske-mravce.webp", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
+    "Grobské Mravce 3": { row: 3, p: 1, img: "Img/grobske-mravce.webp", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
     
-    "Petržalské holuby 1": { row: 3, p: 1, img: "Img/petrzalske-holuby.png", desc: "Rýchli hradní posli prenášajúci tajné správy naprieč kráľovstvom.", abilityDesc: "🤝 Svorka: Fungujú rovnako ako mravce. Viac holubov na stole = znásobená sila!" },
-    "Petržalské holuby 2": { row: 3, p: 1, img: "Img/petrzalske-holuby.png", desc: "Rýchli hradní posli prenášajúci tajné správy.", abilityDesc: "🤝 Svorka: Násobí silu holubej letky." },
-    "Petržalské holuby 3": { row: 3, p: 1, img: "Img/petrzalske-holuby.png", desc: "Rýchli hradní posli prenášajúci tajné správy.", abilityDesc: "🤝 Svorka: Násobí silu holubej letky." },
+    "Petržalské holuby 1": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli prenášajúci tajné správy naprieč kráľovstvom.", abilityDesc: "🤝 Svorka: Fungujú rovnako ako mravce. Viac holubov na stole = znásobená sila!" },
+    "Petržalské holuby 2": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli prenášajúci tajné správy.", abilityDesc: "🤝 Svorka: Násobí silu holubej letky." },
+    "Petržalské holuby 3": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli prenášajúci tajné správy.", abilityDesc: "🤝 Svorka: Násobí silu holubej letky." },
     
-    "Kabelkový pes": { row: 3, p: 3, img: "Img/kabelkovy-pes.png", desc: "Panský miláčik usadený na hodvábnom vankúši. Breše viac, než hryzie." },
-    "Patkaňe": { row: 3, p: 2, img: "Img/patkane.jpg", desc: "Hladná pivničná svorka. Kde sa objavia, tam nastane chaos a zmätok." },
-    "Sviňa lesná": { row: 3, p: 4, img: "Img/svina-lesna.png", desc: "Zúrivý lesný kanec, ktorý zmetie všetko, čo mu stojí v ceste." },
-    "Zatúlaný tatranský medveď": { row: 3, p: 5, img: "Img/tatransky-medved.png", desc: "Obrovská horská šelma zosadajúca zo zasnežených štítov." },
-    "Pouličný mačiak": { row: 3, p: 3, img: "Img/poulicny-maciak.png", desc: "Tichý potulný kocúr obchádzajúci hradné múry a hľadajúci korisť." },
-    "Komáre": { row: 3, p: 3, img: "Img/komare.png", desc: "Dotieravé hradné húfy komárov neúprosne trápiace zvierací rad." },
+    "Kabelkový pes": { row: 3, p: 3, img: "Img/kabelkovy-pes.webp", desc: "Panský miláčik usadený na hodvábnom vankúši. Breše viac, než hryzie." },
+    "Patkaňe": { row: 3, p: 2, img: "Img/patkane.webp", desc: "Hladná pivničná svorka. Kde sa objavia, tam nastane chaos a zmätok." },
+    "Sviňa lesná": { row: 3, p: 4, img: "Img/svina-lesna.webp", desc: "Zúrivý lesný kanec, ktorý zmetie všetko, čo mu stojí v ceste." },
+    "Zatúlaný tatranský medveď": { row: 3, p: 5, img: "Img/tatransky-medved.webp", desc: "Obrovská horská šelma zosadajúca zo zasnežených štítov." },
+    "Pouličný mačiak": { row: 3, p: 3, img: "Img/poulicny-maciak.webp", desc: "Tichý potulný kocúr obchádzajúci hradné múry a hľadajúci korisť." },
+    "Komáre": { row: 3, p: 3, img: "Img/komare.webp", desc: "Dotieravé hradné húfy komárov neúprosne trápiace zvierací rad." },
     
     // NEUTRÁLNE KARTY A VPLYVY
-    "Alcohol": { row: 1, p: 0, img: "Img/alkohol.png", desc: "Súdok medoviny a pálenka pre mužský rad. Výrazne zvyšuje bojovú náladu.", abilityDesc: "🛠️ Predmet: Vykladá sa do 1. radu. Pridáva +50% až +100% k sile mužov." },
-    "Kvety": { row: 2, p: 0, img: "Img/kvety.jpg", desc: "Kytica čerstvých poľných kvetov pre radosť a povzbudenie ženského radu.", abilityDesc: "🛠️ Predmet: Vykladá sa do 2. radu. Posilňuje všetky ženy na tvojej strane." },
-    "Medove Orechy": { row: 3, p: 0, img: "Img/medove-orechy.png", desc: "Sladká odmena posilňujúca verný zvierací rad.", abilityDesc: "🛠️ Predmet: Vykladá sa do 3. radu. Zvyšuje silu zvierat." },
-    "Musíme sa porozprávať": { row: 0, p: 0, img: "Img/musime-sa-porozpravat.png", desc: "Vážny rozhovor s hradnou paňou okamžite zmrazí silu mužského radu.", abilityDesc: "⚡ Vplyv stola: Zníži silu všetkých mužov (v 1. rade oboch hráčov) na základný 1 bod!" },
-    "Musime sa porozpravat": { row: 0, p: 0, img: "Img/musime-sa-porozpravat.png", desc: "Vážny rozhovor s hradnou paňou okamžite zmrazí silu mužského radu.", abilityDesc: "⚡ Vplyv stola: Zníži silu všetkých mužov (v 1. rade oboch hráčov) na základný 1 bod!" },
-    "Upokoj sa": { row: 0, p: 0, img: "Img/upokoj-sa.png", desc: "Nevhodne zvolené slová vyvolajú obrovský hnev v ženskom rade!", abilityDesc: "⚡ Vplyv stola: Zníži silu všetkých žien (v 2. rade oboch hráčov) na 1 bod!" },
-    "Ohnostroj": { row: 0, p: 0, img: "Img/ohnostroj.png", desc: "Rachot svetlíc a výbuchov vyplaší celý zvierací rad.", abilityDesc: "⚡ Vplyv stola: Vyplaší a zníži silu všetkých zvierat na 1 bod!" },
-    "Šicko v porádku": { row: 0, p: 0, img: "Img/sicko-v-poradku.jpg", desc: "Dvorný šašo prinesie smiech a vyčistí všetky nepriaznivé vplyvy na stole.", abilityDesc: "⚡ Očistenie: Odstráni zo stola všetky negatívne vplyvy (Ohňostroj, Upokoj sa, Rozhovor)." }
+    "Alcohol": { row: 1, p: 0, img: "Img/alkohol.webp", desc: "Súdok medoviny a pálenka pre mužský rad. Výrazne zvyšuje bojovú náladu.", abilityDesc: "🛠️ Predmet: Vykladá sa do 1. radu. Pridáva +50% až +100% k sile mužov." },
+    "Kvety": { row: 2, p: 0, img: "Img/kvety.webp", desc: "Kytica čerstvých poľných kvetov pre radosť a povzbudenie ženského radu.", abilityDesc: "🛠️ Predmet: Vykladá sa do 2. radu. Posilňuje všetky ženy na tvojej strane." },
+    "Medove Orechy": { row: 3, p: 0, img: "Img/medove-orechy.webp", desc: "Sladká odmena posilňujúca verný zvierací rad.", abilityDesc: "🛠️ Predmet: Vykladá sa do 3. radu. Zvyšuje silu zvierat." },
+    "Musíme sa porozprávať": { row: 0, p: 0, img: "Img/musime-sa-porozpravat.webp", desc: "Vážny rozhovor s hradnou paňou okamžite zmrazí silu mužského radu.", abilityDesc: "⚡ Vplyv stola: Zníži silu všetkých mužov (v 1. rade oboch hráčov) na základný 1 bod!" },
+    "Musime sa porozpravat": { row: 0, p: 0, img: "Img/musime-sa-porozpravat.webp", desc: "Vážny rozhovor s hradnou paňou okamžite zmrazí silu mužského radu.", abilityDesc: "⚡ Vplyv stola: Zníži silu všetkých mužov (v 1. rade oboch hráčov) na základný 1 bod!" },
+    "Upokoj sa": { row: 0, p: 0, img: "Img/upokoj-sa.webp", desc: "Nevhodne zvolené slová vyvolajú obrovský hnev v ženskom rade!", abilityDesc: "⚡ Vplyv stola: Zníži silu všetkých žien (v 2. rade oboch hráčov) na 1 bod!" },
+    "Ohnostroj": { row: 0, p: 0, img: "Img/ohnostroj.webp", desc: "Rachot svetlíc a výbuchov vyplaší celý zvierací rad.", abilityDesc: "⚡ Vplyv stola: Vyplaší a zníži silu všetkých zvierat na 1 bod!" },
+    "Šicko v porádku": { row: 0, p: 0, img: "Img/sicko-v-poradku.webp", desc: "Dvorný šašo prinesie smiech a vyčistí všetky nepriaznivé vplyvy na stole.", abilityDesc: "⚡ Očistenie: Odstráni zo stola všetky negatívne vplyvy (Ohňostroj, Upokoj sa, Rozhovor)." }
 };
 
 var p1_played_cards = [], p2_played_cards = [];
@@ -143,7 +143,7 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     }
 
     var reg = getRegistryCard(meno);
-    var imgPath = reg.img || "Img/default.jpg";
+    var imgPath = reg.img || "Img/default.webp";
     var cisteMeno = meno.replace(/\s+\d+$/, "").trim();
 
     var html = "";
@@ -312,7 +312,7 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
     }
 
     var reg = getRegistryCard(meno);
-    var imgPath = reg.img || "Img/default.jpg";
+    var imgPath = reg.img || "Img/default.webp";
     var trvanie = (novaTrieda === "S") ? 15000 : ((novaTrieda === "A") ? 10000 : 6000);
 
     var html = `
