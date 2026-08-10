@@ -1,5 +1,5 @@
 /* =========================================================================
-   HOME WARS - COMPLETE STYLESHEET (v10.9.3 - FULL WEBP & MODAL INTEGRATION)
+   HOME WARS - COMPLETE STYLESHEET (v10.9.4 - LARGE CARDS & 3D CHEST FLIP)
    ========================================================================= */
 
 body {
@@ -145,7 +145,7 @@ main {
 
 .herna-ploch-grid {
     display: grid;
-    grid-template-columns: 220px 1fr 220px;
+    grid-template-columns: 240px 1fr 240px;
     gap: 15px;
 }
 
@@ -200,10 +200,10 @@ main {
     padding: 10px 15px;
     border-radius: 5px;
     border: 1px dashed #5a4d3e;
-    min-height: 140px;
+    min-height: 180px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
@@ -221,7 +221,7 @@ main {
     padding: 8px;
     border-radius: 5px;
     font-weight: bold;
-    min-height: 45px;
+    min-height: 55px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -274,29 +274,29 @@ main {
     height: 100%;
     color: #5a4d3e;
     font-weight: bold;
-    font-size: 1.2em;
+    font-size: 1.5em;
 }
 
 .karty-ruka-flex {
     display: flex;
-    gap: 12px;
+    gap: 15px;
     overflow-x: auto;
-    min-height: 195px;
+    min-height: 250px;
     padding: 10px;
     align-items: center;
 }
 
 /* =========================================================================
-   TCG ANATÓMIA KARTY (ZVÄČŠENÉ RÁMY A PRESNÝ VÝREZ FOTKY)
+   TCG ANATÓMIA KARTY (VELKOSŤ PODKLADOVÉHO RÁMU 170x240px)
    ========================================================================= */
 
 .karta {
     position: relative;
-    width: 130px !important;
-    height: 185px !important;
+    width: 170px !important;
+    height: 240px !important;
     background: #1a1612 !important;
-    border-radius: 8px;
-    padding: 6px;
+    border-radius: 10px;
+    padding: 8px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -311,27 +311,25 @@ main {
 }
 
 .karta:hover {
-    transform: translateY(-6px) scale(1.04);
+    transform: translateY(-8px) scale(1.04);
     z-index: 20;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.9);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.9);
 }
 
-/* FOTKA POSTAVY (Vycentrovaná v okne rámu) */
 .karta-foto {
     position: absolute !important;
-    top: 22px !important;
-    left: 8px !important;
-    width: calc(100% - 16px) !important;
-    height: 115px !important;
+    top: 28px !important;
+    left: 10px !important;
+    width: calc(100% - 20px) !important;
+    height: 155px !important;
     background-size: cover !important;
     background-position: center top !important;
-    border-radius: 4px !important;
+    border-radius: 6px !important;
     margin: 0 !important;
     z-index: 1 !important;
     display: block !important;
 }
 
-/* PRIEHDĽADNÉ WEBP RÁMY */
 .karta::before {
     content: "" !important;
     position: absolute !important;
@@ -342,22 +340,20 @@ main {
     background-size: 100% 100% !important;
     background-repeat: no-repeat !important;
     pointer-events: none !important;
-    z-index: 2 !important;
-    mix-blend-mode: multiply !important; /* Odstráni prípadnú bielu výplň */
+    z-index: 5 !important;
 }
 
-.cls-C::before { background-image: url('Img/cclassram.webp'); }
-.cls-B::before { background-image: url('Img/bclassram.webp'); }
-.cls-A::before { background-image: url('Img/aclassram.webp'); }
-.cls-S::before { background-image: url('Img/sclassram.webp'); }
+.cls-C::before { background-image: url('Img/cclassram.webp') !important; }
+.cls-B::before { background-image: url('Img/bclassram.webp') !important; }
+.cls-A::before { background-image: url('Img/aclassram.webp') !important; }
+.cls-S::before { background-image: url('Img/sclassram.webp') !important; }
 
-/* TEXTY A PRVKY NAVRCHU */
 .karta-nazov {
     font-weight: bold;
-    font-size: 0.82em;
+    font-size: 0.95em;
     color: #f0e2c5;
-    text-shadow: 1px 1px 3px #000, 0 0 5px #000;
-    margin-top: 4px;
+    text-shadow: 2px 2px 4px #000, 0 0 6px #000;
+    margin-top: 5px;
     margin-bottom: 2px;
     text-align: center;
     line-height: 1.1;
@@ -367,15 +363,15 @@ main {
 
 .karta-btn-inspect {
     position: absolute;
-    top: 4px;
-    right: 24px;
-    width: 22px;
-    height: 22px;
+    top: 5px;
+    right: 32px;
+    width: 26px;
+    height: 26px;
     background: rgba(0, 0, 0, 0.85);
     border: 1px solid #d4af37;
     border-radius: 50%;
     color: #d4af37;
-    font-size: 11px;
+    font-size: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -392,17 +388,17 @@ main {
 
 .karta-kruh {
     position: absolute;
-    width: 28px;
-    height: 28px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     font-weight: bold;
-    font-size: 0.85em;
+    font-size: 0.95em;
     line-height: 1;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.8);
     z-index: 10 !important;
     box-sizing: border-box;
 }
@@ -446,11 +442,11 @@ main {
     border: 2px solid #b89b5e;
     color: #f0e2c5;
     font-family: serif;
-    font-size: 0.9em;
+    font-size: 1em;
 }
 
 .karta-s-class-aura {
-    box-shadow: 0 0 18px rgba(255, 215, 0, 0.7);
+    box-shadow: 0 0 22px rgba(255, 215, 0, 0.8);
 }
 
 /* DIELŇA TLAČIDLÁ */
@@ -488,7 +484,7 @@ main {
     transform: scale(1.02);
 }
 
-/* STREDOVEKÉ TRUHLICE A ANIMÁCIE OTVÁRANIA */
+/* STREDOVEKÉ TRUHLICE, VIDEO MODAL A 3D FLIP KARTY */
 .chest-modal-overlay {
     display: none;
     position: fixed;
@@ -506,136 +502,54 @@ main {
     align-items: center;
     perspective: 1000px;
     width: 100%;
-    max-width: 600px;
+    max-width: 850px;
 }
 
-.chest-light-ray {
-    position: absolute;
-    width: 350px;
-    height: 350px;
-    background: radial-gradient(circle, rgba(255, 215, 0, 0.5) 0%, rgba(255, 140, 0, 0.2) 50%, transparent 75%);
-    border-radius: 50%;
-    top: 20px;
-    z-index: 1;
-    opacity: 0;
-    transition: opacity 0.6s ease, transform 0.6s ease;
-    transform: scale(0.5);
-}
-
-.chest-stage.open .chest-light-ray {
-    opacity: 1;
-    transform: scale(1.4);
-    animation: rayPulse 1.5s infinite alternate ease-in-out;
-}
-
-@keyframes rayPulse {
-    0% { transform: scale(1.3); opacity: 0.8; }
-    100% { transform: scale(1.6); opacity: 1; }
-}
-
-.chest-3d-wrapper {
+.chest-video-container {
     position: relative;
-    width: 200px;
-    height: 130px;
-    z-index: 5;
-    margin: 30px 0;
+    width: 320px;
+    height: 320px;
+    margin: 10px auto;
     cursor: pointer;
-    transform-style: preserve-3d;
-    transition: transform 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.chest-3d-wrapper:hover {
-    transform: scale(1.05);
-}
-
-.chest-body {
-    position: absolute;
-    bottom: 0;
+#chest-canvas-render {
     width: 100%;
-    height: 85px;
-    border-radius: 0 0 8px 8px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.9);
-    z-index: 2;
+    height: 100%;
+    object-fit: contain;
 }
 
-.chest-lid {
+.chest-drop-anim {
+    animation: chestDrop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes chestDrop {
+    0% { transform: translateY(-500px) scale(0.3); opacity: 0; }
+    70% { transform: translateY(20px) scale(1.05); opacity: 1; }
+    85% { transform: translateY(-10px) scale(0.95); }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.chest-prompt-text {
     position: absolute;
-    top: 0;
-    width: 100%;
-    height: 50px;
-    border-radius: 12px 12px 2px 2px;
-    transform-origin: top center;
-    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 3;
-}
-
-.chest-stage.open .chest-lid {
-    transform: rotateX(-110deg);
-}
-
-.chest-interior-glow {
-    position: absolute;
-    top: 40px;
-    left: 10px;
-    width: 180px;
-    height: 40px;
-    background: radial-gradient(ellipse at center, #ffe600 0%, #ff8800 60%, transparent 100%);
-    opacity: 0;
-    transition: opacity 0.5s ease 0.3s;
-    z-index: 1;
-    border-radius: 50%;
-    filter: blur(4px);
-}
-
-.chest-stage.open .chest-interior-glow {
-    opacity: 1;
-}
-
-.ucastnik-body {
-    background: linear-gradient(180deg, #4d3319 0%, #291a0c 100%);
-    border: 4px solid #1a1006;
-    border-top: 2px solid #5d3d1e;
-}
-.ucastnik-lid {
-    background: linear-gradient(180deg, #664121 0%, #3d2912 100%);
-    border: 4px solid #1a1006;
-    border-bottom: 3px solid #110a04;
-}
-
-.vitaz-body {
-    background: linear-gradient(180deg, #5c4314 0%, #261704 100%);
-    border: 4px solid #d4af37;
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
-}
-.vitaz-lid {
-    background: linear-gradient(180deg, #8a651b 0%, #4a360a 100%);
-    border: 4px solid #ffd700;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-}
-
-.chest-coin-particle {
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    background: radial-gradient(circle at 30% 30%, #fff7a1, #ffd700 60%, #b8860b);
-    border: 1px solid #ffe600;
-    border-radius: 50%;
-    top: 50px;
-    left: 50%;
-    z-index: 10;
+    bottom: -10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #ffd700;
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid #ffd700;
+    font-weight: bold;
+    font-size: 0.9em;
+    animation: promptPulse 1.2s infinite alternate ease-in-out;
     pointer-events: none;
-    opacity: 0;
-    box-shadow: 0 0 8px #ffd700;
 }
 
-.chest-stage.open .chest-coin-particle {
-    animation: coinBurst 0.9s ease-out forwards;
-}
-
-@keyframes coinBurst {
-    0% { transform: translate(-50%, 0) scale(0.5) rotate(0deg); opacity: 1; }
-    50% { opacity: 1; }
-    100% { transform: translate(var(--dx), var(--dy)) scale(1.1) rotate(360deg); opacity: 0; }
+@keyframes promptPulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 5px #ffd700; }
+    100% { transform: scale(1.08); box-shadow: 0 0 18px #ffd700; }
 }
 
 .chest-cards-container {
@@ -643,35 +557,91 @@ main {
     gap: 15px;
     flex-wrap: wrap;
     justify-content: center;
-    max-width: 550px;
+    max-width: 850px;
     z-index: 20;
     margin-top: 10px;
-    min-height: 120px;
+    min-height: 250px;
 }
 
-.chest-card-drop {
-    background: linear-gradient(135deg, #2a2118 0%, #140e0a 100%);
-    border: 2px solid #d4af37;
-    border-radius: 8px;
-    padding: 10px 16px;
-    color: #ffcc00;
-    font-weight: bold;
-    font-size: 0.95em;
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+.chest-card-wrapper {
+    perspective: 1000px;
     opacity: 0;
-    transform: translateY(40px) scale(0.5);
-    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateY(-80px) scale(0.2);
+    transition: all 0.1s;
 }
 
-.chest-stage.open .chest-card-drop {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+.chest-stage.open .chest-card-wrapper {
+    animation: flyAndFlipCard 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-/* =========================================================================
-   CARD MODAL (VEĽKÝ NÁHĽAD LUPY S WEBP RÁMOM)
-   ========================================================================= */
+@keyframes flyAndFlipCard {
+    0% {
+        opacity: 0;
+        transform: translateY(-120px) scale(0.2) rotateY(0deg);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-40px) scale(1.1) rotateY(90deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1) rotateY(180deg);
+    }
+}
 
+.chest-card-flipper {
+    position: relative;
+    width: 170px;
+    height: 240px;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+}
+
+.chest-stage.open .chest-card-flipper {
+    transform: rotateY(180deg);
+}
+
+.chest-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #110e0c;
+    border: 2px solid #5a4d3e;
+    border-radius: 10px;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5a4d3e;
+    font-weight: bold;
+    font-size: 2.2em;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+}
+
+.chest-card-front {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    transform: rotateY(180deg);
+}
+
+.chest-card-badge {
+    position: absolute;
+    bottom: -8px;
+    right: -8px;
+    background: linear-gradient(135deg, #ffcc00 0%, #d97706 100%);
+    color: #000;
+    font-weight: bold;
+    font-size: 0.9em;
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1.5px solid #fff;
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.8);
+    z-index: 20;
+}
+
+/* CARD MODAL (VEĽKÝ NÁHĽAD LUPY) */
 .card-modal {
     display: none;
     position: fixed;
@@ -685,8 +655,8 @@ main {
 
 .card-modal-content {
     position: relative;
-    height: 75vh;
-    width: calc(75vh * 0.7);
+    height: 80vh;
+    width: calc(80vh * 0.7);
     max-width: 90vw;
     background: #1c1813 !important;
     border-radius: 16px;
@@ -711,8 +681,7 @@ main {
     background-size: 100% 100% !important;
     background-repeat: no-repeat !important;
     pointer-events: none !important;
-    z-index: 2 !important;
-    mix-blend-mode: multiply !important;
+    z-index: 5 !important;
 }
 
 .modal-foto {
@@ -734,8 +703,8 @@ main {
 
 .zostava-grid, .dielna-grid, .obchod-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 20px;
     justify-items: center;
 }
 
@@ -744,8 +713,8 @@ main {
     flex-direction: column;
     align-items: center;
     background: #1a1612;
-    padding: 12px;
-    border-radius: 8px;
+    padding: 14px;
+    border-radius: 10px;
     border: 1px solid #5a4d3e;
     width: 100%;
     box-sizing: border-box;
