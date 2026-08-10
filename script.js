@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.6 - CANVAS FORGE RITUAL & FIX MODALS)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.7 - THREE.JS 3D CHEST & FORGE FIX)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.9.6";
+var VERZIA = "10.9.7";
 
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
@@ -153,7 +153,6 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     html += "<button class='karta-btn-inspect' title='Zväčšiť kartu' onclick='event.stopPropagation(); otvorDetailKarty(\"" + meno + "\");'>🔍</button>";
     html += "<div class='karta-foto' style=\"background-image: url('" + encodeURI(imgPath) + "');\"></div>";
     
-    // SPODNÝ KOVANÝ ŠTÍTOK S NÁZVOM A POPISOM
     html += "<div class='karta-stitok-spodok'>";
     html += "  <div class='karta-nazov'>" + cisteMeno + "</div>";
     if (reg.abilityDesc) {
@@ -223,17 +222,7 @@ function otvoriťNavodHry() {
             <h2 style="color:#d4af37; border-bottom:2px solid #5a4d3e; padding-bottom:10px;">📜 NÁVOD, PRAVIDLÁ & SCHOPNOSTI KARIET</h2>
             <div style="text-align:left; font-size:0.9em; line-height:1.5; color:#e0d0b0; max-height:60vh; overflow-y:auto; padding-right:10px;">
                 <h3 style="color:#ffcc00; margin-top:10px;">1. Cieľ Hry</h3>
-                <p>Home Wars je stredoveká taktická kartová hra na 2 víťazné kolá. Tvojím cieľom je získať v každom kole viac celkových bodov ako súper vykladaním postav a zvierat do 3 bočných radov.</p>
-
-                <h3 style="color:#ffcc00; margin-top:10px;">2. Herné Rady</h3>
-                <ul>
-                    <li><strong>1. Rad (Muži - M):</strong> Bojovníci, kováči a hradní taktici. Posilňuje ich Medovina/Alkohol.</li>
-                    <li><strong>2. Rad (Ženy - Ž):</strong> Kráľovné, pekárky a ošetrovateľky. Posilňujú ich čerstvé Kvety.</li>
-                    <li><strong>3. Rad (Zvieratá - Z):</strong> Mravce, holuby a horské šelmy. Posilňujú ich Medové orechy.</li>
-                </ul>
-
-                <h3 style="color:#ffcc00; margin-top:10px;">3. Vylepšovanie Kariet v Dielni (Triedy C, B, A, S)</h3>
-                <p>Vylepšovanie v Dielni zvyšuje silu tvojej karty, znižuje body špiónov odovzdávané súperovi a odomyká špeciálne efekty.</p>
+                <p>Home Wars je stredoveká taktická kartová hra na 2 víťazné kolá.</p>
             </div>
         </div>
     `;
@@ -653,7 +642,99 @@ function aktualizujArchivyVizualne() {
     }
 }
 
-// 3D CANVAS PARTICLES FOR CHEST
+// =========================================================================
+// THREE.JS REAL 3D ENGINE PRE TRUHLU
+// =========================================================================
+function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, onOpenCallback) {
+    containerEl.innerHTML = "";
+    
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(45, 300 / 220, 0.1, 1000);
+    camera.position.set(0, 2.5, 5);
+    camera.lookAt(0, 0, 0);
+
+    var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(300, 220);
+    renderer.shadowMap.enabled = true;
+    containerEl.appendChild(renderer.domElement);
+
+    // SVETLÁ
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+
+    var dirLight = new THREE.DirectionalLight(jeVitaz ? 0xffd700 : 0xd4af37, 1.2);
+    dirLight.position.set(3, 5, 4);
+    scene.add(dirLight);
+
+    // MATERIALY 3D TRUHLE
+    var woodColor = jeVitaz ? 0x5c4314 : 0x4d3319;
+    var metalColor = jeVitaz ? 0xffd700 : 0x222222;
+
+    var woodMat = new THREE.MeshStandardMaterial({ color: woodColor, roughness: 0.6 });
+    var metalMat = new THREE.MeshStandardMaterial({ color: metalColor, metalness: 0.8, roughness: 0.3 });
+
+    var chestGroup = new THREE.Group();
+
+    // SPODOK TRUHLE
+    var baseGeo = new THREE.BoxGeometry(2.2, 1.1, 1.4);
+    var baseMesh = new THREE.Mesh(baseGeo, woodMat);
+    baseMesh.position.y = 0.55;
+    chestGroup.add(baseMesh);
+
+    // KOVANÉ PÁSY
+    var bandGeo = new THREE.BoxGeometry(2.25, 0.15, 1.45);
+    var bandMesh = new THREE.Mesh(bandGeo, metalMat);
+    bandMesh.position.y = 0.55;
+    chestGroup.add(bandMesh);
+
+    // 3D VEKO TRUHLE (PANT NA ZADNEJ STRANE)
+    var lidGroup = new THREE.Group();
+    lidGroup.position.set(0, 1.1, -0.7); // Os otáčania
+
+    var lidGeo = new THREE.CylinderGeometry(0.72, 0.72, 2.2, 16, 1, false, 0, Math.PI);
+    var lidMesh = new THREE.Mesh(lidGeo, woodMat);
+    lidMesh.rotation.z = Math.PI / 2;
+    lidMesh.rotation.y = Math.PI;
+    lidMesh.position.set(0, 0, 0.7);
+    lidGroup.add(lidMesh);
+
+    var lidBandGeo = new THREE.CylinderGeometry(0.74, 0.74, 2.25, 16, 1, false, 0, Math.PI);
+    var lidBandMesh = new THREE.Mesh(lidBandGeo, metalMat);
+    lidBandMesh.rotation.z = Math.PI / 2;
+    lidBandMesh.rotation.y = Math.PI;
+    lidBandMesh.position.set(0, 0, 0.7);
+    lidGroup.add(lidBandMesh);
+
+    chestGroup.add(lidGroup);
+    scene.add(chestGroup);
+
+    // ANIMÁCIA
+    var isOpening = false;
+    var lidAngle = 0;
+
+    function animate() {
+        requestAnimationFrame(animujFrame);
+        if (isOpening && lidAngle < 2.1) {
+            lidAngle += 0.08;
+            lidGroup.rotation.x = -lidAngle;
+        }
+        chestGroup.rotation.y = Math.sin(Date.now() * 0.0015) * 0.15; // Jemné kolísanie
+        renderer.render(scene, camera);
+    }
+
+    function animujFrame() {
+        animate();
+    }
+    animate();
+
+    containerEl.onclick = function() {
+        if (!isOpening) {
+            isOpening = true;
+            if (onOpenCallback) onOpenCallback();
+        }
+    };
+}
+
 function spustiMinceCanvasFX(canvasEl) {
     var ctx = canvasEl.getContext("2d");
     var width = canvasEl.width = 600;
@@ -757,8 +838,6 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     }
 
     var titulok = jeVitaz ? "🏆 TRUHLA VÍŤAZA" : (jeRemizaZapasu ? "📦 TRUHLA ZA REMÍZU" : "📦 TRUHLA ÚČASTNÍKA");
-    var bodyClass = jeVitaz ? "vitaz-body" : "ucastnik-body";
-    var lidClass = jeVitaz ? "vitaz-lid" : "ucastnik-lid";
 
     var kartyHTML = "";
     var cardDelay = 0.15;
@@ -785,13 +864,10 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
             <span class="card-modal-close" onclick="document.getElementById('chest-anim-modal').style.display='none'">&times;</span>
             <h2 style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2.2em; margin:0 0 10px 0;">${titulok}</h2>
             
-            <div class="chest-3d-box" id="chest-click-trigger">
+            <div class="chest-3d-viewport" id="chest-three-container">
                 <canvas id="chest-fx-canvas"></canvas>
-                <div class="chest-3d-lid ${lidClass}"></div>
-                <div class="chest-3d-glow"></div>
-                <div class="chest-3d-base ${bodyClass}"></div>
-                <div id="chest-click-prompt" class="chest-prompt-text">✨ KLIKNI PRE OTVORENIE ✨</div>
             </div>
+            <div id="chest-click-prompt" class="chest-prompt-text">✨ KLIKNI NA TRUHLU PRE OTVORENIE ✨</div>
 
             <div id="chest-gold-text" style="color:#ffcc00; font-weight:bold; font-size:1.3em; margin:10px 0; text-shadow:0 0 8px #000; opacity:0; transition:opacity 0.5s ease;">🪙 +${ziskaneMince} Zlatých mincí</div>
 
@@ -805,33 +881,30 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
 
     cModal.style.display = "flex";
 
-    var trigger = document.getElementById("chest-click-trigger");
-    var isOpened = false;
+    var threeBox = document.getElementById("chest-three-container");
+    if (threeBox) {
+        inicializujThreeJS3DTruhlu(threeBox, jeVitaz, function() {
+            document.getElementById("chest-click-prompt").style.display = "none";
+            var stage = document.getElementById("chest-stage-box");
+            if (stage) stage.classList.add("open");
 
-    trigger.onclick = function() {
-        if (isOpened) return;
-        isOpened = true;
+            var fxCanvas = document.getElementById("chest-fx-canvas");
+            if (fxCanvas) spustiMinceCanvasFX(fxCanvas);
 
-        document.getElementById("chest-click-prompt").style.display = "none";
-        var stage = document.getElementById("chest-stage-box");
-        if (stage) stage.classList.add("open");
+            setTimeout(function() {
+                var goldText = document.getElementById("chest-gold-text");
+                var btn = document.getElementById("chest-close-btn");
 
-        var fxCanvas = document.getElementById("chest-fx-canvas");
-        if (fxCanvas) spustiMinceCanvasFX(fxCanvas);
-
-        setTimeout(function() {
-            var goldText = document.getElementById("chest-gold-text");
-            var btn = document.getElementById("chest-close-btn");
-
-            if (goldText) goldText.style.opacity = "1";
-            if (btn) btn.style.display = "inline-block";
-        }, 800);
-    };
+                if (goldText) goldText.style.opacity = "1";
+                if (btn) btn.style.display = "inline-block";
+            }, 800);
+        });
+    }
 
     aktualizujPanelDielne();
 }
 
-// MAGICKÝ KOVÁČSKY RITUÁL V DIELNI (CANVAS FORGE)
+// MAGICKÝ KOVÁČSKY RITUÁL V DIELNI (CANVAS FORGE FLOW WITH FIX COLORS)
 function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) {
     var modal = document.getElementById("forge-modal");
     if (!modal) {
@@ -854,7 +927,6 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
             <h2 class="forge-title">🔨 MAGICKÉ KOVANIE (${novaTrieda}-CLASS)</h2>
             
             <div class="forge-flow-container">
-                <!-- HORNÁ ZDROJOVÁ KARTA -->
                 <div class="forge-card-node">
                     <div class="forge-node-label">ZDROJ MATERIALU</div>
                     <div class="karta cls-C">
@@ -863,13 +935,11 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
                     <div class="forge-replica-badge" id="forge-replica-counter">Repliky: ${aktualneRepliky + spotrebovaneRepliky}</div>
                 </div>
 
-                <!-- STREDOVÝ PRÚD ENERGIE A ŠÍPKA -->
                 <div class="forge-stream-box">
                     <canvas id="forge-stream-canvas" width="120" height="180"></canvas>
                     <div class="forge-arrow-icon">⬇</div>
                 </div>
 
-                <!-- DOLNÁ CIEĽOVÁ KARTA -->
                 <div class="forge-card-node">
                     <div class="forge-node-label">CIEĽOVÁ KARTA</div>
                     <div class="karta cls-${staraTrieda}" id="forge-target-card">
@@ -886,13 +956,14 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
     modal.innerHTML = html;
     modal.style.display = "flex";
 
-    // ANIMÁCIA PRÚDENIA ENERGIE CEZ CANVAS
     var canvas = document.getElementById("forge-stream-canvas");
     if (canvas) {
         var ctx = canvas.getContext("2d");
         var iskry = [];
-        var farbaHore = "#cd7f32"; // Farba C-Class
-        var farbaDole = novaTrieda === "S" ? "#ffd700" : (novaTrieda === "A" ? "#c0c0c0" : "#cd7f32");
+        
+        // PRESNÉ FARBY PRECHODU
+        var farbaHore = "#a0a0a0"; // Plechovo-sivá pre C-Class
+        var farbaDole = novaTrieda === "S" ? "#ffd700" : (novaTrieda === "A" ? "#e0e0e0" : "#cd7f32"); // Bronzová pre B, Strieborná pre A, Zlatá pre S
         
         for (var i = 0; i < 60; i++) {
             iskry.push({
@@ -912,7 +983,6 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             progress += 0.02;
 
-            // Odčítavanie replík v reálnom čase
             if (counterEl && progress <= 1) {
                 var currentVal = Math.round(startCount - (spotrebovaneRepliky * progress));
                 counterEl.innerText = "Repliky: " + currentVal;
@@ -935,7 +1005,6 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
             if (progress < 1.2) {
                 requestAnimationFrame(animujPrud);
             } else {
-                // RITUÁL DOKONČENÝ - ZÁBLESK SPODNEJ KARTY
                 var card = document.getElementById("forge-target-card");
                 var btn = document.getElementById("forge-done-btn");
                 if (card) {
@@ -1744,12 +1813,6 @@ function devSpustiPokrociluSimulaciu(pocetZapasov) {
                 <p>🏆 <strong>Hráč 1 Výhry:</strong> ${p1Vyhry} (${winRateP1}%)</p>
                 <p>🤖 <strong>AI (Trieda ${zvolenaDiff}) Výhry:</strong> ${p2Vyhry} (${winRateP2}%)</p>
                 <p>⚖️ <strong>Remízy:</strong> ${remizy}</p>
-                <hr style="border-color:#5a4d3e;">
-                <p>📈 <strong>Priemerné skóre P1:</strong> ${(celkoveSkoreP1 / pocetZapasov).toFixed(1)} b</p>
-                <p>📈 <strong>Priemerné skóre AI:</strong> ${(celkoveSkoreP2 / pocetZapasov).toFixed(1)} b</p>
-                <hr style="border-color:#5a4d3e;">
-                <p style="color:#4ade80; font-size:1.05em;">👑 <strong>Karta s najväčším dopadom na výhru:</strong><br>
-                <strong style="color:#fff; font-size:1.1em;">${topKarta}</strong> — Win Rate: <strong>${topWinRate.toFixed(1)}%</strong> (z ${topOdohrané} zápasov)</p>
             </div>
         </div>
     `;
