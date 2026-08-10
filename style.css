@@ -1,5 +1,5 @@
 /* =========================================================================
-   HOME WARS - COMPLETE STYLESHEET (v10.9.1)
+   HOME WARS - COMPLETE STYLESHEET (v10.9.3 - CLEANED REAL WEBP FRAMES)
    ========================================================================= */
 
 body {
@@ -287,7 +287,7 @@ main {
 }
 
 /* =========================================================================
-   TCG ANATÓMIA KARTY & NOVÉ MODELOVANÉ RÁMY PODĽA VZOROV
+   TCG ANATÓMIA KARTY & CHISTÉ PREKRYTIE WEBP RÁMAMI (BEZ OLD BORDERS)
    ========================================================================= */
 
 .karta {
@@ -296,7 +296,7 @@ main {
     height: 155px;
     background: #1a1612;
     border-radius: 8px;
-    padding: 4px;
+    padding: 6px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -306,6 +306,8 @@ main {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     user-select: none;
     flex-shrink: 0;
+    overflow: hidden;
+    border: none !important; /* Odstránenie starých CSS hraníc */
 }
 
 .karta:hover {
@@ -323,57 +325,45 @@ main {
     text-align: center;
     line-height: 1.1;
     word-break: break-word;
+    z-index: 2;
 }
 
 .karta-foto {
     width: 100%;
-    height: 90px;
+    height: 92px;
     background-size: cover;
     background-position: center top;
     border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    margin-top: 6px;
+    margin-top: 4px;
+    z-index: 1;
 }
 
-/* C-CLASS: Obyčajný brúsený kov / oceľ */
-.cls-C { 
-    border: 5px solid #6b7280 !important; 
-    border-style: ridge !important;
-    box-shadow: inset 0 0 10px #000, inset 0 0 2px #fff, 0 4px 10px rgba(0,0,0,0.8); 
-    background: linear-gradient(135deg, #2a2c30 0%, #111215 100%); 
+/* CHISTÉ WEBP RÁMY */
+.karta::before {
+    content: "";
+    position: absolute;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 5;
 }
 
-/* B-CLASS: Bronz s jemným gravírovaním */
-.cls-B { 
-    border: 7px solid #9a6233 !important; 
-    border-style: groove !important;
-    box-shadow: inset 0 0 12px #000, 0 0 12px rgba(154, 98, 51, 0.6); 
-    background: linear-gradient(135deg, #382412 0%, #180d06 100%); 
-}
-
-/* A-CLASS: Strieborný masívny vyrezávaný rám */
-.cls-A { 
-    border: 9px solid #d1d5db !important; 
-    border-style: ridge !important;
-    box-shadow: inset 0 0 15px #000, 0 0 20px rgba(255,255,255,0.6); 
-    background: linear-gradient(135deg, #4b5563 0%, #1f2937 100%); 
-}
-
-/* S-CLASS: Kráľovske zlaté vyrezávané kovanie */
-.cls-S { 
-    border: 12px solid #d4af37 !important; 
-    border-style: ridge !important;
-    box-shadow: inset 0 0 20px #000, 0 0 25px #d4af37, 0 0 45px #ff8c00; 
-    background: linear-gradient(135deg, #57410d 0%, #1e1502 100%); 
-}
+.cls-C::before { background-image: url('Img/cclassram.webp'); }
+.cls-B::before { background-image: url('Img/bclassram.webp'); }
+.cls-A::before { background-image: url('Img/aclassram.webp'); }
+.cls-S::before { background-image: url('Img/sclassram.webp'); }
 
 .karta-btn-inspect {
     position: absolute;
-    top: 2px;
+    top: 3px;
     right: 22px;
     width: 20px;
     height: 20px;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
     border: 1px solid #d4af37;
     border-radius: 50%;
     color: #d4af37;
@@ -405,13 +395,13 @@ main {
     font-size: 0.8em;
     line-height: 1;
     box-shadow: 2px 2px 5px rgba(0,0,0,0.8);
-    z-index: 2;
+    z-index: 6;
     box-sizing: border-box;
 }
 
 .karta-kruh-pwr {
-    top: -6px;
-    left: -6px;
+    top: -4px;
+    left: -4px;
     background: radial-gradient(circle, #5a4d3e 0%, #2a2118 100%);
     border: 2px solid #b89b5e;
     color: #fff;
@@ -422,15 +412,15 @@ main {
 .karta-kruh-pwr.debuffed { color: #f87171; border-color: #f87171; background: #2b0b0b; }
 
 .karta-kruh-cls {
-    top: -6px;
-    right: -6px;
+    top: -4px;
+    right: -4px;
     border: 2px solid #fff;
     color: #fff;
 }
 
 .karta-kruh-row {
-    bottom: -6px;
-    left: -6px;
+    bottom: -4px;
+    left: -4px;
     background: #1a1612;
     border: 2px solid #5a4d3e;
     color: #e0d0b0;
@@ -442,8 +432,8 @@ main {
 .row-n { border-color: #f59e0b; color: #fbbf24; }
 
 .karta-kruh-ability {
-    bottom: -6px;
-    right: -6px;
+    bottom: -4px;
+    right: -4px;
     background: #1a1612;
     border: 2px solid #b89b5e;
     color: #f0e2c5;
@@ -452,8 +442,7 @@ main {
 }
 
 .karta-s-class-aura {
-    border-color: #ffd700 !important;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    box-shadow: 0 0 18px rgba(255, 215, 0, 0.7);
 }
 
 /* DIELŇA TLAČIDLÁ */
@@ -491,10 +480,7 @@ main {
     transform: scale(1.02);
 }
 
-/* =========================================================================
-   REÁLNE GRAFICKÉ STREDOVEKÉ TRUHLICE A ANIMÁCIE
-   ========================================================================= */
-
+/* STREDOVEKÉ TRUHLICE A ANIMÁCIE OTVÁRANIA */
 .chest-modal-overlay {
     display: none;
     position: fixed;
