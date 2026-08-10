@@ -1,6 +1,10 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.7 - THREE.JS 3D CHEST & FORGE FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.8 - THREE.JS GLTF 3D CHEST & FORGE)
 // =========================================================================
+
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 (function() {
     var TAJNY_KOD_HESLA = "dGVzdGVyMTIzIQ=="; 
@@ -13,7 +17,7 @@
     }
 })();
 
-var VERZIA = "10.9.7";
+var VERZIA = "10.9.8";
 
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
@@ -643,94 +647,188 @@ function aktualizujArchivyVizualne() {
 }
 
 // =========================================================================
-// THREE.JS REAL 3D ENGINE PRE TRUHLU
+// THREE.JS REAL 3D ENGINE PRE TRUHLU (S GLTF SÚBOROM & LOOT EXPLOSION)
 // =========================================================================
 function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, onOpenCallback) {
     containerEl.innerHTML = "";
     
+    var chestTier = jeVitaz ? 'S' : 'B';
+
     var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(45, 300 / 220, 0.1, 1000);
-    camera.position.set(0, 2.5, 5);
-    camera.lookAt(0, 0, 0);
+    scene.background = new THREE.Color(0x0d0d11);
+
+    var camera = new THREE.PerspectiveCamera(45, containerEl.clientWidth / containerEl.clientHeight, 0.1, 1000);
+    camera.position.set(0, 1.0, 4.5);
 
     var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(300, 220);
+    renderer.setSize(containerEl.clientWidth, containerEl.clientHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
     containerEl.appendChild(renderer.domElement);
 
+    var controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enablePan = true;
+    controls.target.set(0, 0, 0);
+
     // SVETLÁ
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    var ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
     scene.add(ambientLight);
 
-    var dirLight = new THREE.DirectionalLight(jeVitaz ? 0xffd700 : 0xd4af37, 1.2);
-    dirLight.position.set(3, 5, 4);
+    var dirLight = new THREE.DirectionalLight(0xffffff, 2.5);
+    dirLight.position.set(5, 10, 7);
     scene.add(dirLight);
 
-    // MATERIALY 3D TRUHLE
-    var woodColor = jeVitaz ? 0x5c4314 : 0x4d3319;
-    var metalColor = jeVitaz ? 0xffd700 : 0x222222;
+    var pointLight = new THREE.PointLight(0xffaa00, 1.5, 6);
+    pointLight.position.set(0, 0.5, 0.5);
+    scene.add(pointLight);
 
-    var woodMat = new THREE.MeshStandardMaterial({ color: woodColor, roughness: 0.6 });
-    var metalMat = new THREE.MeshStandardMaterial({ color: metalColor, metalness: 0.8, roughness: 0.3 });
-
-    var chestGroup = new THREE.Group();
-
-    // SPODOK TRUHLE
-    var baseGeo = new THREE.BoxGeometry(2.2, 1.1, 1.4);
-    var baseMesh = new THREE.Mesh(baseGeo, woodMat);
-    baseMesh.position.y = 0.55;
-    chestGroup.add(baseMesh);
-
-    // KOVANÉ PÁSY
-    var bandGeo = new THREE.BoxGeometry(2.25, 0.15, 1.45);
-    var bandMesh = new THREE.Mesh(bandGeo, metalMat);
-    bandMesh.position.y = 0.55;
-    chestGroup.add(bandMesh);
-
-    // 3D VEKO TRUHLE (PANT NA ZADNEJ STRANE)
-    var lidGroup = new THREE.Group();
-    lidGroup.position.set(0, 1.1, -0.7); // Os otáčania
-
-    var lidGeo = new THREE.CylinderGeometry(0.72, 0.72, 2.2, 16, 1, false, 0, Math.PI);
-    var lidMesh = new THREE.Mesh(lidGeo, woodMat);
-    lidMesh.rotation.z = Math.PI / 2;
-    lidMesh.rotation.y = Math.PI;
-    lidMesh.position.set(0, 0, 0.7);
-    lidGroup.add(lidMesh);
-
-    var lidBandGeo = new THREE.CylinderGeometry(0.74, 0.74, 2.25, 16, 1, false, 0, Math.PI);
-    var lidBandMesh = new THREE.Mesh(lidBandGeo, metalMat);
-    lidBandMesh.rotation.z = Math.PI / 2;
-    lidBandMesh.rotation.y = Math.PI;
-    lidBandMesh.position.set(0, 0, 0.7);
-    lidGroup.add(lidBandMesh);
-
-    chestGroup.add(lidGroup);
-    scene.add(chestGroup);
-
-    // ANIMÁCIA
+    var aktualnaTruhla = null;
+    var vypadnutyLoot = [];
     var isOpening = false;
-    var lidAngle = 0;
 
-    function animate() {
-        requestAnimationFrame(animujFrame);
-        if (isOpening && lidAngle < 2.1) {
-            lidAngle += 0.08;
-            lidGroup.rotation.x = -lidAngle;
-        }
-        chestGroup.rotation.y = Math.sin(Date.now() * 0.0015) * 0.15; // Jemné kolísanie
-        renderer.render(scene, camera);
+    var loader = new GLTFLoader();
+    loader.load('Img/truhla.glb', (gltf) => {
+        aktualnaTruhla = gltf.scene;
+        scene.add(aktualnaTruhla);
+
+        aktualnaTruhla.position.set(0, -0.3, 0);
+        aktualnaTruhla.scale.set(1.2, 1.2, 1.2);
+
+        var tierColors = {
+            'B': { metal: 0xcd7f32 }, // Bronz
+            'A': { metal: 0xc0c0c0 }, // Striebro
+            'S': { metal: 0xffd700 }  // Zlato
+        };
+        var currentTheme = tierColors[chestTier] || tierColors['B'];
+
+        // Prefarbenie kovových častí
+        aktualnaTruhla.traverse((child) => {
+            if (child.isMesh && (child.name.toLowerCase().includes('metal') || child.name.toLowerCase().includes('iron') || child.name.toLowerCase().includes('lock') || child.name.toLowerCase().includes('hinge'))) {
+                child.material.color.setHex(currentTheme.metal);
+                child.material.metalness = 0.9;
+                child.material.roughness = 0.2;
+            }
+        });
+
+        // 3D Punc na čelo truhly
+        vytvorPunc(aktualnaTruhla, chestTier, currentTheme.metal);
+    }, undefined, (error) => {
+        console.error("Chyba pri načítavaní Img/truhla.glb:", error);
+    });
+
+    function vytvorPunc(chest, tier, metalColor) {
+        var canvas = document.createElement('canvas');
+        canvas.width = 128;
+        canvas.height = 128;
+        var ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = '#' + metalColor.toString(16).padStart(6, '0');
+        ctx.beginPath();
+        ctx.arc(64, 64, 52, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.lineWidth = 8;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+
+        ctx.fillStyle = '#000000';
+        ctx.font = 'bold 64px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(tier, 64, 64);
+
+        var texture = new THREE.CanvasTexture(canvas);
+        var badgeGeo = new THREE.PlaneGeometry(0.35, 0.35);
+        var badgeMat = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+        var badgeMesh = new THREE.Mesh(badgeGeo, badgeMat);
+
+        badgeMesh.position.set(0, 0.35, 0.75);
+        chest.add(badgeMesh);
     }
 
-    function animujFrame() {
-        animate();
+    function vybuchLootu(originPos, tier) {
+        var itemsCount = tier === 'S' ? 14 : (tier === 'A' ? 10 : 6);
+
+        for (var i = 0; i < itemsCount; i++) {
+            var isCoin = i % 2 === 0;
+            var geometry = isCoin 
+                ? new THREE.CylinderGeometry(0.1, 0.1, 0.02, 16) 
+                : new THREE.BoxGeometry(0.25, 0.35, 0.01);
+
+            var color = isCoin ? 0xffd700 : 0x3b82f6; 
+            var material = new THREE.MeshStandardMaterial({ color: color, metalness: 0.8, roughness: 0.2 });
+            var loot = new THREE.Mesh(geometry, material);
+
+            loot.position.set(originPos.x, originPos.y + 0.4, originPos.z + 0.3);
+            scene.add(loot);
+            vypadnutyLoot.push(loot);
+
+            var angle = (i / itemsCount) * Math.PI * 2;
+            var forceX = Math.cos(angle) * (0.6 + Math.random() * 0.8);
+            var forceZ = Math.sin(angle) * (0.6 + Math.random() * 0.8);
+            var targetY = -0.3;
+
+            let t = 0;
+            let startX = loot.position.x;
+            let startZ = loot.position.z;
+            let startY = loot.position.y;
+
+            function animateLoot() {
+                if (t < 1) {
+                    t += 0.03;
+                    loot.position.x = startX + forceX * t;
+                    loot.position.z = startZ + forceZ * t;
+                    loot.position.y = startY + (targetY - startY) * t + Math.sin(t * Math.PI) * 1.0;
+                    loot.rotation.x += 0.1;
+                    loot.rotation.y += 0.15;
+                    requestAnimationFrame(animateLoot);
+                } else {
+                    loot.position.y = targetY;
+                    if (isCoin) {
+                        loot.rotation.x = Math.PI / 2;
+                    } else {
+                        loot.rotation.x = 0;
+                        loot.rotation.y = 0;
+                    }
+                }
+            }
+            setTimeout(animateLoot, i * 45);
+        }
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        if (controls) controls.update();
+        if (renderer && scene && camera) renderer.render(scene, camera);
     }
     animate();
 
     containerEl.onclick = function() {
-        if (!isOpening) {
+        if (!isOpening && aktualnaTruhla) {
             isOpening = true;
-            if (onOpenCallback) onOpenCallback();
+            
+            let lid = null;
+            aktualnaTruhla.traverse((child) => {
+                if (child.name.toLowerCase().includes('lid') || child.name.toLowerCase().includes('top') || child.name.toLowerCase().includes('cover')) {
+                    lid = child;
+                }
+            });
+
+            let openProgress = 0;
+            function animateOpen() {
+                if (openProgress < 1) {
+                    openProgress += 0.025;
+                    if (lid) {
+                        lid.rotation.x = -Math.PI * 0.45 * Math.sin(openProgress * Math.PI / 2);
+                    }
+                    requestAnimationFrame(animateOpen);
+                } else {
+                    vybuchLootu(aktualnaTruhla.position, chestTier);
+                    if (onOpenCallback) onOpenCallback();
+                }
+            }
+            animateOpen();
         }
     };
 }
@@ -961,9 +1059,8 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
         var ctx = canvas.getContext("2d");
         var iskry = [];
         
-        // PRESNÉ FARBY PRECHODU
-        var farbaHore = "#a0a0a0"; // Plechovo-sivá pre C-Class
-        var farbaDole = novaTrieda === "S" ? "#ffd700" : (novaTrieda === "A" ? "#e0e0e0" : "#cd7f32"); // Bronzová pre B, Strieborná pre A, Zlatá pre S
+        var farbaHore = "#a0a0a0"; 
+        var farbaDole = novaTrieda === "S" ? "#ffd700" : (novaTrieda === "A" ? "#e0e0e0" : "#cd7f32");
         
         for (var i = 0; i < 60; i++) {
             iskry.push({
