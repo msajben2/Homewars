@@ -3,31 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Otváranie Truhlice - 3D</title>
+    <title>HOME WARS - Truhlica s Pokladom</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
-            overflow: hidden;
-            background-color: #111;
-            font-family: sans-serif;
+            padding: 0;
         }
+
+        body {
+            background-color: #0d0d11;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Hlavný panel s ovládacími prvkami */
+        #ui-panel {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            gap: 12px;
+            background: rgba(20, 20, 28, 0.85);
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        }
+
+        .tier-btn {
+            background: #2a2a38;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tier-btn:hover {
+            transform: translateY(-2px);
+            background: #3a3a4d;
+        }
+
+        .btn-b { border-color: #cd7f32; color: #cd7f32; }
+        .btn-a { border-color: #c0c0c0; color: #c0c0c0; }
+        .btn-s { border-color: #ffd700; color: #ffd700; }
+
+        /* Nápoveda v dolnej časti */
         #info {
             position: absolute;
-            top: 15px;
+            bottom: 20px;
             width: 100%;
             text-align: center;
-            color: #fff;
-            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
             pointer-events: none;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            z-index: 10;
+        }
+
+        /* 3D Canvas plátno */
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
         }
     </style>
-</head>
-<body>
 
-    <div id="info">Klikni a ťahaj myšou na posun/otáčanie scény. Truhlica sa otvára...</div>
-
-    <!-- Import Three.js a doplnkov cez CDN -->
+    <!-- Načítanie Three.js knižníc -->
     <script type="importmap">
         {
             "imports": {
@@ -36,6 +88,18 @@
             }
         }
     </script>
+</head>
+<body>
+
+    <div id="ui-panel">
+        <button class="tier-btn btn-b" onclick="spustOtvorenie('B')">Otvoriť B-Class (Bronz)</button>
+        <button class="tier-btn btn-a" onclick="spustOtvorenie('A')">Otvoriť A-Class (Striebro)</button>
+        <button class="tier-btn btn-s" onclick="spustOtvorenie('S')">Otvoriť S-Class (Zlato)</button>
+    </div>
+
+    <div id="info">Ťahaním myšou otáčaj a posúvaj scénu, aby si si prezrel vypadnuté karty a mince.</div>
+
+    <div id="canvas-container"></div>
 
     <script type="module">
         import * as THREE from 'three';
@@ -43,68 +107,85 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
         let scene, camera, renderer, controls;
+        let aktualnaTruhla = null;
+        let vypadnutyLoot = [];
 
         function init() {
-            // 1. Scéna a kamera
+            const container = document.getElementById('canvas-container');
+
+            // 1. Scéna
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x181818);
+            scene.background = new THREE.Color(0x0d0d11);
 
+            // 2. Kamera
             camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 0.5, 4);
+            camera.position.set(0, 1.0, 4.5);
 
-            // 2. Renderer
+            // 3. Renderer
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
-            document.body.appendChild(renderer.domElement);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
 
-            // 3. Ovládanie myšou (posun a otáčanie)
+            // 4. Ovládanie pohľadu
             controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-            controls.enablePan = true; // Umožňuje posúvať okno / scénu
+            controls.enablePan = true;
             controls.target.set(0, 0, 0);
 
-            // 4. Osvetlenie scény
+            // 5. Osvetlenie
             const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
             scene.add(ambientLight);
 
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);
-            directionalLight.position.set(5, 10, 7);
-            scene.add(directionalLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 2.5);
+            dirLight.position.set(5, 10, 7);
+            scene.add(dirLight);
 
-            const pointLight = new THREE.PointLight(0xffaa00, 2, 5);
-            pointLight.position.set(0, 0, 0);
+            const pointLight = new THREE.PointLight(0xffaa00, 1.5, 6);
+            pointLight.position.set(0, 0.5, 0.5);
             scene.add(pointLight);
 
-            // 5. Načítanie truhlice (Môžeš zmeniť triedu na 'B', 'A' alebo 'S')
-            loadChest('S');
+            // Spustenie predvolenej S-Class truhlice
+            naciataj3DTruhlu('S');
 
-            // Resize okna
             window.addEventListener('resize', onWindowResize);
+            animate();
         }
 
-        function loadChest(chestTier = 'S') {
+        // Globálna funkcia pre tlačidlá z UI
+        window.spustOtvorenie = function(tier) {
+            naciataj3DTruhlu(tier);
+        };
+
+        function naciataj3DTruhlu(chestTier) {
+            // Vyčistenie predchádzajúceho objektu a lootu
+            if (aktualnaTruhla) scene.remove(aktualnaTruhla);
+            vypadnutyLoot.forEach(item => scene.remove(item));
+            vypadnutyLoot = [];
+
             const loader = new GLTFLoader();
 
+            // Načítanie súboru zo zložky Img/
             loader.load('Img/truhla.glb', (gltf) => {
-                const chest = gltf.scene;
-                scene.add(chest);
-                
-                // Umiestnenie truhlice do stredu obrazovky
-                chest.position.set(0, -0.3, 0);
-                chest.scale.set(1.2, 1.2, 1.2);
+                aktualnaTruhla = gltf.scene;
+                scene.add(aktualnaTruhla);
 
-                // Definícia farieb pre kovy a odlesky podľa triedy
+                // Umiestnenie truhlice presne do stredu
+                aktualnaTruhla.position.set(0, -0.3, 0);
+                aktualnaTruhla.scale.set(1.2, 1.2, 1.2);
+
+                // Farby podľa triedy
                 const tierColors = {
-                    'B': { metal: 0xcd7f32 }, // Bronzová
-                    'A': { metal: 0xc0c0c0 }, // Strieborná
-                    'S': { metal: 0xffd700 }  // Zlatá (S-Class)
+                    'B': { metal: 0xcd7f32 }, // Bronz
+                    'A': { metal: 0xc0c0c0 }, // Striebro
+                    'S': { metal: 0xffd700 }  // Zlato
                 };
                 const currentTheme = tierColors[chestTier] || tierColors['B'];
 
-                // Prefarbenie kovových častí truhlice
-                chest.traverse((child) => {
+                // Prefarbenie kovov
+                aktualnaTruhla.traverse((child) => {
                     if (child.isMesh && (child.name.toLowerCase().includes('metal') || child.name.toLowerCase().includes('iron') || child.name.toLowerCase().includes('lock') || child.name.toLowerCase().includes('hinge'))) {
                         child.material.color.setHex(currentTheme.metal);
                         child.material.metalness = 0.9;
@@ -112,12 +193,12 @@
                     }
                 });
 
-                // Pridanie 3D puncu na čelo truhle
-                createChestBadge(chest, chestTier, currentTheme.metal);
+                // Vytvorenie 3D puncu na prednej strane
+                vytvorPunc(aktualnaTruhla, chestTier, currentTheme.metal);
 
-                // Nájdenie veka a jeho otvorenie
+                // Nájdenie veka a spustenie animácie
                 let lid = null;
-                chest.traverse((child) => {
+                aktualnaTruhla.traverse((child) => {
                     if (child.name.toLowerCase().includes('lid') || child.name.toLowerCase().includes('top') || child.name.toLowerCase().includes('cover')) {
                         lid = child;
                     }
@@ -128,32 +209,27 @@
                     if (openProgress < 1) {
                         openProgress += 0.025;
                         if (lid) {
-                            // Plynulé odklopenie veka dozadu
                             lid.rotation.x = -Math.PI * 0.45 * Math.sin(openProgress * Math.PI / 2);
                         }
                         requestAnimationFrame(animateOpen);
                     } else {
-                        // Keď je truhla otvorená, spustíme výbuch mincí a kariet
-                        spawnLootExplosion(scene, chest.position, chestTier);
-                        document.getElementById('info').innerText = "Truhlica otvorená! Loot je na zemi.";
+                        vybuchLootu(scene, aktualnaTruhla.position, chestTier);
                     }
                 }
-                
-                // Spustenie otvárania po 0.6 sekunde
-                setTimeout(animateOpen, 600);
+
+                setTimeout(animateOpen, 500);
             }, undefined, (error) => {
-                console.error("Chyba pri načítavaní truhlice (skontroluj či je súbor v Img/truhla.glb):", error);
-                document.getElementById('info').innerText = "Chyba: Nepodarilo sa načítať Img/truhla.glb";
+                console.error("Chyba pri načítavaní Img/truhla.glb:", error);
             });
         }
 
-        // Vytvorenie 3D puncu s písmenom (B, A, S)
-        function createChestBadge(chest, tier, metalColor) {
+        // Vytvorenie odznaku (PUNC B / A / S)
+        function vytvorPunc(chest, tier, metalColor) {
             const canvas = document.createElement('canvas');
             canvas.width = 128;
             canvas.height = 128;
             const ctx = canvas.getContext('2d');
-            
+
             ctx.fillStyle = '#' + metalColor.toString(16).padStart(6, '0');
             ctx.beginPath();
             ctx.arc(64, 64, 52, 0, Math.PI * 2);
@@ -172,33 +248,33 @@
             const badgeGeo = new THREE.PlaneGeometry(0.35, 0.35);
             const badgeMat = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
             const badgeMesh = new THREE.Mesh(badgeGeo, badgeMat);
-            
-            badgeMesh.position.set(0, 0.35, 0.75); // Pozícia na prednej strane truhly
+
+            badgeMesh.position.set(0, 0.35, 0.75);
             chest.add(badgeMesh);
         }
 
-        // Efekt výbuchu mincí a kariet von z truhly na zem
-        function spawnLootExplosion(scene, originPos, tier) {
+        // Vystrelenie mincí a kariet z truhlice
+        function vybuchLootu(scene, originPos, tier) {
             const itemsCount = tier === 'S' ? 14 : (tier === 'A' ? 10 : 6);
-            
+
             for (let i = 0; i < itemsCount; i++) {
-                // Striedavo mince (valec) a karty (kváder)
                 const isCoin = i % 2 === 0;
                 const geometry = isCoin 
                     ? new THREE.CylinderGeometry(0.1, 0.1, 0.02, 16) 
                     : new THREE.BoxGeometry(0.25, 0.35, 0.01);
-                
-                const color = isCoin ? 0xffd700 : 0x3b82f6; // Zlatá pre mince, modrá pre karty
+
+                const color = isCoin ? 0xffd700 : 0x3b82f6; 
                 const material = new THREE.MeshStandardMaterial({ color: color, metalness: 0.8, roughness: 0.2 });
                 const loot = new THREE.Mesh(geometry, material);
 
                 loot.position.set(originPos.x, originPos.y + 0.4, originPos.z + 0.3);
                 scene.add(loot);
+                vypadnutyLoot.push(loot);
 
                 const angle = (i / itemsCount) * Math.PI * 2;
                 const forceX = Math.cos(angle) * (0.6 + Math.random() * 0.8);
                 const forceZ = Math.sin(angle) * (0.6 + Math.random() * 0.8);
-                const targetY = -0.3; // Úroveň zeme okolo truhlice
+                const targetY = -0.3;
 
                 let t = 0;
                 const startX = loot.position.x;
@@ -210,12 +286,11 @@
                         t += 0.03;
                         loot.position.x = startX + forceX * t;
                         loot.position.z = startZ + forceZ * t;
-                        loot.position.y = startY + (targetY - startY) * t + Math.sin(t * Math.PI) * 1.0; // Oblúk letu
+                        loot.position.y = startY + (targetY - startY) * t + Math.sin(t * Math.PI) * 1.0;
                         loot.rotation.x += 0.1;
                         loot.rotation.y += 0.15;
                         requestAnimationFrame(animateLoot);
                     } else {
-                        // Po dopade ostanú stabilne ležať na zemi
                         loot.position.y = targetY;
                         if (isCoin) {
                             loot.rotation.x = Math.PI / 2;
@@ -225,7 +300,7 @@
                         }
                     }
                 }
-                setTimeout(animateLoot, i * 45); // Postupné vyprsknutie
+                setTimeout(animateLoot, i * 45);
             }
         }
 
@@ -235,7 +310,6 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        // Hlavná renderovacia slučka
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
@@ -243,7 +317,6 @@
         }
 
         init();
-        animate();
     </script>
 </body>
 </html>
