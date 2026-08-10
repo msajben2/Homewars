@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.9 - THREE.JS 3D CHEST & FIXES)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.10 - THREE.JS 3D CHEST & UPRIGHT LOOT)
 // =========================================================================
 
 import * as THREE from 'three';
@@ -17,7 +17,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     }
 })();
 
-var VERZIA = "10.9.9";
+var VERZIA = "10.9.10";
 
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
@@ -647,9 +647,9 @@ function aktualizujArchivyVizualne() {
 }
 
 // =========================================================================
-// THREE.JS REAL 3D ENGINE PRE TRUHLU (VYLEPŠENÁ KAMERA & CELOOBRAZOVKOVO)
+// THREE.JS REAL 3D ENGINE PRE TRUHLU (VYCENTROVANÁ & UPRIGHT LOOT SPREAD)
 // =========================================================================
-function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, onOpenCallback) {
+function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, vyrebrovaneKarty, onOpenCallback) {
     containerEl.innerHTML = "";
     
     var chestTier = jeVitaz ? 'S' : 'B';
@@ -657,9 +657,9 @@ function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, onOpenCallback) {
     var scene = new THREE.Scene();
     scene.background = null; 
 
-    // Kamera usadená ideálne zhora aj z diaľky pre vycentrovanie truhlice
+    // Správne nastavená kamera so stabilným odstupom
     var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 1.8, 5.5);
+    camera.position.set(0, 2.2, 6.5);
     camera.lookAt(0, 0, 0);
 
     var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -674,29 +674,42 @@ function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, onOpenCallback) {
     controls.enablePan = false;
     controls.target.set(0, 0, 0);
 
-    var ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
-    scene.add(ambientLight);
-
+    // OSVETLENIE
+    scene.add(new THREE.AmbientLight(0xffffff, 1.5));
     var dirLight = new THREE.DirectionalLight(0xffffff, 2.5);
     dirLight.position.set(5, 10, 7);
     scene.add(dirLight);
 
-    var pointLight = new THREE.PointLight(0xffaa00, 1.5, 6);
-    pointLight.position.set(0, 0.5, 0.5);
+    var pointLight = new THREE.PointLight(0xffaa00, 2.0, 10);
+    pointLight.position.set(0, 1, 1);
     scene.add(pointLight);
 
     var aktualnaTruhla = null;
-    var vypadnutyLoot = [];
     var isOpening = false;
 
     var loader = new GLTFLoader();
     loader.load('Img/truhla.glb', (gltf) => {
         aktualnaTruhla = gltf.scene;
-        scene.add(aktualnaTruhla);
+        
+        // 1. AUTOMATICKÉ VYCENTROVANIE A ZMENŠENIE MODELU
+        var box = new THREE.Box3().setFromObject(aktualnaTruhla);
+        var center = box.getCenter(new THREE.Vector3());
+        var size = box.getSize(new THREE.Vector3());
 
-        aktualnaTruhla.position.set(0, -0.6, 0);
-        aktualnaTruhla.scale.set(1.0, 1.0, 1.0);
+        aktualnaTruhla.position.x -= center.x;
+        aktualnaTruhla.position.y -= center.y;
+        aktualnaTruhla.position.z -= center.z;
 
+        var maxDim = Math.max(size.x, size.y, size.z);
+        var scale = 2.2 / maxDim; // Presná mierka pre vycentrovanie do stredu
+        aktualnaTruhla.scale.set(scale, scale, scale);
+
+        var wrapperGroup = new THREE.Group();
+        wrapperGroup.add(aktualnaTruhla);
+        wrapperGroup.position.set(0, 0.2, 0); // Truhlica presne v strede
+        scene.add(wrapperGroup);
+
+        // Prefarbenie kovov podľa triedy
         var tierColors = {
             'B': { metal: 0xcd7f32 },
             'A': { metal: 0xc0c0c0 },
@@ -712,87 +725,121 @@ function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, onOpenCallback) {
             }
         });
 
-        vytvorPunc(aktualnaTruhla, chestTier, currentTheme.metal);
+        // 2. PUNC NALEPENÝ PRIAMO NA PREDNEJ DOSKE
+        vytvorPunc(wrapperGroup, chestTier, currentTheme.metal, (size.z * scale) / 2);
+
+        // Kliknutie na otvorenie truhlice
+        containerEl.onclick = function() {
+            if (!isOpening) {
+                isOpening = true;
+                
+                let lid = null;
+                aktualnaTruhla.traverse((child) => {
+                    if (child.name.toLowerCase().includes('lid') || child.name.toLowerCase().includes('top') || child.name.toLowerCase().includes('cover')) {
+                        lid = child;
+                    }
+                });
+
+                let openProgress = 0;
+                function animateOpen() {
+                    if (openProgress < 1) {
+                        openProgress += 0.025;
+                        if (lid) {
+                            lid.rotation.x = -Math.PI * 0.45 * Math.sin(openProgress * Math.PI / 2);
+                        }
+                        requestAnimationFrame(animateOpen);
+                    } else {
+                        // 3. VYSTRELENIE MINCÍ A KARIET NASTOJATO OKOLO TRUHLE
+                        vybuchLootuNaStojato(scene, vyrebrovaneKarty);
+                        if (onOpenCallback) onOpenCallback();
+                    }
+                }
+                animateOpen();
+            }
+        };
+
     }, undefined, (error) => {
         console.error("Chyba pri načítavaní Img/truhla.glb:", error);
     });
 
-    function vytvorPunc(chest, tier, metalColor) {
+    function vytvorPunc(parent, tier, metalColor, offsetZ) {
         var canvas = document.createElement('canvas');
-        canvas.width = 128;
-        canvas.height = 128;
+        canvas.width = 256;
+        canvas.height = 256;
         var ctx = canvas.getContext('2d');
 
         ctx.fillStyle = '#' + metalColor.toString(16).padStart(6, '0');
         ctx.beginPath();
-        ctx.arc(64, 64, 52, 0, Math.PI * 2);
+        ctx.arc(128, 128, 100, 0, Math.PI * 2);
         ctx.fill();
-        ctx.lineWidth = 8;
+        ctx.lineWidth = 14;
         ctx.strokeStyle = '#ffffff';
         ctx.stroke();
 
         ctx.fillStyle = '#000000';
-        ctx.font = 'bold 64px Arial';
+        ctx.font = 'bold 120px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(tier, 64, 64);
+        ctx.fillText(tier, 128, 128);
 
         var texture = new THREE.CanvasTexture(canvas);
-        var badgeGeo = new THREE.PlaneGeometry(0.35, 0.35);
+        var badgeGeo = new THREE.PlaneGeometry(0.55, 0.55);
         var badgeMat = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
         var badgeMesh = new THREE.Mesh(badgeGeo, badgeMat);
 
-        badgeMesh.position.set(0, 0.35, 0.75);
-        chest.add(badgeMesh);
+        badgeMesh.position.set(0, 0.1, offsetZ + 0.03);
+        parent.add(badgeMesh);
     }
 
-    function vybuchLootu(originPos, tier) {
-        var itemsCount = tier === 'S' ? 14 : (tier === 'A' ? 10 : 6);
+    // 4. VYSTRELENIE A ROZLOŽENIE KARIET NASTOJATO (VRCH HORE, SPODOK DOLE)
+    function vybuchLootuNaStojato(scene, kartyData) {
+        var totalItems = kartyData.length + 8;
+        var radius = 2.4; 
 
-        for (var i = 0; i < itemsCount; i++) {
-            var isCoin = i % 2 === 0;
-            var geometry = isCoin 
-                ? new THREE.CylinderGeometry(0.1, 0.1, 0.02, 16) 
-                : new THREE.BoxGeometry(0.25, 0.35, 0.01);
+        for (var i = 0; i < totalItems; i++) {
+            var isCard = i < kartyData.length;
+            var mesh;
 
-            var color = isCoin ? 0xffd700 : 0x3b82f6; 
-            var material = new THREE.MeshStandardMaterial({ color: color, metalness: 0.8, roughness: 0.2 });
-            var loot = new THREE.Mesh(geometry, material);
+            if (isCard) {
+                var cardGeo = new THREE.BoxGeometry(0.55, 0.8, 0.01);
+                var cardMat = new THREE.MeshStandardMaterial({ color: 0x3b82f6, metalness: 0.3, roughness: 0.4 });
+                mesh = new THREE.Mesh(cardGeo, cardMat);
+            } else {
+                var coinGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.03, 16);
+                var coinMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.1 });
+                mesh = new THREE.Mesh(coinGeo, coinMat);
+            }
 
-            loot.position.set(originPos.x, originPos.y + 0.4, originPos.z + 0.3);
-            scene.add(loot);
-            vypadnutyLoot.push(loot);
+            mesh.position.set(0, 0.4, 0);
+            scene.add(mesh);
 
-            var angle = (i / itemsCount) * Math.PI * 2;
-            var forceX = Math.cos(angle) * (1.0 + Math.random() * 0.8);
-            var forceZ = Math.sin(angle) * (1.0 + Math.random() * 0.8);
-            var targetY = -0.6;
+            var angle = (i / totalItems) * Math.PI * 2;
+            var targetX = Math.cos(angle) * (radius + Math.random() * 0.3);
+            var targetZ = Math.sin(angle) * (radius + Math.random() * 0.3);
+            var targetY = -0.5;
 
-            let t = 0;
-            let startX = loot.position.x;
-            let startZ = loot.position.z;
-            let startY = loot.position.y;
-
-            function animateLoot() {
-                if (t < 1) {
-                    t += 0.03;
-                    loot.position.x = startX + forceX * t;
-                    loot.position.z = startZ + forceZ * t;
-                    loot.position.y = startY + (targetY - startY) * t + Math.sin(t * Math.PI) * 1.2;
-                    loot.rotation.x += 0.1;
-                    loot.rotation.y += 0.15;
-                    requestAnimationFrame(animateLoot);
-                } else {
-                    loot.position.y = targetY;
-                    if (isCoin) {
-                        loot.rotation.x = Math.PI / 2;
+            (function(item, tx, tz, ty, cardCheck) {
+                let t = 0;
+                function animujLoot() {
+                    if (t < 1) {
+                        t += 0.035;
+                        item.position.x = tx * t;
+                        item.position.z = tz * t;
+                        item.position.y = 0.4 + (ty - 0.4) * t + Math.sin(t * Math.PI) * 1.5;
+                        item.rotation.y += 0.2;
+                        requestAnimationFrame(animujLoot);
                     } else {
-                        loot.rotation.x = 0;
-                        loot.rotation.y = 0;
+                        item.position.set(tx, ty, tz);
+                        if (cardCheck) {
+                            // KARTA STOJÍ VERTIKÁLNE (VRCH HORE) A SMRUJE KU KAMERE
+                            item.rotation.set(0, 0, 0); 
+                        } else {
+                            item.rotation.set(Math.PI / 2, 0, 0); 
+                        }
                     }
                 }
-            }
-            setTimeout(animateLoot, i * 45);
+                setTimeout(animujLoot, i * 45);
+            })(mesh, targetX, targetZ, targetY, isCard);
         }
     }
 
@@ -802,85 +849,6 @@ function inicializujThreeJS3DTruhlu(containerEl, jeVitaz, onOpenCallback) {
         if (renderer && scene && camera) renderer.render(scene, camera);
     }
     animate();
-
-    containerEl.onclick = function() {
-        if (!isOpening && aktualnaTruhla) {
-            isOpening = true;
-            
-            let lid = null;
-            aktualnaTruhla.traverse((child) => {
-                if (child.name.toLowerCase().includes('lid') || child.name.toLowerCase().includes('top') || child.name.toLowerCase().includes('cover')) {
-                    lid = child;
-                }
-            });
-
-            let openProgress = 0;
-            function animateOpen() {
-                if (openProgress < 1) {
-                    openProgress += 0.025;
-                    if (lid) {
-                        lid.rotation.x = -Math.PI * 0.45 * Math.sin(openProgress * Math.PI / 2);
-                    }
-                    requestAnimationFrame(animateOpen);
-                } else {
-                    vybuchLootu(aktualnaTruhla.position, chestTier);
-                    if (onOpenCallback) onOpenCallback();
-                }
-            }
-            animateOpen();
-        }
-    };
-}
-
-function spustiMinceCanvasFX(canvasEl) {
-    var ctx = canvasEl.getContext("2d");
-    var width = canvasEl.width = 600;
-    var height = canvasEl.height = 400;
-    var castice = [];
-    
-    for (var i = 0; i < 80; i++) {
-        castice.push({
-            x: width / 2,
-            y: height / 2 + 10,
-            vx: (Math.random() - 0.5) * 16,
-            vy: -Math.random() * 14 - 5,
-            gravity: 0.45,
-            size: Math.random() * 7 + 5,
-            color: Math.random() > 0.3 ? "#ffd700" : "#ffae00",
-            rotation: Math.random() * Math.PI * 2,
-            vRot: (Math.random() - 0.5) * 0.25
-        });
-    }
-    
-    function loop() {
-        ctx.clearRect(0, 0, width, height);
-        var esteBezia = false;
-        
-        castice.forEach(function(p) {
-            p.x += p.vx;
-            p.y += p.vy;
-            p.vy += p.gravity;
-            p.rotation += p.vRot;
-            
-            if (p.y < height - 20) esteBezia = true;
-            else p.y = height - 20;
-            
-            ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.rotate(p.rotation);
-            ctx.fillStyle = p.color;
-            ctx.beginPath();
-            ctx.arc(0, 0, p.size, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = "#fff7a1";
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-            ctx.restore();
-        });
-        
-        if (esteBezia) requestAnimationFrame(loop);
-    }
-    loop();
 }
 
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
@@ -927,7 +895,7 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (!cModal) {
         cModal = document.createElement("div");
         cModal.id = "chest-anim-modal";
-        cModal.className = "chest-modal-overlay";
+        cModal.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.92); backdrop-filter:blur(10px); display:none; justify-content:center; align-items:center; z-index:99999;";
         cModal.onclick = function(e) {
             if (e.target === cModal) cModal.style.display = "none";
         };
@@ -943,33 +911,33 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
         var basePwr = isSpecialCard(drop.meno) ? "none" : reg.p;
         
         kartyHTML += `
-            <div class="chest-card-wrapper" style="animation-delay: ${cardDelay}s; display: flex; flex-direction: column; align-items: center;">
+            <div class="chest-card-wrapper" style="animation-delay: ${cardDelay}s; display: flex; flex-direction: column; align-items: center; margin: 8px;">
                 <div class="karta cls-C chest-card-front">
                     ${vytvorHTMLKarty(drop.meno, basePwr, "C", reg.row, reg.p)}
                 </div>
-                <div style="background: #221a0f; color: #ffcc00; border: 1px solid #ffcc00; padding: 2px 10px; border-radius: 12px; font-weight: bold; font-size: 0.9em; margin-top: 6px; box-shadow: 0 0 8px #000;">+${drop.davka}x</div>
+                <div style="background: #110d06; color: #ffcc00; border: 1px solid #ffcc00; padding: 3px 12px; border-radius: 12px; font-weight: bold; font-size: 0.95em; margin-top: 8px; box-shadow: 0 0 10px #000;">+${drop.davka}x</div>
             </div>
         `;
-        cardDelay += 0.18;
+        cardDelay += 0.15;
     });
 
     cModal.innerHTML = `
-        <div class="chest-stage" id="chest-stage-box" onclick="event.stopPropagation()">
-            <span class="card-modal-close" onclick="document.getElementById('chest-anim-modal').style.display='none'">&times;</span>
-            <h2 style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2.2em; margin:0 0 10px 0;">${titulok}</h2>
+        <div style="position:relative; width:100vw; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:20px; box-sizing:border-box; pointer-events:none;" onclick="event.stopPropagation()">
+            <span class="card-modal-close" onclick="document.getElementById('chest-anim-modal').style.display='none'" style="pointer-events:auto; position:absolute; top:20px; right:30px; font-size:2em; color:#fff; cursor:pointer; z-index:100;">&times;</span>
             
-            <div class="chest-3d-viewport" id="chest-three-container">
-                <canvas id="chest-fx-canvas"></canvas>
+            <h2 style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2.2em; margin:10px 0 0 0; z-index:10;">${titulok}</h2>
+            
+            <div id="chest-three-container" style="position:absolute; top:0; left:0; width:100vw; height:100vh; z-index:1; pointer-events:auto;"></div>
+            
+            <div id="chest-click-prompt" style="color:#fff; font-size:1.3em; font-weight:bold; text-shadow:0 0 10px #ffcc00; margin-top:auto; margin-bottom:20px; z-index:10; animation: pulse 1.5s infinite;">✨ KLIKNI NA TRUHLU PRE OTVORENIE ✨</div>
+
+            <div id="chest-rewards-box" style="display:flex; flex-direction:column; align-items:center; z-index:10; pointer-events:auto; opacity:0; transition:opacity 0.8s ease; max-width:90vw;">
+                <div id="chest-gold-text" style="color:#ffcc00; font-weight:bold; font-size:1.4em; margin-bottom:10px; text-shadow:0 0 10px #000;">🪙 +${ziskaneMince} Zlatých mincí</div>
+                <div style="display:flex; flex-wrap:wrap; justify-content:center; max-height:40vh; overflow-y:auto; padding:10px; background:rgba(0,0,0,0.7); border-radius:12px; border:1px solid rgba(255,204,0,0.4);">
+                    ${kartyHTML}
+                </div>
+                <button id="chest-close-btn" onclick="document.getElementById('chest-anim-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:12px 35px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1.1em; margin-top:15px; box-shadow:0 0 15px #28a745;">Zozbierať odmeny</button>
             </div>
-            <div id="chest-click-prompt" class="chest-prompt-text">✨ KLIKNI NA TRUHLU PRE OTVORENIE ✨</div>
-
-            <div id="chest-gold-text" style="color:#ffcc00; font-weight:bold; font-size:1.3em; margin:10px 0; text-shadow:0 0 8px #000; opacity:0; transition:opacity 0.5s ease;">🪙 +${ziskaneMince} Zlatých mincí</div>
-
-            <div class="chest-cards-container" id="chest-cards-box">
-                ${kartyHTML}
-            </div>
-
-            <button id="chest-close-btn" onclick="document.getElementById('chest-anim-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:12px 30px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:1.1em; margin-top:20px; box-shadow:0 0 15px #28a745; display:none;">Zozbierať odmeny</button>
         </div>
     `;
 
@@ -977,21 +945,10 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
 
     var threeBox = document.getElementById("chest-three-container");
     if (threeBox) {
-        inicializujThreeJS3DTruhlu(threeBox, jeVitaz, function() {
+        inicializujThreeJS3DTruhlu(threeBox, jeVitaz, vyžrebovanéKartyZoznam, function() {
             document.getElementById("chest-click-prompt").style.display = "none";
-            var stage = document.getElementById("chest-stage-box");
-            if (stage) stage.classList.add("open");
-
-            var fxCanvas = document.getElementById("chest-fx-canvas");
-            if (fxCanvas) spustiMinceCanvasFX(fxCanvas);
-
-            setTimeout(function() {
-                var goldText = document.getElementById("chest-gold-text");
-                var btn = document.getElementById("chest-close-btn");
-
-                if (goldText) goldText.style.opacity = "1";
-                if (btn) btn.style.display = "inline-block";
-            }, 800);
+            var rewardsBox = document.getElementById("chest-rewards-box");
+            if (rewardsBox) rewardsBox.style.opacity = "1";
         });
     }
 
