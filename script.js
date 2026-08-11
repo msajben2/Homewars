@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÁ VERZIA 10.9.16 - VŠETKO V JEDNOM)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.17 - FULL CLEANOVERLAY & AUDIO FIX)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.9.16";
+var VERZIA = "10.9.17";
 
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
@@ -172,7 +172,6 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     return html;
 }
 
-// FIX: DETAIL KARTY - POPISY A TEXTY UŽ NEPREKRYVAJÚ OBRÁZOK
 function otvorDetailKarty(meno) {
     var reg = getRegistryCard(meno);
     if (!reg) return;
@@ -211,6 +210,7 @@ function otvorDetailKarty(meno) {
     modal.style.display = "flex";
 }
 
+// FIX: NÁVOD AKO VEĽKÁ PREHĽADNÁ OBRAZOVKA (BEZ TESNÉHO RÁMU KARTY)
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
     if (!modal) {
@@ -222,12 +222,18 @@ function otvoriťNavodHry() {
     }
 
     modal.innerHTML = `
-        <div class="card-modal-content navod-modal-content cls-S" onclick="event.stopPropagation()">
-            <span class="card-modal-close" onclick="document.getElementById('navod-modal').style.display='none'">&times;</span>
-            <h2 style="color:#d4af37; border-bottom:2px solid #5a4d3e; padding-bottom:10px;">📜 NÁVOD, PRAVIDLÁ & SCHOPNOSTI KARIET</h2>
-            <div style="text-align:left; font-size:0.9em; line-height:1.5; color:#e0d0b0; max-height:60vh; overflow-y:auto; padding-right:10px;">
-                <h3 style="color:#ffcc00; margin-top:10px;">1. Cieľ Hry</h3>
-                <p>Home Wars je stredoveká taktická kartová hra na 2 víťazné kolá.</p>
+        <div style="background:rgba(15,12,8,0.95); border:2px solid #d4af37; border-radius:12px; width:90vw; max-width:1000px; height:85vh; padding:30px; box-sizing:border-box; color:#e0d0b0; display:flex; flex-direction:column; position:relative; box-shadow:0 0 40px rgba(0,0,0,0.9);" onclick="event.stopPropagation()">
+            <span class="card-modal-close" onclick="document.getElementById('navod-modal').style.display='none'" style="position:absolute; top:15px; right:25px; font-size:2.2em; color:#d4af37; cursor:pointer;">&times;</span>
+            <h2 style="color:#d4af37; border-bottom:2px solid #5a4d3e; padding-bottom:12px; margin-top:0; font-size:1.8em;">📜 NÁVOD, PRAVIDLÁ & SCHOPNOSTI KARIET</h2>
+            <div style="text-align:left; font-size:1.0em; line-height:1.6; overflow-y:auto; padding-right:15px; flex-grow:1;">
+                <h3 style="color:#ffcc00;">1. Cieľ Hry</h3>
+                <p>Home Wars je stredoveká taktická kartová hra na 2 víťazné kolá. Vyhráva ten, kto na konci kola získa vyšší súčet bodov vo svojich troch radoch.</p>
+                
+                <h3 style="color:#ffcc00; margin-top:20px;">2. Pravidlá Vykladania & Radov</h3>
+                <p>Karty sa vykladajú do 3 bojových radov: <strong>1. Rad (Muži)</strong>, <strong>2. Rad (Ženy)</strong> a <strong>3. Rad (Zvieratá)</strong>.</p>
+                
+                <h3 style="color:#ffcc00; margin-top:20px;">3. Dielna & Vylepšovanie Kariet (Forge)</h3>
+                <p>Zbierajte repliky kariet z truhiel a vylepšujte ich v Dielni z C-Class na B (Bronz), A (Striebro) a S (Zlato). Vyššia trieda dáva karte permanentnú bonusovú silu a špeciálne efekty!</p>
             </div>
         </div>
     `;
@@ -648,7 +654,7 @@ function aktualizujArchivyVizualne() {
 }
 
 // =========================================================================
-// CHROMA KEY MP4 VIDEO ENGINE (VYREZANIE ZELENEJ Z Img/truhla.mp4)
+// CHROMA KEY ENGINE (VYČISTENÉ TMAVÉ POZADIE PRE TRUHLU)
 // =========================================================================
 function spustiChromaKeyVideo(containerEl, onVideoEnded) {
     containerEl.innerHTML = "";
@@ -658,6 +664,7 @@ function spustiChromaKeyVideo(containerEl, onVideoEnded) {
     video.playsInline = true;
     video.muted = true;
     video.crossOrigin = "anonymous";
+    video.preload = "auto";
 
     var canvas = document.createElement("canvas");
     canvas.width = 640;
@@ -669,28 +676,39 @@ function spustiChromaKeyVideo(containerEl, onVideoEnded) {
     var animFrameId = null;
 
     function renderFrame() {
-        if (video.paused || video.ended) return;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        var frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        var l = frame.data.length / 4;
+        if (video.readyState >= 2) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            var frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var l = frame.data.length / 4;
 
-        for (var i = 0; i < l; i++) {
-            var r = frame.data[i * 4 + 0];
-            var g = frame.data[i * 4 + 1];
-            var b = frame.data[i * 4 + 2];
+            for (var i = 0; i < l; i++) {
+                var r = frame.data[i * 4 + 0];
+                var g = frame.data[i * 4 + 1];
+                var b = frame.data[i * 4 + 2];
 
-            if (g > 65 && g > r * 1.12 && g > b * 1.12) {
-                frame.data[i * 4 + 3] = 0; 
-            } else if (g > r && g > b) {
-                var factor = (g - Math.max(r, b)) / g;
-                frame.data[i * 4 + 1] = Math.max(r, b);
-                frame.data[i * 4 + 3] = Math.floor(255 * (1 - factor));
+                if (g > 60 && g > r * 1.1 && g > b * 1.1) {
+                    frame.data[i * 4 + 3] = 0; 
+                } else if (g > r && g > b) {
+                    var factor = (g - Math.max(r, b)) / g;
+                    frame.data[i * 4 + 1] = Math.max(r, b);
+                    frame.data[i * 4 + 3] = Math.floor(255 * (1 - factor));
+                }
             }
+            ctx.putImageData(frame, 0, 0);
         }
-        ctx.putImageData(frame, 0, 0);
-        animFrameId = requestAnimationFrame(renderFrame);
+        
+        if (!video.paused && !video.ended) {
+            animFrameId = requestAnimationFrame(renderFrame);
+        }
     }
+
+    video.addEventListener("loadeddata", function() {
+        renderFrame();
+    });
 
     video.addEventListener("play", function() {
         renderFrame();
@@ -708,7 +726,7 @@ function spustiChromaKeyVideo(containerEl, onVideoEnded) {
 }
 
 // =========================================================================
-// HUDOBNÝ SYSTÉM (6 SKLADIEB V SLUČKE, AUTOMATICKÝ OVLÁDAČ V MENU)
+// HUDOBNÝ SYSTÉM (NEZÁVISLÝ AUDIO OVLÁDAČ DOSTUPNÝ AJ POČAS GAMEPLAYU)
 // =========================================================================
 var playlist = [
     { nazov: "Skladba 1", src: "Audio/track1.mp3" },
@@ -734,24 +752,18 @@ function inicializujHudobnySystem() {
         dalsiaSkladba();
     };
 
-    var header = document.querySelector("header");
-    if (header && !document.getElementById("audio-control-panel")) {
+    // OVLÁDAČ UPOZORNENÝ MIMO ZAMKNUTEJ HLAVIČKY (Dostupný aj počas zápasu)
+    if (!document.getElementById("audio-control-panel")) {
         var audioBox = document.createElement("div");
         audioBox.id = "audio-control-panel";
-        audioBox.style.cssText = "display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.5); padding: 4px 12px; border-radius: 6px; border: 1px solid #5a4d3e; margin-left: 10px;";
+        audioBox.style.cssText = "position: fixed; top: 12px; right: 15px; z-index: 999999; display: flex; align-items: center; gap: 8px; background: rgba(15, 12, 8, 0.85); backdrop-filter: blur(8px); padding: 5px 14px; border-radius: 20px; border: 1px solid #d4af37; box-shadow: 0 0 15px rgba(0,0,0,0.8);";
         
         audioBox.innerHTML = `
             <button id="btn-audio-mute" onclick="prepniMuteHudby()" style="background: none; border: none; font-size: 1.1em; cursor: pointer; color: #ffcc00;" title="Mute / Unmute">🔊</button>
             <input type="range" id="audio-volume-bar" min="0" max="1" step="0.01" value="0.3" oninput="zmenHlasitostHudby(this.value)" style="width: 70px; cursor: pointer; accent-color: #ffcc00;" title="Hlasitosť">
             <span id="audio-track-title" style="font-size: 0.75em; color: #d4af37; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🎵 Hudba...</span>
         `;
-        
-        var wallet = document.getElementById("wallet-p1");
-        if (wallet) {
-            header.insertBefore(audioBox, wallet);
-        } else {
-            header.appendChild(audioBox);
-        }
+        document.body.appendChild(audioBox);
     }
 
     naciatajSkladbu(0);
@@ -835,7 +847,7 @@ window.prepniMuteHudby = prepniMuteHudby;
 window.zmenHlasitostHudby = zmenHlasitostHudby;
 
 // =========================================================================
-// OTVÁRANIE TRUHLICE S VIDEOM A SUMÁROM ODMEN
+// OTVÁRANIE TRUHLICE S PREHĽADNÝM BOČNÝM PANELOM ODMIEN
 // =========================================================================
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
@@ -883,7 +895,7 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (!cModal) {
         cModal = document.createElement("div");
         cModal.id = "chest-anim-modal";
-        cModal.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.96); backdrop-filter:blur(12px); display:none; justify-content:center; align-items:center; z-index:99999;";
+        cModal.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:#050403; display:none; justify-content:center; align-items:center; z-index:99999;";
         cModal.onclick = function(e) {
             if (e.target === cModal) {
                 obnovHudbuPoAnimacii();
@@ -913,18 +925,19 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     });
 
     cModal.innerHTML = `
-        <div style="position:relative; width:100vw; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:20px; box-sizing:border-box; pointer-events:none;" onclick="event.stopPropagation()">
-            <span class="card-modal-close" onclick="obnovHudbuPoAnimacii(); document.getElementById('chest-anim-modal').style.display='none'" style="pointer-events:auto; position:absolute; top:20px; right:30px; font-size:2em; color:#fff; cursor:pointer; z-index:100;">&times;</span>
+        <div style="position:relative; width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box; pointer-events:none;" onclick="event.stopPropagation()">
+            <span class="card-modal-close" onclick="obnovHudbuPoAnimacii(); document.getElementById('chest-anim-modal').style.display='none'" style="pointer-events:auto; position:absolute; top:20px; right:30px; font-size:2.2em; color:#d4af37; cursor:pointer; z-index:100;">&times;</span>
             
-            <h2 style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2.2em; margin:10px 0 0 0; z-index:10;">${titulok}</h2>
+            <div id="chest-left-video-box" style="display:flex; flex-direction:column; align-items:center; justify-content:center; transition: all 0.6s ease; width:100%; max-width:650px;">
+                <h2 id="chest-main-title" style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2.2em; margin-bottom:20px;">${titulok}</h2>
+                <div id="chest-video-container" style="width:100%; max-width:550px; pointer-events:auto; cursor:pointer;"></div>
+                <div id="chest-click-prompt" style="color:#fff; font-size:1.3em; font-weight:bold; text-shadow:0 0 12px #ffcc00; margin-top:20px; pointer-events:auto; cursor:pointer; background:rgba(0,0,0,0.8); padding:12px 30px; border-radius:30px; border:2px solid #ffcc00;">✨ KLIKNI NA TRUHLU PRE OTVORENIE ✨</div>
+            </div>
 
-            <div id="chest-video-container" style="position:absolute; top:45%; left:50%; transform:translate(-50%, -50%); width:100%; max-width:650px; height:auto; z-index:2; pointer-events:auto; cursor:pointer; transition: opacity 0.5s ease;"></div>
-            
-            <div id="chest-click-prompt" style="color:#fff; font-size:1.4em; font-weight:bold; text-shadow:0 0 12px #ffcc00; margin-top:auto; margin-bottom:40px; z-index:10; pointer-events:auto; cursor:pointer; background:rgba(0,0,0,0.6); padding:12px 25px; border-radius:30px; border:2px solid #ffcc00;">✨ KLIKNI SEM PRE OTVORENIE TRUHLICE ✨</div>
-
-            <div id="chest-rewards-box" style="display:none; flex-direction:column; align-items:center; z-index:10; pointer-events:auto; opacity:0; transition:opacity 0.8s ease; width:100%; max-width:1200px; margin-bottom:20px;">
-                <div id="chest-gold-text" style="color:#ffcc00; font-weight:bold; font-size:1.8em; margin-bottom:15px; text-shadow:0 0 12px #000;">🪙 +${ziskaneMince} Zlatých mincí</div>
-                <div style="display:flex; flex-wrap:wrap; justify-content:center; max-height:60vh; overflow-y:auto; padding:20px; background:rgba(15,12,8,0.9); border-radius:12px; border:1px solid rgba(255,204,0,0.5); width:100%; box-shadow:0 0 30px rgba(0,0,0,0.8);">
+            <!-- PREHĽADNÁ TABUĽKA ODMEN BOKOM PO OTVORENÍ -->
+            <div id="chest-rewards-box" style="display:none; flex-direction:column; align-items:center; z-index:10; pointer-events:auto; opacity:0; transition:opacity 0.8s ease; width:55%; max-width:800px; margin-left:30px;">
+                <div id="chest-gold-text" style="color:#ffcc00; font-weight:bold; font-size:1.8em; margin-bottom:15px; text-shadow:0 0 12px #000;">🪙 Získané odmeny: +${ziskaneMince} Mincí</div>
+                <div style="display:flex; flex-wrap:wrap; justify-content:center; max-height:65vh; overflow-y:auto; padding:20px; background:rgba(15,12,8,0.95); border-radius:12px; border:1px solid rgba(255,204,0,0.5); width:100%; box-shadow:0 0 30px rgba(0,0,0,0.9);">
                     ${kartyHTML}
                 </div>
                 <button id="chest-close-btn" onclick="obnovHudbuPoAnimacii(); document.getElementById('chest-anim-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:12px 40px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1.2em; margin-top:20px; box-shadow:0 0 15px #28a745;">Zozbierať odmeny</button>
@@ -937,10 +950,13 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     var videoBox = document.getElementById("chest-video-container");
     var promptText = document.getElementById("chest-click-prompt");
     var rewardsBox = document.getElementById("chest-rewards-box");
+    var leftBox = document.getElementById("chest-left-video-box");
 
     var isPlayed = false;
     var chromaEngine = spustiChromaKeyVideo(videoBox, function() {
-        if (videoBox) videoBox.style.opacity = "0.15"; 
+        if (leftBox) {
+            leftBox.style.maxWidth = "350px";
+        }
         rewardsBox.style.display = "flex";
         setTimeout(function() {
             rewardsBox.style.opacity = "1";
@@ -963,7 +979,7 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
 }
 
 // =========================================================================
-// MAGICKÝ KOVÁČSKY RITUÁL V DIELNI (S PAUZOU HUDBY A ŽIARIVÝM ZÁBLESKOM)
+// MAGICKÝ KOVÁČSKY RITUÁL V DIELNI
 // =========================================================================
 function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) {
     pozastavHudbuPreAnimaciu();
@@ -1794,6 +1810,7 @@ function devTestPresetSisaKvety() {
     spustiPrepocty();
 }
 
+// FIX: VÝSLEDKY SIMULÁCIE AKO VEĽKÁ PREHĽADNÁ TABUĽKA BEZ RÁMOV
 function devSpustiPokrociluSimulaciu(pocetZapasov) {
     var diffSelect = document.getElementById("sim-diff-select");
     var zvolenaDiff = diffSelect ? diffSelect.value : "S";
@@ -1862,22 +1879,6 @@ function devSpustiPokrociluSimulaciu(pocetZapasov) {
     jeSingleplayer = starySP;
     obtiaznostAI = staryDiff;
 
-    var topKarta = "-";
-    var topWinRate = 0;
-    var topOdohrané = 0;
-
-    Object.keys(kartaStats).forEach(function(meno) {
-        var st = kartaStats[meno];
-        if (st.played >= 30) {
-            var wr = (st.wins / st.played) * 100;
-            if (wr > topWinRate) {
-                topWinRate = wr;
-                topKarta = meno;
-                topOdohrané = st.played;
-            }
-        }
-    });
-
     var winRateP1 = ((p1Vyhry / pocetZapasov) * 100).toFixed(1);
     var winRateP2 = ((p2Vyhry / pocetZapasov) * 100).toFixed(1);
 
@@ -1891,14 +1892,14 @@ function devSpustiPokrociluSimulaciu(pocetZapasov) {
     }
 
     resModal.innerHTML = `
-        <div class="card-modal-content cls-S" style="width:520px;" onclick="event.stopPropagation()">
-            <span class="card-modal-close" onclick="document.getElementById('sim-result-modal').style.display='none'">&times;</span>
-            <h2 style="color:#d4af37;">📊 VÝSLEDKY SIMULÁCIE (${pocetZapasov} DUELOV)</h2>
-            <div style="text-align:left; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px; line-height:1.8;">
-                <p>🎯 <strong>Testovaná obťažnosť AI:</strong> <span style="color:#ffcc00; font-weight:bold;">Trieda ${zvolenaDiff} (${(presnostAI * 100)}% Presnosť)</span></p>
-                <hr style="border-color:#5a4d3e;">
-                <p>🏆 <strong>Hráč 1 Výhry:</strong> ${p1Vyhry} (${winRateP1}%)</p>
-                <p>🤖 <strong>AI (Trieda ${zvolenaDiff}) Výhry:</strong> ${p2Vyhry} (${winRateP2}%)</p>
+        <div style="background:rgba(15,12,8,0.96); border:2px solid #d4af37; border-radius:12px; width:80vw; max-width:800px; padding:30px; box-sizing:border-box; color:#e0d0b0; display:flex; flex-direction:column; position:relative; box-shadow:0 0 40px rgba(0,0,0,0.9);" onclick="event.stopPropagation()">
+            <span class="card-modal-close" onclick="document.getElementById('sim-result-modal').style.display='none'" style="position:absolute; top:15px; right:25px; font-size:2.2em; color:#d4af37; cursor:pointer;">&times;</span>
+            <h2 style="color:#d4af37; border-bottom:2px solid #5a4d3e; padding-bottom:12px; margin-top:0;">📊 VÝSLEDKY SIMULÁCIE (${pocetZapasov} DUELOV)</h2>
+            <div style="text-align:left; background:rgba(0,0,0,0.6); padding:20px; border-radius:8px; line-height:2.0; font-size:1.1em; margin-top:15px;">
+                <p>🎯 <strong>Obťažnosť AI:</strong> <span style="color:#ffcc00; font-weight:bold;">Trieda ${zvolenaDiff} (${(presnostAI * 100)}% Presnosť)</span></p>
+                <hr style="border-color:#5a4d3e; margin:15px 0;">
+                <p>🏆 <strong>Hráč 1 Výhry:</strong> <span style="color:#28a745; font-weight:bold;">${p1Vyhry} (${winRateP1}%)</span></p>
+                <p>🤖 <strong>AI Výhry:</strong> <span style="color:#dc3545; font-weight:bold;">${p2Vyhry} (${winRateP2}%)</span></p>
                 <p>⚖️ <strong>Remízy:</strong> ${remizy}</p>
             </div>
         </div>
