@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.13 - CHROMA KEY, LOOT FX & FORGE GLOW)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÁ VERZIA 10.9.15 - VIDEO, FORGE & AUDIO)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.9.13";
+var VERZIA = "10.9.15";
 
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
@@ -45,7 +45,7 @@ var MASTER_REGISTRY = {
     "Grobské Mravce 2": { row: 3, p: 1, img: "Img/grobske-mravce.webp", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
     "Grobské Mravce 3": { row: 3, p: 1, img: "Img/grobske-mravce.webp", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
     
-    "Petržalské holuby 1": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli prenášajúci tajné správy naprieč kráľovstvom.", abilityDesc: "🤝 Svorka: Fungujú rovnako ako mravce. Viac holubov na stole = znásobená sila!" },
+    "Petržalské holuby 1": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli prenášajúci tajné správy naprieč kráľovstvom.", abilityDesc: "🤝 Svorka: Fungują rovnako ako mravce. Viac holubov na stole = znásobená sila!" },
     "Petržalské holuby 2": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli prenášajúci tajné správy.", abilityDesc: "🤝 Svorka: Násobí silu holubej letky." },
     "Petržalské holuby 3": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli prenášajúci tajné správy.", abilityDesc: "🤝 Svorka: Násobí silu holubej letky." },
     
@@ -172,6 +172,7 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     return html;
 }
 
+// FIX: DETAIL KARTY - POPISY A TEXTY UŽ NEPREKRYVAJÚ OBRÁZOK
 function otvorDetailKarty(meno) {
     var reg = getRegistryCard(meno);
     if (!reg) return;
@@ -190,17 +191,21 @@ function otvorDetailKarty(meno) {
     var triedaRamu = invCard.aktivnaTrieda || "C";
 
     modal.innerHTML = `
-        <div class="card-modal-content cls-${triedaRamu}" onclick="event.stopPropagation()">
+        <div class="card-modal-content cls-${triedaRamu}" onclick="event.stopPropagation()" style="display:flex; flex-direction:column; justify-content:space-between; height:520px; padding:20px; box-sizing:border-box;">
             <span class="card-modal-close" onclick="document.getElementById('card-modal').style.display='none'">&times;</span>
-            <div class="modal-foto" style="background-image: url('${encodeURI(reg.img)}');"></div>
-            <h2 style="margin-top: 15px;">${cisteMeno}</h2>
-            <div class="modal-stats">
-                ${reg.p !== undefined ? `<span>Základná Sila: <strong>${reg.p}b</strong></span>` : ''}
-                ${reg.row ? `<span>Rad: <strong>${reg.row}. Rad</strong></span>` : ''}
-                <span>Trieda: <strong>${triedaRamu}</strong></span>
+            
+            <div class="modal-foto" style="background-image: url('${encodeURI(reg.img)}'); height:260px; background-size:cover; background-position:center; border-radius:8px;"></div>
+            
+            <div style="background:rgba(17, 13, 6, 0.9); padding:12px; border-radius:8px; border:1px solid rgba(212,175,55,0.4); margin-top:10px;">
+                <h2 style="margin:0 0 8px 0; font-size:1.5em; color:#d4af37; text-align:center;">${cisteMeno}</h2>
+                <div class="modal-stats" style="display:flex; justify-content:space-around; font-size:0.9em; margin-bottom:8px; color:#e0d0b0;">
+                    ${reg.p !== undefined ? `<span>Sila: <strong style="color:#ffcc00;">${reg.p}b</strong></span>` : ''}
+                    ${reg.row ? `<span>Rad: <strong style="color:#ffcc00;">${reg.row}. Rad</strong></span>` : ''}
+                    <span>Trieda: <strong style="color:#ffcc00;">${triedaRamu}</strong></span>
+                </div>
+                <p class="modal-desc" style="font-size:0.85em; margin:4px 0; color:#ccc; text-align:center;">${reg.desc || 'Bez popisu.'}</p>
+                ${reg.abilityDesc ? `<div class="modal-ability-box" style="font-size:0.85em; margin-top:6px; color:#ffcc00; text-align:center;"><strong>Schopnosť:</strong> ${reg.abilityDesc}</div>` : ''}
             </div>
-            <p class="modal-desc">${reg.desc || 'Bez popisu.'}</p>
-            ${reg.abilityDesc ? `<div class="modal-ability-box"><strong>Schopnosť:</strong> ${reg.abilityDesc}</div>` : ''}
         </div>
     `;
     modal.style.display = "flex";
@@ -643,7 +648,7 @@ function aktualizujArchivyVizualne() {
 }
 
 // =========================================================================
-// CHROMA KEY MP4 CANVAS ENGINE (BEZ ZELENEJ OBRAZOVKY) & LOOT BURST
+// CHROMA KEY MP4 VIDEO ENGINE (PREHĽADANIE A VYREZANIE ZELENEJ Z Img/truhla.mp4)
 // =========================================================================
 function spustiChromaKeyVideo(containerEl, onVideoEnded) {
     containerEl.innerHTML = "";
@@ -657,13 +662,12 @@ function spustiChromaKeyVideo(containerEl, onVideoEnded) {
     var canvas = document.createElement("canvas");
     canvas.width = 640;
     canvas.height = 480;
-    canvas.style.cssText = "width:100%; height:100%; max-height:45vh; object-fit:contain; cursor:pointer;";
+    canvas.style.cssText = "width:100%; height:100%; max-height:48vh; object-fit:contain; cursor:pointer;";
     containerEl.appendChild(canvas);
 
     var ctx = canvas.getContext("2d");
     var animFrameId = null;
 
-    // ODSTRÁNENIE ZELENEJ FARBY Z VIDEA V REÁLNOM ČASE
     function renderFrame() {
         if (video.paused || video.ended) return;
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -676,9 +680,12 @@ function spustiChromaKeyVideo(containerEl, onVideoEnded) {
             var g = frame.data[i * 4 + 1];
             var b = frame.data[i * 4 + 2];
 
-            // Detekcia zelenej farby
-            if (g > 90 && r < 120 && b < 120) {
-                frame.data[i * 4 + 3] = 0; // Priehľadnosť
+            if (g > 65 && g > r * 1.12 && g > b * 1.12) {
+                frame.data[i * 4 + 3] = 0; 
+            } else if (g > r && g > b) {
+                var factor = (g - Math.max(r, b)) / g;
+                frame.data[i * 4 + 1] = Math.max(r, b);
+                frame.data[i * 4 + 3] = Math.floor(255 * (1 - factor));
             }
         }
         ctx.putImageData(frame, 0, 0);
@@ -700,71 +707,121 @@ function spustiChromaKeyVideo(containerEl, onVideoEnded) {
     };
 }
 
-function spustiLootBurstFX(canvasEl) {
-    var ctx = canvasEl.getContext("2d");
-    var width = canvasEl.width = window.innerWidth;
-    var height = canvasEl.height = window.innerHeight;
-    var castice = [];
+// =========================================================================
+// HUDOBNÝ SYSTÉM (6 SKLADIEB V SLUČKE S PAMÄŤOU ČASU A PAUZOU PRE ANIMÁCIE)
+// =========================================================================
+var playlist = [
+    { nazov: "Skladba 1", src: "Audio/track1.mp3" },
+    { nazov: "Skladba 2", src: "Audio/track2.mp3" },
+    { nazov: "Skladba 3", src: "Audio/track3.mp3" },
+    { nazov: "Skladba 4", src: "Audio/track4.mp3" },
+    { nazov: "Skladba 5", src: "Audio/track5.mp3" },
+    { nazov: "Skladba 6", src: "Audio/track6.mp3" }
+];
 
-    // VYTRESNUTIE MINCÍ A KARIET Z TRUHLE
-    for (var i = 0; i < 70; i++) {
-        var isCoin = Math.random() > 0.35;
-        castice.push({
-            x: width / 2,
-            y: height / 2 - 50,
-            vx: (Math.random() - 0.5) * 22,
-            vy: -Math.random() * 16 - 6,
-            gravity: 0.5,
-            size: isCoin ? Math.random() * 8 + 6 : Math.random() * 12 + 10,
-            color: isCoin ? "#ffd700" : "#3b82f6",
-            isCoin: isCoin,
-            rotation: Math.random() * Math.PI * 2,
-            vRot: (Math.random() - 0.5) * 0.3
-        });
-    }
+var aktualnyTrackIndex = 0;
+var bgAudio = new Audio();
+var jeMuted = false;
+var naposledyNastavenaHlasitost = 0.3;
+var ulozenyCasPrerutenia = 0;
+var pauznuteKvoliAnimacii = false;
 
-    function loop() {
-        ctx.clearRect(0, 0, width, height);
-        var esteBezia = false;
+function inicializujHudobnySystem() {
+    bgAudio.volume = naposledyNastavenaHlasitost;
+    
+    bgAudio.onended = function() {
+        ulozenyCasPrerutenia = 0;
+        dalsiaSkladba();
+    };
 
-        castice.forEach(function(p) {
-            p.x += p.vx;
-            p.y += p.vy;
-            p.vy += p.gravity;
-            p.rotation += p.vRot;
+    naciatajSkladbu(0);
 
-            if (p.y < height - 50) esteBezia = true;
-            else p.y = height - 50;
-
-            ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.rotate(p.rotation);
-            ctx.fillStyle = p.color;
-
-            if (p.isCoin) {
-                ctx.beginPath();
-                ctx.arc(0, 0, p.size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = "#fff7a1";
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-            } else {
-                ctx.fillRect(-p.size / 2, -p.size * 0.7, p.size, p.size * 1.4);
-                ctx.strokeStyle = "#ffffff";
-                ctx.lineWidth = 1;
-                ctx.strokeRect(-p.size / 2, -p.size * 0.7, p.size, p.size * 1.4);
-            }
-            ctx.restore();
-        });
-
-        if (esteBezia) requestAnimationFrame(loop);
-    }
-    loop();
+    document.addEventListener('click', function spustiNaKlik() {
+        if (bgAudio.paused && !pauznuteKvoliAnimacii && !jeMuted) {
+            bgAudio.play().catch(function(e) {});
+        }
+        document.removeEventListener('click', spustiNaKlik);
+    }, { once: true });
 }
 
+function naciatajSkladbu(index) {
+    if (playlist.length === 0) return;
+    aktualnyTrackIndex = index % playlist.length;
+    var track = playlist[aktualnyTrackIndex];
+    bgAudio.src = track.src;
+    ulozenyCasPrerutenia = 0;
+    
+    var titleEl = document.getElementById("audio-track-title");
+    if (titleEl) titleEl.innerText = "🎵 " + track.nazov;
+    
+    if (!jeMuted && !pauznuteKvoliAnimacii) {
+        bgAudio.play().catch(function(e) {});
+    }
+}
+
+function dalsiaSkladba() {
+    naciatajSkladbu(aktualnyTrackIndex + 1);
+}
+
+function zmenHlasitostHudby(val) {
+    var v = parseFloat(val);
+    bgAudio.volume = v;
+    naposledyNastavenaHlasitost = v;
+    
+    var btnMute = document.getElementById("btn-audio-mute");
+    if (v === 0) {
+        jeMuted = true;
+        if (btnMute) btnMute.innerText = "🔇";
+    } else {
+        jeMuted = false;
+        if (btnMute) btnMute.innerText = "🔊";
+    }
+}
+
+function prepniMuteHudby() {
+    var btnMute = document.getElementById("btn-audio-mute");
+    var slider = document.getElementById("audio-volume-bar");
+
+    if (jeMuted) {
+        jeMuted = false;
+        bgAudio.volume = naposledyNastavenaHlasitost > 0 ? naposledyNastavenaHlasitost : 0.3;
+        if (slider) slider.value = bgAudio.volume;
+        if (btnMute) btnMute.innerText = "🔊";
+        if (!pauznuteKvoliAnimacii) bgAudio.play();
+    } else {
+        jeMuted = true;
+        bgAudio.pause();
+        if (btnMute) btnMute.innerText = "🔇";
+    }
+}
+
+function pozastavHudbuPreAnimaciu() {
+    if (!bgAudio.paused) {
+        ulozenyCasPrerutenia = bgAudio.currentTime;
+        pauznuteKvoliAnimacii = true;
+        bgAudio.pause();
+    }
+}
+
+function obnovHudbuPoAnimacii() {
+    if (pauznuteKvoliAnimacii && !jeMuted) {
+        pauznuteKvoliAnimacii = false;
+        bgAudio.currentTime = ulozenyCasPrerutenia;
+        bgAudio.play().catch(function(e) {});
+    }
+}
+
+window.prepniMuteHudby = prepniMuteHudby;
+window.zmenHlasitostHudby = zmenHlasitostHudby;
+
+// =========================================================================
+// OTVÁRANIE TRUHLICE S VIDEOM A SUMÁROM ODMEN
+// =========================================================================
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
     
+    pozastavHudbuPreAnimaciu(); // Pozastavenie hudby počas otvárania truhly
+
     var hMena = Object.keys(MASTER_REGISTRY).filter(function(k) { return k !== "Musime sa porozpravat"; });
     var pocetZrebovani = jeVitaz ? 3 : 10;
     var ziskaneMince = jeVitaz ? 300 : 100;
@@ -808,7 +865,10 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
         cModal.id = "chest-anim-modal";
         cModal.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.96); backdrop-filter:blur(12px); display:none; justify-content:center; align-items:center; z-index:99999;";
         cModal.onclick = function(e) {
-            if (e.target === cModal) cModal.style.display = "none";
+            if (e.target === cModal) {
+                obnovHudbuPoAnimacii();
+                cModal.style.display = "none";
+            }
         };
         document.body.appendChild(cModal);
     }
@@ -816,7 +876,7 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     var titulok = jeVitaz ? "🏆 TRUHLA VÍŤAZA" : (jeRemizaZapasu ? "📦 TRUHLA ZA REMÍZU" : "📦 TRUHLA ÚČASTNÍKA");
 
     var kartyHTML = "";
-    var cardDelay = 0.1;
+    var cardDelay = 0.08;
     vyžrebovanéKartyZoznam.forEach(function(drop) {
         var reg = drop.reg;
         var basePwr = isSpecialCard(drop.meno) ? "none" : reg.p;
@@ -829,28 +889,25 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
                 <div style="background: #110d06; color: #ffcc00; border: 1px solid #ffcc00; padding: 4px 14px; border-radius: 12px; font-weight: bold; font-size: 1.0em; margin-top: 8px; box-shadow: 0 0 10px #000;">+${drop.davka}x</div>
             </div>
         `;
-        cardDelay += 0.12;
+        cardDelay += 0.1;
     });
 
     cModal.innerHTML = `
         <div style="position:relative; width:100vw; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:20px; box-sizing:border-box; pointer-events:none;" onclick="event.stopPropagation()">
-            <span class="card-modal-close" onclick="document.getElementById('chest-anim-modal').style.display='none'" style="pointer-events:auto; position:absolute; top:20px; right:30px; font-size:2em; color:#fff; cursor:pointer; z-index:100;">&times;</span>
+            <span class="card-modal-close" onclick="obnovHudbuPoAnimacii(); document.getElementById('chest-anim-modal').style.display='none'" style="pointer-events:auto; position:absolute; top:20px; right:30px; font-size:2em; color:#fff; cursor:pointer; z-index:100;">&times;</span>
             
             <h2 style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2.2em; margin:10px 0 0 0; z-index:10;">${titulok}</h2>
-            
-            <canvas id="chest-burst-canvas" style="position:absolute; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:5;"></canvas>
 
-            <!-- CHROMA KEY CANVAS PRE TRUHLU BEZ ZELENEJ -->
-            <div id="chest-video-container" style="position:absolute; top:45%; left:50%; transform:translate(-50%, -50%); width:100%; max-width:600px; height:auto; z-index:2; pointer-events:auto; cursor:pointer;"></div>
+            <div id="chest-video-container" style="position:absolute; top:45%; left:50%; transform:translate(-50%, -50%); width:100%; max-width:650px; height:auto; z-index:2; pointer-events:auto; cursor:pointer; transition: opacity 0.5s ease;"></div>
             
-            <div id="chest-click-prompt" style="color:#fff; font-size:1.4em; font-weight:bold; text-shadow:0 0 12px #ffcc00; margin-top:auto; margin-bottom:40px; z-index:10; pointer-events:auto; cursor:pointer;">✨ KLIKNI NA TRUHLU PRE OTVORENIE ✨</div>
+            <div id="chest-click-prompt" style="color:#fff; font-size:1.4em; font-weight:bold; text-shadow:0 0 12px #ffcc00; margin-top:auto; margin-bottom:40px; z-index:10; pointer-events:auto; cursor:pointer; background:rgba(0,0,0,0.6); padding:12px 25px; border-radius:30px; border:2px solid #ffcc00;">✨ KLIKNI SEM PRE OTVORENIE TRUHLICE ✨</div>
 
             <div id="chest-rewards-box" style="display:none; flex-direction:column; align-items:center; z-index:10; pointer-events:auto; opacity:0; transition:opacity 0.8s ease; width:100%; max-width:1200px; margin-bottom:20px;">
-                <div id="chest-gold-text" style="color:#ffcc00; font-weight:bold; font-size:1.6em; margin-bottom:12px; text-shadow:0 0 10px #000;">🪙 +${ziskaneMince} Zlatých mincí</div>
-                <div style="display:flex; flex-wrap:wrap; justify-content:center; max-height:50vh; overflow-y:auto; padding:15px; background:rgba(0,0,0,0.85); border-radius:12px; border:1px solid rgba(255,204,0,0.4); width:100%;">
+                <div id="chest-gold-text" style="color:#ffcc00; font-weight:bold; font-size:1.8em; margin-bottom:15px; text-shadow:0 0 12px #000;">🪙 +${ziskaneMince} Zlatých mincí</div>
+                <div style="display:flex; flex-wrap:wrap; justify-content:center; max-height:60vh; overflow-y:auto; padding:20px; background:rgba(15,12,8,0.9); border-radius:12px; border:1px solid rgba(255,204,0,0.5); width:100%; box-shadow:0 0 30px rgba(0,0,0,0.8);">
                     ${kartyHTML}
                 </div>
-                <button id="chest-close-btn" onclick="document.getElementById('chest-anim-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:12px 35px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1.1em; margin-top:15px; box-shadow:0 0 15px #28a745;">Zozbierať odmeny</button>
+                <button id="chest-close-btn" onclick="obnovHudbuPoAnimacii(); document.getElementById('chest-anim-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:12px 40px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:1.2em; margin-top:20px; box-shadow:0 0 15px #28a745;">Zozbierať odmeny</button>
             </div>
         </div>
     `;
@@ -860,21 +917,21 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     var videoBox = document.getElementById("chest-video-container");
     var promptText = document.getElementById("chest-click-prompt");
     var rewardsBox = document.getElementById("chest-rewards-box");
-    var burstCanvas = document.getElementById("chest-burst-canvas");
 
     var isPlayed = false;
     var chromaEngine = spustiChromaKeyVideo(videoBox, function() {
-        if (burstCanvas) spustiLootBurstFX(burstCanvas);
+        if (videoBox) videoBox.style.opacity = "0.15"; 
         rewardsBox.style.display = "flex";
         setTimeout(function() {
             rewardsBox.style.opacity = "1";
         }, 100);
     });
 
-    function spustiOtvorenie() {
+    function spustiOtvorenie(e) {
+        if (e) e.stopPropagation();
         if (!isPlayed) {
             isPlayed = true;
-            promptText.style.display = "none";
+            if (promptText) promptText.style.display = "none";
             chromaEngine.play();
         }
     }
@@ -885,15 +942,22 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     aktualizujPanelDielne();
 }
 
-// MAGICKÝ KOVÁČSKY RITUÁL V DIELNI (S MOCNÝM ŽIARIVÝM ZÁBLESKOM FX)
+// =========================================================================
+// MAGICKÝ KOVÁČSKY RITUÁL V DIELNI (S PAUZOU HUDBY A ŽIARIVÝM ZÁBLESKOM)
+// =========================================================================
 function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) {
+    pozastavHudbuPreAnimaciu(); // Pozastavenie hudby počas kovania
+
     var modal = document.getElementById("forge-modal");
     if (!modal) {
         modal = document.createElement("div");
         modal.id = "forge-modal";
         modal.className = "forge-modal-overlay";
         modal.onclick = function(e) {
-            if (e.target === modal) modal.style.display = "none";
+            if (e.target === modal) {
+                obnovHudbuPoAnimacii();
+                modal.style.display = "none";
+            }
         };
         document.body.appendChild(modal);
     }
@@ -908,7 +972,7 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
 
     var html = `
         <div class="forge-ritual-box" onclick="event.stopPropagation()">
-            <span class="card-modal-close" onclick="document.getElementById('forge-modal').style.display='none'">&times;</span>
+            <span class="card-modal-close" onclick="obnovHudbuPoAnimacii(); document.getElementById('forge-modal').style.display='none'">&times;</span>
             <h2 class="forge-title">🔨 MAGICKÉ KOVANIE (${novaTrieda}-CLASS)</h2>
             
             <div class="forge-flow-container">
@@ -935,7 +999,7 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
                 </div>
             </div>
 
-            <button id="forge-done-btn" onclick="document.getElementById('forge-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:10px 25px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:1em; margin-top:15px; box-shadow:0 0 12px #28a745; opacity:0; transition:opacity 0.5s ease;">Prevziať vylepšenú kartu</button>
+            <button id="forge-done-btn" onclick="obnovHudbuPoAnimacii(); document.getElementById('forge-modal').style.display='none'" style="background:#28a745; color:#fff; border:none; padding:10px 25px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:1em; margin-top:15px; box-shadow:0 0 12px #28a745; opacity:0; transition:opacity 0.5s ease;">Prevziať vylepšenú kartu</button>
         </div>
     `;
     
@@ -1002,11 +1066,10 @@ function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) 
                     card.innerHTML = vytvorHTMLKarty(meno, reg.p, novaTrieda, reg.row, reg.p);
                 }
 
-                // ZÁBLESK A ŽIARA PODĽA TRIEDY
                 if (glow) {
-                    var shadowColor = "#cd7f32"; // Bronz
-                    if (novaTrieda === "A") shadowColor = "#ffffff"; // Striebro
-                    if (novaTrieda === "S") shadowColor = "#ffd700"; // Zlato
+                    var shadowColor = "#cd7f32"; 
+                    if (novaTrieda === "A") shadowColor = "#ffffff"; 
+                    if (novaTrieda === "S") shadowColor = "#ffd700"; 
 
                     glow.style.boxShadow = "0 0 50px 20px " + shadowColor;
                     glow.style.opacity = "1";
@@ -1851,6 +1914,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     inicializujDevConsole();
     p1_full_deck = vytvorZoznamKariet(1); obnovPocitadlaZostavyVMenu();
+    inicializujHudobnySystem();
 });
 
 document.addEventListener("click", function(e) {
