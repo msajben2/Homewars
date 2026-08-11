@@ -2,135 +2,99 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
-    <title>Home Wars - Rodinná hra (v10.9.8)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rodinná hra - Home Wars</title>
     <link rel="stylesheet" href="style.css">
-    
-    <!-- Správne načítanie Three.js a jeho modulov pre 3D truhlicu -->
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
-        }
-    </script>
 </head>
 <body>
 
-    <header id="hlavne-menu" class="zamknute-menu">
-        <button id="menu-btn-hra" class="menu-tab aktivna-tab">⚔️ Zápas</button>
-        <button id="menu-btn-zostava" class="menu-tab">🎴 Moja Zostava (<span id="zostava-pocitadlo-stranka">30 / 30</span>)</button>
-        <button id="menu-btn-dielna" class="menu-tab">🔨 Dielňa & Truhly</button>
-        <button id="menu-btn-trhovisko" class="menu-tab">🛒 Trhovisko</button>
-        <div id="wallet-p1" class="menu-wallet">500 m</div>
-    </header>
+    <!-- 1. HLAVNÉ MENU (ÚVODNÁ OBRAZOVKA) -->
+    <div id="hlavne-menu" class="menu-container">
+        <h1 class="game-title">🏰 HOME WARS 🏰</h1>
+        <p class="game-subtitle">Kráľovská kartová stratégia</p>
 
-    <main>
-        <section id="sekcia-hra" class="sekcia-obsah">
-            <div id="predzapasove-menu" class="predzapas-box">
-                <h2>Vitajte v kráľovstve Home Wars!</h2>
-                <p>Pripravte si svoju zostavu, vylepšite karty v dielni alebo vstúpte do bitky.</p>
-                <div class="predzapas-tlacidla">
-                    <button class="btn-hlavny" onclick="spustitZapasLokálnePVP()">👥 Multiplayer (1v1 na jednom PC)</button>
-                    <button class="btn-hlavny" onclick="zobraziťMenuAI()">🤖 Hrať proti AI</button>
-                </div>
-                <div id="ai-difficulty-options" class="schovany ai-diff-box">
-                    <h3>Zvoľ triedu súperovej AI:</h3>
-                    <button class="btn-diff diff-b" onclick="spustitZapasProtiAI('B')">Trieda B (Začiatočník)</button>
-                    <button class="btn-diff diff-a" onclick="spustitZapasProtiAI('A')">Trieda A (Pokročilý)</button>
-                    <button class="btn-diff diff-s" onclick="spustitZapasProtiAI('S')">Trieda S (Expert)</button>
-                </div>
+        <div class="menu-buttons">
+            <button class="btn-menu" onclick="spustitZapasLokálnePVP()">⚔️ Mníchovský Súboj (PVP 1v1)</button>
+            <button class="btn-menu" onclick="zobraziťMenuAI()">🤖 Zápas proti AI Botovi</button>
+            <button class="btn-menu" onclick="otvoriťDielňu()">🔨 Kráľovská Dielňa (Forge)</button>
+            <button class="btn-menu" onclick="otvoriťObchod()">🛒 Player-Driven Trhovisko</button>
+            <button class="btn-menu" onclick="otvoriťNavodHry()">📖 Kronika & Návod Hry</button>
+        </div>
+
+        <div id="wallet-p1" class="wallet-display">0 m | Zlato: 0g</div>
+    </div>
+
+    <!-- 2. ZÁPASOVÁ HRACIA PLOCHA -->
+    <div id="hracia-plocha" class="board-container" style="display: none;">
+        
+        <!-- HORNÁ LIŠTA (HRÁČ 2 / AI) -->
+        <div class="player-header p2-header">
+            <div class="player-info">
+                <span class="player-name">Hráč 2 (Súper)</span>
+                <span id="p2-rounds" class="round-indicators">⚪</span>
             </div>
+            <div id="p2-score" class="score-badge">0</div>
+            <button class="btn-pass" onclick="hracPassuje(2)">🏳️ Pass (P2)</button>
+        </div>
 
-            <div id="hraci-stol-kontajner" class="schovany">
-                <div class="stol-header">
-                    <span id="rezim-zapasu-oznam">Zápas prebieha</span>
-                    <span id="kola-skore">Vyhraté kolá - Hráč 1: 0/2 | Hráč 2: 0/2</span>
-                    <button class="btn-vzdaj" onclick="vzdajZapasUtek()">🏳️ Vzdať sériu</button>
-                </div>
+        <!-- RUKA HRÁČA 2 -->
+        <div id="p2-hand" class="card-hand p2-hand"></div>
 
-                <div class="herna-ploch-grid">
-                    <div class="panel-hrac">
-                        <h3>Hráč 2 (AI / Súper)</h3>
-                        <div id="zoznam-p2" class="archiv-box">Zatiaľ prázdne.</div>
-                    </div>
+        <!-- HRACÍ STÔL (3 RADY HRÁČA 2) -->
+        <div class="board-half p2-board">
+            <div id="p2-row3" class="board-row row-animals" data-row="3"><span class="row-label">3. Rad (Zvieratá)</span></div>
+            <div id="p2-row2" class="board-row row-women" data-row="2"><span class="row-label">2. Rad (Ženy)</span></div>
+            <div id="p2-row1" class="board-row row-men" data-row="1"><span class="row-label">1. Rad (Muži)</span></div>
+        </div>
 
-                    <div class="stred-stola">
-                        <div id="turn-indicator" class="turn-banner">Na ťahu: Hráč 1</div>
-                        <div class="riadok-hraca" id="r1">3. Rad (Zvieratá): <span class="skore-rad" id="s1">0 b</span></div>
-                        <div class="riadok-hraca" id="r2">2. Rad (Ženy): <span class="skore-rad" id="s2">0 b</span></div>
-                        <div class="riadok-hraca" id="r3">1. Rad (Muži): <span class="skore-rad" id="s3">0 b</span></div>
-                        <div id="neutralny-riadok" class="neutralna-zona">⚡ Neutrálna zóna (Vplyvy stola)</div>
-                        <div class="riadok-hraca" id="r4">1. Rad (Muži): <span class="skore-rad" id="s4">0 b</span></div>
-                        <div class="riadok-hraca" id="r5">2. Rad (Ženy): <span class="skore-rad" id="s5">0 b</span></div>
-                        <div class="riadok-hraca" id="r6">3. Rad (Zvieratá): <span class="skore-rad" id="s6">0 b</span></div>
-                        <div id="body-skore" class="skore-bar-spodna">Hráč 1: 0 b | Hráč 2: 0 b</div>
-                    </div>
+        <!-- STREDOVÝ NEUTRÁLNY RAD (KÚZLA & VPLYVY) -->
+        <div id="neutral-row" class="board-row row-neutral">
+            <span class="row-label-neutral">⚡ Neutrálne Kúzla Stola ⚡</span>
+        </div>
 
-                    <div class="panel-hrac">
-                        <h3>Hráč 1 (Ty)</h3>
-                        <div id="zoznam-p1" class="archiv-box">Zatiaľ prázdne.</div>
-                    </div>
-                </div>
+        <!-- HRACÍ STÔL (3 RADY HRÁČA 1) -->
+        <div class="board-half p1-board">
+            <div id="p1-row1" class="board-row row-men" data-row="1"><span class="row-label">1. Rad (Muži)</span></div>
+            <div id="p1-row2" class="board-row row-women" data-row="2"><span class="row-label">2. Rad (Ženy)</span></div>
+            <div id="p1-row3" class="board-row row-animals" data-row="3"><span class="row-label">3. Rad (Zvieratá)</span></div>
+        </div>
 
-                <div class="spodny-ovladaci-panel">
-                    <div class="ruka-kontajner" id="kontajner-ruka-p2">
-                        <h4>Ruka Hráča 2</h4>
-                        <div id="ruka-p2" class="karty-ruka-flex"></div>
-                    </div>
+        <!-- RUKA HRÁČA 1 -->
+        <div id="p1-hand" class="card-hand p1-hand"></div>
 
-                    <div class="akcne-tlacidla-bar">
-                        <button id="p1-pass-btn">Pass</button>
-                        <button id="p2-pass-btn" class="schovany">Pass AI</button>
-                        <button id="p1-mulligan-btn" onclick="Admin_vynutVymenu(1)">🔄 Vymeniť ruku (Mulligan)</button>
-                        <button id="p2-mulligan-btn" class="schovany" onclick="Admin_vynutVymenu(2)">🔄 Mulligan P2</button>
-                    </div>
-
-                    <div id="panel-erik" class="schovany modal-overlay">
-                        <div class="modal-content">
-                            <h3>Erik: Vyber rad na buff (+100 %)</h3>
-                            <button class="btn-hlavny" id="eb1">Rad 1</button>
-                            <button class="btn-hlavny" id="eb2">Rad 2</button>
-                            <button class="btn-hlavny" id="eb3">Rad 3</button>
-                        </div>
-                    </div>
-
-                    <div id="panel-marek" class="schovany modal-overlay">
-                        <div class="modal-content">
-                            <h3>Marek: Vyber kartu na spálenie</h3>
-                            <select id="marek-dropdown"></select>
-                            <button class="btn-vzdaj" id="marek-burn-btn">🔥 Spáliť kartu</button>
-                        </div>
-                    </div>
-
-                    <div class="ruka-kontajner" id="kontajner-ruka-p1">
-                        <h4>Ruka Hráča 1</h4>
-                        <div id="ruka-p1" class="karty-ruka-flex"></div>
-                    </div>
-                </div>
+        <!-- SPODNÁ LIŠTA (HRÁČ 1) -->
+        <div class="player-header p1-header">
+            <div class="player-info">
+                <span class="player-name">Hráč 1 (Ty)</span>
+                <span id="p1-rounds" class="round-indicators">⚪</span>
             </div>
-        </section>
+            <div id="p1-score" class="score-badge">0</div>
+            <button class="btn-pass" onclick="hracPassuje(1)">🏳️ Pass (P1)</button>
+            <button class="btn-exit" onclick="zobraziťObrazovku('hlavne-menu')">🚪 Opustiť Zápas</button>
+        </div>
 
-        <section id="sekcia-zostava" class="sekcia-obsah schovana-sekcia">
-            <h2>Správa balíčka (Zostava 30 kariet)</h2>
-            <div id="zostava-mriezka" class="zostava-grid"></div>
-        </section>
+    </div>
 
-        <section id="sekcia-dielna" class="sekcia-obsah schovana-sekcia">
-            <h2>Kováčska dielňa (Forge & Recycle)</h2>
+    <!-- 3. DIELŇA (MODÁLNE OKNO) -->
+    <div id="dielna-modal" class="card-modal" style="display: none;" onclick="if(event.target === this) this.style.display='none';">
+        <div class="modal-content">
+            <span class="card-modal-close" onclick="document.getElementById('dielna-modal').style.display='none'">&times;</span>
+            <h2 class="modal-title">🔨 KRÁĽOVSKÁ DIELŇA (FORGE)</h2>
+            <p class="modal-desc">Kuj 3 rovnocenné kópie kariet na vyššiu triedu (F ➔ S). Použi Zvitok za Zlato pre ochranu kariet pri zlyhaní!</p>
             <div id="dielna-zoznam" class="dielna-grid"></div>
-        </section>
+        </div>
+    </div>
 
-        <section id="sekcia-trhovisko" class="sekcia-obsah schovana-sekcia">
-            <h2>Trhovisko a Boostery</h2>
-            <div class="obchod-akcie-box">
-                <button class="btn-hlavny" onclick="kupNahodnyBooster()">🎁 Kúpiť Náhodný Booster (100 m)</button>
-            </div>
-            <div id="obchod-regaly-zoznam" class="obchod-grid"></div>
-        </section>
-    </main>
+    <!-- 4. TRHOVISKO / SIMULÁTOR (MODÁLNE OKNO) -->
+    <div id="obchod-modal" class="card-modal" style="display: none;" onclick="if(event.target === this) this.style.display='none';">
+        <div class="modal-content">
+            <span class="card-modal-close" onclick="document.getElementById('obchod-modal').style.display='none'">&times;</span>
+            <h2 class="modal-title">🛒 PLAYER-DRIVEN TRHOVISKO</h2>
+            <div id="obchod-regaly-zoznam"></div>
+        </div>
+    </div>
 
-    <!-- Načítanie hlavného modulu script.js -->
-    <script type="module" src="script.js?v=10.9.8"></script>
+    <!-- ŠKTRIPTY -->
+    <script src="script.js"></script>
 </body>
 </html>
