@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.18 - AGGRESSIVE CHROMA & LOOT REWARDS FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.19 - MOUNTAIN VALLEY BACKGROUND)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.9.18";
+var VERZIA = "10.9.19";
 
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
@@ -203,7 +203,7 @@ function otvorDetailKarty(meno) {
                     <span>Trieda: <strong style="color:#ffcc00;">${triedaRamu}</strong></span>
                 </div>
                 <p class="modal-desc" style="font-size:0.85em; margin:4px 0; color:#ccc; text-align:center;">${reg.desc || 'Bez popisu.'}</p>
-                ${reg.abilityDesc ? `<div class="modal-ability-box" style="font-size:0.85em; margin-top:6px; color:#ffcc00; text-align:center;"><strong>Schopnosť:</strong> ${reg.abilityDesc}</div>` : ''}
+                ${reg.abilityDesc ? `<div class="modal-ability-box" style="font-size:0.85em; margin-top:6px; color:#ffcc00; text-align:center;"><strong>Schopność:</strong> ${reg.abilityDesc}</div>` : ''}
             </div>
         </div>
     `;
@@ -652,77 +652,6 @@ function aktualizujArchivyVizualne() {
     }
 }
 
-// AGRESÍVNE VYREZANIE ZELENÝCH TIEŇOV Z Img/truhla.mp4
-function spustiChromaKeyVideo(containerEl, onVideoEnded) {
-    containerEl.innerHTML = "";
-    
-    var video = document.createElement("video");
-    video.src = "Img/truhla.mp4";
-    video.playsInline = true;
-    video.muted = true;
-    video.crossOrigin = "anonymous";
-    video.preload = "auto";
-
-    var canvas = document.createElement("canvas");
-    canvas.width = 640;
-    canvas.height = 480;
-    canvas.style.cssText = "width:100%; height:100%; max-height:48vh; object-fit:contain; cursor:pointer;";
-    containerEl.appendChild(canvas);
-
-    var ctx = canvas.getContext("2d");
-    var animFrameId = null;
-
-    function renderFrame() {
-        ctx.fillStyle = "#000000";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        if (video.readyState >= 2) {
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            var frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            var l = frame.data.length / 4;
-
-            for (var i = 0; i < l; i++) {
-                var r = frame.data[i * 4 + 0];
-                var g = frame.data[i * 4 + 1];
-                var b = frame.data[i * 4 + 2];
-
-                // Agresívnejšie vyrezávanie zelenej
-                if (g > 50 && g > r * 1.05 && g > b * 1.05) {
-                    frame.data[i * 4 + 3] = 0; 
-                } else if (g > r && g > b) {
-                    var factor = (g - Math.max(r, b)) / g;
-                    frame.data[i * 4 + 1] = Math.max(r, b);
-                    frame.data[i * 4 + 3] = Math.floor(255 * (1 - factor));
-                }
-            }
-            ctx.putImageData(frame, 0, 0);
-        }
-        
-        if (!video.paused && !video.ended) {
-            animFrameId = requestAnimationFrame(renderFrame);
-        }
-    }
-
-    video.addEventListener("loadeddata", function() {
-        renderFrame();
-    });
-
-    video.addEventListener("play", function() {
-        renderFrame();
-    });
-
-    video.addEventListener("ended", function() {
-        if (animFrameId) cancelAnimationFrame(animFrameId);
-        if (onVideoEnded) onVideoEnded();
-    });
-
-    return {
-        play: function() { video.play(); },
-        element: canvas
-    };
-}
-
 // HUDOBNÝ SYSTÉM
 var playlist = [
     { nazov: "Skladba 1", src: "Audio/track1.mp3" },
@@ -841,7 +770,7 @@ function obnovHudbuPoAnimacii() {
 window.prepniMuteHudby = prepniMuteHudby;
 window.zmenHlasitostHudby = zmenHlasitostHudby;
 
-// FIX: ZOBRAZENIE REÁLNYCH KARIET V TABUĽKE PO OTVORENÍ TRUHLE
+// ZOBRAZENIE TRUHLICE S PREDSTAVENÍM ZATVORENEJ TRUHLICE A BOKOM ZOBRAZENÝMI ODMENAMI
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
     
@@ -903,14 +832,22 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     var kartyHTML = "";
     vyžrebovanéKartyZoznam.forEach(function(drop) {
         var reg = drop.reg;
-        var basePwr = isSpecialCard(drop.meno) ? "none" : reg.p;
+        var invCard = inventar.karty[drop.meno] || { aktivnaTrieda: "C" };
+        var triedaRamu = invCard.aktivnaTrieda || "C";
+        var vylepsenaSila = reg.p;
+        if (!isSpecialCard(drop.meno) && reg.p > 0) {
+            if ("B" === triedaRamu) vylepsenaSila += 1;
+            if ("A" === triedaRamu) vylepsenaSila += 2;
+            if ("S" === triedaRamu) vylepsenaSila += 3;
+        }
+        var basePwr = isSpecialCard(drop.meno) ? "none" : vylepsenaSila;
         
         kartyHTML += `
-            <div class="chest-card-wrapper" style="display: flex; flex-direction: column; align-items: center; margin: 10px;">
-                <div class="karta cls-C chest-card-front">
-                    ${vytvorHTMLKarty(drop.meno, basePwr, "C", reg.row, reg.p)}
+            <div style="display: flex; flex-direction: column; align-items: center; margin: 8px;">
+                <div class="karta cls-${triedaRamu} ${triedaRamu === 'S' ? 'karta-s-class-aura' : ''}">
+                    ${vytvorHTMLKarty(drop.meno, basePwr, triedaRamu, reg.row, reg.p)}
                 </div>
-                <div style="background: #110d06; color: #ffcc00; border: 1px solid #ffcc00; padding: 4px 14px; border-radius: 12px; font-weight: bold; font-size: 1.0em; margin-top: 8px; box-shadow: 0 0 10px #000;">+${drop.davka}x</div>
+                <div style="background: #110d06; color: #ffcc00; border: 1px solid #ffcc00; padding: 3px 10px; border-radius: 10px; font-weight: bold; font-size: 0.9em; margin-top: 6px; box-shadow: 0 0 8px #000;">+${drop.davka}x</div>
             </div>
         `;
     });
@@ -925,7 +862,7 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
                 <div id="chest-click-prompt" style="color:#fff; font-size:1.3em; font-weight:bold; text-shadow:0 0 12px #ffcc00; margin-top:20px; pointer-events:auto; cursor:pointer; background:rgba(0,0,0,0.8); padding:12px 30px; border-radius:30px; border:2px solid #ffcc00;">✨ KLIKNI NA TRUHLU PRE OTVORENIE ✨</div>
             </div>
 
-            <div id="chest-rewards-box" style="display:none; flex-direction:column; align-items:center; z-index:10; pointer-events:auto; opacity:0; transition:opacity 0.8s ease; width:55%; max-width:800px; margin-left:30px;">
+            <div id="chest-rewards-box" style="display:none; flex-direction:column; align-items:center; z-index:10; pointer-events:auto; opacity:0; transition:opacity 0.8s ease; width:55%; max-width:850px; margin-left:30px;">
                 <div id="chest-gold-text" style="color:#ffcc00; font-weight:bold; font-size:1.8em; margin-bottom:15px; text-shadow:0 0 12px #000;">🪙 Získané odmeny: +${ziskaneMince} Mincí</div>
                 <div style="display:flex; flex-wrap:wrap; justify-content:center; max-height:65vh; overflow-y:auto; padding:20px; background:rgba(15,12,8,0.95); border-radius:12px; border:1px solid rgba(255,204,0,0.5); width:100%; box-shadow:0 0 30px rgba(0,0,0,0.9);">
                     ${kartyHTML}
@@ -942,10 +879,29 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     var rewardsBox = document.getElementById("chest-rewards-box");
     var leftBox = document.getElementById("chest-left-video-box");
 
+    // Predvykreslenie zatvorenej truhly ešte pred kliknutím
+    videoBox.innerHTML = "";
+    var predpripravenyCanvas = document.createElement("canvas");
+    predpripravenyCanvas.width = 640;
+    predpripravenyCanvas.height = 480;
+    predpripravenyCanvas.style.cssText = "width:100%; height:100%; max-height:48vh; object-fit:contain; cursor:pointer;";
+    videoBox.appendChild(predpripravenyCanvas);
+    var pCtx = predpripravenyCanvas.getContext("2d");
+    pCtx.fillStyle = "#000000";
+    pCtx.fillRect(0, 0, predpripravenyCanvas.width, predpripravenyCanvas.height);
+    
+    var dummyVid = document.createElement("video");
+    dummyVid.src = "Img/truhla.mp4";
+    dummyVid.currentTime = 0.05;
+    dummyVid.muted = true;
+    dummyVid.onloadeddata = function() {
+        pCtx.drawImage(dummyVid, 0, 0, predpripravenyCanvas.width, predpripravenyCanvas.height);
+    };
+
     var isPlayed = false;
     var chromaEngine = spustiChromaKeyVideo(videoBox, function() {
         if (leftBox) {
-            leftBox.style.maxWidth = "350px";
+            leftBox.style.maxWidth = "380px";
         }
         rewardsBox.style.display = "flex";
         setTimeout(function() {
@@ -1141,7 +1097,7 @@ function vylepsiKartuVoForge(e) {
             aktualizujZostavaPanel();
             if (!draft_faza) spustiPrepocty(); 
         } else {
-            alert("Málo replík na vylepšenie!"); 
+            alert("Máло replík na vylepšenie!"); 
         }
     } 
 }
