@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÁ VERZIA 10.9.15 - VIDEO, FORGE & AUDIO)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÁ VERZIA 10.9.16 - VŠETKO V JEDNOM)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.9.15";
+var VERZIA = "10.9.16";
 
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
@@ -45,7 +45,7 @@ var MASTER_REGISTRY = {
     "Grobské Mravce 2": { row: 3, p: 1, img: "Img/grobske-mravce.webp", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
     "Grobské Mravce 3": { row: 3, p: 1, img: "Img/grobske-mravce.webp", desc: "Húževnatá svorka lesných mravcov.", abilityDesc: "🤝 Svorka: Spája silu s ostatnými mravcami na stole." },
     
-    "Petržalské holuby 1": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli prenášajúci tajné správy naprieč kráľovstvom.", abilityDesc: "🤝 Svorka: Fungują rovnako ako mravce. Viac holubov na stole = znásobená sila!" },
+    "Petržalské holuby 1": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli prenášajúci tajné správy naprieč kráľovstvom.", abilityDesc: "🤝 Svorka: Fungujú rovnako ako mravce. Viac holubov na stole = znásobená sila!" },
     "Petržalské holuby 2": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli prenášajúci tajné správy.", abilityDesc: "🤝 Svorka: Násobí silu holubej letky." },
     "Petržalské holuby 3": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli prenášajúci tajné správy.", abilityDesc: "🤝 Svorka: Násobí silu holubej letky." },
     
@@ -648,7 +648,7 @@ function aktualizujArchivyVizualne() {
 }
 
 // =========================================================================
-// CHROMA KEY MP4 VIDEO ENGINE (PREHĽADANIE A VYREZANIE ZELENEJ Z Img/truhla.mp4)
+// CHROMA KEY MP4 VIDEO ENGINE (VYREZANIE ZELENEJ Z Img/truhla.mp4)
 // =========================================================================
 function spustiChromaKeyVideo(containerEl, onVideoEnded) {
     containerEl.innerHTML = "";
@@ -708,7 +708,7 @@ function spustiChromaKeyVideo(containerEl, onVideoEnded) {
 }
 
 // =========================================================================
-// HUDOBNÝ SYSTÉM (6 SKLADIEB V SLUČKE S PAMÄŤOU ČASU A PAUZOU PRE ANIMÁCIE)
+// HUDOBNÝ SYSTÉM (6 SKLADIEB V SLUČKE, AUTOMATICKÝ OVLÁDAČ V MENU)
 // =========================================================================
 var playlist = [
     { nazov: "Skladba 1", src: "Audio/track1.mp3" },
@@ -733,6 +733,26 @@ function inicializujHudobnySystem() {
         ulozenyCasPrerutenia = 0;
         dalsiaSkladba();
     };
+
+    var header = document.querySelector("header");
+    if (header && !document.getElementById("audio-control-panel")) {
+        var audioBox = document.createElement("div");
+        audioBox.id = "audio-control-panel";
+        audioBox.style.cssText = "display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.5); padding: 4px 12px; border-radius: 6px; border: 1px solid #5a4d3e; margin-left: 10px;";
+        
+        audioBox.innerHTML = `
+            <button id="btn-audio-mute" onclick="prepniMuteHudby()" style="background: none; border: none; font-size: 1.1em; cursor: pointer; color: #ffcc00;" title="Mute / Unmute">🔊</button>
+            <input type="range" id="audio-volume-bar" min="0" max="1" step="0.01" value="0.3" oninput="zmenHlasitostHudby(this.value)" style="width: 70px; cursor: pointer; accent-color: #ffcc00;" title="Hlasitosť">
+            <span id="audio-track-title" style="font-size: 0.75em; color: #d4af37; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">🎵 Hudba...</span>
+        `;
+        
+        var wallet = document.getElementById("wallet-p1");
+        if (wallet) {
+            header.insertBefore(audioBox, wallet);
+        } else {
+            header.appendChild(audioBox);
+        }
+    }
 
     naciatajSkladbu(0);
 
@@ -820,7 +840,7 @@ window.zmenHlasitostHudby = zmenHlasitostHudby;
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
     
-    pozastavHudbuPreAnimaciu(); // Pozastavenie hudby počas otvárania truhly
+    pozastavHudbuPreAnimaciu();
 
     var hMena = Object.keys(MASTER_REGISTRY).filter(function(k) { return k !== "Musime sa porozpravat"; });
     var pocetZrebovani = jeVitaz ? 3 : 10;
@@ -946,7 +966,7 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
 // MAGICKÝ KOVÁČSKY RITUÁL V DIELNI (S PAUZOU HUDBY A ŽIARIVÝM ZÁBLESKOM)
 // =========================================================================
 function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) {
-    pozastavHudbuPreAnimaciu(); // Pozastavenie hudby počas kovania
+    pozastavHudbuPreAnimaciu();
 
     var modal = document.getElementById("forge-modal");
     if (!modal) {
