@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 10.9.17 - FULL CLEANOVERLAY & AUDIO FIX)
+// RODINNÁ HRA - HOME WARS (VERZIA 10.9.18 - AGGRESSIVE CHROMA & LOOT REWARDS FIX)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "10.9.17";
+var VERZIA = "10.9.18";
 
 var MASTER_REGISTRY = {
     // POSTAVY A JEDNOTKY (MUŽI)
@@ -210,7 +210,6 @@ function otvorDetailKarty(meno) {
     modal.style.display = "flex";
 }
 
-// FIX: NÁVOD AKO VEĽKÁ PREHĽADNÁ OBRAZOVKA (BEZ TESNÉHO RÁMU KARTY)
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
     if (!modal) {
@@ -653,9 +652,7 @@ function aktualizujArchivyVizualne() {
     }
 }
 
-// =========================================================================
-// CHROMA KEY ENGINE (VYČISTENÉ TMAVÉ POZADIE PRE TRUHLU)
-// =========================================================================
+// AGRESÍVNE VYREZANIE ZELENÝCH TIEŇOV Z Img/truhla.mp4
 function spustiChromaKeyVideo(containerEl, onVideoEnded) {
     containerEl.innerHTML = "";
     
@@ -690,7 +687,8 @@ function spustiChromaKeyVideo(containerEl, onVideoEnded) {
                 var g = frame.data[i * 4 + 1];
                 var b = frame.data[i * 4 + 2];
 
-                if (g > 60 && g > r * 1.1 && g > b * 1.1) {
+                // Agresívnejšie vyrezávanie zelenej
+                if (g > 50 && g > r * 1.05 && g > b * 1.05) {
                     frame.data[i * 4 + 3] = 0; 
                 } else if (g > r && g > b) {
                     var factor = (g - Math.max(r, b)) / g;
@@ -725,9 +723,7 @@ function spustiChromaKeyVideo(containerEl, onVideoEnded) {
     };
 }
 
-// =========================================================================
-// HUDOBNÝ SYSTÉM (NEZÁVISLÝ AUDIO OVLÁDAČ DOSTUPNÝ AJ POČAS GAMEPLAYU)
-// =========================================================================
+// HUDOBNÝ SYSTÉM
 var playlist = [
     { nazov: "Skladba 1", src: "Audio/track1.mp3" },
     { nazov: "Skladba 2", src: "Audio/track2.mp3" },
@@ -752,7 +748,6 @@ function inicializujHudobnySystem() {
         dalsiaSkladba();
     };
 
-    // OVLÁDAČ UPOZORNENÝ MIMO ZAMKNUTEJ HLAVIČKY (Dostupný aj počas zápasu)
     if (!document.getElementById("audio-control-panel")) {
         var audioBox = document.createElement("div");
         audioBox.id = "audio-control-panel";
@@ -846,9 +841,7 @@ function obnovHudbuPoAnimacii() {
 window.prepniMuteHudby = prepniMuteHudby;
 window.zmenHlasitostHudby = zmenHlasitostHudby;
 
-// =========================================================================
-// OTVÁRANIE TRUHLICE S PREHĽADNÝM BOČNÝM PANELOM ODMIEN
-// =========================================================================
+// FIX: ZOBRAZENIE REÁLNYCH KARIET V TABUĽKE PO OTVORENÍ TRUHLE
 function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (jeSingleplayer && !jeVitaz && !jeRemizaZapasu) { alert("Zápas proti AI skončil prehrou."); return; }
     
@@ -895,7 +888,7 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     if (!cModal) {
         cModal = document.createElement("div");
         cModal.id = "chest-anim-modal";
-        cModal.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:#050403; display:none; justify-content:center; align-items:center; z-index:99999;";
+        cModal.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000000; display:none; justify-content:center; align-items:center; z-index:99999;";
         cModal.onclick = function(e) {
             if (e.target === cModal) {
                 obnovHudbuPoAnimacii();
@@ -908,33 +901,30 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     var titulok = jeVitaz ? "🏆 TRUHLA VÍŤAZA" : (jeRemizaZapasu ? "📦 TRUHLA ZA REMÍZU" : "📦 TRUHLA ÚČASTNÍKA");
 
     var kartyHTML = "";
-    var cardDelay = 0.08;
     vyžrebovanéKartyZoznam.forEach(function(drop) {
         var reg = drop.reg;
         var basePwr = isSpecialCard(drop.meno) ? "none" : reg.p;
         
         kartyHTML += `
-            <div class="chest-card-wrapper" style="animation-delay: ${cardDelay}s; display: flex; flex-direction: column; align-items: center; margin: 10px;">
+            <div class="chest-card-wrapper" style="display: flex; flex-direction: column; align-items: center; margin: 10px;">
                 <div class="karta cls-C chest-card-front">
                     ${vytvorHTMLKarty(drop.meno, basePwr, "C", reg.row, reg.p)}
                 </div>
                 <div style="background: #110d06; color: #ffcc00; border: 1px solid #ffcc00; padding: 4px 14px; border-radius: 12px; font-weight: bold; font-size: 1.0em; margin-top: 8px; box-shadow: 0 0 10px #000;">+${drop.davka}x</div>
             </div>
         `;
-        cardDelay += 0.1;
     });
 
     cModal.innerHTML = `
         <div style="position:relative; width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box; pointer-events:none;" onclick="event.stopPropagation()">
             <span class="card-modal-close" onclick="obnovHudbuPoAnimacii(); document.getElementById('chest-anim-modal').style.display='none'" style="pointer-events:auto; position:absolute; top:20px; right:30px; font-size:2.2em; color:#d4af37; cursor:pointer; z-index:100;">&times;</span>
             
-            <div id="chest-left-video-box" style="display:flex; flex-direction:column; align-items:center; justify-content:center; transition: all 0.6s ease; width:100%; max-width:650px;">
+            <div id="chest-left-video-box" style="display:flex; flex-direction:column; align-items:center; justify-content:center; transition: all 0.6s ease; width:100%; max-width:600px;">
                 <h2 id="chest-main-title" style="color:#d4af37; text-shadow:0 0 15px #ffcc00; font-size:2.2em; margin-bottom:20px;">${titulok}</h2>
                 <div id="chest-video-container" style="width:100%; max-width:550px; pointer-events:auto; cursor:pointer;"></div>
                 <div id="chest-click-prompt" style="color:#fff; font-size:1.3em; font-weight:bold; text-shadow:0 0 12px #ffcc00; margin-top:20px; pointer-events:auto; cursor:pointer; background:rgba(0,0,0,0.8); padding:12px 30px; border-radius:30px; border:2px solid #ffcc00;">✨ KLIKNI NA TRUHLU PRE OTVORENIE ✨</div>
             </div>
 
-            <!-- PREHĽADNÁ TABUĽKA ODMEN BOKOM PO OTVORENÍ -->
             <div id="chest-rewards-box" style="display:none; flex-direction:column; align-items:center; z-index:10; pointer-events:auto; opacity:0; transition:opacity 0.8s ease; width:55%; max-width:800px; margin-left:30px;">
                 <div id="chest-gold-text" style="color:#ffcc00; font-weight:bold; font-size:1.8em; margin-bottom:15px; text-shadow:0 0 12px #000;">🪙 Získané odmeny: +${ziskaneMince} Mincí</div>
                 <div style="display:flex; flex-wrap:wrap; justify-content:center; max-height:65vh; overflow-y:auto; padding:20px; background:rgba(15,12,8,0.95); border-radius:12px; border:1px solid rgba(255,204,0,0.5); width:100%; box-shadow:0 0 30px rgba(0,0,0,0.9);">
@@ -978,9 +968,7 @@ function otvorTruhlu(jeVitaz, jeRemizaZapasu) {
     aktualizujPanelDielne();
 }
 
-// =========================================================================
 // MAGICKÝ KOVÁČSKY RITUÁL V DIELNI
-// =========================================================================
 function spustiKovaciRitual(meno, staraTrieda, novaTrieda, spotrebovaneRepliky) {
     pozastavHudbuPreAnimaciu();
 
@@ -1810,7 +1798,6 @@ function devTestPresetSisaKvety() {
     spustiPrepocty();
 }
 
-// FIX: VÝSLEDKY SIMULÁCIE AKO VEĽKÁ PREHĽADNÁ TABUĽKA BEZ RÁMOV
 function devSpustiPokrociluSimulaciu(pocetZapasov) {
     var diffSelect = document.getElementById("sim-diff-select");
     var zvolenaDiff = diffSelect ? diffSelect.value : "S";
