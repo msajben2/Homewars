@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 17.0.0)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 18.0.0)
    ========================================================================= */
 
 * {
@@ -18,9 +18,7 @@ body {
     min-height: 100vh;
 }
 
-/* =========================================================================
-   1. HLAVNÉ MENU
-   ========================================================================= */
+/* HLAVNÉ MENU */
 .menu-container {
     display: flex;
     flex-direction: column;
@@ -42,14 +40,14 @@ body {
 .game-subtitle {
     font-size: 1.3em;
     color: #a89060;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     font-style: italic;
 }
 
 .menu-buttons {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
     width: 100%;
     max-width: 440px;
 }
@@ -58,8 +56,8 @@ body {
     background: linear-gradient(180deg, #3b2d1d 0%, #21180e 100%);
     color: #ffcc00;
     border: 2px solid #d4af37;
-    padding: 16px 22px;
-    font-size: 1.2em;
+    padding: 14px 20px;
+    font-size: 1.15em;
     font-weight: bold;
     border-radius: 8px;
     cursor: pointer;
@@ -71,7 +69,6 @@ body {
     background: linear-gradient(180deg, #523f29 0%, #302315 100%);
     border-color: #ffe066;
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(212, 175, 55, 0.3);
 }
 
 .audio-control-bar {
@@ -89,7 +86,7 @@ body {
 }
 
 .wallet-display {
-    margin-top: 25px;
+    margin-top: 20px;
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid #5a4d3e;
     padding: 10px 25px;
@@ -99,9 +96,7 @@ body {
     font-size: 1.2em;
 }
 
-/* =========================================================================
-   2. HRACÍ STÔL A ZÁPAS
-   ========================================================================= */
+/* ZÁPAS OBLASTI */
 .board-container {
     display: flex;
     flex-direction: column;
@@ -122,84 +117,32 @@ body {
     border-radius: 8px;
 }
 
-.player-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
+.player-name { font-weight: bold; color: #ffcc00; font-size: 1.2em; }
+.score-badge { background: #d4af37; color: #111; font-weight: bold; font-size: 1.6em; padding: 6px 20px; border-radius: 6px; }
+.btn-pass { background: #8b0000; color: #fff; border: 1px solid #ff4d4d; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-.player-name {
-    font-weight: bold;
-    color: #ffcc00;
-    font-size: 1.2em;
-}
+.board-half { display: flex; flex-direction: column; gap: 8px; }
 
-.score-badge {
-    background: #d4af37;
-    color: #111;
-    font-weight: bold;
-    font-size: 1.6em;
-    padding: 6px 20px;
-    border-radius: 6px;
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-}
-
-.btn-pass {
-    background: #8b0000;
-    color: #fff;
-    border: 1px solid #ff4d4d;
-    padding: 8px 18px;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 1em;
-    cursor: pointer;
-}
-
-.btn-pass:hover { background: #b30000; }
-
-.board-half {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* HORIZONTÁLNY SCROLL PRE ZVÄČŠENÉ KARTY */
 .board-row {
     background: rgba(0, 0, 0, 0.4);
     border: 1px dashed #4a3d2e;
-    min-height: 200px;
+    min-height: 220px;
     border-radius: 8px;
     display: flex;
     align-items: center;
-    padding: 8px 15px;
+    padding: 10px 15px;
     gap: 15px;
     position: relative;
     overflow-x: auto;
 }
 
-.row-label, .row-label-neutral {
-    position: absolute;
-    right: 12px;
-    bottom: 6px;
-    font-size: 0.85em;
-    color: rgba(212, 175, 55, 0.4);
-    pointer-events: none;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.row-neutral {
-    background: rgba(30, 20, 10, 0.6);
-    border: 1px solid #d4af37;
-    min-height: 180px;
-    justify-content: center;
-}
+.row-neutral { background: rgba(30, 20, 10, 0.6); border: 1px solid #d4af37; min-height: 190px; justify-content: center; }
 
 .card-hand {
     display: flex;
     justify-content: center;
     gap: 15px;
-    min-height: 210px;
+    min-height: 230px;
     padding: 10px;
     overflow-x: auto;
     background: rgba(0, 0, 0, 0.35);
@@ -207,18 +150,14 @@ body {
 }
 
 /* =========================================================================
-   3. ZVÄČŠENÉ KARTY (135px x 185px) A PLATINOVÝ RÁM
+   ZVÄČŠENÝ DESIGN KARIET & OPRAVENÝ PLATINOVÝ RÁM
    ========================================================================= */
-.karta-karta-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+.karta-karta-wrapper { display: flex; flex-direction: column; align-items: center; }
 
 .karta {
-    width: 135px;
-    height: 185px;
-    background: #1a140e;
+    width: 145px;
+    height: 200px;
+    background: #0f0b08;
     border-radius: 8px;
     position: relative;
     display: flex;
@@ -227,70 +166,57 @@ body {
     padding: 6px;
     cursor: pointer;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.85);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.15s ease;
     flex-shrink: 0;
+    overflow: hidden;
 }
 
-.karta:hover {
-    transform: translateY(-8px) scale(1.06);
-    z-index: 30;
-}
+.karta:hover { transform: translateY(-8px) scale(1.05); z-index: 30; }
 
-.karta-disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    filter: grayscale(0.6);
-}
+.karta-disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.6); }
 
-/* RÁMY PODĽA TRIEDY KARTY */
+/* OPRAVENÉ RÁMY D A PLATINUM */
 .karta.cls-F { border: 3px solid #8b5a2b; }
-.karta.cls-E { border: 3px solid #3b82f6; border-image: url('Img/eclassram.webp') 30 stretch; }
-.karta.cls-D { border: 3px solid #10b981; border-image: url('Img/dclassram.webp') 30 stretch; }
-.karta.cls-C { border: 3px solid #f59e0b; border-image: url('Img/cclassram.webp') 30 stretch; }
-.karta.cls-B { border: 3px solid #8b5cf6; border-image: url('Img/bclassram.webp') 30 stretch; }
-.karta.cls-A { border: 3px solid #ec4899; border-image: url('Img/aclassram.webp') 30 stretch; }
+.karta.cls-E { border: 4px solid #3b82f6; border-image: url('Img/eclassram.webp') 30 stretch; }
+.karta.cls-D { border: 4px solid #10b981; border-image: url('Img/dclassram.webp') 30 stretch; }
+.karta.cls-C { border: 4px solid #f59e0b; border-image: url('Img/cclassram.webp') 30 stretch; }
+.karta.cls-B { border: 4px solid #8b5cf6; border-image: url('Img/bclassram.webp') 30 stretch; }
+.karta.cls-A { border: 4px solid #ec4899; border-image: url('Img/aclassram.webp') 30 stretch; }
 .karta.cls-S { border: 4px solid #ffcc00; border-image: url('Img/sclassram.webp') 30 stretch; box-shadow: 0 0 20px rgba(255, 204, 0, 0.7); }
-.karta.cls-PLATINUM { border: 4px solid #e0e7ff; border-image: url('Img/platinumclassram.webp') 30 stretch; box-shadow: 0 0 25px rgba(224, 231, 255, 0.85); }
 
-/* PRVKY NA KARTE */
+/* FIX PRE PLATINOVÝ RÁM BEZ BIELYCH HRÁN */
+.karta.cls-PLATINUM {
+    border: 4px solid #e0e7ff !important;
+    border-image: url('Img/platinumclassram.webp') 30 stretch !important;
+    box-shadow: 0 0 25px rgba(224, 231, 255, 0.85);
+    background-color: #0f0b08 !important;
+}
+
 .karta-kruh {
     position: absolute;
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1em;
+    font-size: 1.05em;
     font-weight: bold;
     z-index: 5;
 }
 
-.karta-kruh-pwr {
-    top: 5px;
-    left: 5px;
-    background: #ffcc00;
-    color: #000;
-    border: 1.5px solid #000;
-}
-
-.karta-kruh-cls {
-    top: 5px;
-    right: 5px;
-    background: #111;
-    color: #ffcc00;
-    border: 1.5px solid #d4af37;
-}
+.karta-kruh-pwr { top: 6px; left: 6px; background: #ffcc00; color: #000; border: 1.5px solid #000; }
+.karta-kruh-cls { top: 6px; right: 6px; background: #111; color: #ffcc00; border: 1.5px solid #d4af37; }
 
 .karta-btn-inspect {
     position: absolute;
-    bottom: 38px;
-    right: 5px;
+    bottom: 42px;
+    right: 6px;
     background: rgba(0, 0, 0, 0.85);
     border: 1px solid #5a4d3e;
     color: #fff;
-    font-size: 0.85em;
-    padding: 3px 7px;
+    font-size: 0.9em;
+    padding: 3px 8px;
     border-radius: 4px;
     cursor: pointer;
     z-index: 6;
@@ -298,199 +224,76 @@ body {
 
 .karta-foto {
     width: 100%;
-    height: 105px;
+    height: 115px;
     background-size: cover;
     background-position: center;
     border-radius: 4px;
-    margin-top: 22px;
+    margin-top: 24px;
 }
 
 .karta-stitok-spodok {
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.92);
     padding: 4px;
     border-radius: 4px;
     text-align: center;
 }
 
-.karta-nazov {
-    font-size: 0.85em;
-    font-weight: bold;
-    color: #ffcc00;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+.karta-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.karta-popis-short { font-size: 0.72em; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.karta-popis-short {
-    font-size: 0.7em;
-    color: #ccc;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* =========================================================================
-   4. MODÁLNE OKNÁ & MULLIGAN DIALOG
-   ========================================================================= */
+/* MODÁLE */
 .card-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.85);
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.88); z-index: 10000;
+    display: flex; justify-content: center; align-items: center;
 }
 
 .modal-content {
     background: linear-gradient(135deg, #1c140c 0%, #0d0a07 100%);
-    border: 2px solid #d4af37;
-    border-radius: 12px;
-    width: 92vw;
-    max-width: 1100px;
-    max-height: 88vh;
-    padding: 22px;
-    color: #e0d0b0;
-    overflow-y: auto;
-    position: relative;
+    border: 2px solid #d4af37; border-radius: 12px;
+    width: 92vw; max-width: 1100px; max-height: 88vh; padding: 22px; color: #e0d0b0; overflow-y: auto; position: relative;
 }
 
-.card-modal-close {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 2em;
-    color: #d4af37;
-    cursor: pointer;
-}
+.card-modal-close { position: absolute; top: 10px; right: 15px; font-size: 2.2em; color: #d4af37; cursor: pointer; }
 
-.mulligan-modal-box {
-    background: rgba(18, 12, 8, 0.97);
-    border: 3px solid #d4af37;
-    border-radius: 14px;
-    padding: 30px;
-    text-align: center;
-    max-width: 600px;
-    width: 85vw;
-    box-shadow: 0 0 50px rgba(0,0,0,0.95);
-}
-
-.mulligan-btn-group {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 25px;
-}
-
-/* =========================================================================
-   5. PRESNÉ SÚRADNICE PRE VIDEO KOVANIA (Vylepsovanie.mp4)
-   ========================================================================= */
-#forge-video-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #000;
-    z-index: 999999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#forge-video-element {
-    width: 100vw;
-    height: 100vh;
-    object-fit: cover;
-}
-
-.forge-cards-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+/* NÁHĽAD KARTY NA CELÚ OBRAZOVKU */
+.card-inspect-big {
+    transform: scale(2.2);
+    margin: 60px auto 20px auto;
+    box-shadow: 0 0 50px rgba(212, 175, 55, 0.8);
     pointer-events: none;
 }
 
-/* NASTAVENIE VEĽKOSTI KARTY VO VIDEU (115px x 160px) */
+/* PRESNÉ ZVÄČŠENIE KARIET VO VIDEU (210px x 290px) */
+#forge-video-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999;
+    display: flex; justify-content: center; align-items: center;
+}
+
+#forge-video-element { width: 100vw; height: 100vh; object-fit: cover; }
+
+.forge-cards-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; }
+
 .forge-slot-card {
     position: absolute;
     transform: translate(-50%, -50%);
-    width: 115px !important;
-    height: 160px !important;
+    width: 210px !important;
+    height: 290px !important;
     pointer-events: none;
 }
 
-/* KORDINÁTY KOVADLINY PRE VIDEO */
-#forge-card-1 { top: 46.5%; left: 32.2%; }
-#forge-card-2 { top: 46.5%; left: 43.8%; }
-#forge-card-3 { top: 46.5%; left: 55.4%; }
-#forge-card-4 { top: 46.5%; left: 67.0%; }
+/* PRESNÉ POZÍCIE PRE Kovadlinu Vylepsovanie.mp4 */
+#forge-card-1 { top: 48%; left: 24.5%; }
+#forge-card-2 { top: 48%; left: 41.5%; }
+#forge-card-3 { top: 48%; left: 58.5%; }
+#forge-card-4 { top: 48%; left: 75.5%; }
 
-/* =========================================================================
-   6. VIDEO PREHRÁVAČ TRUHIEL
-   ========================================================================= */
+/* VIDEO TRUHLE */
 #chest-video-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #000;
-    z-index: 99999;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
 }
-
-#chest-video-element {
-    width: 100vw;
-    height: 100vh;
-    object-fit: cover;
-    cursor: pointer;
-}
-
-.chest-prompt-text {
-    position: absolute;
-    bottom: 50px;
-    color: #ffcc00;
-    font-size: 2em;
-    font-weight: bold;
-    text-shadow: 0 0 10px #000, 0 0 20px #000;
-    pointer-events: none;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.4; transform: scale(0.98); }
-    50% { opacity: 1; transform: scale(1.02); }
-    100% { opacity: 0.4; transform: scale(0.98); }
-}
-
-.chest-rewards-modal {
-    position: absolute;
-    background: rgba(15, 12, 8, 0.96);
-    border: 3px solid #d4af37;
-    border-radius: 14px;
-    padding: 25px;
-    text-align: center;
-    color: #ffcc00;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.95);
-    max-width: 850px;
-    width: 90vw;
-    max-height: 85vh;
-    overflow-y: auto;
-}
-
-.rewards-card-container {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin: 20px 0;
-}
+#chest-video-element { width: 100vw; height: 100vh; object-fit: cover; cursor: pointer; }
+.chest-prompt-text { position: absolute; bottom: 50px; color: #ffcc00; font-size: 2em; font-weight: bold; pointer-events: none; }
+.chest-rewards-modal { position: absolute; background: rgba(15, 12, 8, 0.96); border: 3px solid #d4af37; border-radius: 14px; padding: 25px; text-align: center; color: #ffcc00; max-width: 850px; width: 90vw; }
+.rewards-card-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin: 20px 0; }
