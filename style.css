@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 18.0.0)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 19.0.0)
    ========================================================================= */
 
 * {
@@ -18,7 +18,9 @@ body {
     min-height: 100vh;
 }
 
-/* HLAVNÉ MENU */
+/* =========================================================================
+   1. HLAVNÉ MENU
+   ========================================================================= */
 .menu-container {
     display: flex;
     flex-direction: column;
@@ -96,7 +98,9 @@ body {
     font-size: 1.2em;
 }
 
-/* ZÁPAS OBLASTI */
+/* =========================================================================
+   2. HRACÍ STÔL A ZÁPAS
+   ========================================================================= */
 .board-container {
     display: flex;
     flex-direction: column;
@@ -136,6 +140,17 @@ body {
     overflow-x: auto;
 }
 
+.row-label, .row-label-neutral {
+    position: absolute;
+    right: 12px;
+    bottom: 6px;
+    font-size: 0.85em;
+    color: rgba(212, 175, 55, 0.4);
+    pointer-events: none;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
 .row-neutral { background: rgba(30, 20, 10, 0.6); border: 1px solid #d4af37; min-height: 190px; justify-content: center; }
 
 .card-hand {
@@ -150,7 +165,7 @@ body {
 }
 
 /* =========================================================================
-   ZVÄČŠENÝ DESIGN KARIET & OPRAVENÝ PLATINOVÝ RÁM
+   3. ZVÄČŠENÉ KARTY & OPRAVENÝ PLATINOVÝ RÁM
    ========================================================================= */
 .karta-karta-wrapper { display: flex; flex-direction: column; align-items: center; }
 
@@ -175,7 +190,7 @@ body {
 
 .karta-disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.6); }
 
-/* OPRAVENÉ RÁMY D A PLATINUM */
+/* RÁMY */
 .karta.cls-F { border: 3px solid #8b5a2b; }
 .karta.cls-E { border: 4px solid #3b82f6; border-image: url('Img/eclassram.webp') 30 stretch; }
 .karta.cls-D { border: 4px solid #10b981; border-image: url('Img/dclassram.webp') 30 stretch; }
@@ -184,7 +199,6 @@ body {
 .karta.cls-A { border: 4px solid #ec4899; border-image: url('Img/aclassram.webp') 30 stretch; }
 .karta.cls-S { border: 4px solid #ffcc00; border-image: url('Img/sclassram.webp') 30 stretch; box-shadow: 0 0 20px rgba(255, 204, 0, 0.7); }
 
-/* FIX PRE PLATINOVÝ RÁM BEZ BIELYCH HRÁN */
 .karta.cls-PLATINUM {
     border: 4px solid #e0e7ff !important;
     border-image: url('Img/platinumclassram.webp') 30 stretch !important;
@@ -241,7 +255,55 @@ body {
 .karta-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .karta-popis-short { font-size: 0.72em; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* MODÁLE */
+/* ROVNAKO VEĽKÉ KARTY PRE SUROVINY */
+.karta-surovina {
+    width: 145px;
+    height: 200px;
+    background: #100c08;
+    border: 3px solid #d4af37;
+    border-radius: 8px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 6px;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.karta-surovina .surovina-foto {
+    width: 100%;
+    height: 125px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 4px;
+    margin-top: 15px;
+}
+
+.karta-surovina .surovina-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: #ffcc00;
+    color: #000;
+    font-weight: bold;
+    font-size: 0.9em;
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid #000;
+}
+
+.karta-surovina .surovina-stitok {
+    background: rgba(0, 0, 0, 0.9);
+    padding: 4px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.karta-surovina .surovina-nazov { font-size: 0.85em; font-weight: bold; color: #ffcc00; }
+
+/* MODÁLY */
 .card-modal {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(0, 0, 0, 0.88); z-index: 10000;
@@ -256,39 +318,27 @@ body {
 
 .card-modal-close { position: absolute; top: 10px; right: 15px; font-size: 2.2em; color: #d4af37; cursor: pointer; }
 
-/* NÁHĽAD KARTY NA CELÚ OBRAZOVKU */
-.card-inspect-big {
-    transform: scale(2.2);
-    margin: 60px auto 20px auto;
-    box-shadow: 0 0 50px rgba(212, 175, 55, 0.8);
-    pointer-events: none;
+.mulligan-modal-box {
+    background: rgba(18, 12, 8, 0.97); border: 3px solid #d4af37; border-radius: 14px; padding: 30px; text-align: center; max-width: 600px; width: 85vw; box-shadow: 0 0 50px rgba(0,0,0,0.95);
 }
 
-/* PRESNÉ ZVÄČŠENIE KARIET VO VIDEU (210px x 290px) */
+.mulligan-btn-group { display: flex; gap: 15px; justify-content: center; margin-top: 25px; }
+
+/* VIDEO KOVANIE */
 #forge-video-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999;
     display: flex; justify-content: center; align-items: center;
 }
-
 #forge-video-element { width: 100vw; height: 100vh; object-fit: cover; }
-
 .forge-cards-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; }
+.forge-slot-card { position: absolute; transform: translate(-50%, -50%); width: 210px !important; height: 290px !important; pointer-events: none; }
 
-.forge-slot-card {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    width: 210px !important;
-    height: 290px !important;
-    pointer-events: none;
-}
-
-/* PRESNÉ POZÍCIE PRE Kovadlinu Vylepsovanie.mp4 */
 #forge-card-1 { top: 48%; left: 24.5%; }
 #forge-card-2 { top: 48%; left: 41.5%; }
 #forge-card-3 { top: 48%; left: 58.5%; }
 #forge-card-4 { top: 48%; left: 75.5%; }
 
-/* VIDEO TRUHLE */
+/* TRUHLE */
 #chest-video-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999;
     display: flex; flex-direction: column; justify-content: center; align-items: center;
