@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 18.0.0 - FULL UNUNCUT)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 19.0.0 - FULL UNUNCUT)
 // =========================================================================
 
 (function() {
@@ -13,13 +13,13 @@
     }
 })();
 
-var VERZIA = "18.0.0";
+var VERZIA = "19.0.0";
 
 // =========================================================================
 // 1. REGISTER KARIET (MASTER REGISTRY)
 // =========================================================================
 var MASTER_REGISTRY = {
-    // 🌟 12 PLATINOVÝCH KARIET SO SCHOPNOSŤAMI (NEZOBRAZUJÚ SA V DIELNI)
+    // 🌟 12 PLATINOVÝCH KARIET SO SCHOPNOSŤAMI
     "Katy": { row: 2, p: 6, isPlatinum: true, img: "Img/katy.webp", desc: "Kráľovná výhier. Vládne bojisku s neprekonateľnou autoritou.", abilityDesc: "💖 Pomoc: Pridáva +2b všetkým tvojim kartám a uberá -2b všetkým súperovým kartám." },
     "Nela": { row: 2, p: 1, isPlatinum: true, img: "Img/nela.webp", desc: "Ochranný štít podhradia. Zmrazí stôl pred násobnými kúzlam.", abilityDesc: "🛡️ Štít: Zmrazí stôl! Kým je Nela v hre, žiadne karty nedostávajú percentuálne bonusy ani buffy." },
     "Michal": { row: 1, p: 5, isPlatinum: true, img: "Img/michal.webp", desc: "Bystrý obchodník. Váži zlato a pozná cenu každej veci.", abilityDesc: "📢 Obchodník: Ak nie je na stole Nela, dáva sám sebe samo-buff +100% k sile (z 5b na 10b)." },
@@ -33,19 +33,19 @@ var MASTER_REGISTRY = {
     "Kika": { row: 2, p: 3, isPlatinum: true, isSpy: true, img: "Img/kika.webp", desc: "Hradná archivárka.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola. Potiahne ti 2 nové karty z balíčka." },
     "Zvedavá suseda": { row: 2, p: 7, isPlatinum: true, isSpy: true, img: "Img/zvedava-suseda.webp", desc: "Pozorné oko podhradia.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola a dá ti 2 nové karty z balíčka." },
 
-    // 🔨 OBYČAJNÉ KOVÁČSKE JEDNOTKY (MUŽI - KOVATEĽNÉ F až S)
+    // 🔨 OBYČAJNÉ KOVÁČSKE JEDNOTKY (MUŽI)
     "Neviditeľný Mário": { row: 1, p: 4, img: "Img/neviditelny-mario.webp", desc: "Tajuplný zbojník v kapucni." },
     "Martin": { row: 1, p: 4, img: "Img/martin.webp", desc: "Šikovný hraničiar a lovec." },
     "Timko": { row: 1, p: 1, img: "Img/tymko.webp", desc: "Obranný bojovník s dreveným mečom." },
     "Jaro": { row: 1, p: 5, img: "Img/jaro.webp", desc: "Zručný kováč." },
 
-    // 🔨 OBYČAJNÉ KOVÁČSKE JEDNOTKY (ŽENY - KOVATEĽNÉ F až S)
+    // 🔨 OBYČAJNÉ KOVÁČSKE JEDNOTKY (ŽENY)
     "Lula": { row: 2, p: 4, img: "Img/lula.webp", desc: "Dvorná harfistka." },
     "Anka": { row: 2, p: 7, img: "Img/anka.webp", desc: "Správkyňa hradných kľúčov." },
     "Darinka": { row: 2, p: 5, img: "Img/darinka.webp", desc: "Majsterka tkáčka." },
     "Viera": { row: 2, p: 6, img: "Img/viera.webp", desc: "Hradná pekárka." },
 
-    // 🔨 OBYČAJNÉ KOVÁČSKE JEDNOTKY (ZVIERATÁ - KOVATEĽNÉ F až S)
+    // 🔨 OBYČAJNÉ KOVÁČSKE JEDNOTKY (ZVIERATÁ)
     "Grobské Mravce": { row: 3, p: 1, img: "Img/grobske-mravce.webp", desc: "Húževnatá svorka lesných mravcov." },
     "Petržalské holuby": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli." },
     "Kabelkový pes": { row: 3, p: 3, img: "Img/kabelkovy-pes.webp", desc: "Panský miláčik usadený na vankúši." },
@@ -55,21 +55,19 @@ var MASTER_REGISTRY = {
     "Pouličný mačiak": { row: 3, p: 3, img: "Img/poulicny-maciak.webp", desc: "Tichý potulný kocúr." },
     "Komáre": { row: 3, p: 3, img: "Img/komare.webp", desc: "Dotieravé hradné húfy komárov." },
 
-    // KONŠTANTNÉ ŠPECIÁLNE PREDMETY
-    "Alcohol": { row: 1, p: 0, isItem: true, img: "Img/alkohol.webp", desc: "Medovina pre 1. rad (Muži).", abilityDesc: "🛠️ Predmet: Pridáva +1b až +7b ku každej karte v 1. rade." },
-    "Kvety": { row: 2, p: 0, isItem: true, img: "Img/kvety.webp", desc: "Kytica pre 2. rad (Ženy).", abilityDesc: "🛠️ Predmet: Pridáva +1b až +7b ku každej karte v 2. rade." },
-    "Medove Orechy": { row: 3, p: 0, isItem: true, img: "Img/medove-orechy.webp", desc: "Odmena pre 3. rad (Zvieratá).", abilityDesc: "🛠️ Predmet: Pridáva +1b až +7b ku každej karte v 3. rade." },
+    // PREDMETY
+    "Alcohol": { row: 1, p: 0, isItem: true, img: "Img/alkohol.webp", desc: "Medovina pre 1. rad.", abilityDesc: "🛠️ Predmet: Pridáva +1b až +7b ku každej karte v 1. rade." },
+    "Kvety": { row: 2, p: 0, isItem: true, img: "Img/kvety.webp", desc: "Kytica pre 2. rad.", abilityDesc: "🛠️ Predmet: Pridáva +1b až +7b ku každej karte v 2. rade." },
+    "Medove Orechy": { row: 3, p: 0, isItem: true, img: "Img/medove-orechy.webp", desc: "Odmena pre 3. rad.", abilityDesc: "🛠️ Predmet: Pridáva +1b až +7b ku každej karte v 3. rade." },
 
-    // NEUTRÁLNE KÚZLA STOLA
-    "Musíme sa porozprávať": { row: 0, p: 0, isSpell: true, img: "Img/musime-sa-porozpravat.webp", desc: "Vážny rozhovor zmrazí mužov.", abilityDesc: "⚡ Kúzlo: Zníži ZÁKLADNÚ silu všetkých mužov na 1b!" },
-    "Upokoj sa": { row: 0, p: 0, isSpell: true, img: "Img/upokoj-sa.webp", desc: "Hnev v ženskom rade.", abilityDesc: "⚡ Kúzlo: Zníži ZÁKLADNÚ silu všetkých žien na 1b!" },
-    "Ohnostroj": { row: 0, p: 0, isSpell: true, img: "Img/ohnostroj.webp", desc: "Rachot vyplaší zvieratá.", abilityDesc: "⚡ Kúzlo: Zníži ZÁKLADNÚ silu všetkých zvierat na 1b!" },
-    "Šicko v porádku": { row: 0, p: 0, isSpell: true, img: "Img/sicko-v-poradku.webp", desc: "Dvorný šašo vyčistí stôl.", abilityDesc: "⚡ Očistenie: Odstráni všetky negatívne kúzla zo stola." }
+    // KÚZLA
+    "Musíme sa porozprávať": { row: 0, p: 0, isSpell: true, img: "Img/musime-sa-porozpravat.webp", desc: "Vážny rozhovor.", abilityDesc: "⚡ Zníži základ mužov na 1b." },
+    "Upokoj sa": { row: 0, p: 0, isSpell: true, img: "Img/upokoj-sa.webp", desc: "Hnev.", abilityDesc: "⚡ Zníži základ žien na 1b." },
+    "Ohnostroj": { row: 0, p: 0, isSpell: true, img: "Img/ohnostroj.webp", desc: "Rachot.", abilityDesc: "⚡ Zníži základ zvierat na 1b." },
+    "Šicko v porádku": { row: 0, p: 0, isSpell: true, img: "Img/sicko-v-poradku.webp", desc: "Šašo.", abilityDesc: "⚡ Odstráni kúzla zo stola." }
 };
 
-// =========================================================================
-// 2. KONFIGURÁCIE TRIED A KOVANIA
-// =========================================================================
+// CONFIGS
 var CLASS_CONFIG = {
     "F": { bonusPwr: 0, matName: "Koža", itemBonus: 1, coinFee: 10 },
     "E": { bonusPwr: 1, matName: "Drevo", itemBonus: 2, coinFee: 25 },
@@ -96,9 +94,6 @@ var PERGAMENY_CONFIG = {
     "legendary": { name: "Legendárny Zvitok", goldCost: 1000, rateBonus: 0.55, saveCard: true }
 };
 
-// =========================================================================
-// 3. GLOBÁLNY INVENTÁR A STAV ZÁPASU
-// =========================================================================
 var inventar = {
     mince: 500,
     suroviny: { "Koža": 15, "Drevo": 10, "Kov": 5, "Bronz": 2, "Striebro": 1, "Zlato": 20 },
@@ -263,7 +258,7 @@ function otvoriťDielňu() {
 }
 
 // =========================================================================
-// 6. INICIALIZÁCIA ZÁPASU & STREDOVEKÝ MULLIGAN DIALOG (10 KARIET)
+// 6. INICIALIZÁCIA ZÁPASU & MULLIGAN DIALOG (10 KARIET)
 // =========================================================================
 function vygenerujRuku10Kariet() {
     var keys = Object.keys(MASTER_REGISTRY);
@@ -580,27 +575,85 @@ function spustitVideoAnimationTruhly(typ) {
 function doplnOdmenyAUpravUI(typ, overlayElement) {
     var coinsEarned = 0, goldEarned = 0;
     var maxKariet = 0;
+    var ziskaneSuroviny = {};
 
     if (typ === "vitaz") {
         coinsEarned = Math.floor(Math.random() * 151) + 150;
         goldEarned = Math.floor(Math.random() * 4) + 2;
         maxKariet = Math.floor(Math.random() * 4) + 3;
+
+        p1_played_cards.forEach(function(c) {
+            var cls = c.cls || "F";
+            if (cls === "E") ziskaneSuroviny["Drevo"] = (ziskaneSuroviny["Drevo"] || 0) + 1;
+            if (cls === "D") ziskaneSuroviny["Kov"] = (ziskaneSuroviny["Kov"] || 0) + 1;
+            if (cls === "C") ziskaneSuroviny["Bronz"] = (ziskaneSuroviny["Bronz"] || 0) + 1;
+            if (cls === "B") ziskaneSuroviny["Striebro"] = (ziskaneSuroviny["Striebro"] || 0) + 1;
+            if (cls === "A") ziskaneSuroviny["Zlato"] = (ziskaneSuroviny["Zlato"] || 0) + 1;
+        });
     } else {
         coinsEarned = Math.floor(Math.random() * 51) + 50;
         goldEarned = (Math.random() < 0.1) ? 1 : 0;
         maxKariet = Math.floor(Math.random() * 3) + 1;
     }
 
+    ziskaneSuroviny["Koža"] = (ziskaneSuroviny["Koža"] || 0) + 1;
+
     inventar.mince += coinsEarned;
     inventar.suroviny["Zlato"] = (inventar.suroviny["Zlato"] || 0) + goldEarned;
-    inventar.suroviny["Koža"] = (inventar.suroviny["Koža"] || 0) + 1;
+    Object.keys(ziskaneSuroviny).forEach(function(mat) {
+        inventar.suroviny[mat] = (inventar.suroviny[mat] || 0) + ziskaneSuroviny[mat];
+    });
+
+    var odmenyHtml = `
+        <div class="karta-surovina">
+            <div class="surovina-badge">+${coinsEarned}</div>
+            <div class="surovina-foto" style="background-image: url('Img/mince.webp');"></div>
+            <div class="surovina-stitok">
+                <div class="surovina-nazov">Kopa Mincí</div>
+            </div>
+        </div>
+    `;
+
+    if (goldEarned > 0) {
+        odmenyHtml += `
+            <div class="karta-surovina">
+                <div class="surovina-badge">+${goldEarned}g</div>
+                <div class="surovina-foto" style="background-image: url('Img/zlato.webp');"></div>
+                <div class="surovina-stitok">
+                    <div class="surovina-nazov">Hruda Zlata</div>
+                </div>
+            </div>
+        `;
+    }
+
+    var surovinyMapInfo = {
+        "Koža": { nazov: "Tvrdená Koža", img: "Img/koza.webp" },
+        "Drevo": { nazov: "Kováčske Drevo", img: "Img/drevo.webp" },
+        "Kov": { nazov: "Železný Kov", img: "Img/zelezo.webp" },
+        "Bronz": { nazov: "Bronzový Odliatok", img: "Img/bronz.webp" },
+        "Striebro": { nazov: "Strieborná Tehlička", img: "Img/striebro.webp" }
+    };
+
+    Object.keys(ziskaneSuroviny).forEach(function(matKey) {
+        var info = surovinyMapInfo[matKey];
+        if (info) {
+            odmenyHtml += `
+                <div class="karta-surovina">
+                    <div class="surovina-badge">+${ziskaneSuroviny[matKey]}x</div>
+                    <div class="surovina-foto" style="background-image: url('${info.img}');"></div>
+                    <div class="surovina-stitok">
+                        <div class="surovina-nazov">${info.nazov}</div>
+                    </div>
+                </div>
+            `;
+        }
+    });
 
     var dostupneFm = Object.keys(MASTER_REGISTRY).filter(function(m) {
         var r = MASTER_REGISTRY[m];
         return !r.isPlatinum && !r.isSpell;
     });
 
-    var ziskaneKartyHtml = "";
     for (var i = 0; i < maxKariet; i++) {
         var randCardName = dostupneFm[Math.floor(Math.random() * dostupneFm.length)];
         if (!inventar.karty[randCardName]) inventar.karty[randCardName] = { repliky: 0, aktivnaTrieda: "F" };
@@ -608,21 +661,18 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
 
         var reg = getRegistryCard(randCardName);
         var realPwr = getRealPower({ n: randCardName, cls: "F" });
-        ziskaneKartyHtml += `<div class="karta cls-F">${vytvorHTMLKarty(randCardName, realPwr, "F", reg.row, reg.p)}</div>`;
+        odmenyHtml += `<div class="karta cls-F">${vytvorHTMLKarty(randCardName, realPwr, "F", reg.row, reg.p)}</div>`;
     }
 
     var rewardsBox = document.createElement("div");
     rewardsBox.className = "chest-rewards-modal";
     rewardsBox.innerHTML = `
         <h2>🎉 TRUHLA OTVORENÁ!</h2>
-        <div style="font-size:1.2em; color:#ffcc00; margin-bottom:10px;">
-            + ${coinsEarned} Mincí | + ${goldEarned}g Zlata | + 1x Tvrdená Koža
-        </div>
-        <div style="font-weight:bold; color:#aaa; margin-top:15px;">ZÍSKANÉ F-CLASS KÓPIE KARIET:</div>
+        <p style="color:#aaa; font-size:1em;">Získal si nasledujúce odmeny do svojej pokladnice:</p>
         <div class="rewards-card-container">
-            ${ziskaneKartyHtml}
+            ${odmenyHtml}
         </div>
-        <button onclick="zatvoritTruhluAOpustit('${overlayElement.id}')" style="background:#10b981; color:#fff; border:none; padding:12px 30px; border-radius:6px; font-weight:bold; font-size:1.1em; cursor:pointer;">Zobrať Odmeny do Batohu</button>
+        <button onclick="zatvoritTruhluAOpustit('${overlayElement.id}')" style="background:#10b981; color:#fff; border:none; padding:12px 35px; border-radius:6px; font-weight:bold; font-size:1.1em; cursor:pointer; margin-top:10px;">Zobrať Všetko do Batohu</button>
     `;
 
     overlayElement.appendChild(rewardsBox);
@@ -781,7 +831,7 @@ function vykresliStraneKnihy() {
                     </ul>
                 </div>
 
-                <div style="background:rgba(0,0,0,0.5); border:2px solid #d4af37; padding:18px; border-radius:10px;">
+                <div style="background:rgba(0,0,0,0.5); border:2px solid #5a4d3e; padding:18px; border-radius:10px;">
                     <h4 style="color:#ffcc00; margin-top:0; font-size:1.2em;">🏆 TRUHLA VÍŤAZA (Výhra)</h4>
                     <ul style="line-height:1.8;">
                         <li><strong>Mince:</strong> 150 až 300 mincí (100% garancia).</li>
