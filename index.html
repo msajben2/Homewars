@@ -8,16 +8,13 @@
 </head>
 <body onclick="spustitHudbuPoPrvomKliknuti()">
 
-    <!-- STREDOVEKÁ HUDBA V POZADÍ (AUDIO) -->
-    <audio id="bg-music" src="audio/soundtrack.mp3" loop></audio>
+    <audio id="bg-music" loop></audio>
 
-    <!-- OVLÁDANIE HUDBY V ROCHU -->
     <div class="audio-control-bar">
         <button id="mute-btn" onclick="prepniZvuk()" style="background:none; border:none; color:#ffcc00; font-size:1.2em; cursor:pointer;">🔊</button>
         <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.4" oninput="upravHlasitost(this.value)" style="width:70px;">
     </div>
 
-    <!-- 1. HLAVNÉ MENU -->
     <div id="hlavne-menu" class="menu-container">
         <h1 class="game-title">🏰 HOME WARS 🏰</h1>
         <p class="game-subtitle">Kráľovská kartová stratégia</p>
@@ -30,7 +27,6 @@
             <button class="btn-menu" onclick="otvoriťObchod()">🛒 Player-Driven Trhovisko</button>
             <button class="btn-menu" onclick="otvoriťNavodHry()">📖 Kronika & Návod Hry</button>
             
-            <!-- TLAČIDLÁ PRE PRIAME OTVORENIE TRUHIEL VO VIDEU -->
             <button class="btn-menu" style="background:#523f29; border-color:#ffcc00;" onclick="otvorTruhluVitaza()">🏆 Otvoriť Truhlu Víťaza (Video Test)</button>
             <button class="btn-menu" style="background:#3a2e20;" onclick="otvorTruhluUcastnika()">📦 Otvoriť Truhlu Účastníka (Video Test)</button>
         </div>
@@ -38,10 +34,8 @@
         <div id="wallet-p1" class="wallet-display">0 m | Zlato: 0g</div>
     </div>
 
-    <!-- 2. ZÁPASOVÁ HRACIA PLOCHA -->
     <div id="hracia-plocha" class="board-container" style="display: none;">
         
-        <!-- HORNÁ LIŠTA (HRÁČ 2 / AI) -->
         <div class="player-header p2-header">
             <div class="player-info">
                 <span class="player-name">Hráč 2 (Súper)</span>
@@ -51,32 +45,26 @@
             <button class="btn-pass" onclick="hracPassuje(2)">🏳️ Pass (P2)</button>
         </div>
 
-        <!-- RUKA HRÁČA 2 -->
         <div id="p2-hand" class="card-hand p2-hand"></div>
 
-        <!-- HRACÍ STÔL -->
         <div class="board-half p2-board">
             <div id="p2-row3" class="board-row row-animals" data-row="3"><span class="row-label">3. Rad (Zvieratá)</span></div>
             <div id="p2-row2" class="board-row row-women" data-row="2"><span class="row-label">2. Rad (Ženy)</span></div>
             <div id="p2-row1" class="board-row row-men" data-row="1"><span class="row-label">1. Rad (Muži)</span></div>
         </div>
 
-        <!-- NEUTRÁLNY RAD -->
         <div id="neutral-row" class="board-row row-neutral">
             <span class="row-label-neutral">⚡ Neutrálne Kúzla Stola ⚡</span>
         </div>
 
-        <!-- HRACÍ STÔL -->
         <div class="board-half p1-board">
             <div id="p1-row1" class="board-row row-men" data-row="1"><span class="row-label">1. Rad (Muži)</span></div>
             <div id="p1-row2" class="board-row row-women" data-row="2"><span class="row-label">2. Rad (Ženy)</span></div>
             <div id="p1-row3" class="board-row row-animals" data-row="3"><span class="row-label">3. Rad (Zvieratá)</span></div>
         </div>
 
-        <!-- RUKA HRÁČA 1 -->
         <div id="p1-hand" class="card-hand p1-hand"></div>
 
-        <!-- SPODNÁ LIŠTA -->
         <div class="player-header p1-header">
             <div class="player-info">
                 <span class="player-name">Hráč 1 (Ty)</span>
@@ -89,7 +77,6 @@
 
     </div>
 
-    <!-- MODÁLY -->
     <div id="deckbuilder-modal" class="card-modal" style="display: none;" onclick="if(event.target === this) this.style.display='none';">
         <div class="modal-content">
             <span class="card-modal-close" onclick="document.getElementById('deckbuilder-modal').style.display='none'">&times;</span>
