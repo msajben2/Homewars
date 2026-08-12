@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 13.0.0)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 16.0.0)
    ========================================================================= */
 
 * {
@@ -19,7 +19,7 @@ body {
 }
 
 /* =========================================================================
-   1. HLAVNÉ MENU
+   1. HLAVNÉ MENU & HUDBA CONTROL
    ========================================================================= */
 .menu-container {
     display: flex;
@@ -32,7 +32,7 @@ body {
 }
 
 .game-title {
-    font-size: 3.2em;
+    font-size: 3.5em;
     color: #d4af37;
     text-shadow: 0 0 15px rgba(212, 175, 55, 0.5), 2px 2px 4px #000;
     margin-bottom: 5px;
@@ -40,7 +40,7 @@ body {
 }
 
 .game-subtitle {
-    font-size: 1.2em;
+    font-size: 1.3em;
     color: #a89060;
     margin-bottom: 30px;
     font-style: italic;
@@ -51,15 +51,15 @@ body {
     flex-direction: column;
     gap: 15px;
     width: 100%;
-    max-width: 380px;
+    max-width: 420px;
 }
 
 .btn-menu {
     background: linear-gradient(180deg, #3b2d1d 0%, #21180e 100%);
     color: #ffcc00;
     border: 2px solid #d4af37;
-    padding: 14px 20px;
-    font-size: 1.1em;
+    padding: 16px 22px;
+    font-size: 1.15em;
     font-weight: bold;
     border-radius: 8px;
     cursor: pointer;
@@ -74,15 +74,29 @@ body {
     box-shadow: 0 6px 15px rgba(212, 175, 55, 0.3);
 }
 
+.audio-control-bar {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(15, 10, 5, 0.85);
+    border: 1px solid #d4af37;
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 5000;
+}
+
 .wallet-display {
-    margin-top: 30px;
+    margin-top: 25px;
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid #5a4d3e;
-    padding: 8px 20px;
+    padding: 10px 25px;
     border-radius: 20px;
     color: #d4af37;
     font-weight: bold;
-    font-size: 1.1em;
+    font-size: 1.2em;
 }
 
 /* =========================================================================
@@ -92,7 +106,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 10px;
     justify-content: space-between;
@@ -104,7 +118,7 @@ body {
     align-items: center;
     background: rgba(20, 15, 10, 0.85);
     border: 1px solid #5a4d3e;
-    padding: 8px 15px;
+    padding: 10px 20px;
     border-radius: 8px;
 }
 
@@ -117,18 +131,19 @@ body {
 .player-name {
     font-weight: bold;
     color: #ffcc00;
+    font-size: 1.1em;
 }
 
 .round-indicators {
-    font-size: 1.2em;
+    font-size: 1.3em;
 }
 
 .score-badge {
     background: #d4af37;
     color: #111;
     font-weight: bold;
-    font-size: 1.3em;
-    padding: 4px 14px;
+    font-size: 1.5em;
+    padding: 6px 18px;
     border-radius: 6px;
     box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
 }
@@ -137,9 +152,10 @@ body {
     background: #8b0000;
     color: #fff;
     border: 1px solid #ff4d4d;
-    padding: 6px 14px;
-    border-radius: 4px;
+    padding: 8px 18px;
+    border-radius: 6px;
     font-weight: bold;
+    font-size: 1em;
     cursor: pointer;
 }
 
@@ -151,35 +167,35 @@ body {
     background: #333;
     color: #aaa;
     border: 1px solid #555;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 8px 14px;
+    border-radius: 6px;
     cursor: pointer;
 }
 
 .board-half {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 }
 
 .board-row {
     background: rgba(0, 0, 0, 0.4);
     border: 1px dashed #4a3d2e;
-    min-height: 105px;
-    border-radius: 6px;
+    min-height: 175px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
-    padding: 5px;
-    gap: 8px;
+    padding: 8px 12px;
+    gap: 12px;
     position: relative;
     overflow-x: auto;
 }
 
 .row-label, .row-label-neutral {
     position: absolute;
-    right: 10px;
-    bottom: 4px;
-    font-size: 0.75em;
+    right: 12px;
+    bottom: 6px;
+    font-size: 0.85em;
     color: rgba(212, 175, 55, 0.4);
     pointer-events: none;
     font-weight: bold;
@@ -189,23 +205,23 @@ body {
 .row-neutral {
     background: rgba(30, 20, 10, 0.6);
     border: 1px solid #d4af37;
-    min-height: 90px;
+    min-height: 155px;
     justify-content: center;
 }
 
 .card-hand {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    min-height: 115px;
-    padding: 5px;
+    gap: 12px;
+    min-height: 185px;
+    padding: 8px;
     overflow-x: auto;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.35);
     border-radius: 8px;
 }
 
 /* =========================================================================
-   3. DESIGN KARIET A RÁMOV (F až S + PLATINUM)
+   3. ZVÄČŠENÝ DESIGN KARIET A RÁMOV
    ========================================================================= */
 .karta-karta-wrapper {
     display: flex;
@@ -214,24 +230,24 @@ body {
 }
 
 .karta {
-    width: 78px;
-    height: 108px;
+    width: 120px;
+    height: 165px;
     background: #1a140e;
-    border-radius: 6px;
+    border-radius: 8px;
     position: relative;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 4px;
+    padding: 6px;
     cursor: pointer;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.8);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.85);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.5s ease;
     flex-shrink: 0;
 }
 
 .karta:hover {
-    transform: translateY(-4px) scale(1.03);
-    z-index: 10;
+    transform: translateY(-6px) scale(1.05);
+    z-index: 20;
 }
 
 .karta-disabled {
@@ -241,94 +257,95 @@ body {
 }
 
 /* RÁMY PODĽA TRIEDY KARTY */
-.karta.cls-F { border: 2px solid #8b5a2b; }
-.karta.cls-E { border: 2px solid #3b82f6; border-image: url('Img/eclassram.webp') 30 stretch; }
-.karta.cls-D { border: 2px solid #10b981; border-image: url('Img/dclassram.webp') 30 stretch; }
-.karta.cls-C { border: 2px solid #f59e0b; border-image: url('Img/cclassram.webp') 30 stretch; }
-.karta.cls-B { border: 2px solid #8b5cf6; border-image: url('Img/bclassram.webp') 30 stretch; }
-.karta.cls-A { border: 2px solid #ec4899; border-image: url('Img/aclassram.webp') 30 stretch; }
-.karta.cls-S { border: 3px solid #ffcc00; border-image: url('Img/sclassram.webp') 30 stretch; box-shadow: 0 0 15px rgba(255, 204, 0, 0.6); }
-.karta.cls-PLATINUM { border: 3px solid #e0e7ff; border-image: url('Img/platinumclassram.webp') 30 stretch; box-shadow: 0 0 20px rgba(224, 231, 255, 0.8); }
+.karta.cls-F { border: 3px solid #8b5a2b; }
+.karta.cls-E { border: 3px solid #3b82f6; border-image: url('Img/eclassram.webp') 30 stretch; }
+.karta.cls-D { border: 3px solid #10b981; border-image: url('Img/dclassram.webp') 30 stretch; }
+.karta.cls-C { border: 3px solid #f59e0b; border-image: url('Img/cclassram.webp') 30 stretch; }
+.karta.cls-B { border: 3px solid #8b5cf6; border-image: url('Img/bclassram.webp') 30 stretch; }
+.karta.cls-A { border: 3px solid #ec4899; border-image: url('Img/aclassram.webp') 30 stretch; }
+.karta.cls-S { border: 4px solid #ffcc00; border-image: url('Img/sclassram.webp') 30 stretch; box-shadow: 0 0 20px rgba(255, 204, 0, 0.7); }
+.karta.cls-PLATINUM { border: 4px solid #e0e7ff; border-image: url('Img/platinumclassram.webp') 30 stretch; box-shadow: 0 0 25px rgba(224, 231, 255, 0.85); }
 
 /* PRVKY NA KARTE */
 .karta-kruh {
     position: absolute;
-    width: 20px;
-    height: 20px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.7em;
+    font-size: 0.9em;
     font-weight: bold;
-    z-index: 2;
+    z-index: 5;
 }
 
 .karta-kruh-pwr {
-    top: 2px;
-    left: 2px;
+    top: 4px;
+    left: 4px;
     background: #ffcc00;
     color: #000;
-    border: 1px solid #000;
+    border: 1.5px solid #000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
 
 .karta-kruh-cls {
-    top: 2px;
-    right: 2px;
-    background: #222;
+    top: 4px;
+    right: 4px;
+    background: #111;
     color: #ffcc00;
-    border: 1px solid #d4af37;
+    border: 1.5px solid #d4af37;
 }
 
 .karta-btn-inspect {
     position: absolute;
-    bottom: 22px;
-    right: 2px;
-    background: rgba(0, 0, 0, 0.7);
-    border: none;
+    bottom: 34px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #5a4d3e;
     color: #fff;
-    font-size: 0.65em;
-    padding: 2px 4px;
-    border-radius: 3px;
+    font-size: 0.8em;
+    padding: 3px 6px;
+    border-radius: 4px;
     cursor: pointer;
-    z-index: 3;
+    z-index: 6;
 }
 
 .karta-foto {
     width: 100%;
-    height: 60px;
+    height: 95px;
     background-size: cover;
     background-position: center;
-    border-radius: 3px;
-    margin-top: 14px;
+    border-radius: 4px;
+    margin-top: 20px;
 }
 
 .karta-stitok-spodok {
-    background: rgba(0, 0, 0, 0.85);
-    padding: 2px;
-    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 3px 4px;
+    border-radius: 4px;
     text-align: center;
 }
 
 .karta-nazov {
-    font-size: 0.65em;
+    font-size: 0.8em;
     font-weight: bold;
-    color: #e0d0b0;
+    color: #ffcc00;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .karta-popis-short {
-    font-size: 0.55em;
-    color: #aaa;
+    font-size: 0.68em;
+    color: #ccc;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 /* =========================================================================
-   4. DIELŇA A TRHOVISKO (MODÁLNE OKNÁ)
+   4. DIELŇA & ANIMÁCIA KOVANIA (Vylepsovanie.mp4)
    ========================================================================= */
 .card-modal {
     position: fixed;
@@ -347,10 +364,10 @@ body {
     background: linear-gradient(135deg, #1c140c 0%, #0d0a07 100%);
     border: 2px solid #d4af37;
     border-radius: 12px;
-    width: 90vw;
-    max-width: 1000px;
-    max-height: 85vh;
-    padding: 20px;
+    width: 92vw;
+    max-width: 1100px;
+    max-height: 88vh;
+    padding: 22px;
     color: #e0d0b0;
     overflow-y: auto;
     position: relative;
@@ -365,15 +382,10 @@ body {
     cursor: pointer;
 }
 
-.modal-title {
-    color: #d4af37;
-    margin-top: 0;
-}
-
 .dielna-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 18px;
     margin-top: 15px;
 }
 
@@ -382,10 +394,10 @@ body {
     color: #fff;
     border: none;
     width: 100%;
-    padding: 5px;
+    padding: 7px;
     border-radius: 4px;
     font-weight: bold;
-    font-size: 0.75em;
+    font-size: 0.8em;
     cursor: pointer;
 }
 
@@ -394,15 +406,57 @@ body {
     color: #000;
     border: none;
     width: 100%;
-    padding: 4px;
+    padding: 5px;
     border-radius: 4px;
     font-weight: bold;
-    font-size: 0.75em;
+    font-size: 0.8em;
     cursor: pointer;
 }
 
+/* DYNAMICKÝ OVERLAY PRE VIDEO KOVANIA */
+#forge-video-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 999999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#forge-video-element {
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+}
+
+.forge-cards-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+}
+
+/* PRESNÉ PREPOJENIE KARIET S OBDOBNOU KOVADLINOU VO VIDEU */
+.forge-slot-card {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+/* SÚRADNICE PRE 4 RÁMY NA KOVADLINE */
+#forge-card-1 { top: 46%; left: 32.5%; }
+#forge-card-2 { top: 46%; left: 44.0%; }
+#forge-card-3 { top: 46%; left: 55.5%; }
+#forge-card-4 { top: 46%; left: 67.0%; }
+
 /* =========================================================================
-   5. CELOOBRAZOVKOVÝ VIDEO PREHRÁVAČ TRUHIEL
+   5. VIDEO PREHRÁVAČ TRUHIEL
    ========================================================================= */
 #chest-video-overlay {
     position: fixed;
@@ -427,9 +481,9 @@ body {
 
 .chest-prompt-text {
     position: absolute;
-    bottom: 40px;
+    bottom: 50px;
     color: #ffcc00;
-    font-size: 1.8em;
+    font-size: 2em;
     font-weight: bold;
     text-shadow: 0 0 10px #000, 0 0 20px #000;
     pointer-events: none;
@@ -444,13 +498,23 @@ body {
 
 .chest-rewards-modal {
     position: absolute;
-    background: rgba(15, 12, 8, 0.95);
+    background: rgba(15, 12, 8, 0.96);
     border: 3px solid #d4af37;
-    border-radius: 12px;
-    padding: 30px;
+    border-radius: 14px;
+    padding: 25px;
     text-align: center;
     color: #ffcc00;
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
-    max-width: 600px;
-    width: 85vw;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.95);
+    max-width: 850px;
+    width: 90vw;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.rewards-card-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 20px 0;
 }
