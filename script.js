@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 20.0.0 - FULL UNUNCUT)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 21.0.0 - FULL UNUNCUT)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "20.0.0";
+var VERZIA = "21.0.0";
 
 // =========================================================================
 // 1. REGISTER KARIET (MASTER REGISTRY)
@@ -61,7 +61,7 @@ var MASTER_REGISTRY = {
     "Medove Orechy": { row: 3, p: 0, isItem: true, img: "Img/medove-orechy.webp", desc: "Odmena pre 3. rad.", abilityDesc: "🛠️ Predmet: Pridáva +1b až +7b ku každej karte v 3. rade." },
 
     // KÚZLA
-    "Musíme sa porozprávať": { row: 0, p: 0, isSpell: true, img: "Img/musime-sa-porozpravat.webp", desc: "Vážny rozhovor.", abilityDesc: "⚡ Zníži základ mužov na 1b." },
+    "Musíme sa porozprávať": { row: 0, p: 0, isSpell: true, img: "Img/musime-sa-porozprávať.webp", desc: "Vážny rozhovor.", abilityDesc: "⚡ Zníži základ mužov na 1b." },
     "Upokoj sa": { row: 0, p: 0, isSpell: true, img: "Img/upokoj-sa.webp", desc: "Hnev.", abilityDesc: "⚡ Zníži základ žien na 1b." },
     "Ohnostroj": { row: 0, p: 0, isSpell: true, img: "Img/ohnostroj.webp", desc: "Rachot.", abilityDesc: "⚡ Zníži základ zvierat na 1b." },
     "Šicko v porádku": { row: 0, p: 0, isSpell: true, img: "Img/sicko-v-poradku.webp", desc: "Šašo.", abilityDesc: "⚡ Odstráni kúzla zo stola." }
@@ -79,12 +79,12 @@ var CLASS_CONFIG = {
 };
 
 var FORGE_RATES = {
-    "F->E": { rate: 1.00, nextClass: "E", reqMat: "Koža", reqMatCount: 3, coinFee: 10 },
-    "E->D": { rate: 0.90, nextClass: "D", reqMat: "Drevo", reqMatCount: 3, coinFee: 25 },
-    "D->C": { rate: 0.80, nextClass: "C", reqMat: "Kov", reqMatCount: 3, coinFee: 50 },
-    "C->B": { rate: 0.70, nextClass: "B", reqMat: "Bronz", reqMatCount: 3, coinFee: 100 },
-    "B->A": { rate: 0.55, nextClass: "A", reqMat: "Striebro", reqMatCount: 3, coinFee: 250 },
-    "A->S": { rate: 0.40, nextClass: "S", reqMat: "Zlato", reqMatCount: 3, coinFee: 500 }
+    "F->E": { rate: 1.00, from: "F", nextClass: "E", reqMat: "Koža", reqMatCount: 3, coinFee: 10 },
+    "E->D": { rate: 0.90, from: "E", nextClass: "D", reqMat: "Drevo", reqMatCount: 3, coinFee: 25 },
+    "D->C": { rate: 0.80, from: "D", nextClass: "C", reqMat: "Kov", reqMatCount: 3, coinFee: 50 },
+    "C->B": { rate: 0.70, from: "C", nextClass: "B", reqMat: "Bronz", reqMatCount: 3, coinFee: 100 },
+    "B->A": { rate: 0.55, from: "B", nextClass: "A", reqMat: "Striebro", reqMatCount: 3, coinFee: 250 },
+    "A->S": { rate: 0.40, from: "A", nextClass: "S", reqMat: "Zlato", reqMatCount: 3, coinFee: 500 }
 };
 
 var PERGAMENY_CONFIG = {
@@ -110,7 +110,7 @@ var jeSingleplayer = false; var obtiaznostAI = "B"; var blokujVykladanie = false
 var aktualnaStranaKnihy = 1;
 var p1MulliganBonusScore = 0, p2MulliganBonusScore = 0;
 
-// AUDIO PLAYLIST ENGINE FOR TRACK1.MP3 TO TRACK6.MP3
+// AUDIO PLAYLIST ENGINE (TRACK1.MP3 AZ TRACK6.MP3) WITH PAUSE & RESUME
 var hudbaSpustena = false;
 var audioTracks = [
     "Audio/track1.mp3",
@@ -231,6 +231,20 @@ function prepniZvuk() {
 function upravHlasitost(val) {
     var audio = document.getElementById("bg-music");
     if (audio) audio.volume = val;
+}
+
+function pozastavitHudbuPreVideo() {
+    var audio = document.getElementById("bg-music");
+    if (audio && !audio.paused) {
+        audio.pause();
+    }
+}
+
+function obnovitHudbuPoVideu() {
+    var audio = document.getElementById("bg-music");
+    if (audio && audio.paused && hudbaSpustena) {
+        audio.play().catch(function(e) {});
+    }
 }
 
 function zobraziťObrazovku(idObrazovky) {
@@ -575,7 +589,7 @@ function pripravNoveKolo() {
 }
 
 // =========================================================================
-// 8. VIDEO TRUHLICE
+// 8. VIDEO TRUHLICE S RESUME HUDBY
 // =========================================================================
 function otvorTruhluVitaza() { spustitVideoAnimationTruhly("vitaz"); }
 function otvorTruhluUcastnika() { spustitVideoAnimationTruhly("ucastnik"); }
@@ -586,6 +600,8 @@ function vyhodnotKoniecZapasu() {
 }
 
 function spustitVideoAnimationTruhly(typ) {
+    pozastavitHudbuPreVideo();
+
     var overlay = document.createElement("div");
     overlay.id = "chest-video-overlay";
 
@@ -697,8 +713,9 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
 
     for (var i = 0; i < maxKariet; i++) {
         var randCardName = dostupneFm[Math.floor(Math.random() * dostupneFm.length)];
-        if (!inventar.karty[randCardName]) inventar.karty[randCardName] = { repliky: 0, aktivnaTrieda: "F" };
-        inventar.karty[randCardName].repliky++;
+        if (!inventar.karty[randCardName]) inventar.karty[randCardName] = { repliky: { "F": 0 }, aktivnaTrieda: "F" };
+        if (typeof inventar.karty[randCardName].repliky !== "object") inventar.karty[randCardName].repliky = { "F": 0 };
+        inventar.karty[randCardName].repliky["F"] = (inventar.karty[randCardName].repliky["F"] || 0) + 1;
 
         var reg = getRegistryCard(randCardName);
         var realPwr = getRealPower({ n: randCardName, cls: "F" });
@@ -723,11 +740,12 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
 function zatvoritTruhluAOpustit(overlayId) {
     var el = document.getElementById(overlayId);
     if (el) el.remove();
+    obnovitHudbuPoVideu();
     zobraziťObrazovku("hlavne-menu");
 }
 
 // =========================================================================
-// 9. VYHODNOCOVACÍ ENGINE STOLA (STACK & CALCULATIONS)
+// 9. VYHODNOCOVACÍ ENGINE STOLA
 // =========================================================================
 function prepočitajSkoreStola() {
     var isNelaOnTable = false;
@@ -810,7 +828,7 @@ function aktualizujKolaUI() {
 }
 
 // =========================================================================
-// 10. KNIŽNÝ NÁVOD KRÁĽOVSTVA (PODROBNÝ ROZPIS 5 STRÁN)
+// 10. KNIŽNÝ NÁVOD KRÁĽOVSTVA
 // =========================================================================
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
@@ -886,7 +904,7 @@ function vykresliStraneKnihy() {
     } else if (aktualnaStranaKnihy === 2) {
         container.innerHTML = `
             <h3 style="color:#ffcc00;">🔨 KAPITOLA II: INTERAKTÍVNY KOVÁČSKY STROM KARIET</h3>
-            <p style="font-size:0.95em;">Na postúpenie o jednu triedu vyššie potrebuješ presne **3 rovnocenné karty nižšej triedy** + príslušnú surovinu + poplatok v minciach:</p>
+            <p style="font-size:0.95em;">Vyber si ktorúkoľvek triedu kováčstva! Na postúpenie potrebuješ presne **3 rovnocenné karty zvolenej triedy** + príslušnú surovinu + poplatok v minciach:</p>
             
             <div style="width:100%; height:58vh; overflow:auto; border:2px solid #d4af37; background:#0a0806; border-radius:10px; padding:20px; box-sizing:border-box; margin-top:10px;">
                 <div style="min-width:1450px; display:flex; align-items:center; justify-content:space-between; position:relative;">
@@ -1012,27 +1030,29 @@ function devPridatSurovinyACheaty() {
         var reg = MASTER_REGISTRY[t];
         if (!reg.isPlatinum) {
             if (!inventar.karty[t]) inventar.karty[t] = { repliky: {}, aktivnaTrieda: "F" };
-            if (!inventar.karty[t].repliky) inventar.karty[t].repliky = {};
+            if (typeof inventar.karty[t].repliky !== "object") inventar.karty[t].repliky = {};
             inventar.karty[t].repliky["F"] = (inventar.karty[t].repliky["F"] || 0) + 10;
+            inventar.karty[t].repliky["E"] = (inventar.karty[t].repliky["E"] || 0) + 5;
+            inventar.karty[t].repliky["D"] = (inventar.karty[t].repliky["D"] || 0) + 3;
         }
     });
 
-    ukazOznamenie("⚡ DEV CHEAT AKTIVOVANÝ", "Pridaných 10 000 mincí, 1000g Zlata, suroviny a +10 duplikátov ku všetkým kartám!");
+    ukazOznamenie("⚡ DEV CHEAT AKTIVOVANÝ", "Pridaných 10 000 mincí, 1000g Zlata, suroviny a duplikáty F/E/D ku všetkým kartám!");
     aktualizujPanelDielne();
 }
 
-function vylepsiKartuVoForge(meno, pergamenType) {
+function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
     var t = inventar.karty[meno];
     if (!t) return;
 
-    var curClass = t.aktivnaTrieda || "F";
-    var transitionKey = curClass + "->" + (curClass === "F" ? "E" : (curClass === "E" ? "D" : (curClass === "D" ? "C" : (curClass === "C" ? "B" : (curClass === "B" ? "A" : "S")))));
-    
     var cfg = FORGE_RATES[transitionKey];
-    if (!cfg) { ukazOznamenie("👑 MAXIMALNA TRIEDA", "Karta je už na maximálnej S-Class!"); return; }
+    if (!cfg) { ukazOznamenie("⚠️ CHYBA KOVANIA", "Neznámy kováčsky krok!"); return; }
 
-    var countCurrent = (typeof t.repliky === "object") ? (t.repliky[curClass] || 0) : t.repliky;
-    if (countCurrent < 3) { ukazOznamenie("⚠️ NEDOSTATOK KARIET", "Potrebuješ presne 3 duplikáty rovnakej triedy (" + curClass + ")!"); return; }
+    var fromCls = cfg.from;
+    var nextCls = cfg.nextClass;
+
+    var countCurrent = (typeof t.repliky === "object") ? (t.repliky[fromCls] || 0) : t.repliky;
+    if (countCurrent < 3) { ukazOznamenie("⚠️ NEDOSTATOK KARIET", "Na tento krok potrebuješ presne **3x karty triedy " + fromCls + "**! (Máš: " + countCurrent + "x)"); return; }
     
     var reqMat = cfg.reqMat;
     if ((inventar.suroviny[reqMat] || 0) < cfg.reqMatCount) { ukazOznamenie("⚠️ NEDOSTATOK SUROVÍN", "Potrebuješ " + cfg.reqMatCount + "x " + reqMat + "!"); return; }
@@ -1050,10 +1070,12 @@ function vylepsiKartuVoForge(meno, pergamenType) {
     var roll = Math.random();
     var isSuccess = (roll <= finalRate);
 
-    spustitVideoAnimationKovania(meno, curClass, cfg.nextClass, isSuccess, pCfg.saveCard);
+    spustitVideoAnimationKovania(meno, fromCls, nextCls, isSuccess, pCfg.saveCard);
 }
 
 function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected) {
+    pozastavitHudbuPreVideo();
+
     var overlay = document.createElement("div");
     overlay.id = "forge-video-overlay";
 
@@ -1082,14 +1104,12 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
     var card3 = document.getElementById("forge-card-3");
     var card4 = document.getElementById("forge-card-4");
 
-    // Zmiznutie 3 kariet vo chvíli, keď energia prúdi do 4. pozície
     setTimeout(function() {
         if (card1) card1.style.opacity = "0";
         if (card2) card2.style.opacity = "0";
         if (card3) card3.style.opacity = "0";
     }, 3800);
 
-    // Objavneie novej karty v 4. pozícii pri záblesku
     setTimeout(function() {
         if (isSuccess && card4) {
             card4.style.opacity = "1";
@@ -1108,7 +1128,7 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
             t.repliky[oldCls] = Math.max(0, (t.repliky[oldCls] || 0) - 3);
             t.repliky[nextCls] = (t.repliky[nextCls] || 0) + 1;
             t.aktivnaTrieda = nextCls;
-            ukazOznamenie("🎉 KOVANIE ÚSPEŠNÉ!", "Karta <strong>" + meno + "</strong> bola úspešne povýšená na <strong>" + nextCls + "-Class</strong>!");
+            ukazOznamenie("🎉 KOVANIE ÚSPEŠNÉ!", "Karta <strong>" + meno + "</strong> bola úspešne povýšená z <strong>" + oldCls + "</strong> na <strong>" + nextCls + "-Class</strong>!");
         } else {
             if (!wasProtected) {
                 t.repliky[oldCls] = Math.max(0, (t.repliky[oldCls] || 0) - 1);
@@ -1119,6 +1139,7 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
         }
 
         overlay.remove();
+        obnovitHudbuPoVideu();
         aktualizujPanelDielne();
     };
 }
@@ -1181,23 +1202,33 @@ function aktualizujPanelDielne() {
         cardDiv.innerHTML = vytvorHTMLKarty(t, realPwr, cardData.aktivnaTrieda, reg.row, reg.p);
 
         var curCls = cardData.aktivnaTrieda || "F";
-        var nextFee = CLASS_CONFIG[curCls] ? CLASS_CONFIG[curCls].coinFee : 0;
 
-        // PREHĽADNÝ ROZPIS VŠETKÝCH TRIED
-        var countsText = `F: ${cardData.repliky["F"] || 0} | E: ${cardData.repliky["E"] || 0} | D: ${cardData.repliky["D"] || 0} | C: ${cardData.repliky["C"] || 0} | B: ${cardData.repliky["B"] || 0} | A: ${cardData.repliky["A"] || 0}`;
+        var countsText = `F:${cardData.repliky["F"] || 0} | E:${cardData.repliky["E"] || 0} | D:${cardData.repliky["D"] || 0} | C:${cardData.repliky["C"] || 0} | B:${cardData.repliky["B"] || 0} | A:${cardData.repliky["A"] || 0}`;
 
         var actions = `
             <div style="font-size:0.75em; margin:6px 0; color:#ffcc00; text-align:center;">
-                Rozpis: <strong>${countsText}</strong><br>
-                Aktívna: <strong>${curCls}-Class</strong>
+                Počty: <strong>${countsText}</strong>
             </div>
-            <select id="pergamen-select-${t.replace(/\s+/g, '')}" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;">
+            
+            <label style="font-size:0.75em; color:#aaa;">Krok kovania:</label>
+            <select id="step-select-${t.replace(/\s+/g, '')}" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;">
+                <option value="F->E">F ➔ E (3xF | 10m | Koža)</option>
+                <option value="E->D">E ➔ D (3xE | 25m | Drevo)</option>
+                <option value="D->C">D ➔ C (3xD | 50m | Kov)</option>
+                <option value="C->B">C ➔ B (3xC | 100m | Bronz)</option>
+                <option value="B->A">B ➔ A (3xB | 250m | Striebro)</option>
+                <option value="A->S">A ➔ S (3xA | 500m | Zlato)</option>
+            </select>
+
+            <label style="font-size:0.75em; color:#aaa;">Zvitok ochrany:</label>
+            <select id="pergamen-select-${t.replace(/\s+/g, '')}" style="width:100%; font-size:0.75em; margin-bottom:6px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;">
                 <option value="none">Bez Zvitku (0g / Risk)</option>
                 <option value="basic">Základný Zvitok (100g / +10%)</option>
                 <option value="advanced">Pokročilý Zvitok (500g / +25%)</option>
                 <option value="legendary">Legendárny Zvitok (1000g / +55%)</option>
             </select>
-            <button class="btn-forge" onclick="vylepsiKartuVoForge('${t}', document.getElementById('pergamen-select-${t.replace(/\s+/g, '')}').value)">🔨 Forge (${nextFee}m)</button>
+
+            <button class="btn-forge" onclick="vylepsiKartuVoForge('${t}', document.getElementById('step-select-${t.replace(/\s+/g, '')}').value, document.getElementById('pergamen-select-${t.replace(/\s+/g, '')}').value)">🔨 Forge</button>
             <button class="btn-recycle" style="margin-top:4px;" onclick="recyklujKartuDielne('${t}')">♻️ Výkup (+3m)</button>
         `;
 
