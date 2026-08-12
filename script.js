@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (VERZIA 15.0.0 - 12 PLATINOVÝCH POSTÁV SO SCHOPNOSŤAMI)
+// RODINNÁ HRA - HOME WARS (VERZIA 16.0.0 - DYNAMICKÉ VIDEO KOVANIA & MULLIGAN)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "15.0.0";
+var VERZIA = "16.0.0";
 
 // =========================================================================
 // 1. REGISTER KARIET (MASTER REGISTRY)
@@ -113,6 +113,7 @@ var p1_draft_hand = [], p2_draft_hand = [];
 var p1_spalene = [], p2_spalene = [], neutralne_vplyvy = [];
 var jeSingleplayer = false; var obtiaznostAI = "B"; var blokujVykladanie = false;
 var aktualnaStranaKnihy = 1;
+var p1MulliganBonusScore = 0, p2MulliganBonusScore = 0;
 
 function getRegistryCard(meno) {
     if (!meno) return {};
@@ -130,7 +131,7 @@ function getRealPower(card) {
 }
 
 // =========================================================================
-// 4. PREPÍNANIE OBRAZOVIEK
+// 4. PREPÍNANIE OBRAZOVIEK & AUDIO CONTROL
 // =========================================================================
 function zobraziťObrazovku(idObrazovky) {
     var obrazovky = ["hlavne-menu", "hracia-plocha", "dielna-modal", "obchod-modal", "navod-modal"];
@@ -144,6 +145,24 @@ function zobraziťObrazovku(idObrazovky) {
             }
         }
     });
+}
+
+function prepniZvuk() {
+    var audio = document.getElementById("bg-music");
+    var btn = document.getElementById("mute-btn");
+    if (!audio) return;
+    if (audio.paused) {
+        audio.play();
+        if (btn) btn.innerText = "🔊";
+    } else {
+        audio.pause();
+        if (btn) btn.innerText = "🔇";
+    }
+}
+
+function upravHlasitost(val) {
+    var audio = document.getElementById("bg-music");
+    if (audio) audio.volume = val;
 }
 
 function spustitZapasLokálnePVP() {
@@ -176,6 +195,19 @@ function otvoriťDielňu() {
     aktualizujPanelDielne();
 }
 
+// =========================================================================
+// 5. INICIALIZÁCIA ZÁPASU & MULLIGAN RIZIKO (10 KARIET / +4b TREST)
+// =========================================================================
+function vygenerujRuku10Kariet() {
+    var keys = Object.keys(MASTER_REGISTRY);
+    var hand = [];
+    for (var i = 0; i < 10; i++) {
+        var k = keys[Math.floor(Math.random() * keys.length)];
+        hand.push({ n: k, cls: "F" });
+    }
+    return hand;
+}
+
 function inicializujNovyZapas() {
     p1_played_cards = []; p2_played_cards = [];
     p1_spalene = []; p2_spalene = [];
@@ -183,23 +215,30 @@ function inicializujNovyZapas() {
     p1_erik_buff_row = null; p2_erik_buff_row = null;
     r1 = 0; r2 = 0; sc1 = 0; sc2 = 0;
     p1Pass = false; p2Pass = false;
+    p1MulliganBonusScore = 0; p2MulliganBonusScore = 0;
     aktualnyHrac = 1; blokujVykladanie = false;
 
-    p1_draft_hand = [
-        { n: "Martin", cls: "F" }, { n: "Sisa", cls: "F" }, { n: "Alcohol", cls: "F" },
-        { n: "Erik", cls: "F" }, { n: "Jaro", cls: "F" }, { n: "Katy", cls: "F" }
-    ];
-    p2_draft_hand = [
-        { n: "Neviditeľný Mário", cls: "F" }, { n: "Lula", cls: "F" }, { n: "Kvety", cls: "F" },
-        { n: "Michal", cls: "F" }, { n: "Timko", cls: "F" }, { n: "Nela", cls: "F" }
-    ];
+    p1_draft_hand = vygenerujRuku10Kariet();
+    p2_draft_hand = vygenerujRuku10Kariet();
 
     zobraziťObrazovku("hracia-plocha");
     vykresliHraciuPlochu();
+
+    // MULLIGAN OTÁZKA PRE HRÁČA 1
+    setTimeout(function() {
+        if (confirm("🃏 MULLIGAN FÁZA (10 Kariet):\nChceš si nechať túto ruku?\n\n[OK] = Potvrdiť a hrať hneď\n[ZRUŠIŤ] = Odhodiť celú ruku a potiahnuť 10 nových (SÚPER DOSTANE +4b NÁSKOK DO KAŽDÉHO KOLA!)")) {
+            alert("✅ Ruka potvrdená! Z zápas začína.");
+        } else {
+            p1_draft_hand = vygenerujRuku10Kariet();
+            p2MulliganBonusScore += 4; // Súper dostane +4b náskok
+            alert("🎲 Odhodil si ruku! Potiahol si 10 nových kariet. Súper získava +4b náskok do každého kola zápasu!");
+            vykresliHraciuPlochu();
+        }
+    }, 300);
 }
 
 // =========================================================================
-// 5. HTML RENDERER A VYKLADANIE KARIET
+// 6. HTML RENDERER A VYKLADANIE KARIET
 // =========================================================================
 function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     var reg = getRegistryCard(meno);
@@ -403,7 +442,7 @@ function pripravNoveKolo() {
 }
 
 // =========================================================================
-// 6. VIDEO TRUHLICOVÝ SYSTÉM & VYŽREBOVANIE A VYKRESLENIE F-KARIET
+// 7. VIDEO TRUHLICE
 // =========================================================================
 function vyhodnotKoniecZapasu() {
     var typTruhly = (r1 >= 2 && r2 < 2) ? "vitaz" : "ucastnik";
@@ -497,7 +536,7 @@ function zatvoritTruhluAOpustit(overlayId) {
 }
 
 // =========================================================================
-// 7. VYHODNOCOVACÍ ENGINE STOLA (STACK & CALCULATIONS)
+// 8. VYHODNOCOVACÍ ENGINE STOLA (STACK & CALCULATIONS + MULLIGAN BONUS)
 // =========================================================================
 function prepočitajSkoreStola() {
     var isNelaOnTable = false;
@@ -508,8 +547,8 @@ function prepočitajSkoreStola() {
     var p1Katy = p1_played_cards.some(function(c) { return c.n === "Katy"; });
     var p2Katy = p2_played_cards.some(function(c) { return c.n === "Katy"; });
 
-    sc1 = vypocitajSiluHracovychKariet(1, p1_played_cards, p2_played_cards, isNelaOnTable, p1Katy, p2Katy, p1_erik_buff_row);
-    sc2 = vypocitajSiluHracovychKariet(2, p2_played_cards, p1_played_cards, isNelaOnTable, p2Katy, p1Katy, p2_erik_buff_row);
+    sc1 = vypocitajSiluHracovychKariet(1, p1_played_cards, p2_played_cards, isNelaOnTable, p1Katy, p2Katy, p1_erik_buff_row) + p1MulliganBonusScore;
+    sc2 = vypocitajSiluHracovychKariet(2, p2_played_cards, p1_played_cards, isNelaOnTable, p2Katy, p1Katy, p2_erik_buff_row) + p2MulliganBonusScore;
 
     var el1 = document.getElementById("p1-score");
     var el2 = document.getElementById("p2-score");
@@ -580,7 +619,7 @@ function aktualizujKolaUI() {
 }
 
 // =========================================================================
-// 8. KNIŽNÝ NÁVOD KRÁĽOVSTVA
+// 9. KNIŽNÝ NÁVOD KRÁĽOVSTVA
 // =========================================================================
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
@@ -655,57 +694,57 @@ function vykresliStraneKnihy() {
         `;
     } else if (aktualnaStranaKnihy === 2) {
         container.innerHTML = `
-            <h3 style="color:#ffcc00;">🔨 KAPITOLA II: INTERAKTÍVNY STROM KOVANIA (729 F-KARIET ➔ 1 S-CLASS)</h3>
-            <p style="font-size:0.95em;">Na postúpenie o jednu triedu vyššie potrebuješ presne **3 rovnocenné duplikáty rovnakej triedy** + príslušnú surovinu + poplatok v minciach:</p>
+            <h3 style="color:#ffcc00;">🔨 KAPITOLA II: INTERAKTÍVNY KOVÁČSKY STROM KARIET</h3>
+            <p style="font-size:0.95em;">Na postúpenie o jednu triedu vyššie potrebuješ presne **3 rovnocenné karty nižšej triedy** + príslušnú surovinu + poplatok v minciach:</p>
             
             <div style="width:100%; height:58vh; overflow:auto; border:2px solid #d4af37; background:#0a0806; border-radius:10px; padding:20px; box-sizing:border-box; margin-top:10px;">
                 <div style="min-width:1450px; display:flex; align-items:center; justify-content:space-between; position:relative;">
                     
                     <div style="background:#1e1810; border:2px solid #8b5a2b; padding:15px; border-radius:8px; width:180px; text-align:center;">
                         <h4 style="color:#8b5a2b; margin:0;">F-Class (Základ)</h4>
-                        <p style="font-size:0.85em; color:#aaa;">729× F-kariet v základe<br>Sila: +0b<br>Surovina: -</p>
+                        <p style="font-size:0.85em; color:#aaa;">Základ z truhlice<br>Sila: +0b<br>Surovina: -</p>
                     </div>
 
                     <div style="color:#d4af37; font-size:1.4em; font-weight:bold;">➔ 3× + 10m ➔</div>
 
                     <div style="background:#1e1810; border:2px solid #3b82f6; padding:15px; border-radius:8px; width:180px; text-align:center;">
                         <h4 style="color:#3b82f6; margin:0;">E-Class</h4>
-                        <p style="font-size:0.85em; color:#aaa;">243× E-kariet<br>Sila: +1b / +2b rad<br>3× Koža | Šanca: 100%</p>
+                        <p style="font-size:0.85em; color:#aaa;">Sila: +1b<br>3× Koža | Šanca: 100%</p>
                     </div>
 
                     <div style="color:#d4af37; font-size:1.4em; font-weight:bold;">➔ 3× + 25m ➔</div>
 
                     <div style="background:#1e1810; border:2px solid #10b981; padding:15px; border-radius:8px; width:180px; text-align:center;">
                         <h4 style="color:#10b981; margin:0;">D-Class</h4>
-                        <p style="font-size:0.85em; color:#aaa;">81× D-kariet<br>Sila: +1b / +3b rad<br>3× Drevo | Šanca: 90%</p>
+                        <p style="font-size:0.85em; color:#aaa;">Sila: +1b<br>3× Drevo | Šanca: 90%</p>
                     </div>
 
                     <div style="color:#d4af37; font-size:1.4em; font-weight:bold;">➔ 3× + 50m ➔</div>
 
                     <div style="background:#1e1810; border:2px solid #f59e0b; padding:15px; border-radius:8px; width:180px; text-align:center;">
                         <h4 style="color:#f59e0b; margin:0;">C-Class</h4>
-                        <p style="font-size:0.85em; color:#aaa;">27× C-kariet<br>Sila: +2b / +4b rad<br>3× Kov | Šanca: 80%</p>
+                        <p style="font-size:0.85em; color:#aaa;">Sila: +2b<br>3× Kov | Šanca: 80%</p>
                     </div>
 
                     <div style="color:#d4af37; font-size:1.4em; font-weight:bold;">➔ 3× + 100m ➔</div>
 
                     <div style="background:#1e1810; border:2px solid #8b5cf6; padding:15px; border-radius:8px; width:180px; text-align:center;">
                         <h4 style="color:#8b5cf6; margin:0;">B-Class</h4>
-                        <p style="font-size:0.85em; color:#aaa;">9× B-kariet<br>Sila: +2b / +5b rad<br>3× Bronz | Šanca: 70%</p>
+                        <p style="font-size:0.85em; color:#aaa;">Sila: +2b<br>3× Bronz | Šanca: 70%</p>
                     </div>
 
                     <div style="color:#d4af37; font-size:1.4em; font-weight:bold;">➔ 3× + 250m ➔</div>
 
                     <div style="background:#1e1810; border:2px solid #ec4899; padding:15px; border-radius:8px; width:180px; text-align:center;">
                         <h4 style="color:#ec4899; margin:0;">A-Class</h4>
-                        <p style="font-size:0.85em; color:#aaa;">3× A-karty<br>Sila: +2b / +6b rad<br>3× Striebro | Šanca: 55%</p>
+                        <p style="font-size:0.85em; color:#aaa;">Sila: +2b<br>3× Striebro | Šanca: 55%</p>
                     </div>
 
                     <div style="color:#d4af37; font-size:1.4em; font-weight:bold;">➔ 3× + 500m ➔</div>
 
                     <div style="background:#2a1a08; border:3px solid #ffcc00; padding:15px; border-radius:8px; width:200px; text-align:center; box-shadow:0 0 20px rgba(255,204,0,0.5);">
                         <h4 style="color:#ffcc00; margin:0; font-size:1.1em;">👑 S-Class (LEGENDA)</h4>
-                        <p style="font-size:0.85em; color:#fff;">1× S-Karta<br>Sila: +3b / +7b rad<br>3× Zlato | Šanca: 40%</p>
+                        <p style="font-size:0.85em; color:#fff;">Sila: +3b<br>3× Zlato | Šanca: 40%</p>
                     </div>
 
                 </div>
@@ -713,36 +752,52 @@ function vykresliStraneKnihy() {
         `;
     } else if (aktualnaStranaKnihy === 3) {
         container.innerHTML = `
-            <h3 style="color:#ffcc00;">👑 KAPITOLA III: VÝHODY VYŠŠÍCH TRIED & ZVITKY OCHRANY</h3>
-            <p style="font-size:1.05em; line-height:1.6;">Prečo sa oplatí vykovávať karty na vyššie triedy?</p>
-            <ul style="line-height:1.8;">
-                <li><strong>Trvalý bonus k sile:</strong> Vyššie triedy pridávajú jednotkám trvalé body navyše (+1b až +3b k základu).</li>
-                <li><strong>Silnejšie predmety:</strong> Ak vykuješ Predmet (Alkohol, Kvety, Orechy) na triedu S, dáva celému radu namiesto +1b až **+7b ku každej karte**!</li>
-                <li><strong>Suroviny zo zápasu:</strong> Za každú vyloženú kartu vyššej triedy v zápase ti truhla odovzdá príslušnú surovinu (E = Drevo, D = Kov, C = Bronz, B = Striebro, A = Zlato).</li>
-            </ul>
+            <h3 style="color:#ffcc00;">🛠️ KAPITOLA III: SEPARÁTNY STROM PREDMETOV & ZVITKY OCHRANY</h3>
+            
+            <h4 style="color:#d4af37;">🍺 HOSTIŠTENSKÝ STROM PREDMETOV (Alcohol, Kvety, Orechy):</h4>
+            <table style="width:100%; border-collapse:collapse; text-align:center; margin-bottom:20px; border:1px solid #5a4d3e;">
+                <tr style="background:#2a1a08; color:#ffcc00;">
+                    <th style="padding:8px; border:1px solid #5a4d3e;">Trieda Predmetu</th>
+                    <th style="padding:8px; border:1px solid #5a4d3e;">Bonus pre Celý Rad</th>
+                </tr>
+                <tr><td style="padding:6px; border:1px solid #5a4d3e;">F-Class</td><td style="padding:6px; border:1px solid #5a4d3e;">+1b ku každej karte v rade</td></tr>
+                <tr><td style="padding:6px; border:1px solid #5a4d3e;">E-Class</td><td style="padding:6px; border:1px solid #5a4d3e;">+2b ku každej karte v rade</td></tr>
+                <tr><td style="padding:6px; border:1px solid #5a4d3e;">D-Class</td><td style="padding:6px; border:1px solid #5a4d3e;">+3b ku každej karte v rade</td></tr>
+                <tr><td style="padding:6px; border:1px solid #5a4d3e;">C-Class</td><td style="padding:6px; border:1px solid #5a4d3e;">+4b ku každej karte v rade</td></tr>
+                <tr><td style="padding:6px; border:1px solid #5a4d3e;">B-Class</td><td style="padding:6px; border:1px solid #5a4d3e;">+5b ku každej karte v rade</td></tr>
+                <tr><td style="padding:6px; border:1px solid #5a4d3e;">A-Class</td><td style="padding:6px; border:1px solid #5a4d3e;">+6b ku každej karte v rade</td></tr>
+                <tr style="color:#ffcc00; font-weight:bold;"><td style="padding:6px; border:1px solid #5a4d3e;">S-Class (LEGENDA)</td><td style="padding:6px; border:1px solid #5a4d3e;">+7b ku každej karte v rade!</td></tr>
+            </table>
 
-            <h4 style="color:#d4af37; margin-top:20px;">📜 ZVITKY OCHRANY ZA ZLATO:</h4>
-            <p style="line-height:1.6;">Pri kovaní na vysoké triedy (napr. A ➔ S je šanca len 40%) riskuješ stratu 1 duplikátu. Použitím **Zvitku za Zlato** v Dielni zaručíš, že pri neúspešnom kovaní ti karta nezhorí!</p>
+            <h4 style="color:#d4af37;">📜 ZVITKY OCHRANY ZA ZLATO:</h4>
+            <table style="width:100%; border-collapse:collapse; text-align:center; border:1px solid #5a4d3e;">
+                <tr style="background:#2a1a08; color:#ffcc00;">
+                    <th style="padding:8px; border:1px solid #5a4d3e;">Typ Zvitku</th>
+                    <th style="padding:8px; border:1px solid #5a4d3e;">Cena</th>
+                    <th style="padding:8px; border:1px solid #5a4d3e;">Bonus Šance</th>
+                    <th style="padding:8px; border:1px solid #5a4d3e;">Ochrana Karty</th>
+                </tr>
+                <tr><td style="padding:6px; border:1px solid #5a4d3e;">Bez Zvitku</td><td>0g</td><td>+0 %</td><td style="color:#ff4d4d;">❌ NIE (Stráca sa 1 karta)</td></tr>
+                <tr><td style="padding:6px; border:1px solid #5a4d3e;">Základný Zvitok</td><td>100g</td><td>+10 %</td><td style="color:#10b981;">🛡️ ÁNO (Karta nezhorí)</td></tr>
+                <tr><td style="padding:6px; border:1px solid #5a4d3e;">Pokročilý Zvitok</td><td>500g</td><td>+25 %</td><td style="color:#10b981;">🛡️ ÁNO (Karta nezhorí)</td></tr>
+                <tr><td style="padding:6px; border:1px solid #5a4d3e;">Legendárny Zvitok</td><td>1000g</td><td>+55 %</td><td style="color:#10b981;">🛡️ ÁNO (Šanca A➔S až 95%!)</td></tr>
+            </table>
         `;
     } else if (aktualnaStranaKnihy === 4) {
         container.innerHTML = `
-            <h3 style="color:#ffcc00;">⚖️ KAPITOLA IV: PORADIE VYHODNOCOVANIA STOLA (STACK)</h3>
-            <p style="font-size:1.05em;">Počítanie celkového skóre prebieha v presne stanovených krokoch, ktoré sa nedajú obísť:</p>
-            <ol style="line-height:1.9;">
-                <li><strong>1. Základná Sila:</strong> Sila karty z registra + bonus za jej kovanú triedu.</li>
-                <li><strong>2. Neutrálne Kúzla Stola:</strong> Kúzla (*Musíme sa porozprávať, Upokoj sa, Ohňostroj*) zrazia ZÁKLADNÚ silu príslušného radu na **1b** (okrem Oli, ktorá je imúnna!).</li>
-                <li><strong>3. Fixné Predmety:</strong> K zrazenej sile sa pripočíta hodnota vyložených predmetov (+1b až +7b pre každú jednotku).</li>
-                <li><strong>4. Percentuálne Buffy:</strong> Aplikujú sa násobiče postáv (<em>Erik +50%, Sisa +50%, Ďuri +100%, Michal +100%</em>).</li>
-                <li><strong>5. PLATINOVÝ ŠTÍT NELA:</strong> Ak je na akejkoľvek strane stola vyložená **Nela**, Krok 4 sa kompletne anuluje a percentuálne buffy neplatia!</li>
-                <li><strong>6. KATY (+2b / -2b):</strong> Na úplnom konci priráta Katy +2b priateľom a -2b nepriateľom.</li>
-            </ol>
+            <h3 style="color:#ffcc00;">⚡ KAPITOLA IV: NEUTRÁLNE KÚZLA & PLATINOVÉ KARTY</h3>
+            <p style="font-size:1.05em; line-height:1.6;">Dve kategórie kariet sa v Dielni **nikdy nevylepšujú** a nemajú triedy (F až S):</p>
+            <ul style="line-height:1.8;">
+                <li><strong>⚡ Neutrálne Kúzla Stola:</strong> (*Musíme sa porozprávať, Upokoj sa, Ohnostroj, Šicko v porádku*) sa vykladajú do stredového radu. Slúžia na zrazenie základnej sily celého radu súpera na **1b**!</li>
+                <li><strong>👑 Platinové Putovné Karty (12 Postáv):</strong> (*Katy, Nela, Michal, Erik, Marek, Ďuri, Doktor, Sestrička, Sisa, Oli, Kika, Suseda*) majú stály **Platinový Rám**. Nedajú sa predávať ani kovať — sú to unikátne výhry viazané na rebríčky!</li>
+            </ul>
         `;
     } else if (aktualnaStranaKnihy === 5) {
         container.innerHTML = `
             <h3 style="color:#ffcc00;">🛒 KAPITOLA V: PLAYER-DRIVEN TRHOVISKO & AUKCIÍ</h3>
-            <p style="font-size:1.05em; line-height:1.6;">Ekonomika gry je vytvorená tak, aby bol každý hráč prepojený s trhom:</p>
+            <p style="font-size:1.05em; line-height:1.6;">Ekonomika hry je vytvorená tak, aby bol každý hráč prepojený s trhom:</p>
             <ul style="line-height:1.8;">
-                <li><strong>Nikoho hra neobmedzuje:</strong> Nazbierať 729 kopií jednej karty sám trvá dlho. Na Trhovisku vymeníš svoje duplikáty s inými hráčmi!</li>
+                <li><strong>Výmena Duplikátov:</strong> Ak ti chýbajú kópie určitej karty do Dielne, kúpiš ich na Trhovisku od iných hráčov za mince.</li>
                 <li><strong>Mincové Poplatky:</strong> Systém si účtuje 5% poplatok za zalistovanie aukcie a 10% daň z úspešného predaja pre ochranu mincí pred hyperinfláciou.</li>
                 <li><strong>Výkup Dielne:</strong> Ak potrebuješ rýchle mince, Dielňa odkúpi akýkoľvek duplikát za výkupnú cenu (+3m).</li>
             </ul>
@@ -751,7 +806,7 @@ function vykresliStraneKnihy() {
 }
 
 // =========================================================================
-// 9. DIELŇA, DEV CHEAT MENU A KOVANIE (PLATINOVÉ KARTY SKRYTÉ)
+// 10. DIELŇA, DYNAMICKÁ VIDEO ANIMÁCIA KOVANIA (Vylepsovanie.mp4) & DEV MENU
 // =========================================================================
 function devPridatSurovinyACheaty() {
     inventar.mince += 10000;
@@ -800,21 +855,75 @@ function vylepsiKartuVoForge(meno, pergamenType) {
 
     var finalRate = Math.min(0.95, cfg.rate + pCfg.rateBonus);
     var roll = Math.random();
+    var isSuccess = (roll <= finalRate);
 
-    if (roll <= finalRate) {
-        t.repliky -= 3;
-        t.aktivnaTrieda = cfg.nextClass;
-        alert("🎉 KOVANIE ÚSPEŠNÉ! Karta bola povýšená na " + cfg.nextClass + "-Class!");
-    } else {
-        if (!pCfg.saveCard) {
-            t.repliky -= 1;
-            alert("💥 KOVANIE ZLYHALO! Suroviny a poplatok zhoreli a prišiel si o 1 duplikát karty!");
-        } else {
-            alert("🛡️ KOVANIE ZLYHALO! Zvitok za Zlato však ochránil tvoje karty. Zhoreli len suroviny a poplatok!");
+    // SPUSTENIE DYNAMICKÉHO VIDEA KOVANIA (Vylepsovanie.mp4)
+    spustitVideoAnimationKovania(meno, curClass, cfg.nextClass, isSuccess, pCfg.saveCard);
+}
+
+function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected) {
+    var overlay = document.createElement("div");
+    overlay.id = "forge-video-overlay";
+
+    var reg = getRegistryCard(meno);
+    var oldPwr = getRealPower({ n: meno, cls: oldCls });
+    var nextPwr = getRealPower({ n: meno, cls: nextCls });
+
+    overlay.innerHTML = `
+        <video id="forge-video-element" src="Img/Vylepsovanie.mp4" autoplay playsinline></video>
+        <div class="forge-cards-container">
+            <div id="forge-card-1" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
+            <div id="forge-card-2" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
+            <div id="forge-card-3" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
+            
+            <div id="forge-card-4" class="karta cls-${nextCls} forge-slot-card" style="opacity:0; transition:opacity 0.8s ease, transform 0.8s ease;">
+                ${vytvorHTMLKarty(meno, nextPwr, nextCls, reg.row, reg.p)}
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    var vid = document.getElementById("forge-video-element");
+    var card1 = document.getElementById("forge-card-1");
+    var card2 = document.getElementById("forge-card-2");
+    var card3 = document.getElementById("forge-card-3");
+    var card4 = document.getElementById("forge-card-4");
+
+    // FÁZA 1 (3. sekunda): Zmiznutie 3 kariet na pozadí preletu svetla
+    setTimeout(function() {
+        if (card1) card1.style.opacity = "0";
+        if (card2) card2.style.opacity = "0";
+        if (card3) card3.style.opacity = "0";
+    }, 2800);
+
+    // FÁZA 2 (5. sekunda): Objavneie novej karty v 4. pozícii pri bleskoch
+    setTimeout(function() {
+        if (isSuccess && card4) {
+            card4.style.opacity = "1";
+            card4.style.transform = "translate(-50%, -50%) scale(1.15)";
         }
-    }
+    }, 4800);
 
-    aktualizujPanelDielne();
+    // FÁZA 3 (8. sekunda): Konec videa a zapísanie výsledku
+    vid.onended = function() {
+        var t = inventar.karty[meno];
+        if (isSuccess) {
+            t.repliky -= 3;
+            t.aktivnaTrieda = nextCls;
+            alert("🎉 KOVANIE ÚSPEŠNÉ! Karta " + meno + " povýšená na " + nextCls + "-Class!");
+        } else {
+            if (!wasProtected) {
+                t.repliky -= 1;
+                alert("💥 KOVANIE ZLYHALO! Suroviny zhoreli a prišiel si o 1 duplikát karty!");
+            } else {
+                alert("🛡️ KOVANIE ZLYHALO! Zvitok za Zlato ochránil tvoje karty. Zhoreli len suroviny!");
+            }
+        }
+
+        overlay.remove();
+        aktualizujPanelDielne();
+    };
 }
 
 function recyklujKartuDielne(meno) {
@@ -851,7 +960,6 @@ function aktualizujPanelDielne() {
 
     Object.keys(MASTER_REGISTRY).forEach(function(t) {
         var reg = MASTER_REGISTRY[t];
-        // ALL 12 PLATINUM AND SPELL CARDS ARE HIDDEN FROM FORGE
         if (reg.isPlatinum || reg.isSpell) return;
 
         if (!inventar.karty[t]) inventar.karty[t] = { repliky: 1, aktivnaTrieda: "F" };
@@ -914,3 +1022,5 @@ window.zatvoritTruhluAOpustit = zatvoritTruhluAOpustit;
 window.hracPassuje = hracPassuje;
 window.vylozitKartuZRuky = vylozitKartuZRuky;
 window.zobraziťObrazovku = zobraziťObrazovku;
+window.prepniZvuk = prepniZvuk;
+window.upravHlasitost = upravHlasitost;
