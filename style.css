@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 16.0.0)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 17.0.0)
    ========================================================================= */
 
 * {
@@ -19,7 +19,7 @@ body {
 }
 
 /* =========================================================================
-   1. HLAVNÉ MENU & HUDBA CONTROL
+   1. HLAVNÉ MENU
    ========================================================================= */
 .menu-container {
     display: flex;
@@ -32,9 +32,9 @@ body {
 }
 
 .game-title {
-    font-size: 3.5em;
+    font-size: 3.8em;
     color: #d4af37;
-    text-shadow: 0 0 15px rgba(212, 175, 55, 0.5), 2px 2px 4px #000;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.6), 2px 2px 5px #000;
     margin-bottom: 5px;
     font-family: Georgia, serif;
 }
@@ -51,7 +51,7 @@ body {
     flex-direction: column;
     gap: 15px;
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
 }
 
 .btn-menu {
@@ -59,7 +59,7 @@ body {
     color: #ffcc00;
     border: 2px solid #d4af37;
     padding: 16px 22px;
-    font-size: 1.15em;
+    font-size: 1.2em;
     font-weight: bold;
     border-radius: 8px;
     cursor: pointer;
@@ -78,7 +78,7 @@ body {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background: rgba(15, 10, 5, 0.85);
+    background: rgba(15, 10, 5, 0.9);
     border: 1px solid #d4af37;
     padding: 8px 15px;
     border-radius: 20px;
@@ -106,7 +106,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    max-width: 1400px;
+    max-width: 1500px;
     margin: 0 auto;
     padding: 10px;
     justify-content: space-between;
@@ -131,19 +131,15 @@ body {
 .player-name {
     font-weight: bold;
     color: #ffcc00;
-    font-size: 1.1em;
-}
-
-.round-indicators {
-    font-size: 1.3em;
+    font-size: 1.2em;
 }
 
 .score-badge {
     background: #d4af37;
     color: #111;
     font-weight: bold;
-    font-size: 1.5em;
-    padding: 6px 18px;
+    font-size: 1.6em;
+    padding: 6px 20px;
     border-radius: 6px;
     box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
 }
@@ -159,34 +155,24 @@ body {
     cursor: pointer;
 }
 
-.btn-pass:hover {
-    background: #b30000;
-}
-
-.btn-exit {
-    background: #333;
-    color: #aaa;
-    border: 1px solid #555;
-    padding: 8px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-}
+.btn-pass:hover { background: #b30000; }
 
 .board-half {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
+/* HORIZONTÁLNY SCROLL PRE ZVÄČŠENÉ KARTY */
 .board-row {
     background: rgba(0, 0, 0, 0.4);
     border: 1px dashed #4a3d2e;
-    min-height: 175px;
+    min-height: 200px;
     border-radius: 8px;
     display: flex;
     align-items: center;
-    padding: 8px 12px;
-    gap: 12px;
+    padding: 8px 15px;
+    gap: 15px;
     position: relative;
     overflow-x: auto;
 }
@@ -205,23 +191,23 @@ body {
 .row-neutral {
     background: rgba(30, 20, 10, 0.6);
     border: 1px solid #d4af37;
-    min-height: 155px;
+    min-height: 180px;
     justify-content: center;
 }
 
 .card-hand {
     display: flex;
     justify-content: center;
-    gap: 12px;
-    min-height: 185px;
-    padding: 8px;
+    gap: 15px;
+    min-height: 210px;
+    padding: 10px;
     overflow-x: auto;
     background: rgba(0, 0, 0, 0.35);
     border-radius: 8px;
 }
 
 /* =========================================================================
-   3. ZVÄČŠENÝ DESIGN KARIET A RÁMOV
+   3. ZVÄČŠENÉ KARTY (135px x 185px) A PLATINOVÝ RÁM
    ========================================================================= */
 .karta-karta-wrapper {
     display: flex;
@@ -230,8 +216,8 @@ body {
 }
 
 .karta {
-    width: 120px;
-    height: 165px;
+    width: 135px;
+    height: 185px;
     background: #1a140e;
     border-radius: 8px;
     position: relative;
@@ -240,14 +226,14 @@ body {
     justify-content: space-between;
     padding: 6px;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.85);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.5s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.85);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
     flex-shrink: 0;
 }
 
 .karta:hover {
-    transform: translateY(-6px) scale(1.05);
-    z-index: 20;
+    transform: translateY(-8px) scale(1.06);
+    z-index: 30;
 }
 
 .karta-disabled {
@@ -269,29 +255,28 @@ body {
 /* PRVKY NA KARTE */
 .karta-kruh {
     position: absolute;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9em;
+    font-size: 1em;
     font-weight: bold;
     z-index: 5;
 }
 
 .karta-kruh-pwr {
-    top: 4px;
-    left: 4px;
+    top: 5px;
+    left: 5px;
     background: #ffcc00;
     color: #000;
     border: 1.5px solid #000;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
 
 .karta-kruh-cls {
-    top: 4px;
-    right: 4px;
+    top: 5px;
+    right: 5px;
     background: #111;
     color: #ffcc00;
     border: 1.5px solid #d4af37;
@@ -299,13 +284,13 @@ body {
 
 .karta-btn-inspect {
     position: absolute;
-    bottom: 34px;
-    right: 4px;
-    background: rgba(0, 0, 0, 0.8);
+    bottom: 38px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.85);
     border: 1px solid #5a4d3e;
     color: #fff;
-    font-size: 0.8em;
-    padding: 3px 6px;
+    font-size: 0.85em;
+    padding: 3px 7px;
     border-radius: 4px;
     cursor: pointer;
     z-index: 6;
@@ -313,22 +298,22 @@ body {
 
 .karta-foto {
     width: 100%;
-    height: 95px;
+    height: 105px;
     background-size: cover;
     background-position: center;
     border-radius: 4px;
-    margin-top: 20px;
+    margin-top: 22px;
 }
 
 .karta-stitok-spodok {
     background: rgba(0, 0, 0, 0.9);
-    padding: 3px 4px;
+    padding: 4px;
     border-radius: 4px;
     text-align: center;
 }
 
 .karta-nazov {
-    font-size: 0.8em;
+    font-size: 0.85em;
     font-weight: bold;
     color: #ffcc00;
     white-space: nowrap;
@@ -337,7 +322,7 @@ body {
 }
 
 .karta-popis-short {
-    font-size: 0.68em;
+    font-size: 0.7em;
     color: #ccc;
     white-space: nowrap;
     overflow: hidden;
@@ -345,7 +330,7 @@ body {
 }
 
 /* =========================================================================
-   4. DIELŇA & ANIMÁCIA KOVANIA (Vylepsovanie.mp4)
+   4. MODÁLNE OKNÁ & MULLIGAN DIALOG
    ========================================================================= */
 .card-modal {
     position: fixed;
@@ -382,38 +367,27 @@ body {
     cursor: pointer;
 }
 
-.dielna-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 18px;
-    margin-top: 15px;
+.mulligan-modal-box {
+    background: rgba(18, 12, 8, 0.97);
+    border: 3px solid #d4af37;
+    border-radius: 14px;
+    padding: 30px;
+    text-align: center;
+    max-width: 600px;
+    width: 85vw;
+    box-shadow: 0 0 50px rgba(0,0,0,0.95);
 }
 
-.btn-forge {
-    background: #10b981;
-    color: #fff;
-    border: none;
-    width: 100%;
-    padding: 7px;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 0.8em;
-    cursor: pointer;
+.mulligan-btn-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 25px;
 }
 
-.btn-recycle {
-    background: #f59e0b;
-    color: #000;
-    border: none;
-    width: 100%;
-    padding: 5px;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 0.8em;
-    cursor: pointer;
-}
-
-/* DYNAMICKÝ OVERLAY PRE VIDEO KOVANIA */
+/* =========================================================================
+   5. PRESNÉ SÚRADNICE PRE VIDEO KOVANIA (Vylepsovanie.mp4)
+   ========================================================================= */
 #forge-video-overlay {
     position: fixed;
     top: 0;
@@ -442,21 +416,23 @@ body {
     pointer-events: none;
 }
 
-/* PRESNÉ PREPOJENIE KARIET S OBDOBNOU KOVADLINOU VO VIDEU */
+/* NASTAVENIE VEĽKOSTI KARTY VO VIDEU (115px x 160px) */
 .forge-slot-card {
     position: absolute;
     transform: translate(-50%, -50%);
+    width: 115px !important;
+    height: 160px !important;
     pointer-events: none;
 }
 
-/* SÚRADNICE PRE 4 RÁMY NA KOVADLINE */
-#forge-card-1 { top: 46%; left: 32.5%; }
-#forge-card-2 { top: 46%; left: 44.0%; }
-#forge-card-3 { top: 46%; left: 55.5%; }
-#forge-card-4 { top: 46%; left: 67.0%; }
+/* KORDINÁTY KOVADLINY PRE VIDEO */
+#forge-card-1 { top: 46.5%; left: 32.2%; }
+#forge-card-2 { top: 46.5%; left: 43.8%; }
+#forge-card-3 { top: 46.5%; left: 55.4%; }
+#forge-card-4 { top: 46.5%; left: 67.0%; }
 
 /* =========================================================================
-   5. VIDEO PREHRÁVAČ TRUHIEL
+   6. VIDEO PREHRÁVAČ TRUHIEL
    ========================================================================= */
 #chest-video-overlay {
     position: fixed;
