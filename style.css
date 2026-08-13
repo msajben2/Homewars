@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 22.0.0)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 22.1.0)
    ========================================================================= */
 
 * {
@@ -231,7 +231,7 @@ body {
 }
 
 /* =========================================================================
-   3. ZVÄČŠENÝ DESIGN KARIET & PERFEKTNÝ PLATINOVÝ RÁM OVERLAY
+   3. ZVÄČŠENÝ DESIGN KARIET & NATIAHNUTÝ PLATINOVÝ RÁM
    ========================================================================= */
 .karta-karta-wrapper { 
     display: flex; 
@@ -246,7 +246,7 @@ body {
 }
 
 .karta {
-    width: 165px;               /* Zväčšené pre dokonalú prehľadnosť */
+    width: 165px;
     height: 228px;
     background: #0f0b08;
     border-radius: 8px;
@@ -275,7 +275,7 @@ body {
 .karta.cls-A { border: 4px solid #ec4899; border-image: url('Img/aclassram.webp') 30 stretch; }
 .karta.cls-S { border: 4px solid #ffcc00; border-image: url('Img/sclassram.webp') 30 stretch; box-shadow: 0 0 20px rgba(255, 204, 0, 0.7); }
 
-/* PERFECT PLATINUM OVERLAY (ŽIADNY OREZANÝ VRCH) */
+/* NATIAHNUTÝ PLATINOVÝ RÁM (KORUNKA HORE SEDA PRESNE NA KARTU) */
 .karta.cls-PLATINUM {
     border: none !important;
     overflow: visible !important;
@@ -285,10 +285,10 @@ body {
 .karta.cls-PLATINUM::after {
     content: "";
     position: absolute;
-    top: -6px;
-    left: -6px;
-    right: -6px;
-    bottom: -6px;
+    top: -14px;                 /* Natiahnuté hore pre zakrytie vrchnej časti */
+    left: -7px;
+    right: -7px;
+    bottom: -7px;
     background-image: url('Img/platinumclassram.webp');
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -461,30 +461,30 @@ body {
 .custom-notify-btn { background: linear-gradient(180deg, #3b2d1d 0%, #21180e 100%); color: #ffcc00; border: 1.5px solid #d4af37; padding: 10px 28px; font-size: 1em; font-weight: bold; border-radius: 6px; cursor: pointer; }
 
 /* =========================================================================
-   5. REALISTICKÉ 3D NAKLONENIE KARIET VO VIDEU KOVADLINY (vylepsovanie.mp4)
+   5. OPRAVENÉ PRESNÉ UHLA A POZÍCIE NA KOVADLINE (vylepsovanie.mp4)
    ========================================================================= */
 #forge-video-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999;
     display: flex; justify-content: center; align-items: center;
-    perspective: 1000px;
+    perspective: 1200px;
 }
 
 #forge-video-element { width: 100vw; height: 100vh; object-fit: cover; }
 .forge-cards-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; transform-style: preserve-3d; }
 
-/* POUŽITIE 3D PERSPEKTÍVY PRE PRESNÉ DOSADNUTIE NA STÔL KOVADLINY */
+/* KOREKCIA NAKLONENIA PRE DOKONALÉ DOSADNUTIE NA ZLATÉ RÁMY KOVADLINY */
 .forge-slot-card {
     position: absolute;
-    width: 220px !important;
-    height: 310px !important;
+    width: 225px !important;
+    height: 315px !important;
     pointer-events: none;
     transition: opacity 0.5s ease;
 }
 
-#forge-card-1 { top: 46.5%; left: 16.5%; transform: translate(-50%, -50%) rotateX(42deg) rotateY(-8deg) rotateZ(2deg) scale(0.92); }
-#forge-card-2 { top: 46.5%; left: 38.2%; transform: translate(-50%, -50%) rotateX(42deg) rotateY(-3deg) scale(0.92); }
-#forge-card-3 { top: 46.5%; left: 59.8%; transform: translate(-50%, -50%) rotateX(42deg) rotateY(3deg) scale(0.92); }
-#forge-card-4 { top: 46.5%; left: 81.5%; transform: translate(-50%, -50%) rotateX(42deg) rotateY(8deg) rotateZ(-2deg) scale(0.92); }
+#forge-card-1 { top: 52.0%; left: 24.5%; transform: translate(-50%, -50%) rotateX(18deg) scale(0.96); }
+#forge-card-2 { top: 52.0%; left: 42.8%; transform: translate(-50%, -50%) rotateX(18deg) scale(0.96); }
+#forge-card-3 { top: 52.0%; left: 61.2%; transform: translate(-50%, -50%) rotateX(18deg) scale(0.96); }
+#forge-card-4 { top: 52.0%; left: 79.5%; transform: translate(-50%, -50%) rotateX(18deg) scale(0.96); }
 
 /* TRUHLE */
 #chest-video-overlay {
