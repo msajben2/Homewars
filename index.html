@@ -8,7 +8,7 @@
 </head>
 <body onclick="spustitHudbuPoPrvomKliknuti()">
 
-    <!-- ODSTRÁNENÝ ATRIBÚT LOOP PRE SPRÁVNE PREPÍNANIE PLAYLISTU -->
+    <!-- AUDIO ENGINE PRE PLAYLIST -->
     <audio id="bg-music"></audio>
 
     <div class="audio-control-bar">
@@ -26,6 +26,7 @@
             <button class="btn-menu" onclick="otvoriťDeckbuilder()">🎴 Vytvoriť Zostavu (Deckbuilder)</button>
             <button class="btn-menu" onclick="otvoriťDielňu()">🔨 Kráľovská Dielňa (Forge)</button>
             <button class="btn-menu" onclick="otvoriťObchod()">🛒 Player-Driven Trhovisko</button>
+            <button class="btn-menu" style="background:#4a2c00; border-color:#ffcc00;" onclick="otvoriťStatistiky()">🏆 Sieň Slávy & Štatistiky</button>
             <button class="btn-menu" onclick="otvoriťNavodHry()">📖 Kronika & Návod Hry</button>
             
             <button class="btn-menu" style="background:#523f29; border-color:#ffcc00;" onclick="otvorTruhluVitaza()">🏆 Otvoriť Truhlu Víťaza (Test)</button>
@@ -80,6 +81,26 @@
             <button class="btn-exit" onclick="zobraziťObrazovku('hlavne-menu')">🚪 Opustiť Zápas</button>
         </div>
 
+    </div>
+
+    <!-- MODÁLNE OKNO PRE ŠTATISTIKY A SIEŇ SLÁVY -->
+    <div id="stats-modal" class="card-modal" style="display: none;" onclick="if(event.target === this) this.style.display='none';">
+        <div class="modal-content" style="max-width: 1400px;">
+            <span class="card-modal-close" onclick="document.getElementById('stats-modal').style.display='none'">&times;</span>
+            <h2 class="modal-title">🏆 SIEŇ SLÁVY & KRÁĽOVSKÉ REBRÍČKY</h2>
+            
+            <!-- DEV SIMULAČNÝ PANEL PRE ŠTATISTIKY -->
+            <div class="stats-dev-panel">
+                <h4>🧪 SIMULAČNÝ PANEL PRE TESTOVANIE REBRÍČKOV & INAKTIVITY</h4>
+                <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                    <button class="btn-dev-action" onclick="testSimulaciaInaktivity()">⏩ Posunúť Čas o +7 Dní (Test Inaktivity)</button>
+                    <button class="btn-dev-action" onclick="testSimulaciaPridatBota()">🤖 Pridať 1 Testovacieho Bota</button>
+                    <button class="btn-dev-action" onclick="testSimulaciaGlobalnyOznam()">🔔 Test S-Class Oznamu Servera</button>
+                </div>
+            </div>
+
+            <div id="stats-grid-container" class="stats-grid"></div>
+        </div>
     </div>
 
     <div id="deckbuilder-modal" class="card-modal" style="display: none;" onclick="if(event.target === this) this.style.display='none';">
