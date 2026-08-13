@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 25.1.0 - FULL FIX)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 26.0.0 - FULL FIX)
 // =========================================================================
 
 (function() {
@@ -13,30 +13,30 @@
     }
 })();
 
-var VERZIA = "25.1.0";
+var VERZIA = "26.0.0";
 
 // =========================================================================
-// 1. REGISTER KARIET (MASTER REGISTRY)
+// 1. MASTER REGISTRY
 // =========================================================================
 var MASTER_REGISTRY = {
-    // 🌟 12 PLATINOVÝCH KARIET SO SCHOPNOSŤAMI
-    "Katy": { row: 2, p: 6, isPlatinum: true, img: "Img/katy.webp", desc: "Kráľovná výhier. Vládne bojisku s neprekonateľnou autoritou.", abilityDesc: "💖 Pomoc: Pridáva +2b všetkým tvojim kartám a uberá -2b všetkým súperovým kartám." },
-    "Nela": { row: 2, p: 1, isPlatinum: true, img: "Img/nela.webp", desc: "Ochranný štít podhradia. Zmrazí stôl pred násobnými kúzlam.", abilityDesc: "🛡️ Štít: Zmrazí stôl! Kým je Nela v hre, žiadne karty nedostávajú percentuálne bonusy ani buffy." },
-    "Michal": { row: 1, p: 5, isPlatinum: true, img: "Img/michal.webp", desc: "Bystrý obchodník. Váži zlato a pozná cenu každej veci.", abilityDesc: "📢 Obchodník: Ak nie je na stole Nela, dáva sám sebe samo-buff +100% k sile (z 5b na 10b)." },
-    "Erik": { row: 1, p: 3, isPlatinum: true, img: "Img/erik.webp", desc: "Geniálny taktik nad bojovou mapou.", abilityDesc: "📢 Buff: Po vyložení si vyberieš rad (1, 2 alebo 3), ktorému pridá +50% k celkovej sile." },
-    "Marek": { row: 1, p: 4, isPlatinum: true, img: "Img/marek.webp", desc: "Učený filozof vo fialovom plášti.", abilityDesc: "🧹 Filozof: Otravným filozofovaním zmatie zvolenú kartu súpera a pošle ju do archívu." },
-    "Ďuri": { row: 1, p: 6, isPlatinum: true, img: "Img/duri.webp", desc: "Veterán v plnej zbroji.", abilityDesc: "🍺 Taktik: Ak je na stole Alkohol, posilňuje ženský 2. rad o +100% (2x násobok bodov)." },
-    "Doktor": { row: 1, p: 5, isPlatinum: true, img: "Img/doktor.webp", desc: "Hradný alchymista a lekár.", abilityDesc: "🏥 Oživenie: Vráti do hry poslednú spálenú kartu z tvojho archívu." },
-    "Sestrička": { row: 2, p: 3, isPlatinum: true, img: "Img/sestricka.webp", desc: "Milosrdná ošetrovateľka.", abilityDesc: "🏥 Oživenie: Vráti do hry spálenú kartu z tvojho archívu." },
-    "Sisa": { row: 2, p: 4, isPlatinum: true, img: "Img/sisa.webp", desc: "Dvorná dáma motivujúca chlapov.", abilityDesc: "📢 Dvorná dáma: Zvyšuje silu celého mužského radu o +50%." },
-    "Oli": { row: 2, p: 12, isPlatinum: true, img: "Img/oli.webp", desc: "Duchovná matka chrámu.", abilityDesc: "✝️ Imunita: Jej sila 12b je stála a nedá sa znížiť kúzlam ani negatívnymi vplyvmi stola." },
-    "Kika": { row: 2, p: 3, isPlatinum: true, isSpy: true, img: "Img/kika.webp", desc: "Hradná archivárka.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola. Potiahne ti 2 nové karty z balíčka." },
-    "Zvedavá suseda": { row: 2, p: 7, isPlatinum: true, isSpy: true, img: "Img/zvedava-suseda.webp", desc: "Pozorné oko podhradia.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola a dá ti 2 nové karty z balíčka." },
+    // 🌟 12 PLATINOVÝCH KARIET
+    "Katy": { row: 2, p: 6, isPlatinum: true, img: "Img/katy.webp", desc: "Kráľovná výhier.", abilityDesc: "💖 Pomoc: Pridáva +2b všetkým tvojim kartám a uberá -2b všetkým súperovým kartám." },
+    "Nela": { row: 2, p: 1, isPlatinum: true, img: "Img/nela.webp", desc: "Ochranný štít.", abilityDesc: "🛡️ Štít: Zmrazí stôl! Kým je Nela v hre, žiadne karty nedostávajú percentuálne bonusy ani buffy." },
+    "Michal": { row: 1, p: 5, isPlatinum: true, img: "Img/michal.webp", desc: "Obchodník.", abilityDesc: "📢 Obchodník: Ak nie je na stole Nela, dáva sám sebe samo-buff +100% k sile." },
+    "Erik": { row: 1, p: 3, isPlatinum: true, img: "Img/erik.webp", desc: "Taktik.", abilityDesc: "📢 Buff: Po vyložení si vyberieš rad, ktorému pridá +50% k celkovej sile." },
+    "Marek": { row: 1, p: 4, isPlatinum: true, img: "Img/marek.webp", desc: "Filozof.", abilityDesc: "🧹 Filozof: Zmatie zvolenú kartu súpera a pošle ju do archívu." },
+    "Ďuri": { row: 1, p: 6, isPlatinum: true, img: "Img/duri.webp", desc: "Veterán.", abilityDesc: "🍺 Taktik: Ak je na stole Alkohol, posilňuje ženský 2. rad o +100%." },
+    "Doktor": { row: 1, p: 5, isPlatinum: true, img: "Img/doktor.webp", desc: "Lekár.", abilityDesc: "🏥 Oživenie: Vráti do hry poslednú spálenú kartu z tvojho archívu." },
+    "Sestrička": { row: 2, p: 3, isPlatinum: true, img: "Img/sestricka.webp", desc: "Ošetrovateľka.", abilityDesc: "🏥 Oživenie: Vráti do hry spálenú kartu z tvojho archívu." },
+    "Sisa": { row: 2, p: 4, isPlatinum: true, img: "Img/sisa.webp", desc: "Dvorná dáma.", abilityDesc: "📢 Dvorná dáma: Zvyšuje silu celého mužského radu o +50%." },
+    "Oli": { row: 2, p: 12, isPlatinum: true, img: "Img/oli.webp", desc: "Duchovná matka.", abilityDesc: "✝️ Imunita: Jej sila 12b je stála a nedá sa znížiť kúzlam." },
+    "Kika": { row: 2, p: 3, isPlatinum: true, isSpy: true, img: "Img/kika.webp", desc: "Archivárka.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola. Potiahne ti 2 nové karty." },
+    "Zvedavá suseda": { row: 2, p: 7, isPlatinum: true, isSpy: true, img: "Img/zvedava-suseda.webp", desc: "Suseda.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola a dá ti 2 nové karty." },
 
-    // 🏆 UNIKÁTNA TURNAJOVÁ KARTA (8b ZÁKLAD)
+    // 🏆 UNIKÁTNA TURNAJOVÁ KARTA
     "Kráľovský Šampión": { row: 1, p: 8, isTournamentUnique: true, img: "Img/neviditelny-mario.webp", desc: "Unikátna turnajová trofej existujúca len v 1 kuse na celom serveri!", abilityDesc: "👑 Turnajový Unikát: Má základ 8b, v Dielni sa NIKDY nezničí (zhorí len Joker) a pri vyložení aktivuje všetky dostupné setové bonusy v rade!" },
 
-    // 🃏 JOKER CARD (DIELENSKÝ ŽOLÍK)
+    // 🃏 JOKER CARD
     "Joker Card": { row: 0, p: 0, isJoker: true, img: "Img/zlato.webp", desc: "Univerzálny kováčsky žolík.", abilityDesc: "🃏 Dielenský Žolík: Nedá sa s ním hrať v zápase, no v Dielni dokáže nahradiť akúkoľvek kartu pri kovaní!" },
 
     // 🔨 OBYČAJNÉ KOVÁČSKE JEDNOTKY
@@ -99,11 +99,11 @@ var inventar = {
     mince: 500,
     suroviny: { "Koža": 15, "Drevo": 10, "Kov": 5, "Bronz": 2, "Striebro": 1, "Zlato": 20 },
     karty: {},
-    jokers: { "F": 2, "E": 1, "D": 1, "C": 1, "B": 1, "A": 1 },
+    jokers: { "F": 5, "E": 5, "D": 5, "C": 5, "B": 5, "A": 5 },
     zostava: []
 };
 
-// 📊 DATABÁZA PRE 10 REBRÍČKOV
+// 📊 10 REBRÍČKOV
 var simulačneRebríčky = {
     vyhry: [ { hrac: "Hráč 1 (Ty)", skore: 12, inaktivny: false, titulCard: "Katy" }, { hrac: "Lord_Grob", skore: 8, inaktivny: false, titulCard: null }, { hrac: "Mníchov_Master", skore: 1, inaktivny: false, titulCard: "Vzbúrenec" } ],
     remizy: [ { hrac: "Mníchov_Master", skore: 5, inaktivny: false, titulCard: "Nela" }, { hrac: "Hráč 1 (Ty)", skore: 2, inaktivny: false, titulCard: null }, { hrac: "Lord_Grob", skore: 0, inaktivny: false, titulCard: "Šaman" } ],
@@ -230,43 +230,38 @@ function vykresliGridStatistik() {
     container.innerHTML = html;
 }
 
-// 🧪 DEV ACTION TESTY
-function testSimulaciaInaktivity() {
-    simulačneRebríčky.vyhry[0].inaktivny = true;
-    ukazOznamenie("⏩ POSUN ČASU +7 DNÍ", "Šampión <strong>Hráč 1</strong> prešiel do stavu 💤 Inaktívny! Jeho Platinová karta bola uvoľnená pre aktívneho hráča!");
-    aktualizujRebríčkyATituly();
+// 🧪 DEV CHEATY PRE KOVANIE AŽ PO S-CLASS & BATOH
+function devPridatSurovinyACheaty() {
+    inventar.mince += 100000;
+    inventar.suroviny["Koža"] = (inventar.suroviny["Koža"] || 0) + 100;
+    inventar.suroviny["Drevo"] = (inventar.suroviny["Drevo"] || 0) + 100;
+    inventar.suroviny["Kov"] = (inventar.suroviny["Kov"] || 0) + 100;
+    inventar.suroviny["Bronz"] = (inventar.suroviny["Bronz"] || 0) + 100;
+    inventar.suroviny["Striebro"] = (inventar.suroviny["Striebro"] || 0) + 100;
+    inventar.suroviny["Zlato"] = (inventar.suroviny["Zlato"] || 0) + 5000;
+
+    // Pridanie duplikátov VŠETKÝCH TRIED pre testovanie až po S-Class!
+    Object.keys(MASTER_REGISTRY).forEach(function(t) {
+        var reg = MASTER_REGISTRY[t];
+        if (!reg.isPlatinum && !reg.isSpell && !reg.isJoker) {
+            if (!inventar.karty[t]) inventar.karty[t] = { repliky: {}, aktivnaTrieda: "F" };
+            inventar.karty[t].repliky["F"] = 20;
+            inventar.karty[t].repliky["E"] = 10;
+            inventar.karty[t].repliky["D"] = 10;
+            inventar.karty[t].repliky["C"] = 10;
+            inventar.karty[t].repliky["B"] = 10;
+            inventar.karty[t].repliky["A"] = 10;
+        }
+    });
+
+    inventar.karty["Kráľovský Šampión"] = { repliky: { "F": 1, "E": 3, "D": 3, "C": 3, "B": 3, "A": 3 }, aktivnaTrieda: "F" };
+
+    ukazOznamenie("⚡ DEV CHEAT AKTIVOVANÝ", "Pridaných 100 000 Mincí, 5000g Zlata, suroviny a duplikáty F/E/D/C/B/A pre testovanie kovania až po S-Class!");
+    aktualizujPanelDielne();
+    vykresliRozbalovaciBatoh();
 }
 
-function testSimulaciaPridatBota() {
-    var botName = "Bot_Tester_" + Math.floor(Math.random() * 100);
-    var randomScore = Math.floor(Math.random() * 16) + 4;
-    simulačneRebríčky.vyhry.push({ hrac: botName, skore: randomScore, inaktivny: false, titulCard: null });
-    
-    ukazOznamenie("🤖 PRIDANÝ BOT", "Pridaný <strong>" + botName + "</strong> so skóre **" + randomScore + "b**!");
-    aktualizujRebríčkyATituly();
-}
-
-function testSimulaciaGlobalnyOznam() {
-    vyhlasGlobalnySClassOznam("Hráč 1 (Ty)", "Neviditeľný Mário");
-}
-
-function vyhlasGlobalnySClassOznam(menoHraca, menoKarty) {
-    var banner = document.createElement("div");
-    banner.className = "global-announce-banner";
-    banner.innerHTML = `
-        <h3 style="margin:0; font-size:1.4em;">👑 KRÁĽOVSKÝ OZNAM SERVERA 👑</h3>
-        <p style="margin:5px 0 0 0; font-size:1.1em; color:#fff;">
-            Hráč <strong style="color:#ffcc00;">${menoHraca}</strong> práve v Dielni vykoval legendárnu kartu <strong style="color:#ffcc00;">${menoKarty} (S-Class)</strong>! Sláva kováčovi!
-        </p>
-    `;
-    document.body.appendChild(banner);
-
-    setTimeout(function() {
-        banner.remove();
-    }, 6000);
-}
-
-// 🎬 FINÁLNA ANIMÁCIA KOVANIA (ZAKÓDOVANÉ SÚRADNICE NA KOVADLINE)
+// 🎬 KOVANIE V KOVADLINE S TVOJIMI PRECNÝMI SÚRADNICAMI
 function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected) {
     pozastavitHudbuPreVideo();
 
@@ -347,10 +342,10 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
     };
 }
 
-// 🛒 ANONYMNÉ TRHOVISKO S AUTOMATICKÝM STROPOM A ANTI-SNIPE
+// 📦 ANONYMNÉ TRHOVISKO (S BALÍČKAMI KARIET)
 var aukcnyCasomeračInterval = null;
-var aktualnyAnonymnyStrop = 140; 
-var trhovaPriemernaCenaEMA = 125; 
+var aktualnyAnonymnyStrop = 500; 
+var trhovaPriemernaCenaEMA = 380; 
 
 function vygenerujSimulaciuTrhu() {
     var e = document.getElementById("obchod-regaly-zoznam");
@@ -362,13 +357,15 @@ function vygenerujSimulaciuTrhu() {
     e.innerHTML = `
         <div style="background:#1e140a; border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:20px;">
             <h3 style="color:#d4af37; margin-top:0;">👑 ANONYMNÉ AUKČNÉ TRHOVISKO</h3>
-            <p style="font-size:0.9em; color:#ccc;">Vystavuj karty, nastav "Kúpiť Ihneď" a draž anonymne v reálnom čase!</p>
+            <p style="font-size:0.9em; color:#ccc;">Predávaj samostatné karty aj celkové BALÍČKY kariet (Bundle)!</p>
             <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;">
+                <button onclick="ukazOznamenie('📦 Vytvoriť Balíček', 'Vybral si 50x F-Class kariet do balíka. Zalistovací poplatok vopred je 25 mincí!')" class="btn-dev-action">📦 Predať Balíček Kariet (Bundle)</button>
                 <button onclick="testSimulaciaPrihodeniaBota()" class="btn-dev-action">🤖 Simulovať prihodenie Bota</button>
                 <button onclick="testSimulaciaRychlychPredajov()" class="btn-dev-action">📊 Simulovať 10 predajov (EMA Indikátor)</button>
             </div>
         </div>
 
+        <!-- PRÍKLAD 1: SÓLO KARTA -->
         <div class="auction-card-box">
             <div class="karta cls-E">
                 ${vytvorHTMLKarty("Neviditeľný Mário", realPwr, "E", reg.row, reg.p)}
@@ -380,14 +377,38 @@ function vygenerujSimulaciuTrhu() {
                 
                 <div style="background:rgba(0,0,0,0.5); border:1px solid #5a4d3e; padding:12px; border-radius:6px; margin:10px 0; max-width:420px;">
                     <div>⏱️ Čas aukcie: <span id="auction-timer" style="color:#ffcc00; font-weight:bold;">00:59:59</span> <small style="color:#888;">(Anti-Snipe: +3m)</small></div>
-                    <div style="margin-top:4px;">📊 Serverový Indikátor Ceny (EMA): <strong style="color:#3b82f6;">${trhovaPriemernaCenaEMA} m</strong></div>
-                    <div style="margin-top:4px;">💰 Okamžitý Výkup (Strop): <strong style="color:#10b981;">${aktualnyAnonymnyStrop} m</strong></div>
-                    <div style="margin-top:4px;">🕵️ Ponuka Aukcie: <span id="auction-status" style="color:#ffcc00; font-weight:bold;">Anonymná dopytová fáza</span></div>
+                    <div style="margin-top:4px;">📊 Serverový Indikátor (EMA): <strong style="color:#3b82f6;">125 m</strong></div>
+                    <div style="margin-top:4px;">💰 Okamžitý Výkup (Strop): <strong style="color:#10b981;">140 m</strong></div>
                 </div>
 
                 <div style="display:flex; gap:10px;">
-                    <button onclick="anonymnePrihoditSumu()" style="background:linear-gradient(180deg, #3b2d1d 0%, #21180e 100%); color:#ffcc00; border:1px solid #d4af37; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">🕵️ Anonymne Prihodiť do Aukcie</button>
-                    <button onclick="okamziteOdkupitKartu()" style="background:#10b981; color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">⚡ Kúpiť Ihneď za ${aktualnyAnonymnyStrop}m</button>
+                    <button onclick="anonymnePrihoditSumu(140)" style="background:linear-gradient(180deg, #3b2d1d 0%, #21180e 100%); color:#ffcc00; border:1px solid #d4af37; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">🕵️ Anonymne Prihodiť</button>
+                    <button onclick="okamziteOdkupitKartu(140, 'Neviditeľný Mário')" style="background:#10b981; color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">⚡ Kúpiť Ihneď za 140m</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRÍKLAD 2: BALÍČEK KARIET (BUNDLE) -->
+        <div class="auction-card-box" style="border-color:#a855f7; background:rgba(30,10,40,0.4);">
+            <div style="width:165px; height:228px; background:#180e28; border:3px dashed #a855f7; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:10px;">
+                <div style="font-size:3em;">📦</div>
+                <h4 style="color:#a855f7; margin:5px 0;">BALÍČEK KARIET</h4>
+                <span style="font-size:0.8em; color:#ccc;">50x F-Class Mix<br>5x E-Class<br>5x D-Class</span>
+            </div>
+            
+            <div style="flex-grow:1;">
+                <h3 style="color:#a855f7; margin:0 0 5px 0;">📦 SADA KARIET: "Kováčsky Štartovací Balík (60 Kariet)"</h3>
+                <p style="margin:2px 0; color:#aaa; font-size:0.9em;">Predajca: <strong>Mníchov_Master</strong></p>
+                
+                <div style="background:rgba(0,0,0,0.5); border:1px solid #a855f7; padding:12px; border-radius:6px; margin:10px 0; max-width:420px;">
+                    <div>⏱️ Čas aukcie: <span style="color:#ffcc00; font-weight:bold;">05:42:10</span></div>
+                    <div style="margin-top:4px;">📊 Hodnota Sady: <strong style="color:#3b82f6;">${trhovaPriemernaCenaEMA} m</strong></div>
+                    <div style="margin-top:4px;">💰 Okamžitý Výkup Balíka: <strong style="color:#10b981;">${aktualnyAnonymnyStrop} m</strong></div>
+                </div>
+
+                <div style="display:flex; gap:10px;">
+                    <button onclick="anonymnePrihoditSumu(${aktualnyAnonymnyStrop})" style="background:linear-gradient(180deg, #3b2d1d 0%, #21180e 100%); color:#ffcc00; border:1px solid #d4af37; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">🕵️ Prihodiť na Balík</button>
+                    <button onclick="okamziteOdkupitKartu(${aktualnyAnonymnyStrop}, 'Balíček 60 Kariet')" style="background:#10b981; color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">⚡ Kúpiť Balík Ihneď za ${aktualnyAnonymnyStrop}m</button>
                 </div>
             </div>
         </div>
@@ -396,46 +417,40 @@ function vygenerujSimulaciuTrhu() {
     spustitOdpocitavanieAukcie();
 }
 
-function anonymnePrihoditSumu() {
-    var ponukaStr = prompt("Zadaj svoju tajnú anonymnú ponuku v minciach (Strop pre okamžitý výkup je " + aktualnyAnonymnyStrop + "m):");
+function anonymnePrihoditSumu(stropVal) {
+    var ponukaStr = prompt("Zadaj svoju anonymnú ponuku v minciach (Strop pre okamžitý výkup je " + stropVal + "m):");
     if (!ponukaStr) return;
     var ponuka = parseInt(ponukaStr);
 
     if (isNaN(ponuka) || ponuka <= 0) { ukazOznamenie("⚠️ CHYBA", "Zadaj platné číslo!"); return; }
     if (inventar.mince < ponuka) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Nemáš dostatok mincí v batohu!"); return; }
 
-    if (ponuka >= aktualnyAnonymnyStrop) {
-        inventar.mince -= aktualnyAnonymnyStrop;
-        if (!inventar.karty["Neviditeľný Mário"]) inventar.karty["Neviditeľný Mário"] = { repliky: { "E": 0 }, aktivnaTrieda: "E" };
-        inventar.karty["Neviditeľný Mário"].repliky["E"] = (inventar.karty["Neviditeľný Mário"].repliky["E"] || 0) + 1;
-
-        ukazOznamenie("⚡ AUTOMATICKÝ VÝKUP!", "Tvoja ponuka (" + ponuka + "m) presiahla hodnotu Okamžitého výkupu (" + aktualnyAnonymnyStrop + "m). Karta je okamžite tvoja za " + aktualnyAnonymnyStrop + "m!");
+    if (ponuka >= stropVal) {
+        inventar.mince -= stropVal;
+        ukazOznamenie("⚡ AUTOMATICKÝ VÝKUP!", "Tvoja ponuka (" + ponuka + "m) presiahla hodnota Okamžitého výkupu (" + stropVal + "m). Položka je okamžite tvoja za " + stropVal + "m!");
         vykresliRozbalovaciBatoh();
     } else {
-        ukazOznamenie("🕵️ PONUKA ZAREGISTROVANÁ", "Tvoja anonymná ponuka " + ponuka + "m bola odoslaná do aukcie! Ak ťa niekto prehodí, systém ťa upozorní.");
+        ukazOznamenie("🕵️ PONUKA ZAREGISTROVANÁ", "Tvoja anonymná ponuka " + ponuka + "m bola odeslaná do aukcie!");
     }
 }
 
-function okamziteOdkupitKartu() {
-    if (inventar.mince < aktualnyAnonymnyStrop) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Potrebuješ " + aktualnyAnonymnyStrop + "m na okamžitý výkup!"); return; }
+function okamziteOdkupitKartu(stropVal, nazov) {
+    if (inventar.mince < stropVal) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Potrebuješ " + stropVal + "m na okamžitý výkup!"); return; }
     
-    inventar.mince -= aktualnyAnonymnyStrop;
-    if (!inventar.karty["Neviditeľný Mário"]) inventar.karty["Neviditeľný Mário"] = { repliky: { "E": 0 }, aktivnaTrieda: "E" };
-    inventar.karty["Neviditeľný Mário"].repliky["E"] = (inventar.karty["Neviditeľný Mário"].repliky["E"] || 0) + 1;
-
-    ukazOznamenie("🎉 KÚPENÉ IHNEĎ!", "Zaplatil si " + aktualnyAnonymnyStrop + "m. Karta E-Class Neviditeľný Mário ti pristala v batohu!");
+    inventar.mince -= stropVal;
+    ukazOznamenie("🎉 KÚPENÉ IHNEĎ!", "Zaplatil si " + stropVal + "m. Položka " + nazov + " ti pristala v batohu!");
     vykresliRozbalovaciBatoh();
 }
 
 function testSimulaciaPrihodeniaBota() {
-    var botBid = Math.floor(Math.random() * 50) + 60;
-    ukazOznamenie("🤖 PRIHODENIE BOTA", "Súper <strong>Lord_Grob</strong> anonymne prihodil ponuku " + botBid + "m!");
+    var botBid = Math.floor(Math.random() * 50) + 200;
+    ukazOznamenie("🤖 PRIHODENIE BOTA", "Súper <strong>Lord_Grob</strong> anonymne prihodil ponuku " + botBid + "m na balíček!");
 }
 
 function testSimulaciaRychlychPredajov() {
-    trhovaPriemernaCenaEMA = Math.floor(Math.random() * 60) + 140;
+    trhovaPriemernaCenaEMA = Math.floor(Math.random() * 100) + 350;
     vygenerujSimulaciuTrhu();
-    ukazOznamenie("📊 TEST EMA INDIKÁTORA", "Prebehlo 10 rýchlych obchodov. Indikátor trhu sa bleskovo prispôsobil na **" + trhovaPriemernaCenaEMA + " m**!");
+    ukazOznamenie("📊 TEST EMA INDIKÁTORA", "Prebehlo 10 obchodov balíkov. Indikátor sa bleskovo prispôsobil na **" + trhovaPriemernaCenaEMA + " m**!");
 }
 
 function spustitOdpocitavanieAukcie() {
@@ -455,7 +470,126 @@ function spustitOdpocitavanieAukcie() {
     }, 1000);
 }
 
-// 🛡️ SČÍTATEĽNÉ SETOVÉ BONUSY RADOV A VYHODNOCOVANIE STOLA
+// 🎬 OPRAVA OTVÁRANIA TRUHIEL (FULLSCREEN + KRÁĽOVSKÉ MENU ODMIEN)
+function otvorTruhluVitaza() { spustitVideoAnimationTruhly("vitaz"); }
+function otvorTruhluUcastnika() { spustitVideoAnimationTruhly("ucastnik"); }
+
+function vyhodnotKoniecZapasu() {
+    var typTruhly = (r1 >= 2 && r2 < 2) ? "vitaz" : "ucastnik";
+    spustitVideoAnimationTruhly(typTruhly);
+}
+
+function spustitVideoAnimationTruhly(typ) {
+    pozastavitHudbuPreVideo();
+
+    var overlay = document.createElement("div");
+    overlay.id = "chest-video-overlay";
+
+    var videoSrc = (typ === "vitaz") ? "Img/truhlavitaza.mp4" : "Img/truhlaucastnika.mp4";
+
+    overlay.innerHTML = `
+        <video id="chest-video-element" src="${videoSrc}" autoplay playsinline></video>
+        <div id="chest-click-prompt" class="chest-prompt-text">🎬 KLIKNI PRE SPUSENIE ANIMÁCIE TRUHLE</div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    var vid = document.getElementById("chest-video-element");
+    var promptTxt = document.getElementById("chest-click-prompt");
+
+    overlay.onclick = function() {
+        if (vid.paused) {
+            vid.play();
+            promptTxt.style.display = "none";
+        }
+    };
+
+    vid.onended = function() {
+        doplnOdmenyAUpravUI(typ, overlay);
+    };
+}
+
+function doplnOdmenyAUpravUI(typ, overlayElement) {
+    var coinsEarned = 0, goldEarned = 0;
+    var maxKariet = 0;
+    var ziskaneSuroviny = {};
+
+    if (typ === "vitaz") {
+        coinsEarned = Math.floor(Math.random() * 151) + 150;
+        goldEarned = Math.floor(Math.random() * 4) + 2;
+        maxKariet = Math.floor(Math.random() * 4) + 3;
+    } else {
+        coinsEarned = Math.floor(Math.random() * 51) + 50;
+        goldEarned = (Math.random() < 0.1) ? 1 : 0;
+        maxKariet = Math.floor(Math.random() * 3) + 1;
+    }
+
+    ziskaneSuroviny["Koža"] = (ziskaneSuroviny["Koža"] || 0) + 1;
+
+    inventar.mince += coinsEarned;
+    inventar.suroviny["Zlato"] = (inventar.suroviny["Zlato"] || 0) + goldEarned;
+    Object.keys(ziskaneSuroviny).forEach(function(mat) {
+        inventar.suroviny[mat] = (inventar.suroviny[mat] || 0) + ziskaneSuroviny[mat];
+    });
+
+    var odmenyHtml = `
+        <div class="karta-surovina">
+            <div class="surovina-badge">+${coinsEarned}</div>
+            <div class="surovina-foto" style="background-image: url('Img/mince.webp');"></div>
+            <div class="surovina-stitok"><div class="surovina-nazov">Kopa Mincí</div></div>
+        </div>
+    `;
+
+    if (goldEarned > 0) {
+        odmenyHtml += `
+            <div class="karta-surovina">
+                <div class="surovina-badge">+${goldEarned}g</div>
+                <div class="surovina-foto" style="background-image: url('Img/zlato.webp');"></div>
+                <div class="surovina-stitok"><div class="surovina-nazov">Hruda Zlata</div></div>
+            </div>
+        `;
+    }
+
+    var dostupneFm = Object.keys(MASTER_REGISTRY).filter(function(m) {
+        var r = MASTER_REGISTRY[m];
+        return !r.isPlatinum && !r.isSpell && !r.isJoker;
+    });
+
+    for (var i = 0; i < maxKariet; i++) {
+        var randCardName = dostupneFm[Math.floor(Math.random() * dostupneFm.length)];
+        if (!inventar.karty[randCardName]) inventar.karty[randCardName] = { repliky: { "F": 0 }, aktivnaTrieda: "F" };
+        if (typeof inventar.karty[randCardName].repliky !== "object") inventar.karty[randCardName].repliky = { "F": 0 };
+        inventar.karty[randCardName].repliky["F"] = (inventar.karty[randCardName].repliky["F"] || 0) + 1;
+
+        var reg = getRegistryCard(randCardName);
+        var realPwr = getRealPower({ n: randCardName, cls: "F" });
+        odmenyHtml += `<div class="karta cls-F">${vytvorHTMLKarty(randCardName, realPwr, "F", reg.row, reg.p)}</div>`;
+    }
+
+    var rewardsBox = document.createElement("div");
+    rewardsBox.className = "chest-rewards-modal";
+    rewardsBox.innerHTML = `
+        <h2>🎉 TRUHLA OTVORENÁ!</h2>
+        <p style="color:#aaa; font-size:1em;">Získal si odmeny z truhlice do svojej pokladnice:</p>
+        <div class="rewards-card-container">
+            ${odmenyHtml}
+        </div>
+        <button onclick="zatvoritTruhluAOpustit('${overlayElement.id}')" style="background:#10b981; color:#fff; border:none; padding:12px 35px; border-radius:6px; font-weight:bold; font-size:1.1em; cursor:pointer; margin-top:10px;">Zobrať Všetko do Batohu</button>
+    `;
+
+    overlayElement.appendChild(rewardsBox);
+    aktualizujPanelDielne();
+    vykresliRozbalovaciBatoh();
+}
+
+function zatvoritTruhluAOpustit(overlayId) {
+    var el = document.getElementById(overlayId);
+    if (el) el.remove();
+    obnovitHudbuPoVideu();
+    zobraziťObrazovku("hlavne-menu");
+}
+
+// 🛡️ SČÍTATEĽNÉ SETOVÉ BONUSY RADOV
 function prepočitajSkoreStola() {
     var isNelaOnTable = false;
     [p1_played_cards, p2_played_cards].forEach(function(list) {
@@ -576,7 +710,7 @@ function aktualizujPanelDielne() {
     var devBtnDiv = document.createElement("div");
     devBtnDiv.style.gridColumn = "1/-1";
     devBtnDiv.style.marginBottom = "15px";
-    devBtnDiv.innerHTML = `<button onclick="devPridatSurovinyACheaty()" style="background:#8b5cf6; color:#fff; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; cursor:pointer; width:100%;">⚡ DEV MENU: Pridať Mince, Joker Karta & Turnajovú Kartu (8b) do Batohu</button>`;
+    devBtnDiv.innerHTML = `<button onclick="devPridatSurovinyACheaty()" style="background:#8b5cf6; color:#fff; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; cursor:pointer; width:100%;">⚡ DEV CHEAT: Pridať 100 000 Mincí, Zlato & Suroviny až po A/S-Class pre Všetky Karty</button>`;
     e.appendChild(devBtnDiv);
 
     Object.keys(MASTER_REGISTRY).forEach(function(t) {
@@ -638,22 +772,6 @@ function aktualizujPanelDielne() {
     });
 }
 
-function devPridatSurovinyACheaty() {
-    inventar.mince += 10000;
-    inventar.suroviny["Koža"] = (inventar.suroviny["Koža"] || 0) + 100;
-    inventar.suroviny["Drevo"] = (inventar.suroviny["Drevo"] || 0) + 100;
-    inventar.suroviny["Kov"] = (inventar.suroviny["Kov"] || 0) + 100;
-    inventar.suroviny["Bronz"] = (inventar.suroviny["Bronz"] || 0) + 100;
-    inventar.suroviny["Striebro"] = (inventar.suroviny["Striebro"] || 0) + 100;
-    inventar.suroviny["Zlato"] = (inventar.suroviny["Zlato"] || 0) + 1000;
-
-    inventar.karty["Kráľovský Šampión"] = { repliky: { "F": 1 }, aktivnaTrieda: "F" };
-
-    ukazOznamenie("⚡ DEV CHEAT AKTIVOVANÝ", "Pridané mince, Zlato, suroviny a **Turnajová Unikátna Karta (8b)** do batohu!");
-    aktualizujPanelDielne();
-    vykresliRozbalovaciBatoh();
-}
-
 function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
     var t = inventar.karty[meno];
     if (!t) return;
@@ -694,7 +812,7 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
     spustitVideoAnimationKovania(meno, fromCls, nextCls, isSuccess, pCfg.saveCard);
 }
 
-// 📖 KNIŽNÝ NÁVOD KRÁĽOVSTVA (5 KAPITOL)
+// 📖 KNIŽNÝ NÁVOD
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
     if (!modal) {
@@ -790,7 +908,7 @@ function vykresliStraneKnihy() {
     } else if (aktualnaStranaKnihy === 5) {
         container.innerHTML = `
             <h3 style="color:#ffcc00;">🛒 KAPITOLA V: ANONYMNÉ TRHOVISKO & AUKCIE</h3>
-            <p style="font-size:1.05em; line-height:1.6;">Aukcie prebiehajú anonymne s možnosťou Okamžitého výkupu. Zalistovací poplatok sa platí vopred a Anti-Snipe pravidlo predĺži aukciu o +3 minúty pri prihodení na konci.</p>
+            <p style="font-size:1.05em; line-height:1.6;">Aukcie prebiehajú anonymne s možnosťou Okamžitého výkupu. Predávať možno aj celkové BALÍČKY kariet (Bundle)!</p>
         `;
     }
 }
@@ -1203,64 +1321,6 @@ function pripravNoveKolo() {
     vykresliHraciuPlochu();
 }
 
-function otvorTruhluVitaza() { spustitVideoAnimationTruhly("vitaz"); }
-function otvorTruhluUcastnika() { spustitVideoAnimationTruhly("ucastnik"); }
-
-function vyhodnotKoniecZapasu() {
-    var typTruhly = (r1 >= 2 && r2 < 2) ? "vitaz" : "ucastnik";
-    spustitVideoAnimationTruhly(typTruhly);
-}
-
-function spustitVideoAnimationTruhly(typ) {
-    pozastavitHudbuPreVideo();
-    var overlay = document.createElement("div");
-    overlay.id = "chest-video-overlay";
-    var videoSrc = (typ === "vitaz") ? "Img/truhlavitaza.mp4" : "Img/truhlaucastnika.mp4";
-
-    overlay.innerHTML = `
-        <video id="chest-video-element" src="${videoSrc}" playsinline></video>
-        <div id="chest-click-prompt" class="chest-prompt-text">🎬 KLIKNI PRE OTVORENIE TRUHLE</div>
-    `;
-
-    document.body.appendChild(overlay);
-    var vid = document.getElementById("chest-video-element");
-    var promptTxt = document.getElementById("chest-click-prompt");
-
-    overlay.onclick = function() {
-        if (vid.paused) {
-            vid.play();
-            promptTxt.style.display = "none";
-        }
-    };
-
-    vid.onended = function() {
-        doplnOdmenyAUpravUI(typ, overlay);
-    };
-}
-
-function doplnOdmenyAUpravUI(typ, overlayElement) {
-    var coinsEarned = Math.floor(Math.random() * 151) + 150;
-    inventar.mince += coinsEarned;
-
-    var rewardsBox = document.createElement("div");
-    rewardsBox.className = "chest-rewards-modal";
-    rewardsBox.innerHTML = `
-        <h2>🎉 TRUHLA OTVORENÁ!</h2>
-        <p>Získal si +${coinsEarned} Mincí a suroviny!</p>
-        <button onclick="zatvoritTruhluAOpustit('${overlayElement.id}')" style="background:#10b981; color:#fff; border:none; padding:12px 35px; border-radius:6px; font-weight:bold; cursor:pointer;">Zobrať Všetko</button>
-    `;
-
-    overlayElement.appendChild(rewardsBox);
-    vykresliRozbalovaciBatoh();
-}
-
-function zatvoritTruhluAOpustit(overlayId) {
-    var el = document.getElementById(overlayId);
-    if (el) el.remove();
-    obnovitHudbuPoVideu();
-    zobraziťObrazovku("hlavne-menu");
-}
-
 function aktualizujKolaUI() {
     var el1 = document.getElementById("p1-rounds");
     var el2 = document.getElementById("p2-rounds");
@@ -1268,7 +1328,7 @@ function aktualizujKolaUI() {
     if (el2) el2.innerText = "🔴".repeat(r2) || "⚪";
 }
 
-// INICATILIZÁCIA DOM PO NAČÍTANÍ STRÁNKY
+// INICIALIZÁCIA DOM PO NAČÍTANÍ STRÁNKY
 document.addEventListener("DOMContentLoaded", function() {
     zobraziťObrazovku("hlavne-menu");
     aktualizujPanelDielne();
@@ -1276,7 +1336,7 @@ document.addEventListener("DOMContentLoaded", function() {
     vykresliRozbalovaciBatoh();
 });
 
-// GLOBÁLNE PREPOJENIE VŠETKÝCH FUNKCIÍ PRE HTML DOM
+// GLOBÁLNE BINDY
 window.spustitZapasLokálnePVP = spustitZapasLokálnePVP;
 window.zobraziťMenuAI = zobraziťMenuAI;
 window.spustitZapasProtiAI = spustitZapasProtiAI;
