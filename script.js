@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 23.1.0 - FULL UNUNCUT)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 23.2.0)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "23.1.0";
+var VERZIA = "23.2.0";
 
 // =========================================================================
 // 1. REGISTER KARIET (MASTER REGISTRY)
@@ -116,7 +116,7 @@ var simulačneRebríčky = {
     ]
 };
 
-// 🎯 POČIATOČNÉ HODNOTY PRE KALIBRÁCIU KOVADLINY
+// 🎯 KALIBRAČNÉ HODNOTY DOKAŽU VYTVORIŤ PRESNÉ ZASADENIE
 var forgeCalib = {
     activeSlot: 1,
     slots: {
@@ -175,10 +175,8 @@ function aktualizujRebríčkyATituly() {
         var list = simulačneRebríčky[key];
         list.sort(function(a, b) { return b.skore - a.skore; });
 
-        // Vyčistenie starých titulov
         list.forEach(function(item) { item.titulCard = null; });
 
-        // Priradenie TOP 1 a posledného aktívneho
         var aktivnyTop = list.find(function(item) { return !item.inaktivny; });
         if (aktivnyTop) {
             if (key === "vyhry") aktivnyTop.titulCard = "Katy";
@@ -242,7 +240,7 @@ function vykresliGridStatistik() {
     container.innerHTML = html;
 }
 
-// 🧪 FUNKČNÉ TESTOVACIE DEV TLAČIDLÁ
+// 🧪 DEV ACTION TESTY
 function testSimulaciaInaktivity() {
     simulačneRebríčky.vyhry[0].inaktivny = true;
     ukazOznamenie("⏩ POSUN ČASU +7 DNÍ", "Šampión <strong>Hráč 1</strong> prešiel do stavu 💤 Inaktívny! Jeho Platinová karta bola uvoľnená a odovzdaná aktívnemu hráčovi!");
@@ -278,7 +276,21 @@ function vyhlasGlobalnySClassOznam(menoHraca, menoKarty) {
     }, 6000);
 }
 
-// 🔧 KALIBRAČNÝ PANEL PRE VIDEO KOVADLINY (ZOSTANE DOKÝM SA NENAPASUJE)
+// 🔧 KALIBRAČNÝ PANEL S TLAČIDLOM PAUSE / PLAY
+function prepniPauseVideo() {
+    var vid = document.getElementById("forge-video-element");
+    var btn = document.getElementById("calib-pause-btn");
+    if (!vid) return;
+
+    if (vid.paused) {
+        vid.play();
+        if (btn) btn.innerText = "⏸️ Pozastaviť Video";
+    } else {
+        vid.pause();
+        if (btn) btn.innerText = "▶️ Spustiť Video";
+    }
+}
+
 function zmenKalibraciuSlotu(prop, val) {
     var slotId = forgeCalib.activeSlot;
     forgeCalib.slots[slotId][prop] = parseFloat(val);
@@ -289,6 +301,7 @@ function zmenKalibraciuSlotu(prop, val) {
         cardEl.style.left = s.x + "%";
         cardEl.style.top = s.y + "%";
         cardEl.style.transform = `translate(-50%, -50%) rotateX(${s.rotX}deg) scale(${s.scale / 100})`;
+        cardEl.style.opacity = "1"; // Počas kalibrácie držíme viditeľnosť na 100%
     }
 
     var txtEl = document.getElementById("calib-output-text");
@@ -316,6 +329,10 @@ function prepniKalibracnySlot(slotNum) {
     if (sliderY) sliderY.value = s.y;
     if (sliderRot) sliderRot.value = s.rotX;
     if (sliderScale) sliderScale.value = s.scale;
+
+    // Vynútime viditeľnosť vybranej karty
+    var cardEl = document.getElementById("forge-card-" + slotNum);
+    if (cardEl) cardEl.style.opacity = "1";
 }
 
 function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected) {
@@ -331,9 +348,11 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
     var s1 = forgeCalib.slots[1], s2 = forgeCalib.slots[2], s3 = forgeCalib.slots[3], s4 = forgeCalib.slots[4];
 
     overlay.innerHTML = `
-        <!-- KALIBRAČNÝ PANEL PRE SÚRADNICE, UHLY A VEĽKOSŤ -->
         <div class="forge-calibration-box">
-            <h4 style="margin:0 0 5px 0;">🎛️ KALIBRÁCIA KOVADLINY</h4>
+            <h4 style="margin:0 0 5px 0; color:#ffcc00;">🎛️ KALIBRÁCIA KOVADLINY</h4>
+            
+            <button id="calib-pause-btn" onclick="prepniPauseVideo()" style="width:100%; background:#ffcc00; color:#000; border:none; padding:6px; font-weight:bold; border-radius:4px; cursor:pointer; margin-bottom:8px;">⏸️ Pozastaviť Video</button>
+
             <div style="display:flex; gap:4px; margin-bottom:8px;">
                 <button onclick="prepniKalibracnySlot(1)">K1</button>
                 <button onclick="prepniKalibracnySlot(2)">K2</button>
@@ -346,7 +365,7 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
             <label>Veľkosť (Scale %): <input type="range" id="calib-slider-scale" min="50" max="160" step="1" value="${s1.scale}" oninput="zmenKalibraciuSlotu('scale', this.value)"></label>
             
             <div id="calib-output-text" style="margin-top:10px; font-size:0.75em; color:#fff; background:#000; padding:5px; border-radius:4px;">
-                Upravuj posuvníky a uvidíš živý zápas pre ma!
+                Pozastav video, uprav pozície/veľkosť a odfoť mi čísla!
             </div>
         </div>
 
@@ -356,29 +375,12 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
                 <div id="forge-card-1" class="karta cls-${oldCls} forge-slot-card" style="left:${s1.x}%; top:${s1.y}%; transform:translate(-50%, -50%) rotateX(${s1.rotX}deg) scale(${s1.scale/100});">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
                 <div id="forge-card-2" class="karta cls-${oldCls} forge-slot-card" style="left:${s2.x}%; top:${s2.y}%; transform:translate(-50%, -50%) rotateX(${s2.rotX}deg) scale(${s2.scale/100});">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
                 <div id="forge-card-3" class="karta cls-${oldCls} forge-slot-card" style="left:${s3.x}%; top:${s3.y}%; transform:translate(-50%, -50%) rotateX(${s3.rotX}deg) scale(${s3.scale/100});">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
-                <div id="forge-card-4" class="karta cls-${nextCls} forge-slot-card" style="left:${s4.x}%; top:${s4.y}%; transform:translate(-50%, -50%) rotateX(${s4.rotX}deg) scale(${s4.scale/100}); opacity:0;">${vytvorHTMLKarty(meno, nextPwr, nextCls, reg.row, reg.p)}</div>
+                <div id="forge-card-4" class="karta cls-${nextCls} forge-slot-card" style="left:${s4.x}%; top:${s4.y}%; transform:translate(-50%, -50%) rotateX(${s4.rotX}deg) scale(${s4.scale/100}); opacity:1;">${vytvorHTMLKarty(meno, nextPwr, nextCls, reg.row, reg.p)}</div>
             </div>
         </div>
     `;
 
     document.body.appendChild(overlay);
-
-    var card1 = document.getElementById("forge-card-1");
-    var card2 = document.getElementById("forge-card-2");
-    var card3 = document.getElementById("forge-card-3");
-    var card4 = document.getElementById("forge-card-4");
-
-    setTimeout(function() {
-        if (card1) card1.style.opacity = "0";
-        if (card2) card2.style.opacity = "0";
-        if (card3) card3.style.opacity = "0";
-    }, 3800);
-
-    setTimeout(function() {
-        if (isSuccess && card4) {
-            card4.style.opacity = "1";
-        }
-    }, 7800);
 
     var vid = document.getElementById("forge-video-element");
     vid.onended = function() {
@@ -480,7 +482,7 @@ function zmenNahladTriedy(meno, cls) {
     });
 }
 
-// 🖼️ ČISTÝ RENDERER MALEJ KARTY (BEZ POPISU V MALEJ VERZII)
+// 🖼️ ČISTÝ RENDERER MALEJ KARTY
 function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     var reg = getRegistryCard(meno);
     var imgPath = reg.img || "Img/default.webp";
@@ -1615,3 +1617,4 @@ window.testSimulaciaPridatBota = testSimulaciaPridatBota;
 window.testSimulaciaGlobalnyOznam = testSimulaciaGlobalnyOznam;
 window.zmenKalibraciuSlotu = zmenKalibraciuSlotu;
 window.prepniKalibracnySlot = prepniKalibracnySlot;
+window.prepniPauseVideo = prepniPauseVideo;
