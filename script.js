@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 22.2.0 - FULL UNUNCUT)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 22.3.0 - FULL UNUNCUT)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "22.2.0";
+var VERZIA = "22.3.0";
 
 // =========================================================================
 // 1. REGISTER KARIET (MASTER REGISTRY)
@@ -60,7 +60,7 @@ var MASTER_REGISTRY = {
     "Kvety": { row: 2, p: 0, isItem: true, img: "Img/kvety.webp", desc: "Kytica pre 2. rad.", abilityDesc: "🛠️ Predmet: Pridáva +1b až +7b ku každej karte v 2. rade." },
     "Medove Orechy": { row: 3, p: 0, isItem: true, img: "Img/medove-orechy.webp", desc: "Odmena pre 3. rad.", abilityDesc: "🛠️ Predmet: Pridáva +1b až +7b ku každej karte v 3. rade." },
 
-    // KÚZLA - OPRAVA NÁZVU OBRÁZKA (BEZ DIAKRITIKY)
+    // KÚZLA (BEZ DIAKRITIKY V FILEPATH)
     "Musíme sa porozprávať": { row: 0, p: 0, isSpell: true, img: "Img/musime-sa-porozpravat.webp", desc: "Vážny rozhovor.", abilityDesc: "⚡ Zníži základ mužov na 1b." },
     "Upokoj sa": { row: 0, p: 0, isSpell: true, img: "Img/upokoj-sa.webp", desc: "Hnev.", abilityDesc: "⚡ Zníži základ žien na 1b." },
     "Ohnostroj": { row: 0, p: 0, isSpell: true, img: "Img/ohnostroj.webp", desc: "Rachot.", abilityDesc: "⚡ Zníži základ zvierat na 1b." },
@@ -110,7 +110,7 @@ var jeSingleplayer = false; var obtiaznostAI = "B"; var blokujVykladanie = false
 var aktualnaStranaKnihy = 1;
 var p1MulliganBonusScore = 0, p2MulliganBonusScore = 0;
 
-// AUDIO PLAYLIST ENGINE
+// AUDIO ENGINE BEZ OPAKOVANIA ROVNAKEJ SKLADBY
 var hudbaSpustena = false;
 var audioTracks = [
     "Audio/track1.mp3",
@@ -120,7 +120,7 @@ var audioTracks = [
     "Audio/track5.mp3",
     "Audio/track6.mp3"
 ];
-var currentTrackIndex = 0;
+var currentTrackIndex = -1;
 
 function getRegistryCard(meno) {
     if (!meno) return {};
@@ -137,7 +137,7 @@ function getRealPower(card) {
     return Math.max(0, reg.p + bonus);
 }
 
-// ROZBALOVACÍ BATOH - ZLATO AŽ ZA STRIEBROM
+// ROZBALOVACÍ BATOH
 function prepniRozbalovanieBatohu() {
     var el = document.getElementById("inventory-dropdown-content");
     if (!el) return;
@@ -200,7 +200,7 @@ function ukazOznamenie(titulok, sprava, callback) {
     };
 }
 
-// 🔍 INTERAKTÍVNY NÁHĽAD KARTY S PREPÍNANÍM TRIED (F až S)
+// 🔍 INTELIGENTNÝ NÁHĽAD KARTY (IBA PRE VYKOVANÉ TRIEDY V INVENTÁRI)
 function otvorDetailKarty(meno, inicialnaTrieda) {
     var reg = getRegistryCard(meno);
     var modal = document.createElement("div");
@@ -208,7 +208,17 @@ function otvorDetailKarty(meno, inicialnaTrieda) {
     modal.style.zIndex = "9999999";
     modal.onclick = function() { modal.remove(); };
 
-    var zvolenaTrieda = inicialnaTrieda || "F";
+    var cardData = inventar.karty[meno] || { repliky: { "F": 1 } };
+    var repliky = cardData.repliky || { "F": 1 };
+
+    // Filtrujeme len tie triedy, z ktorých ma hráč aspoň 1 kus alebo sú aktívne
+    var vykovaneClasses = ["F","E","D","C","B","A","S"].filter(function(cls) {
+        return (typeof repliky === "object" && repliky[cls] > 0) || cardData.aktivnaTrieda === cls;
+    });
+
+    if (vykovaneClasses.length === 0) vykovaneClasses = ["F"];
+
+    var zvolenaTrieda = inicialnaTrieda || vykovaneClasses[0];
     if (reg.isPlatinum) zvolenaTrieda = "PLATINUM";
 
     modal.innerHTML = `
@@ -218,9 +228,9 @@ function otvorDetailKarty(meno, inicialnaTrieda) {
             
             ${!reg.isPlatinum && !reg.isSpell ? `
                 <div style="margin-bottom:15px;">
-                    <label style="color:#aaa; font-size:0.9em; display:block; margin-bottom:6px;">Prepni náhľad triedy kováčstva:</label>
+                    <label style="color:#aaa; font-size:0.9em; display:block; margin-bottom:6px;">Možnosti náhľadu tvojich vykovaných tried:</label>
                     <div style="display:flex; justify-content:center; gap:6px; flex-wrap:wrap;">
-                        ${["F","E","D","C","B","A","S"].map(function(cls) {
+                        ${vykovaneClasses.map(function(cls) {
                             return `<button class="class-preview-btn ${cls === zvolenaTrieda ? 'active' : ''}" onclick="zmenNahladTriedy('${meno}', '${cls}')">${cls}-Class</button>`;
                         }).join("")}
                     </div>
@@ -258,12 +268,17 @@ function zmenNahladTriedy(meno, cls) {
     });
 }
 
-// AUDIO PLAYLIST ENGINE
+// AUDIO PLAYLIST ENGINE S GARANCIOU STRIEDANIA
 function prehratDalsiSong() {
     var audio = document.getElementById("bg-music");
     if (!audio) return;
 
-    currentTrackIndex = Math.floor(Math.random() * audioTracks.length);
+    var novyIndex;
+    do {
+        novyIndex = Math.floor(Math.random() * audioTracks.length);
+    } while (novyIndex === currentTrackIndex && audioTracks.length > 1);
+
+    currentTrackIndex = novyIndex;
     audio.src = audioTracks[currentTrackIndex];
     audio.play().then(function() {
         hudbaSpustena = true;
