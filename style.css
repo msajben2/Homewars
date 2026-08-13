@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 21.1.0)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 22.0.0)
    ========================================================================= */
 
 * {
@@ -124,7 +124,7 @@ body {
     border-radius: 12px;
     padding: 14px;
     margin-top: 10px;
-    max-width: 520px;
+    max-width: 550px;
     box-shadow: 0 0 25px rgba(0, 0, 0, 0.9);
 }
 
@@ -196,7 +196,7 @@ body {
 .board-row {
     background: rgba(0, 0, 0, 0.4);
     border: 1px dashed #4a3d2e;
-    min-height: 220px;
+    min-height: 245px;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -217,13 +217,13 @@ body {
     text-transform: uppercase;
 }
 
-.row-neutral { background: rgba(30, 20, 10, 0.6); border: 1px solid #d4af37; min-height: 190px; justify-content: center; }
+.row-neutral { background: rgba(30, 20, 10, 0.6); border: 1px solid #d4af37; min-height: 210px; justify-content: center; }
 
 .card-hand {
     display: flex;
     justify-content: center;
     gap: 15px;
-    min-height: 230px;
+    min-height: 250px;
     padding: 10px;
     overflow-x: auto;
     background: rgba(0, 0, 0, 0.35);
@@ -231,23 +231,23 @@ body {
 }
 
 /* =========================================================================
-   3. DESIGN KARIET & PLATINOVÝ RÁM
+   3. ZVÄČŠENÝ DESIGN KARIET & PERFEKTNÝ PLATINOVÝ RÁM OVERLAY
    ========================================================================= */
 .karta-karta-wrapper { 
     display: flex; 
     flex-direction: column; 
     align-items: center; 
-    background: rgba(15, 10, 5, 0.7);
+    background: rgba(15, 10, 5, 0.75);
     border: 1px solid #4a3d2e;
-    padding: 12px;
-    border-radius: 10px;
+    padding: 14px;
+    border-radius: 12px;
     width: 100%;
-    max-width: 220px;
+    max-width: 240px;
 }
 
 .karta {
-    width: 145px;
-    height: 200px;
+    width: 165px;               /* Zväčšené pre dokonalú prehľadnosť */
+    height: 228px;
     background: #0f0b08;
     border-radius: 8px;
     position: relative;
@@ -256,7 +256,7 @@ body {
     justify-content: space-between;
     padding: 6px;
     cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.85);
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.9);
     transition: transform 0.15s ease;
     flex-shrink: 0;
     overflow: hidden;
@@ -273,34 +273,40 @@ body {
 .karta.cls-C { border: 4px solid #f59e0b; border-image: url('Img/cclassram.webp') 30 stretch; }
 .karta.cls-B { border: 4px solid #8b5cf6; border-image: url('Img/bclassram.webp') 30 stretch; }
 .karta.cls-A { border: 4px solid #ec4899; border-image: url('Img/aclassram.webp') 30 stretch; }
-
-/* FIX PRE S-CLASS A PLATINUM RÁM (NEBUDE HORE USEKNUTÝ) */
-.karta.cls-S, .karta.cls-PLATINUM {
-    box-sizing: border-box !important;
-    background-clip: padding-box !important;
-    overflow: visible !important;
-}
-
 .karta.cls-S { border: 4px solid #ffcc00; border-image: url('Img/sclassram.webp') 30 stretch; box-shadow: 0 0 20px rgba(255, 204, 0, 0.7); }
 
+/* PERFECT PLATINUM OVERLAY (ŽIADNY OREZANÝ VRCH) */
 .karta.cls-PLATINUM {
-    border: 5px solid #e0e7ff !important;
-    border-image: url('Img/platinumclassram.webp') 35 stretch !important;
+    border: none !important;
+    overflow: visible !important;
     box-shadow: 0 0 25px rgba(224, 231, 255, 0.85);
-    background-color: #0f0b08 !important;
+}
+
+.karta.cls-PLATINUM::after {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    background-image: url('Img/platinumclassram.webp');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 10;
 }
 
 .karta-kruh {
     position: absolute;
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.05em;
+    font-size: 1.1em;
     font-weight: bold;
-    z-index: 5;
+    z-index: 12;
 }
 
 .karta-kruh-pwr { top: 6px; left: 6px; background: #ffcc00; color: #000; border: 1.5px solid #000; }
@@ -308,21 +314,21 @@ body {
 
 .karta-btn-inspect {
     position: absolute;
-    bottom: 42px;
-    right: 6px;
-    background: rgba(0, 0, 0, 0.85);
+    bottom: 48px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.88);
     border: 1px solid #5a4d3e;
     color: #fff;
-    font-size: 0.9em;
+    font-size: 0.95em;
     padding: 3px 8px;
     border-radius: 4px;
     cursor: pointer;
-    z-index: 6;
+    z-index: 12;
 }
 
 .karta-foto {
     width: 100%;
-    height: 115px;
+    height: 135px;
     background-size: cover;
     background-position: center;
     border-radius: 4px;
@@ -331,18 +337,19 @@ body {
 
 .karta-stitok-spodok {
     background: rgba(0, 0, 0, 0.92);
-    padding: 4px;
+    padding: 5px;
     border-radius: 4px;
     text-align: center;
+    z-index: 11;
 }
 
-.karta-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.karta-popis-short { font-size: 0.72em; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.karta-nazov { font-size: 0.95em; font-weight: bold; color: #ffcc00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.karta-popis-short { font-size: 0.75em; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ROVNAKO VEĽKÉ KARTY PRE SUROVINY */
 .karta-surovina {
-    width: 145px;
-    height: 200px;
+    width: 165px;
+    height: 228px;
     background: #100c08;
     border: 3px solid #d4af37;
     border-radius: 8px;
@@ -358,7 +365,7 @@ body {
 
 .karta-surovina .surovina-foto {
     width: 100%;
-    height: 125px;
+    height: 145px;
     background-size: cover;
     background-position: center;
     border-radius: 4px;
@@ -372,20 +379,20 @@ body {
     background: #ffcc00;
     color: #000;
     font-weight: bold;
-    font-size: 0.9em;
-    padding: 2px 8px;
+    font-size: 0.95em;
+    padding: 3px 9px;
     border-radius: 12px;
     border: 1px solid #000;
 }
 
 .karta-surovina .surovina-stitok {
     background: rgba(0, 0, 0, 0.9);
-    padding: 4px;
+    padding: 5px;
     border-radius: 4px;
     text-align: center;
 }
 
-.karta-surovina .surovina-nazov { font-size: 0.85em; font-weight: bold; color: #ffcc00; }
+.karta-surovina .surovina-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; }
 
 /* =========================================================================
    4. MODÁLNE OKNÁ & MRIEŽKA
@@ -404,11 +411,10 @@ body {
 
 .card-modal-close { position: absolute; top: 10px; right: 15px; font-size: 2.2em; color: #d4af37; cursor: pointer; }
 
-/* MRIEŽKA PRE DIELŇU A DECKBUILDER */
 .dielna-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 22px;
     margin-top: 20px;
     justify-items: center;
 }
@@ -455,30 +461,30 @@ body {
 .custom-notify-btn { background: linear-gradient(180deg, #3b2d1d 0%, #21180e 100%); color: #ffcc00; border: 1.5px solid #d4af37; padding: 10px 28px; font-size: 1em; font-weight: bold; border-radius: 6px; cursor: pointer; }
 
 /* =========================================================================
-   5. PRESNÉ SÚRADNICE PRE STATICKÚ KOVADLINU (vylepsovanie.mp4)
+   5. REALISTICKÉ 3D NAKLONENIE KARIET VO VIDEU KOVADLINY (vylepsovanie.mp4)
    ========================================================================= */
 #forge-video-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999;
     display: flex; justify-content: center; align-items: center;
+    perspective: 1000px;
 }
 
 #forge-video-element { width: 100vw; height: 100vh; object-fit: cover; }
-.forge-cards-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; }
+.forge-cards-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; transform-style: preserve-3d; }
 
+/* POUŽITIE 3D PERSPEKTÍVY PRE PRESNÉ DOSADNUTIE NA STÔL KOVADLINY */
 .forge-slot-card {
     position: absolute;
-    transform: translate(-50%, -50%);
-    width: 235px !important;
-    height: 330px !important;
+    width: 220px !important;
+    height: 310px !important;
     pointer-events: none;
     transition: opacity 0.5s ease;
 }
 
-/* KARTA 1 až 4 (Naladené presne na výrezy v podklade videa) */
-#forge-card-1 { top: 48.5%; left: 18.2%; }
-#forge-card-2 { top: 48.5%; left: 39.4%; }
-#forge-card-3 { top: 48.5%; left: 60.6%; }
-#forge-card-4 { top: 48.5%; left: 81.8%; }
+#forge-card-1 { top: 46.5%; left: 16.5%; transform: translate(-50%, -50%) rotateX(42deg) rotateY(-8deg) rotateZ(2deg) scale(0.92); }
+#forge-card-2 { top: 46.5%; left: 38.2%; transform: translate(-50%, -50%) rotateX(42deg) rotateY(-3deg) scale(0.92); }
+#forge-card-3 { top: 46.5%; left: 59.8%; transform: translate(-50%, -50%) rotateX(42deg) rotateY(3deg) scale(0.92); }
+#forge-card-4 { top: 46.5%; left: 81.5%; transform: translate(-50%, -50%) rotateX(42deg) rotateY(8deg) rotateZ(-2deg) scale(0.92); }
 
 /* TRUHLE */
 #chest-video-overlay {
@@ -489,3 +495,16 @@ body {
 .chest-prompt-text { position: absolute; bottom: 50px; color: #ffcc00; font-size: 2em; font-weight: bold; pointer-events: none; }
 .chest-rewards-modal { position: absolute; background: rgba(15, 12, 8, 0.96); border: 3px solid #d4af37; border-radius: 14px; padding: 25px; text-align: center; color: #ffcc00; max-width: 900px; width: 92vw; }
 .rewards-card-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin: 20px 0; }
+
+/* TRHOVISKO A AUKCIE */
+.auction-card-box {
+    background: rgba(20, 15, 10, 0.85);
+    border: 2px solid #d4af37;
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+}
