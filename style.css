@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 24.0.0)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 25.0.0)
    ========================================================================= */
 
 * {
@@ -274,6 +274,7 @@ body {
 .karta.cls-B { border: 4px solid #8b5cf6; border-image: url('Img/bclassram.webp') 30 stretch; }
 .karta.cls-A { border: 4px solid #ec4899; border-image: url('Img/aclassram.webp') 30 stretch; }
 .karta.cls-S { border: 4px solid #ffcc00; border-image: url('Img/sclassram.webp') 30 stretch; box-shadow: 0 0 20px rgba(255, 204, 0, 0.7); }
+.karta.cls-JOKER { border: 3px dashed #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.6); }
 
 /* PERFECT PLATINUM OVERLAY */
 .karta.cls-PLATINUM {
@@ -394,7 +395,7 @@ body {
 .karta-surovina .surovina-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; }
 
 /* =========================================================================
-   4. MODÁLNE OKNÁ & SIEŇ SLÁVY (REBRÍČKY)
+   4. MODÁLNE OKNÁ & SIEŇ SLÁVY (10 REBRÍČKOV)
    ========================================================================= */
 .card-modal {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -405,7 +406,7 @@ body {
 .modal-content {
     background: linear-gradient(135deg, #1c140c 0%, #0d0a07 100%);
     border: 2px solid #d4af37; border-radius: 12px;
-    width: 94vw; max-width: 1250px; max-height: 88vh; padding: 25px; color: #e0d0b0; overflow-y: auto; position: relative;
+    width: 95vw; max-width: 1450px; max-height: 88vh; padding: 25px; color: #e0d0b0; overflow-y: auto; position: relative;
 }
 
 .card-modal-close { position: absolute; top: 10px; right: 15px; font-size: 2.2em; color: #d4af37; cursor: pointer; }
@@ -418,7 +419,7 @@ body {
     justify-items: center;
 }
 
-/* DESIGN PRE ŠTATISTIKY A REBRÍČKY */
+/* DESIGN PRE ŠTATISTIKY A REBRÍČKY (GRID PRE 10 COLUMNS) */
 .stats-dev-panel {
     background: rgba(30, 20, 10, 0.85);
     border: 2px dashed #d4af37;
@@ -445,24 +446,24 @@ body {
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 15px;
 }
 
 .leaderboard-column {
     background: rgba(15, 10, 5, 0.8);
     border: 1.5px solid #5a4d3e;
     border-radius: 10px;
-    padding: 15px;
+    padding: 12px;
 }
 
 .leaderboard-title {
     font-family: Georgia, serif;
-    font-size: 1.1em;
+    font-size: 1.05em;
     color: #ffcc00;
     text-align: center;
     border-bottom: 1px solid #5a4d3e;
-    padding-bottom: 8px;
+    padding-bottom: 6px;
     margin-top: 0;
 }
 
@@ -470,10 +471,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 10px;
+    padding: 6px 8px;
     border-radius: 6px;
-    margin-top: 6px;
-    font-size: 0.9em;
+    margin-top: 5px;
+    font-size: 0.85em;
     background: rgba(0, 0, 0, 0.4);
 }
 
@@ -492,7 +493,7 @@ body {
 }
 
 /* =========================================================================
-   5. PERFEKTNE DOLADENÉ FINÁLNE SÚRADNICE NA KOVADLINE (S INSET TIEŇOM)
+   5. FINÁLNE A PRECIZNE ZAKÓDOVANÁ KOVADLINA (16:9)
    ========================================================================= */
 #forge-video-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999;
@@ -518,10 +519,10 @@ body {
     height: 295px !important;
     pointer-events: none;
     transition: opacity 0.5s ease;
-    box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.85); /* VNÚTORNÝ TIEŇ PRE EFEKT ZASADENIA DO KOVADLINY */
+    box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.85); /* INSET TIEŇ PRE PRECIZNE ZASADENIE */
 }
 
-/* FINÁLNE A PRECNÉ NAMERANÉ HODNOTY */
+/* PRESNÉ NAMERANÉ SÚRADNICE NATVRDO */
 #forge-card-1 { top: 50.65%; left: 26.75%; transform: translate(-50%, -50%) rotateX(20deg) scale(1.191, 1.212); }
 #forge-card-2 { top: 50.80%; left: 41.45%; transform: translate(-50%, -50%) rotateX(20deg) scale(1.195, 1.215); }
 #forge-card-3 { top: 50.95%; left: 56.10%; transform: translate(-50%, -50%) rotateX(16deg) scale(1.190, 1.195); }
@@ -539,4 +540,10 @@ body {
 @keyframes bannerPop {
     0% { transform: translate(-50%, -50px) scale(0.8); opacity: 0; }
     100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+}
+
+/* TRHOVISKO A AUKCIE */
+.auction-card-box {
+    display: flex; gap: 20px; align-items: center; background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #5a4d3e; border-radius: 10px; padding: 15px; margin-top: 15px;
 }
