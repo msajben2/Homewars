@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 22.3.0 - FULL UNUNCUT)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 23.0.0 - FULL UNUNCUT)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "22.3.0";
+var VERZIA = "23.0.0";
 
 // =========================================================================
 // 1. REGISTER KARIET (MASTER REGISTRY)
@@ -33,19 +33,15 @@ var MASTER_REGISTRY = {
     "Kika": { row: 2, p: 3, isPlatinum: true, isSpy: true, img: "Img/kika.webp", desc: "Hradná archivárka.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola. Potiahne ti 2 nové karty z balíčka." },
     "Zvedavá suseda": { row: 2, p: 7, isPlatinum: true, isSpy: true, img: "Img/zvedava-suseda.webp", desc: "Pozorné oko podhradia.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu stola a dá ti 2 nové karty z balíčka." },
 
-    // 🔨 OBYČAJNÉ KOVÁČSKE JEDNOTKY (MUŽI)
+    // 🔨 OBYČAJNÉ KOVÁČSKE JEDNOTKY
     "Neviditeľný Mário": { row: 1, p: 4, img: "Img/neviditelny-mario.webp", desc: "Tajuplný zbojník v kapucni." },
     "Martin": { row: 1, p: 4, img: "Img/martin.webp", desc: "Šikovný hraničiar a lovec." },
     "Timko": { row: 1, p: 1, img: "Img/tymko.webp", desc: "Obranný bojovník s dreveným mečom." },
     "Jaro": { row: 1, p: 5, img: "Img/jaro.webp", desc: "Zručný kováč." },
-
-    // 🔨 OBYČAJNÉ KOVÁČSKE JEDNOTKY (ŽENY)
     "Lula": { row: 2, p: 4, img: "Img/lula.webp", desc: "Dvorná harfistka." },
     "Anka": { row: 2, p: 7, img: "Img/anka.webp", desc: "Správkyňa hradných kľúčov." },
     "Darinka": { row: 2, p: 5, img: "Img/darinka.webp", desc: "Majsterka tkáčka." },
     "Viera": { row: 2, p: 6, img: "Img/viera.webp", desc: "Hradná pekárka." },
-
-    // 🔨 OBYČAJNÉ KOVÁČSKE JEDNOTKY (ZVIERATÁ)
     "Grobské Mravce": { row: 3, p: 1, img: "Img/grobske-mravce.webp", desc: "Húževnatá svorka lesných mravcov." },
     "Petržalské holuby": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli." },
     "Kabelkový pes": { row: 3, p: 3, img: "Img/kabelkovy-pes.webp", desc: "Panský miláčik usadený na vankúši." },
@@ -60,7 +56,7 @@ var MASTER_REGISTRY = {
     "Kvety": { row: 2, p: 0, isItem: true, img: "Img/kvety.webp", desc: "Kytica pre 2. rad.", abilityDesc: "🛠️ Predmet: Pridáva +1b až +7b ku každej karte v 2. rade." },
     "Medove Orechy": { row: 3, p: 0, isItem: true, img: "Img/medove-orechy.webp", desc: "Odmena pre 3. rad.", abilityDesc: "🛠️ Predmet: Pridáva +1b až +7b ku každej karte v 3. rade." },
 
-    // KÚZLA (BEZ DIAKRITIKY V FILEPATH)
+    // KÚZLA
     "Musíme sa porozprávať": { row: 0, p: 0, isSpell: true, img: "Img/musime-sa-porozpravat.webp", desc: "Vážny rozhovor.", abilityDesc: "⚡ Zníži základ mužov na 1b." },
     "Upokoj sa": { row: 0, p: 0, isSpell: true, img: "Img/upokoj-sa.webp", desc: "Hnev.", abilityDesc: "⚡ Zníži základ žien na 1b." },
     "Ohnostroj": { row: 0, p: 0, isSpell: true, img: "Img/ohnostroj.webp", desc: "Rachot.", abilityDesc: "⚡ Zníži základ zvierat na 1b." },
@@ -101,6 +97,25 @@ var inventar = {
     zostava: []
 };
 
+// 📊 SIMULAČNÁ DATABÁZA REBRÍČKOV & BOTOV
+var simulačneRebríčky = {
+    vyhry: [
+        { hrac: "Hráč 1 (Ty)", skore: 12, inaktivny: false, titulCard: "Katy" },
+        { hrac: "Lord_Grob", skore: 8, inaktivny: false },
+        { hrac: "Mníchov_Master", skore: 1, inaktivny: false, titulCard: "Vzbúrenec" }
+    ],
+    remizy: [
+        { hrac: "Mníchov_Master", skore: 5, inaktivny: false, titulCard: "Nela" },
+        { hrac: "Hráč 1 (Ty)", skore: 2, inaktivny: false },
+        { hrac: "Lord_Grob", skore: 0, inaktivny: false, titulCard: "Šaman" }
+    ],
+    sClass: [
+        { hrac: "Lord_Grob", skore: 3, inaktivny: false, titulCard: "Michal" },
+        { hrac: "Hráč 1 (Ty)", skore: 1, inaktivny: false },
+        { hrac: "Mníchov_Master", skore: 0, inaktivny: false, titulCard: "Žobrák" }
+    ]
+};
+
 var p1_played_cards = [], p2_played_cards = [];
 var p1_erik_buff_row = null, p2_erik_buff_row = null;
 var sc1 = 0, sc2 = 0, r1 = 0, r2 = 0, p1Pass = false, p2Pass = false, aktualnyHrac = 1;
@@ -110,7 +125,7 @@ var jeSingleplayer = false; var obtiaznostAI = "B"; var blokujVykladanie = false
 var aktualnaStranaKnihy = 1;
 var p1MulliganBonusScore = 0, p2MulliganBonusScore = 0;
 
-// AUDIO ENGINE BEZ OPAKOVANIA ROVNAKEJ SKLADBY
+// AUDIO PLAYLIST ENGINE S CONTROLOM PREPÍNANIA
 var hudbaSpustena = false;
 var audioTracks = [
     "Audio/track1.mp3",
@@ -137,70 +152,98 @@ function getRealPower(card) {
     return Math.max(0, reg.p + bonus);
 }
 
-// ROZBALOVACÍ BATOH
-function prepniRozbalovanieBatohu() {
-    var el = document.getElementById("inventory-dropdown-content");
-    if (!el) return;
-    if (el.style.display === "none" || el.style.display === "") {
-        vykresliRozbalovaciBatoh();
-        el.style.display = "flex";
-    } else {
-        el.style.display = "none";
-    }
+// 🏆 VYKRASĽOVANIE STATISTÍK A SIENE SLÁVY
+function otvoriťStatistiky() {
+    var el = document.getElementById("stats-modal");
+    if (el) el.style.display = "flex";
+    vykresliGridStatistik();
 }
 
-function vykresliRozbalovaciBatoh() {
-    var el = document.getElementById("inventory-dropdown-content");
-    if (!el) return;
+function vykresliGridStatistik() {
+    var container = document.getElementById("stats-grid-container");
+    if (!container) return;
 
-    var items = [
-        { name: "Mince", val: inventar.mince, img: "Img/mince.webp" },
-        { name: "Koža", val: (inventar.suroviny["Koža"] || 0) + "x", img: "Img/koza.webp" },
-        { name: "Drevo", val: (inventar.suroviny["Drevo"] || 0) + "x", img: "Img/drevo.webp" },
-        { name: "Kov", val: (inventar.suroviny["Kov"] || 0) + "x", img: "Img/zelezo.webp" },
-        { name: "Bronz", val: (inventar.suroviny["Bronz"] || 0) + "x", img: "Img/bronz.webp" },
-        { name: "Striebro", val: (inventar.suroviny["Striebro"] || 0) + "x", img: "Img/striebro.webp" },
-        { name: "Zlato", val: (inventar.suroviny["Zlato"] || 0) + "g", img: "Img/zlato.webp" }
+    var kategorie = [
+        { key: "vyhry", nazov: "⚔️ Najviac Výhier", topCard: "Katy", lastCard: "Vzbúrenec" },
+        { key: "remizy", nazov: "🤝 Najviac Remíz", topCard: "Nela", lastCard: "Šaman" },
+        { key: "sClass", nazov: "👑 Najviac S-Class Kariet", topCard: "Michal", lastCard: "Žobrák" }
     ];
 
     var html = "";
-    items.forEach(function(item) {
+
+    kategorie.forEach(function(kat) {
+        var zoznam = simulačneRebríčky[kat.key] || [];
+        
         html += `
-            <div class="inventory-mini-card">
-                <img src="${item.img}" class="inventory-mini-img" alt="${item.name}">
-                <div class="inventory-mini-info">
-                    <span class="inventory-mini-title">${item.name}</span>
-                    <span class="inventory-mini-val">${item.val}</span>
-                </div>
-            </div>
+            <div class="leaderboard-column">
+                <h3 class="leaderboard-title">${kat.nazov}</h3>
         `;
+
+        zoznam.forEach(function(item, idx) {
+            var rankClass = "";
+            if (idx === 0) rankClass = "rank-1";
+            else if (idx === 1) rankClass = "rank-2";
+            else if (idx === 2) rankClass = "rank-3";
+            if (idx === zoznam.length - 1) rankClass += " rank-last";
+
+            var statusTxt = item.inaktivny ? " 💤 (Inaktívny)" : "";
+            var platBadge = item.titulCard ? `<span class="plat-badge">👑 ${item.titulCard}</span>` : "";
+
+            html += `
+                <div class="leaderboard-item ${rankClass}">
+                    <span><strong>#${idx + 1}</strong> ${item.hrac}${statusTxt}</span>
+                    <span>${item.skore}b ${platBadge}</span>
+                </div>
+            `;
+        });
+
+        html += `</div>`;
     });
 
-    el.innerHTML = html;
+    container.innerHTML = html;
 }
 
-// STREDOVEKÉ OZNAMOVACIE OKNO
-function ukazOznamenie(titulok, sprava, callback) {
-    var overlay = document.createElement("div");
-    overlay.className = "custom-notify-overlay";
+// 🧪 DEV ACTION TESTY
+function testSimulaciaInaktivity() {
+    simulačneRebríčky.vyhry[0].inaktivny = true;
+    simulačneRebríčky.vyhry[0].titulCard = null; // Karta sa uvoľní
+    simulačneRebríčky.vyhry[1].titulCard = "Katy (Uvoľnená)";
     
-    overlay.innerHTML = `
-        <div class="custom-notify-box">
-            <h3 class="custom-notify-title">${titulok}</h3>
-            <div class="custom-notify-msg">${sprava}</div>
-            <button class="custom-notify-btn" id="notify-confirm-btn">Rozumiem</button>
-        </div>
-    `;
-
-    document.body.appendChild(overlay);
-
-    document.getElementById("notify-confirm-btn").onclick = function() {
-        overlay.remove();
-        if (typeof callback === "function") callback();
-    };
+    ukazOznamenie("⏩ POSUN ČASU +7 DNÍ", "Šampión <strong>Hráč 1</strong> prešiel do stavu 💤 Inaktívny! Jeho Platinová karta bola uvoľnená a odovzdaná 2. hráčovi v poradí!");
+    vykresliGridStatistik();
 }
 
-// 🔍 INTELIGENTNÝ NÁHĽAD KARTY (IBA PRE VYKOVANÉ TRIEDY V INVENTÁRI)
+function testSimulaciaPridatBota() {
+    var randomScore = Math.floor(Math.random() * 15) + 5;
+    simulačneRebríčky.vyhry.push({ hrac: "Bot_Tester_" + Math.floor(Math.random()*100), skore: randomScore, inaktivny: false });
+    
+    simulačneRebríčky.vyhry.sort(function(a, b) { return b.skore - a.skore; });
+
+    ukazOznamenie("🤖 TEST BOTA", "Novému botovi bolo priradené skóre **" + randomScore + "b**. Rebríček bol prepočítaný!");
+    vykresliGridStatistik();
+}
+
+function testSimulaciaGlobalnyOznam() {
+    vyhlasGlobalnySClassOznam("Hráč 1 (Ty)", "Neviditeľný Mário");
+}
+
+function vyhlasGlobalnySClassOznam(menoHraca, menoKarty) {
+    var banner = document.createElement("div");
+    banner.className = "global-announce-banner";
+    banner.innerHTML = `
+        <h3 style="margin:0; font-size:1.4em;">👑 KRÁĽOVSKÝ OZNAM SERVERA 👑</h3>
+        <p style="margin:5px 0 0 0; font-size:1.1em; color:#fff;">
+            Hráč <strong style="color:#ffcc00;">${menoHraca}</strong> práve v Dielni vykoval legendárnu kartu <strong style="color:#ffcc00;">${menoKarty} (S-Class)</strong>! Sláva kováčovi!
+        </p>
+    `;
+    document.body.appendChild(banner);
+
+    setTimeout(function() {
+        banner.remove();
+    }, 6000);
+}
+
+// 🔍 DETAJL KARTY (IBA PRE VYKOVANÉ TRIEDY)
 function otvorDetailKarty(meno, inicialnaTrieda) {
     var reg = getRegistryCard(meno);
     var modal = document.createElement("div");
@@ -211,7 +254,6 @@ function otvorDetailKarty(meno, inicialnaTrieda) {
     var cardData = inventar.karty[meno] || { repliky: { "F": 1 } };
     var repliky = cardData.repliky || { "F": 1 };
 
-    // Filtrujeme len tie triedy, z ktorých ma hráč aspoň 1 kus alebo sú aktívne
     var vykovaneClasses = ["F","E","D","C","B","A","S"].filter(function(cls) {
         return (typeof repliky === "object" && repliky[cls] > 0) || cardData.aktivnaTrieda === cls;
     });
@@ -268,7 +310,111 @@ function zmenNahladTriedy(meno, cls) {
     });
 }
 
-// AUDIO PLAYLIST ENGINE S GARANCIOU STRIEDANIA
+// 🖼️ ČISTÝ RENDERER MALEJ KARTY (BEZ POPISU V MALEJ VERZII)
+function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
+    var reg = getRegistryCard(meno);
+    var imgPath = reg.img || "Img/default.webp";
+    var cisteMeno = meno.replace(/\s+\d+$/, "").trim();
+
+    var html = "";
+    if (livePwr !== "none") {
+        html += "<div class='karta-kruh karta-kruh-pwr'>" + livePwr + "</div>";
+    }
+    
+    var renderCls = reg.isPlatinum ? "PLATINUM" : cls;
+    html += "<div class='karta-kruh karta-kruh-cls cls-" + renderCls + "'>" + (reg.isPlatinum ? "P" : cls) + "</div>";
+    html += "<button class='karta-btn-inspect' title='Zväčšiť kartu' onclick='event.stopPropagation(); otvorDetailKarty(\"" + meno + "\", \"" + cls + "\");'>🔍</button>";
+    html += "<div class='karta-foto' style=\"background-image: url('" + encodeURI(imgPath) + "');\"></div>";
+    
+    html += "<div class='karta-stitok-spodok'>";
+    html += "  <div class='karta-nazov'>" + cisteMeno + "</div>";
+    html += "</div>";
+
+    return html;
+}
+
+// VIDEO KOVADLINY V ROZLÍŠENÍ 16:9
+function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected) {
+    pozastavitHudbuPreVideo();
+
+    var overlay = document.createElement("div");
+    overlay.id = "forge-video-overlay";
+
+    var reg = getRegistryCard(meno);
+    var oldPwr = getRealPower({ n: meno, cls: oldCls });
+    var nextPwr = getRealPower({ n: meno, cls: nextCls });
+
+    var fourthCardHtml = isSuccess ? `
+        <div id="forge-card-4" class="karta cls-${nextCls} forge-slot-card" style="opacity:0;">
+            ${vytvorHTMLKarty(meno, nextPwr, nextCls, reg.row, reg.p)}
+        </div>
+    ` : '';
+
+    overlay.innerHTML = `
+        <div class="forge-stage-169">
+            <video id="forge-video-element" src="Img/vylepsovanie.mp4" autoplay playsinline></video>
+            <div class="forge-cards-container">
+                <div id="forge-card-1" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
+                <div id="forge-card-2" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
+                <div id="forge-card-3" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
+                ${fourthCardHtml}
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    var card1 = document.getElementById("forge-card-1");
+    var card2 = document.getElementById("forge-card-2");
+    var card3 = document.getElementById("forge-card-3");
+    var card4 = document.getElementById("forge-card-4");
+
+    setTimeout(function() {
+        if (card1) card1.style.opacity = "0";
+        if (card2) card2.style.opacity = "0";
+        if (card3) card3.style.opacity = "0";
+    }, 3800);
+
+    setTimeout(function() {
+        if (isSuccess && card4) {
+            card4.style.opacity = "1";
+        }
+    }, 7800);
+
+    var vid = document.getElementById("forge-video-element");
+    vid.onended = function() {
+        var t = inventar.karty[meno];
+        if (typeof t.repliky !== "object") {
+            var oldVal = t.repliky || 0;
+            t.repliky = { "F": oldVal };
+        }
+
+        if (isSuccess) {
+            t.repliky[oldCls] = Math.max(0, (t.repliky[oldCls] || 0) - 3);
+            t.repliky[nextCls] = (t.repliky[nextCls] || 0) + 1;
+            t.aktivnaTrieda = nextCls;
+            ukazOznamenie("🎉 KOVANIE ÚSPEŠNÉ!", "Karta <strong>" + meno + "</strong> bola úspešne povýšená na <strong>" + nextCls + "-Class</strong>!");
+            
+            if (nextCls === "S") {
+                vyhlasGlobalnySClassOznam("Hráč 1 (Ty)", meno);
+            }
+        } else {
+            if (!wasProtected) {
+                t.repliky[oldCls] = Math.max(0, (t.repliky[oldCls] || 0) - 1);
+                ukazOznamenie("💥 KOVANIE ZLYHALO!", "Suroviny zhoreli v plameňoch a prišiel si o 1 duplikát karty!");
+            } else {
+                ukazOznamenie("🛡️ ZVITOK OCHRÁNIL KARTU!", "Kovanie zlyhalo, ale Zvitok za Zlato ochránil tvoje karty pred zničením!");
+            }
+        }
+
+        overlay.remove();
+        obnovitHudbuPoVideu();
+        aktualizujPanelDielne();
+        vykresliRozbalovaciBatoh();
+    };
+}
+
+// AUDIO PLAYLIST ENGINE
 function prehratDalsiSong() {
     var audio = document.getElementById("bg-music");
     if (!audio) return;
@@ -329,7 +475,7 @@ function obnovitHudbuPoVideu() {
 }
 
 function zobraziťObrazovku(idObrazovky) {
-    var obrazovky = ["hlavne-menu", "hracia-plocha", "dielna-modal", "obchod-modal", "navod-modal", "deckbuilder-modal"];
+    var obrazovky = ["hlavne-menu", "hracia-plocha", "dielna-modal", "obchod-modal", "navod-modal", "deckbuilder-modal", "stats-modal"];
     obrazovky.forEach(function(id) {
         var el = document.getElementById(id);
         if (el) {
@@ -460,34 +606,6 @@ function potvrditMulliganRuku(chceRiskovat) {
     }
 
     vykresliHraciuPlochu();
-}
-
-// HTML RENDERER A VYKLADANIE KARIET
-function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
-    var reg = getRegistryCard(meno);
-    var imgPath = reg.img || "Img/default.webp";
-    var cisteMeno = meno.replace(/\s+\d+$/, "").trim();
-
-    var html = "";
-    if (livePwr !== "none") {
-        html += "<div class='karta-kruh karta-kruh-pwr'>" + livePwr + "</div>";
-    }
-    
-    var renderCls = reg.isPlatinum ? "PLATINUM" : cls;
-    html += "<div class='karta-kruh karta-kruh-cls cls-" + renderCls + "'>" + (reg.isPlatinum ? "P" : cls) + "</div>";
-    html += "<button class='karta-btn-inspect' title='Zväčšiť kartu' onclick='event.stopPropagation(); otvorDetailKarty(\"" + meno + "\", \"" + cls + "\");'>🔍</button>";
-    html += "<div class='karta-foto' style=\"background-image: url('" + encodeURI(imgPath) + "');\"></div>";
-    
-    html += "<div class='karta-stitok-spodok'>";
-    html += "  <div class='karta-nazov'>" + cisteMeno + "</div>";
-    if (reg.abilityDesc) {
-        html += "  <div class='karta-popis-short'>" + reg.abilityDesc + "</div>";
-    } else if (reg.desc) {
-        html += "  <div class='karta-popis-short'>" + reg.desc + "</div>";
-    }
-    html += "</div>";
-
-    return html;
 }
 
 function vykresliRukuHraca(pNum) {
@@ -1144,80 +1262,6 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
     spustitVideoAnimationKovania(meno, fromCls, nextCls, isSuccess, pCfg.saveCard);
 }
 
-function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected) {
-    pozastavitHudbuPreVideo();
-
-    var overlay = document.createElement("div");
-    overlay.id = "forge-video-overlay";
-
-    var reg = getRegistryCard(meno);
-    var oldPwr = getRealPower({ n: meno, cls: oldCls });
-    var nextPwr = getRealPower({ n: meno, cls: nextCls });
-
-    var fourthCardHtml = isSuccess ? `
-        <div id="forge-card-4" class="karta cls-${nextCls} forge-slot-card" style="opacity:0;">
-            ${vytvorHTMLKarty(meno, nextPwr, nextCls, reg.row, reg.p)}
-        </div>
-    ` : '';
-
-    overlay.innerHTML = `
-        <video id="forge-video-element" src="Img/vylepsovanie.mp4" autoplay playsinline></video>
-        <div class="forge-cards-container">
-            <div id="forge-card-1" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
-            <div id="forge-card-2" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
-            <div id="forge-card-3" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
-            ${fourthCardHtml}
-        </div>
-    `;
-
-    document.body.appendChild(overlay);
-
-    var card1 = document.getElementById("forge-card-1");
-    var card2 = document.getElementById("forge-card-2");
-    var card3 = document.getElementById("forge-card-3");
-    var card4 = document.getElementById("forge-card-4");
-
-    setTimeout(function() {
-        if (card1) card1.style.opacity = "0";
-        if (card2) card2.style.opacity = "0";
-        if (card3) card3.style.opacity = "0";
-    }, 3800);
-
-    setTimeout(function() {
-        if (isSuccess && card4) {
-            card4.style.opacity = "1";
-        }
-    }, 7800);
-
-    var vid = document.getElementById("forge-video-element");
-    vid.onended = function() {
-        var t = inventar.karty[meno];
-        if (typeof t.repliky !== "object") {
-            var oldVal = t.repliky || 0;
-            t.repliky = { "F": oldVal };
-        }
-
-        if (isSuccess) {
-            t.repliky[oldCls] = Math.max(0, (t.repliky[oldCls] || 0) - 3);
-            t.repliky[nextCls] = (t.repliky[nextCls] || 0) + 1;
-            t.aktivnaTrieda = nextCls;
-            ukazOznamenie("🎉 KOVANIE ÚSPEŠNÉ!", "Karta <strong>" + meno + "</strong> bola úspešne povýšená na <strong>" + nextCls + "-Class</strong>!");
-        } else {
-            if (!wasProtected) {
-                t.repliky[oldCls] = Math.max(0, (t.repliky[oldCls] || 0) - 1);
-                ukazOznamenie("💥 KOVANIE ZLYHALO!", "Suroviny zhoreli v plameňoch a prišiel si o 1 duplikát karty!");
-            } else {
-                ukazOznamenie("🛡️ ZVITOK OCHRÁNIL KARTU!", "Kovanie zlyhalo, ale Zvitok za Zlato ochránil tvoje karty pred zničením!");
-            }
-        }
-
-        overlay.remove();
-        obnovitHudbuPoVideu();
-        aktualizujPanelDielne();
-        vykresliRozbalovaciBatoh();
-    };
-}
-
 function recyklujKartuDielne(meno) {
     var t = inventar.karty[meno];
     if (t) {
@@ -1394,6 +1438,7 @@ window.otvoriťObchod = otvoriťObchod;
 window.otvoriťDielňu = otvoriťDielňu;
 window.otvoriťDeckbuilder = otvoriťDeckbuilder;
 window.otvoriťNavodHry = otvoriťNavodHry;
+window.otvoriťStatistiky = otvoriťStatistiky;
 window.posunStraneKnihy = posunStraneKnihy;
 window.vylepsiKartuVoForge = vylepsiKartuVoForge;
 window.recyklujKartuDielne = recyklujKartuDielne;
@@ -1413,3 +1458,6 @@ window.zmenNahladTriedy = zmenNahladTriedy;
 window.ukazOznamenie = ukazOznamenie;
 window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu;
 window.prihoditDoAukcie = prihoditDoAukcie;
+window.testSimulaciaInaktivity = testSimulaciaInaktivity;
+window.testSimulaciaPridatBota = testSimulaciaPridatBota;
+window.testSimulaciaGlobalnyOznam = testSimulaciaGlobalnyOznam;
