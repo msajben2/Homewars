@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 22.1.0 - FULL UNUNCUT)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 22.2.0 - FULL UNUNCUT)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "22.1.0";
+var VERZIA = "22.2.0";
 
 // =========================================================================
 // 1. REGISTER KARIET (MASTER REGISTRY)
@@ -200,36 +200,62 @@ function ukazOznamenie(titulok, sprava, callback) {
     };
 }
 
-// 🔍 NÁHĽAD KARTY NA CELÚ OBRAZOVKU
-function otvorDetailKarty(meno) {
+// 🔍 INTERAKTÍVNY NÁHĽAD KARTY S PREPÍNANÍM TRIED (F až S)
+function otvorDetailKarty(meno, inicialnaTrieda) {
     var reg = getRegistryCard(meno);
     var modal = document.createElement("div");
     modal.className = "card-modal";
     modal.style.zIndex = "9999999";
     modal.onclick = function() { modal.remove(); };
 
-    var realPwr = getRealPower({ n: meno, cls: "F" });
-    var cls = reg.isPlatinum ? "PLATINUM" : "F";
+    var zvolenaTrieda = inicialnaTrieda || "F";
+    if (reg.isPlatinum) zvolenaTrieda = "PLATINUM";
 
     modal.innerHTML = `
-        <div class="modal-content" style="text-align:center; max-width:550px; background:rgba(15,10,5,0.97);" onclick="event.stopPropagation()">
+        <div class="modal-content" style="text-align:center; max-width:580px; background:rgba(15,10,5,0.97);" onclick="event.stopPropagation()">
             <span class="card-modal-close" onclick="this.closest('.card-modal').remove()">&times;</span>
-            <h2 style="color:#d4af37; margin-top:0; font-family:Georgia, serif;">🔍 NÁHĽAD KARTY</h2>
+            <h2 style="color:#d4af37; margin-top:0; font-family:Georgia, serif;">🔍 DETAJLNÝ NÁHĽAD KARTY</h2>
             
+            ${!reg.isPlatinum && !reg.isSpell ? `
+                <div style="margin-bottom:15px;">
+                    <label style="color:#aaa; font-size:0.9em; display:block; margin-bottom:6px;">Prepni náhľad triedy kováčstva:</label>
+                    <div style="display:flex; justify-content:center; gap:6px; flex-wrap:wrap;">
+                        ${["F","E","D","C","B","A","S"].map(function(cls) {
+                            return `<button class="class-preview-btn ${cls === zvolenaTrieda ? 'active' : ''}" onclick="zmenNahladTriedy('${meno}', '${cls}')">${cls}-Class</button>`;
+                        }).join("")}
+                    </div>
+                </div>
+            ` : ''}
+
             <div style="display:flex; justify-content:center; margin:20px 0;">
-                <div class="karta cls-${cls}" style="transform: scale(1.8); transform-origin: center; margin:40px 0;">
-                    ${vytvorHTMLKarty(meno, realPwr, cls, reg.row, reg.p)}
+                <div id="modal-card-preview-box" class="karta cls-${zvolenaTrieda}" style="transform: scale(1.7); transform-origin: center; margin:40px 0;">
+                    ${vytvorHTMLKarty(meno, getRealPower({ n: meno, cls: zvolenaTrieda }), zvolenaTrieda, reg.row, reg.p)}
                 </div>
             </div>
 
-            <h3 style="color:#ffcc00; margin-top:50px; font-size:1.5em;">${meno}</h3>
-            <p style="font-size:1.15em; line-height:1.6; color:#e0d0b0; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px; border:1px solid #5a4d3e;">
+            <h3 style="color:#ffcc00; margin-top:45px; font-size:1.5em;">${meno}</h3>
+            <p id="modal-card-desc" style="font-size:1.05em; line-height:1.6; color:#e0d0b0; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px; border:1px solid #5a4d3e;">
                 ${reg.abilityDesc || reg.desc || "Obyčajná bojová jednotka bez špeciálnej schopnosti."}
             </p>
         </div>
     `;
 
     document.body.appendChild(modal);
+}
+
+function zmenNahladTriedy(meno, cls) {
+    var reg = getRegistryCard(meno);
+    var previewBox = document.getElementById("modal-card-preview-box");
+    if (!previewBox) return;
+
+    previewBox.className = "karta cls-" + cls;
+    previewBox.innerHTML = vytvorHTMLKarty(meno, getRealPower({ n: meno, cls: cls }), cls, reg.row, reg.p);
+
+    var btns = document.querySelectorAll(".class-preview-btn");
+    btns.forEach(function(b) {
+        if (b.innerText.startsWith(cls)) b.classList.add("active");
+        else b.classList.remove("active");
+    });
 }
 
 // AUDIO PLAYLIST ENGINE
@@ -434,7 +460,7 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     
     var renderCls = reg.isPlatinum ? "PLATINUM" : cls;
     html += "<div class='karta-kruh karta-kruh-cls cls-" + renderCls + "'>" + (reg.isPlatinum ? "P" : cls) + "</div>";
-    html += "<button class='karta-btn-inspect' title='Zväčšiť kartu' onclick='event.stopPropagation(); otvorDetailKarty(\"" + meno + "\");'>🔍</button>";
+    html += "<button class='karta-btn-inspect' title='Zväčšiť kartu' onclick='event.stopPropagation(); otvorDetailKarty(\"" + meno + "\", \"" + cls + "\");'>🔍</button>";
     html += "<div class='karta-foto' style=\"background-image: url('" + encodeURI(imgPath) + "');\"></div>";
     
     html += "<div class='karta-stitok-spodok'>";
@@ -860,7 +886,7 @@ function aktualizujKolaUI() {
     if (el2) el2.innerText = "🔴".repeat(r2) || "⚪";
 }
 
-// KNIŽNÝ NÁVOD KRÁĽOVSTVA (TEXTY UPRAVENÉ BEZ SPOMÍNANIA VIDEÍ)
+// KNIŽNÝ NÁVOD KRÁĽOVSTVA
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
     if (!modal) {
@@ -912,7 +938,7 @@ function vykresliStraneKnihy() {
             
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:20px;">
                 <div style="background:rgba(0,0,0,0.5); border:2px solid #5a4d3e; padding:18px; border-radius:10px;">
-                    <h4 style="color:#d4af37; margin-top:0; font-size:1.2em;">📦 TRUHLA ÚČASTNÍKA (Odehraný zápas)</h4>
+                    <h4 style="color:#d4af37; margin-top:0; font-size:1.2em;">📦 TRUHLA ÚČASTNÍKA (Odohraný zápas)</h4>
                     <ul style="line-height:1.8;">
                         <li><strong>Mince:</strong> 50 až 100 mincí (100% garancia).</li>
                         <li><strong>Karty:</strong> 1× až 3× náhodná F-kópia z registra kariet.</li>
@@ -1045,7 +1071,7 @@ function vykresliStraneKnihy() {
     }
 }
 
-// DIELŇA, ANIMÁCIA KOVANIA (vylepsovanie.mp4) & DEV MENU
+// DIELŇA, ANIMÁCIA KOVANIA & DEV MENU
 function devPridatSurovinyACheaty() {
     inventar.mince += 10000;
     inventar.suroviny["Koža"] = (inventar.suroviny["Koža"] || 0) + 100;
@@ -1193,7 +1219,7 @@ function recyklujKartuDielne(meno) {
     }
 }
 
-// 🛒 TRHOVISKO A SIMULÁCIA AUKCIÍ S ČASOVAČOM (24 Hodín)
+// TRHOVISKO A AUKCIE
 var aukcnyCasomeračInterval = null;
 var aktualnaPonukaMinci = 120;
 
@@ -1368,6 +1394,7 @@ window.otvorTruhluUcastnika = otvorTruhluUcastnika;
 window.spustitHudbuPoPrvomKliknuti = spustitHudbuPoPrvomKliknuti;
 window.potvrditMulliganRuku = potvrditMulliganRuku;
 window.otvorDetailKarty = otvorDetailKarty;
+window.zmenNahladTriedy = zmenNahladTriedy;
 window.ukazOznamenie = ukazOznamenie;
 window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu;
 window.prihoditDoAukcie = prihoditDoAukcie;
