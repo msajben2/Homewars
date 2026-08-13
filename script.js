@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 21.1.0 - FULL UNUNCUT)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 22.0.0 - FULL UNUNCUT)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "21.1.0";
+var VERZIA = "22.0.0";
 
 // =========================================================================
 // 1. REGISTER KARIET (MASTER REGISTRY)
@@ -137,7 +137,7 @@ function getRealPower(card) {
     return Math.max(0, reg.p + bonus);
 }
 
-// ROZBALOVACÍ BATOH & POKLADNICA
+// ROZBALOVACÍ BATOH - ZLATO JE AŽ ZA STRIEBROM
 function prepniRozbalovanieBatohu() {
     var el = document.getElementById("inventory-dropdown-content");
     if (!el) return;
@@ -155,12 +155,12 @@ function vykresliRozbalovaciBatoh() {
 
     var items = [
         { name: "Mince", val: inventar.mince, img: "Img/mince.webp" },
-        { name: "Zlato", val: (inventar.suroviny["Zlato"] || 0) + "g", img: "Img/zlato.webp" },
         { name: "Koža", val: (inventar.suroviny["Koža"] || 0) + "x", img: "Img/koza.webp" },
         { name: "Drevo", val: (inventar.suroviny["Drevo"] || 0) + "x", img: "Img/drevo.webp" },
         { name: "Kov", val: (inventar.suroviny["Kov"] || 0) + "x", img: "Img/zelezo.webp" },
         { name: "Bronz", val: (inventar.suroviny["Bronz"] || 0) + "x", img: "Img/bronz.webp" },
-        { name: "Striebro", val: (inventar.suroviny["Striebro"] || 0) + "x", img: "Img/striebro.webp" }
+        { name: "Striebro", val: (inventar.suroviny["Striebro"] || 0) + "x", img: "Img/striebro.webp" },
+        { name: "Zlato", val: (inventar.suroviny["Zlato"] || 0) + "g", img: "Img/zlato.webp" } // Zlato presunuté až nakoniec
     ];
 
     var html = "";
@@ -179,7 +179,7 @@ function vykresliRozbalovaciBatoh() {
     el.innerHTML = html;
 }
 
-// STREDOVEKÉ OZNAMOVACIE OKNO (NAMIETO ALERT)
+// STREDOVEKÉ OZNAMOVACIE OKNO
 function ukazOznamenie(titulok, sprava, callback) {
     var overlay = document.createElement("div");
     overlay.className = "custom-notify-overlay";
@@ -232,7 +232,7 @@ function otvorDetailKarty(meno) {
     document.body.appendChild(modal);
 }
 
-// PREPÍNANIE OBRAZOVIEK & AUDIO ENGINE
+// AUDIO PLAYLIST ENGINE
 function prehratDalsiSong() {
     var audio = document.getElementById("bg-music");
     if (!audio) return;
@@ -1114,7 +1114,7 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
     var nextPwr = getRealPower({ n: meno, cls: nextCls });
 
     var fourthCardHtml = isSuccess ? `
-        <div id="forge-card-4" class="karta cls-${nextCls} forge-slot-card" style="opacity:0; transition:opacity 0.6s ease, transform 0.6s ease;">
+        <div id="forge-card-4" class="karta cls-${nextCls} forge-slot-card" style="opacity:0;">
             ${vytvorHTMLKarty(meno, nextPwr, nextCls, reg.row, reg.p)}
         </div>
     ` : '';
@@ -1145,7 +1145,6 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
     setTimeout(function() {
         if (isSuccess && card4) {
             card4.style.opacity = "1";
-            card4.style.transform = "translate(-50%, -50%) scale(1.05)";
         }
     }, 7800);
 
@@ -1194,15 +1193,77 @@ function recyklujKartuDielne(meno) {
     }
 }
 
+// 🛒 TRHOVISKO A SIMULÁCIA AUKCIÍ S ČASOVAČOM (24 Hodín)
+var aukcnyCasomeračInterval = null;
+var aktualnaPonukaMinci = 120;
+
 function vygenerujSimulaciuTrhu() {
     var e = document.getElementById("obchod-regaly-zoznam");
     if (!e) return;
+
+    var reg = MASTER_REGISTRY["Neviditeľný Mário"];
+    var realPwr = getRealPower({ n: "Neviditeľný Mário", cls: "E" });
+
     e.innerHTML = `
-        <div style="grid-column: 1/-1; background:#1e140a; border:2px solid #d4af37; padding:15px; border-radius:8px; text-align:center; margin-bottom:15px;">
-            <h3 style="color:#d4af37; margin-top:0;">🛒 SIMULÁTOR PLAYER-DRIVEN TRHU & AUKCIÍ</h3>
-            <button onclick="ukazOznamenie('🛒 AUKCIA', 'Ponuka bola zavesená na 24-hodinovú aukciu!')" style="background:#10b981; color:#fff; border:none; padding:8px 16px; border-radius:4px; font-weight:bold; cursor:pointer;">➕ Vytvoriť novú 24h Aukciu</button>
+        <div style="background:#1e140a; border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:20px;">
+            <h3 style="color:#d4af37; margin-top:0;">👑 HRÁČSKE AUKČNÉ TRHOVISKO</h3>
+            <p style="font-size:0.9em; color:#ccc;">Ponúkaj a draž vzácne karty s ostatnými hráčmi v reálnom čase!</p>
+            <button onclick="ukazOznamenie('🛒 Vytvoriť Aukciu', 'Tvoja karta bola úspešne zalistovaná na trh s poplatkom 5% mincí!')" style="background:#10b981; color:#fff; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; cursor:pointer;">➕ Vytvoriť Novú 24h Aukciu</button>
+        </div>
+
+        <div class="auction-card-box">
+            <div class="karta cls-E">
+                ${vytvorHTMLKarty("Neviditeľný MARIO 1", realPwr, "E", reg.row, reg.p)}
+            </div>
+            
+            <div style="flex-grow:1;">
+                <h3 style="color:#ffcc00; margin:0 0 5px 0;">Neviditeľný Mário (E-Class)</h3>
+                <p style="margin:2px 0; color:#aaa; font-size:0.9em;">Predajca: <strong>Lord_Grob_33</strong></p>
+                
+                <div style="background:rgba(0,0,0,0.5); border:1px solid #5a4d3e; padding:10px; border-radius:6px; margin:10px 0; max-width:320px;">
+                    <div>⏱️ Čas do konca aukcie: <span id="auction-timer" style="color:#ffcc00; font-weight:bold;">23:59:59</span></div>
+                    <div style="margin-top:5px;">💰 Najvyššia ponuka: <span id="auction-price" style="color:#10b981; font-weight:bold; font-size:1.1em;">${aktualnaPonukaMinci} m</span></div>
+                </div>
+
+                <button onclick="prihoditDoAukcie(10)" style="background:linear-gradient(180deg, #3b2d1d 0%, #21180e 100%); color:#ffcc00; border:1px solid #d4af37; padding:8px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">💸 Prihodiť +10 Mincí</button>
+            </div>
         </div>
     `;
+
+    spustitOdpocitavanieAukcie();
+}
+
+function prihoditDoAukcie(suma) {
+    if (inventar.mince < (aktualnaPonukaMinci + suma)) {
+        ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Nemáš dostatok mincí na prihodenie do tejto aukcie!");
+        return;
+    }
+    aktualnaPonukaMinci += suma;
+    var priceEl = document.getElementById("auction-price");
+    if (priceEl) priceEl.innerText = aktualnaPonukaMinci + " m";
+    ukazOznamenie("🎉 PRIHODENIE ÚSPEŠNÉ!", "Tvoja ponuka " + aktualnaPonukaMinci + " m bola akceptovaná. Si najvyšší prihadzujúci!");
+}
+
+function spustitOdpocitavanieAukcie() {
+    if (aukcnyCasomeračInterval) clearInterval(aukcnyCasomeračInterval);
+    
+    var sekundyCelkom = 24 * 3600 - 1; // 23 hodín 59 minút 59 sekúnd
+    aukcnyCasomeračInterval = setInterval(function() {
+        var timerEl = document.getElementById("auction-timer");
+        if (!timerEl) {
+            clearInterval(aukcnyCasomeračInterval);
+            return;
+        }
+
+        var h = Math.floor(sekundyCelkom / 3600);
+        var m = Math.floor((sekundyCelkom % 3600) / 60);
+        var s = sekundyCelkom % 60;
+
+        timerEl.innerText = (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+        
+        if (sekundyCelkom > 0) sekundyCelkom--;
+        else clearInterval(aukcnyCasomeračInterval);
+    }, 1000);
 }
 
 function aktualizujPanelDielne() {
@@ -1309,3 +1370,4 @@ window.potvrditMulliganRuku = potvrditMulliganRuku;
 window.otvorDetailKarty = otvorDetailKarty;
 window.ukazOznamenie = ukazOznamenie;
 window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu;
+window.prihoditDoAukcie = prihoditDoAukcie;
