@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 22.0.0 - FULL UNUNCUT)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 22.1.0 - FULL UNUNCUT)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "22.0.0";
+var VERZIA = "22.1.0";
 
 // =========================================================================
 // 1. REGISTER KARIET (MASTER REGISTRY)
@@ -60,8 +60,8 @@ var MASTER_REGISTRY = {
     "Kvety": { row: 2, p: 0, isItem: true, img: "Img/kvety.webp", desc: "Kytica pre 2. rad.", abilityDesc: "🛠️ Predmet: Pridáva +1b až +7b ku každej karte v 2. rade." },
     "Medove Orechy": { row: 3, p: 0, isItem: true, img: "Img/medove-orechy.webp", desc: "Odmena pre 3. rad.", abilityDesc: "🛠️ Predmet: Pridáva +1b až +7b ku každej karte v 3. rade." },
 
-    // KÚZLA
-    "Musíme sa porozprávať": { row: 0, p: 0, isSpell: true, img: "Img/musime-sa-porozprávať.webp", desc: "Vážny rozhovor.", abilityDesc: "⚡ Zníži základ mužov na 1b." },
+    // KÚZLA - OPRAVA NÁZVU OBRÁZKA (BEZ DIAKRITIKY)
+    "Musíme sa porozprávať": { row: 0, p: 0, isSpell: true, img: "Img/musime-sa-porozpravat.webp", desc: "Vážny rozhovor.", abilityDesc: "⚡ Zníži základ mužov na 1b." },
     "Upokoj sa": { row: 0, p: 0, isSpell: true, img: "Img/upokoj-sa.webp", desc: "Hnev.", abilityDesc: "⚡ Zníži základ žien na 1b." },
     "Ohnostroj": { row: 0, p: 0, isSpell: true, img: "Img/ohnostroj.webp", desc: "Rachot.", abilityDesc: "⚡ Zníži základ zvierat na 1b." },
     "Šicko v porádku": { row: 0, p: 0, isSpell: true, img: "Img/sicko-v-poradku.webp", desc: "Šašo.", abilityDesc: "⚡ Odstráni kúzla zo stola." }
@@ -137,7 +137,7 @@ function getRealPower(card) {
     return Math.max(0, reg.p + bonus);
 }
 
-// ROZBALOVACÍ BATOH - ZLATO JE AŽ ZA STRIEBROM
+// ROZBALOVACÍ BATOH - ZLATO AŽ ZA STRIEBROM
 function prepniRozbalovanieBatohu() {
     var el = document.getElementById("inventory-dropdown-content");
     if (!el) return;
@@ -160,7 +160,7 @@ function vykresliRozbalovaciBatoh() {
         { name: "Kov", val: (inventar.suroviny["Kov"] || 0) + "x", img: "Img/zelezo.webp" },
         { name: "Bronz", val: (inventar.suroviny["Bronz"] || 0) + "x", img: "Img/bronz.webp" },
         { name: "Striebro", val: (inventar.suroviny["Striebro"] || 0) + "x", img: "Img/striebro.webp" },
-        { name: "Zlato", val: (inventar.suroviny["Zlato"] || 0) + "g", img: "Img/zlato.webp" } // Zlato presunuté až nakoniec
+        { name: "Zlato", val: (inventar.suroviny["Zlato"] || 0) + "g", img: "Img/zlato.webp" }
     ];
 
     var html = "";
@@ -860,7 +860,7 @@ function aktualizujKolaUI() {
     if (el2) el2.innerText = "🔴".repeat(r2) || "⚪";
 }
 
-// KNIŽNÝ NÁVOD
+// KNIŽNÝ NÁVOD KRÁĽOVSTVA (TEXTY UPRAVENÉ BEZ SPOMÍNANIA VIDEÍ)
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
     if (!modal) {
@@ -908,11 +908,11 @@ function vykresliStraneKnihy() {
     if (aktualnaStranaKnihy === 1) {
         container.innerHTML = `
             <h3 style="color:#ffcc00;">📜 KAPITOLA I: ŠANCE DROPINGU Z TRUHIEL</h3>
-            <p style="font-size:1.05em; line-height:1.6;">Odmeny zo zápasu dostávaš po prehratí videa. Obsahujú mince, suroviny a reálne F-kópie kariet do batohu:</p>
+            <p style="font-size:1.05em; line-height:1.6;">Odmeny dostávaš po dokončení zápasu. Obsahujú mince, suroviny a reálne F-kópie kariet do batohu:</p>
             
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:20px;">
                 <div style="background:rgba(0,0,0,0.5); border:2px solid #5a4d3e; padding:18px; border-radius:10px;">
-                    <h4 style="color:#d4af37; margin-top:0; font-size:1.2em;">📦 TRUHLA ÚČASTNÍKA (Prehra / Remíza)</h4>
+                    <h4 style="color:#d4af37; margin-top:0; font-size:1.2em;">📦 TRUHLA ÚČASTNÍKA (Odehraný zápas)</h4>
                     <ul style="line-height:1.8;">
                         <li><strong>Mince:</strong> 50 až 100 mincí (100% garancia).</li>
                         <li><strong>Karty:</strong> 1× až 3× náhodná F-kópia z registra kariet.</li>
@@ -922,7 +922,7 @@ function vykresliStraneKnihy() {
                 </div>
 
                 <div style="background:rgba(0,0,0,0.5); border:2px solid #5a4d3e; padding:18px; border-radius:10px;">
-                    <h4 style="color:#ffcc00; margin-top:0; font-size:1.2em;">🏆 TRUHLA VÍŤAZA (Výhra)</h4>
+                    <h4 style="color:#ffcc00; margin-top:0; font-size:1.2em;">🏆 TRUHLA VÍŤAZA (Výhra v zápase)</h4>
                     <ul style="line-height:1.8;">
                         <li><strong>Mince:</strong> 150 až 300 mincí (100% garancia).</li>
                         <li><strong>Karty (Balík):</strong> 3× až 6× náhodných F-kópií kariet.</li>
@@ -1247,7 +1247,7 @@ function prihoditDoAukcie(suma) {
 function spustitOdpocitavanieAukcie() {
     if (aukcnyCasomeračInterval) clearInterval(aukcnyCasomeračInterval);
     
-    var sekundyCelkom = 24 * 3600 - 1; // 23 hodín 59 minút 59 sekúnd
+    var sekundyCelkom = 24 * 3600 - 1;
     aukcnyCasomeračInterval = setInterval(function() {
         var timerEl = document.getElementById("auction-timer");
         if (!timerEl) {
