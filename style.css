@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 22.1.0)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 22.2.0)
    ========================================================================= */
 
 * {
@@ -231,7 +231,7 @@ body {
 }
 
 /* =========================================================================
-   3. ZVÄČŠENÝ DESIGN KARIET & NATIAHNUTÝ PLATINOVÝ RÁM
+   3. DESIGN KARIET & DOKONALÝ PLATINOVÝ OVERLAY S ROZOSTUPMI
    ========================================================================= */
 .karta-karta-wrapper { 
     display: flex; 
@@ -275,7 +275,7 @@ body {
 .karta.cls-A { border: 4px solid #ec4899; border-image: url('Img/aclassram.webp') 30 stretch; }
 .karta.cls-S { border: 4px solid #ffcc00; border-image: url('Img/sclassram.webp') 30 stretch; box-shadow: 0 0 20px rgba(255, 204, 0, 0.7); }
 
-/* NATIAHNUTÝ PLATINOVÝ RÁM (KORUNKA HORE SEDA PRESNE NA KARTU) */
+/* NATIAHNUTÝ PLATINOVÝ RÁM - PREKRYJE CELÝ VRCH KORUNKY */
 .karta.cls-PLATINUM {
     border: none !important;
     overflow: visible !important;
@@ -285,10 +285,10 @@ body {
 .karta.cls-PLATINUM::after {
     content: "";
     position: absolute;
-    top: -14px;                 /* Natiahnuté hore pre zakrytie vrchnej časti */
-    left: -7px;
-    right: -7px;
-    bottom: -7px;
+    top: -22px;                 /* Natiahnuté hore, aby korunka stopercentne kryla vrch */
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
     background-image: url('Img/platinumclassram.webp');
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -395,7 +395,7 @@ body {
 .karta-surovina .surovina-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; }
 
 /* =========================================================================
-   4. MODÁLNE OKNÁ & MRIEŽKA
+   4. MODÁLNE OKNÁ & VÄČŠIE ROZOSTUPY V MRIEŽKE
    ========================================================================= */
 .card-modal {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -411,11 +411,12 @@ body {
 
 .card-modal-close { position: absolute; top: 10px; right: 15px; font-size: 2.2em; color: #d4af37; cursor: pointer; }
 
+/* ZVÄČŠENÉ ROZOSTUPY MEDZI KARTAMI */
 .dielna-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-    gap: 22px;
-    margin-top: 20px;
+    gap: 28px 24px;
+    margin-top: 25px;
     justify-items: center;
 }
 
@@ -461,7 +462,7 @@ body {
 .custom-notify-btn { background: linear-gradient(180deg, #3b2d1d 0%, #21180e 100%); color: #ffcc00; border: 1.5px solid #d4af37; padding: 10px 28px; font-size: 1em; font-weight: bold; border-radius: 6px; cursor: pointer; }
 
 /* =========================================================================
-   5. OPRAVENÉ PRESNÉ UHLA A POZÍCIE NA KOVADLINE (vylepsovanie.mp4)
+   5. PRESNÉ ZASADENIE KARIET DO KOVADLINY (vylepsovanie.mp4)
    ========================================================================= */
 #forge-video-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999;
@@ -472,19 +473,19 @@ body {
 #forge-video-element { width: 100vw; height: 100vh; object-fit: cover; }
 .forge-cards-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; transform-style: preserve-3d; }
 
-/* KOREKCIA NAKLONENIA PRE DOKONALÉ DOSADNUTIE NA ZLATÉ RÁMY KOVADLINY */
+/* ZVÄČŠENÉ KARTY NA PRESNÉ SÚRADNICE RÁMOV KOVADLINY */
 .forge-slot-card {
     position: absolute;
-    width: 225px !important;
-    height: 315px !important;
+    width: 245px !important;
+    height: 345px !important;
     pointer-events: none;
     transition: opacity 0.5s ease;
 }
 
-#forge-card-1 { top: 52.0%; left: 24.5%; transform: translate(-50%, -50%) rotateX(18deg) scale(0.96); }
-#forge-card-2 { top: 52.0%; left: 42.8%; transform: translate(-50%, -50%) rotateX(18deg) scale(0.96); }
-#forge-card-3 { top: 52.0%; left: 61.2%; transform: translate(-50%, -50%) rotateX(18deg) scale(0.96); }
-#forge-card-4 { top: 52.0%; left: 79.5%; transform: translate(-50%, -50%) rotateX(18deg) scale(0.96); }
+#forge-card-1 { top: 51.5%; left: 22.8%; transform: translate(-50%, -50%) rotateX(18deg) scale(0.96); }
+#forge-card-2 { top: 51.5%; left: 41.5%; transform: translate(-50%, -50%) rotateX(18deg) scale(0.96); }
+#forge-card-3 { top: 51.5%; left: 60.2%; transform: translate(-50%, -50%) rotateX(18deg) scale(0.96); }
+#forge-card-4 { top: 51.5%; left: 78.8%; transform: translate(-50%, -50%) rotateX(18deg) scale(0.96); }
 
 /* TRUHLE */
 #chest-video-overlay {
@@ -507,4 +508,21 @@ body {
     gap: 20px;
     margin-bottom: 15px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+}
+
+/* PRUHOVANÝ VOLIČ TRIEDY V MODÁLNOM OKNE NÁHĽADU */
+.class-preview-btn {
+    background: #1e1810;
+    color: #ffcc00;
+    border: 1px solid #d4af37;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.class-preview-btn.active, .class-preview-btn:hover {
+    background: #d4af37;
+    color: #000;
 }
