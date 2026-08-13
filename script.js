@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 23.3.0 - ULTRA CALIB)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 24.0.0 - FINÁLNA KOVADLINA)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "23.3.0";
+var VERZIA = "24.0.0";
 
 // =========================================================================
 // 1. REGISTER KARIET (MASTER REGISTRY)
@@ -114,17 +114,6 @@ var simulačneRebríčky = {
         { hrac: "Hráč 1 (Ty)", skore: 1, inaktivny: false, titulCard: null },
         { hrac: "Mníchov_Master", skore: 0, inaktivny: false, titulCard: "Žobrák" }
     ]
-};
-
-// 🎯 KALIBRAČNÉ HODNOTY S ODDELLENÝM SCALE X A SCALE Y
-var forgeCalib = {
-    activeSlot: 1,
-    slots: {
-        1: { x: 27.0, y: 50.5, rotX: 20, scaleX: 119, scaleY: 119 },
-        2: { x: 41.3, y: 50.8, rotX: 20, scaleX: 118, scaleY: 118 },
-        3: { x: 56.8, y: 50.8, rotX: 16, scaleX: 116, scaleY: 116 },
-        4: { x: 73.5, y: 50.8, rotX: 18, scaleX: 115, scaleY: 115 }
-    }
 };
 
 var p1_played_cards = [], p2_played_cards = [];
@@ -276,76 +265,7 @@ function vyhlasGlobalnySClassOznam(menoHraca, menoKarty) {
     }, 6000);
 }
 
-// 🔧 KALIBRAČNÝ PANEL PRE ULTRA JEMNÉ LADIENIE
-function prepniPauseVideo() {
-    var vid = document.getElementById("forge-video-element");
-    var btn = document.getElementById("calib-pause-btn");
-    if (!vid) return;
-
-    if (vid.paused) {
-        vid.play();
-        if (btn) btn.innerText = "⏸️ Pozastaviť Video";
-    } else {
-        vid.pause();
-        if (btn) btn.innerText = "▶️ Spustiť Video";
-    }
-}
-
-function posunHodnotuCalib(prop, delta) {
-    var slotId = forgeCalib.activeSlot;
-    var curVal = forgeCalib.slots[slotId][prop];
-    var newVal = Math.round((curVal + delta) * 100) / 100;
-    zmenKalibraciuSlotu(prop, newVal);
-
-    var inputEl = document.getElementById("calib-input-" + prop);
-    if (inputEl) inputEl.value = newVal;
-}
-
-function zmenKalibraciuSlotu(prop, val) {
-    var slotId = forgeCalib.activeSlot;
-    forgeCalib.slots[slotId][prop] = parseFloat(val);
-    
-    var cardEl = document.getElementById("forge-card-" + slotId);
-    if (cardEl) {
-        var s = forgeCalib.slots[slotId];
-        cardEl.style.left = s.x + "%";
-        cardEl.style.top = s.y + "%";
-        cardEl.style.transform = `translate(-50%, -50%) rotateX(${s.rotX}deg) scale(${s.scaleX / 100}, ${s.scaleY / 100})`;
-        cardEl.style.opacity = "1";
-    }
-
-    var txtEl = document.getElementById("calib-output-text");
-    if (txtEl) {
-        var s1 = forgeCalib.slots[1], s2 = forgeCalib.slots[2], s3 = forgeCalib.slots[3], s4 = forgeCalib.slots[4];
-        txtEl.innerHTML = `
-            <strong>K1:</strong> X=${s1.x}%, Y=${s1.y}%, Rot=${s1.rotX}deg, ScaleX=${s1.scaleX}%, ScaleY=${s1.scaleY}%<br>
-            <strong>K2:</strong> X=${s2.x}%, Y=${s2.y}%, Rot=${s2.rotX}deg, ScaleX=${s2.scaleX}%, ScaleY=${s2.scaleY}%<br>
-            <strong>K3:</strong> X=${s3.x}%, Y=${s3.y}%, Rot=${s3.rotX}deg, ScaleX=${s3.scaleX}%, ScaleY=${s3.scaleY}%<br>
-            <strong>K4:</strong> X=${s4.x}%, Y=${s4.y}%, Rot=${s4.rotX}deg, ScaleX=${s4.scaleX}%, ScaleY=${s4.scaleY}%
-        `;
-    }
-}
-
-function prepniKalibracnySlot(slotNum) {
-    forgeCalib.activeSlot = slotNum;
-    var s = forgeCalib.slots[slotNum];
-    
-    var inputX = document.getElementById("calib-input-x");
-    var inputY = document.getElementById("calib-input-y");
-    var inputRot = document.getElementById("calib-input-rotX");
-    var inputScaleX = document.getElementById("calib-input-scaleX");
-    var inputScaleY = document.getElementById("calib-input-scaleY");
-
-    if (inputX) inputX.value = s.x;
-    if (inputY) inputY.value = s.y;
-    if (inputRot) inputRot.value = s.rotX;
-    if (inputScaleX) inputScaleX.value = s.scaleX;
-    if (inputScaleY) inputScaleY.value = s.scaleY;
-
-    var cardEl = document.getElementById("forge-card-" + slotNum);
-    if (cardEl) cardEl.style.opacity = "1";
-}
-
+// 🎬 FINÁLNA ANIMÁCIA KOVANIA S NAMERANÝMI FINÁLNYMI HODNOTAMI
 function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected) {
     pozastavitHudbuPreVideo();
 
@@ -356,73 +276,43 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
     var oldPwr = getRealPower({ n: meno, cls: oldCls });
     var nextPwr = getRealPower({ n: meno, cls: nextCls });
 
-    var s1 = forgeCalib.slots[1], s2 = forgeCalib.slots[2], s3 = forgeCalib.slots[3], s4 = forgeCalib.slots[4];
+    var fourthCardHtml = isSuccess ? `
+        <div id="forge-card-4" class="karta cls-${nextCls} forge-slot-card" style="opacity:0;">
+            ${vytvorHTMLKarty(meno, nextPwr, nextCls, reg.row, reg.p)}
+        </div>
+    ` : '';
 
     overlay.innerHTML = `
-        <div class="forge-calibration-box">
-            <h4 style="margin:0 0 5px 0; color:#ffcc00;">🎛️ ULTRA KALIBRÁCIA KOVADLINY</h4>
-            
-            <button id="calib-pause-btn" onclick="prepniPauseVideo()" style="width:100%; background:#ffcc00; color:#000; border:none; padding:5px; font-weight:bold; border-radius:4px; cursor:pointer; margin-bottom:6px;">⏸️ Pozastaviť Video</button>
-
-            <div style="display:flex; gap:4px; margin-bottom:6px;">
-                <button onclick="prepniKalibracnySlot(1)">K1</button>
-                <button onclick="prepniKalibracnySlot(2)">K2</button>
-                <button onclick="prepniKalibracnySlot(3)">K3</button>
-                <button onclick="prepniKalibracnySlot(4)">K4</button>
-            </div>
-
-            <div class="calib-row">
-                <span>Posun X (%):</span>
-                <button class="calib-btn-step" onclick="posunHodnotuCalib('x', -0.05)">-</button>
-                <input type="range" id="calib-input-x" min="0" max="100" step="0.01" value="${s1.x}" oninput="zmenKalibraciuSlotu('x', this.value)">
-                <button class="calib-btn-step" onclick="posunHodnotuCalib('x', 0.05)">+</button>
-            </div>
-
-            <div class="calib-row">
-                <span>Posun Y (%):</span>
-                <button class="calib-btn-step" onclick="posunHodnotuCalib('y', -0.05)">-</button>
-                <input type="range" id="calib-input-y" min="0" max="100" step="0.01" value="${s1.y}" oninput="zmenKalibraciuSlotu('y', this.value)">
-                <button class="calib-btn-step" onclick="posunHodnotuCalib('y', 0.05)">+</button>
-            </div>
-
-            <div class="calib-row">
-                <span>Uhol (rotateX):</span>
-                <button class="calib-btn-step" onclick="posunHodnotuCalib('rotX', -0.5)">-</button>
-                <input type="range" id="calib-input-rotX" min="0" max="45" step="0.1" value="${s1.rotX}" oninput="zmenKalibraciuSlotu('rotX', this.value)">
-                <button class="calib-btn-step" onclick="posunHodnotuCalib('rotX', 0.5)">+</button>
-            </div>
-
-            <div class="calib-row">
-                <span>Šírka (ScaleX %):</span>
-                <button class="calib-btn-step" onclick="posunHodnotuCalib('scaleX', -0.5)">-</button>
-                <input type="range" id="calib-input-scaleX" min="50" max="160" step="0.1" value="${s1.scaleX}" oninput="zmenKalibraciuSlotu('scaleX', this.value)">
-                <button class="calib-btn-step" onclick="posunHodnotuCalib('scaleX', 0.5)">+</button>
-            </div>
-
-            <div class="calib-row">
-                <span>Výška (ScaleY %):</span>
-                <button class="calib-btn-step" onclick="posunHodnotuCalib('scaleY', -0.5)">-</button>
-                <input type="range" id="calib-input-scaleY" min="50" max="160" step="0.1" value="${s1.scaleY}" oninput="zmenKalibraciuSlotu('scaleY', this.value)">
-                <button class="calib-btn-step" onclick="posunHodnotuCalib('scaleY', 0.5)">+</button>
-            </div>
-            
-            <div id="calib-output-text" style="margin-top:8px; font-size:0.7em; color:#fff; background:#000; padding:5px; border-radius:4px; max-height:80px; overflow:auto;">
-                Nastav jemne pozície a odfotografuj mi vygenerovaný text!
-            </div>
-        </div>
-
         <div class="forge-stage-169">
             <video id="forge-video-element" src="Img/vylepsovanie.mp4" autoplay playsinline></video>
             <div class="forge-cards-container">
-                <div id="forge-card-1" class="karta cls-${oldCls} forge-slot-card" style="left:${s1.x}%; top:${s1.y}%; transform:translate(-50%, -50%) rotateX(${s1.rotX}deg) scale(${s1.scaleX/100}, ${s1.scaleY/100});">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
-                <div id="forge-card-2" class="karta cls-${oldCls} forge-slot-card" style="left:${s2.x}%; top:${s2.y}%; transform:translate(-50%, -50%) rotateX(${s2.rotX}deg) scale(${s2.scaleX/100}, ${s2.scaleY/100});">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
-                <div id="forge-card-3" class="karta cls-${oldCls} forge-slot-card" style="left:${s3.x}%; top:${s3.y}%; transform:translate(-50%, -50%) rotateX(${s3.rotX}deg) scale(${s3.scaleX/100}, ${s3.scaleY/100});">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
-                <div id="forge-card-4" class="karta cls-${nextCls} forge-slot-card" style="left:${s4.x}%; top:${s4.y}%; transform:translate(-50%, -50%) rotateX(${s4.rotX}deg) scale(${s4.scaleX/100}, ${s4.scaleY/100}); opacity:1;">${vytvorHTMLKarty(meno, nextPwr, nextCls, reg.row, reg.p)}</div>
+                <div id="forge-card-1" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
+                <div id="forge-card-2" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
+                <div id="forge-card-3" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
+                ${fourthCardHtml}
             </div>
         </div>
     `;
 
     document.body.appendChild(overlay);
+
+    var card1 = document.getElementById("forge-card-1");
+    var card2 = document.getElementById("forge-card-2");
+    var card3 = document.getElementById("forge-card-3");
+    var card4 = document.getElementById("forge-card-4");
+
+    // Načasovanie zhasínania a objavenia novej karty
+    setTimeout(function() {
+        if (card1) card1.style.opacity = "0";
+        if (card2) card2.style.opacity = "0";
+        if (card3) card3.style.opacity = "0";
+    }, 3800);
+
+    setTimeout(function() {
+        if (isSuccess && card4) {
+            card4.style.opacity = "1";
+        }
+    }, 7800);
 
     var vid = document.getElementById("forge-video-element");
     vid.onended = function() {
@@ -524,7 +414,7 @@ function zmenNahladTriedy(meno, cls) {
     });
 }
 
-// 🖼️ ČISTÝ RENDERER MALEJ KARTY
+// 🖼️ ČISTÝ RENDERER MALEJ KARTY (BEZ POPISU)
 function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     var reg = getRegistryCard(meno);
     var imgPath = reg.img || "Img/default.webp";
@@ -1657,7 +1547,3 @@ window.prihoditDoAukcie = prihoditDoAukcie;
 window.testSimulaciaInaktivity = testSimulaciaInaktivity;
 window.testSimulaciaPridatBota = testSimulaciaPridatBota;
 window.testSimulaciaGlobalnyOznam = testSimulaciaGlobalnyOznam;
-window.zmenKalibraciuSlotu = zmenKalibraciuSlotu;
-window.prepniKalibracnySlot = prepniKalibracnySlot;
-window.prepniPauseVideo = prepniPauseVideo;
-window.posunHodnotuCalib = posunHodnotuCalib;
