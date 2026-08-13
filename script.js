@@ -63,7 +63,7 @@ var MASTER_REGISTRY = {
     "Medove Orechy": { row: 3, p: 0, isItem: true, img: "Img/medove-orechy.webp", desc: "Odmena pre 3. rad.", abilityDesc: "🛠️ Predmet: Pridáva +1b až +7b ku každej karte v 3. rade." },
 
     // KÚZLA
-    "Musíme sa porozprávať": { row: 0, p: 0, isSpell: true, img: "Img/musime-sa-porozpravat.webp", desc: "Vážny rozhovor.", abilityDesc: "⚡ Zníži základ mužov na 1b." },
+    "Musíme sa porozprávať": { row: 0, p: 0, isSpell: true, img: "Img/musime-sa-porozprávať.webp", desc: "Vážny rozhovor.", abilityDesc: "⚡ Zníži základ mužov na 1b." },
     "Upokoj sa": { row: 0, p: 0, isSpell: true, img: "Img/upokoj-sa.webp", desc: "Hnev.", abilityDesc: "⚡ Zníži základ žien na 1b." },
     "Ohnostroj": { row: 0, p: 0, isSpell: true, img: "Img/ohnostroj.webp", desc: "Rachot.", abilityDesc: "⚡ Zníži základ zvierat na 1b." },
     "Šicko v porádku": { row: 0, p: 0, isSpell: true, img: "Img/sicko-v-poradku.webp", desc: "Šašo.", abilityDesc: "⚡ Odstráni kúzla zo stola." }
@@ -167,8 +167,8 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
     
     var renderCls = reg.isPlatinum ? "PLATINUM" : (reg.isJoker ? "JOKER-" + cls : cls);
     html += "<div class='karta-kruh karta-kruh-cls cls-" + renderCls + "'>" + (reg.isPlatinum ? "P" : cls) + "</div>";
-    html += "<button class='karta-btn-inspect' title='Zväčšiť kartu' onclick='event.stopPropagation(); otvorDetailKarty(\"" + meno + "\", \"" + cls + "\");'>🔍</button>";
-    html += "<div class='karta-foto' style=\"background-image: url('" + encodeURI(imgPath) + "');\"></div>";
+    html += "<button class='karta-btn-inspect' title='Zväčšiť kartu' onclick='event.stopPropagation(); otvorDetailKarty("" + meno + "", "" + cls + "");'>🔍</button>";
+    html += "<div class='karta-foto' style="background-image: url('" + encodeURI(imgPath) + "');"></div>";
     
     html += "<div class='karta-stitok-spodok'>";
     html += "  <div class='karta-nazov'>" + cisteMeno + "</div>";
@@ -181,7 +181,7 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
 function vygenerujRuku10Kariet() {
     var validKeys = Object.keys(MASTER_REGISTRY).filter(function(k) {
         var r = MASTER_REGISTRY[k];
-        return !r.isJoker; // JOKER SA NESMIE DOSTAŤ DO ZÁPASU
+        return !r.isJoker;
     });
 
     var hand = [];
@@ -220,7 +220,6 @@ function vykresliRukuHraca(pNum) {
         cardDiv.className = "karta cls-" + (reg.isPlatinum ? "PLATINUM" : (reg.isJoker ? "JOKER-" + cls : cls));
         if (pNum !== aktualnyHrac || (pNum === 1 && p1Pass) || (pNum === 2 && p2Pass)) cardDiv.classList.add("karta-disabled");
 
-        // UTAJENIE SÚPEROVEJ RUKY V HRÁČSKOM MENU
         var isHidden = (pNum === 2 && jeSingleplayer);
         cardDiv.innerHTML = vytvorHTMLKarty(card.n, reg.isSpell || reg.isItem || reg.isJoker ? "none" : pwr, cls, reg.row, reg.p, isHidden);
         
@@ -932,7 +931,7 @@ function otvorDetailKarty(meno, inicialnaTrieda) {
             
             <div style="display:flex; justify-content:center; margin:20px 0;">
                 <div class="karta cls-${inicialnaTrieda}" style="transform: scale(1.6); transform-origin: center; margin:35px 0;">
-                    ${vytvorHTMLKarty(meno, getRealPower({ n: meno, cls: inicialnaTrieda }), inicialnaTrieda, reg.row, reg.p)}
+                    ${vytvorHTMLKarty(meno, getRealPower({ n: meno, cls: inicialnaTrieda }), inicialnaTrieda, reg.row, reg.p, false)}
                 </div>
             </div>
 
@@ -986,7 +985,7 @@ function vygenerujDeckbuilder() {
         var reg = MASTER_REGISTRY[t];
         var div = document.createElement("div");
         div.className = "karta cls-" + (reg.isPlatinum ? "PLATINUM" : "F");
-        div.innerHTML = vytvorHTMLKarty(t, getRealPower({n:t, cls:"F"}), "F", reg.row, reg.p);
+        div.innerHTML = vytvorHTMLKarty(t, getRealPower({n:t, cls:"F"}), "F", reg.row, reg.p, false);
         e.appendChild(div);
     });
 }
