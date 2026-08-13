@@ -31,7 +31,11 @@
             <button class="btn-menu" style="background:#3a2e20;" onclick="otvorTruhluUcastnika()">📦 Otvoriť Truhlu Účastníka (Video Test)</button>
         </div>
 
-        <div id="wallet-p1" class="wallet-display">0 m | Zlato: 0g</div>
+        <!-- ROZBALOVACIE MENU SUROVÍN A POKLADNICE -->
+        <div class="inventory-dropdown-container">
+            <button class="btn-inventory-toggle" onclick="prepniRozbalovanieBatohu()">🎒 Kráľovská Pokladnica & Batoh ▼</button>
+            <div id="inventory-dropdown-content" class="inventory-dropdown-content" style="display: none;"></div>
+        </div>
     </div>
 
     <div id="hracia-plocha" class="board-container" style="display: none;">
