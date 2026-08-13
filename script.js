@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 21.0.0 - FULL UNUNCUT)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 21.1.0 - FULL UNUNCUT)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "21.0.0";
+var VERZIA = "21.1.0";
 
 // =========================================================================
 // 1. REGISTER KARIET (MASTER REGISTRY)
@@ -110,7 +110,7 @@ var jeSingleplayer = false; var obtiaznostAI = "B"; var blokujVykladanie = false
 var aktualnaStranaKnihy = 1;
 var p1MulliganBonusScore = 0, p2MulliganBonusScore = 0;
 
-// AUDIO PLAYLIST ENGINE (TRACK1.MP3 AZ TRACK6.MP3) WITH PAUSE & RESUME
+// AUDIO PLAYLIST ENGINE
 var hudbaSpustena = false;
 var audioTracks = [
     "Audio/track1.mp3",
@@ -135,6 +135,48 @@ function getRealPower(card) {
     var cls = card.cls || "F";
     var bonus = CLASS_CONFIG[cls] ? CLASS_CONFIG[cls].bonusPwr : 0;
     return Math.max(0, reg.p + bonus);
+}
+
+// ROZBALOVACÍ BATOH & POKLADNICA
+function prepniRozbalovanieBatohu() {
+    var el = document.getElementById("inventory-dropdown-content");
+    if (!el) return;
+    if (el.style.display === "none" || el.style.display === "") {
+        vykresliRozbalovaciBatoh();
+        el.style.display = "flex";
+    } else {
+        el.style.display = "none";
+    }
+}
+
+function vykresliRozbalovaciBatoh() {
+    var el = document.getElementById("inventory-dropdown-content");
+    if (!el) return;
+
+    var items = [
+        { name: "Mince", val: inventar.mince, img: "Img/mince.webp" },
+        { name: "Zlato", val: (inventar.suroviny["Zlato"] || 0) + "g", img: "Img/zlato.webp" },
+        { name: "Koža", val: (inventar.suroviny["Koža"] || 0) + "x", img: "Img/koza.webp" },
+        { name: "Drevo", val: (inventar.suroviny["Drevo"] || 0) + "x", img: "Img/drevo.webp" },
+        { name: "Kov", val: (inventar.suroviny["Kov"] || 0) + "x", img: "Img/zelezo.webp" },
+        { name: "Bronz", val: (inventar.suroviny["Bronz"] || 0) + "x", img: "Img/bronz.webp" },
+        { name: "Striebro", val: (inventar.suroviny["Striebro"] || 0) + "x", img: "Img/striebro.webp" }
+    ];
+
+    var html = "";
+    items.forEach(function(item) {
+        html += `
+            <div class="inventory-mini-card">
+                <img src="${item.img}" class="inventory-mini-img" alt="${item.name}">
+                <div class="inventory-mini-info">
+                    <span class="inventory-mini-title">${item.name}</span>
+                    <span class="inventory-mini-val">${item.val}</span>
+                </div>
+            </div>
+        `;
+    });
+
+    el.innerHTML = html;
 }
 
 // STREDOVEKÉ OZNAMOVACIE OKNO (NAMIETO ALERT)
@@ -190,9 +232,7 @@ function otvorDetailKarty(meno) {
     document.body.appendChild(modal);
 }
 
-// =========================================================================
-// 5. PREPÍNANIE OBRAZOVIEK & AUDIO PLAYLIST ENGINE
-// =========================================================================
+// PREPÍNANIE OBRAZOVIEK & AUDIO ENGINE
 function prehratDalsiSong() {
     var audio = document.getElementById("bg-music");
     if (!audio) return;
@@ -311,9 +351,7 @@ function otvoriťDielňu() {
     aktualizujPanelDielne();
 }
 
-// =========================================================================
-// 6. INICIALIZÁCIA ZÁPASU & STREDOVEKÝ MULLIGAN DIALOG (10 KARIET)
-// =========================================================================
+// INICIALIZÁCIA ZÁPASU & MULLIGAN
 function vygenerujRuku10Kariet() {
     var keys = Object.keys(MASTER_REGISTRY);
     var hand = [];
@@ -383,9 +421,7 @@ function potvrditMulliganRuku(chceRiskovat) {
     vykresliHraciuPlochu();
 }
 
-// =========================================================================
-// 7. HTML RENDERER A VYKLADANIE KARIET
-// =========================================================================
+// HTML RENDERER A VYKLADANIE KARIET
 function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr) {
     var reg = getRegistryCard(meno);
     var imgPath = reg.img || "Img/default.webp";
@@ -588,9 +624,7 @@ function pripravNoveKolo() {
     vykresliHraciuPlochu();
 }
 
-// =========================================================================
-// 8. VIDEO TRUHLICE S RESUME HUDBY
-// =========================================================================
+// VIDEO TRUHLICE
 function otvorTruhluVitaza() { spustitVideoAnimationTruhly("vitaz"); }
 function otvorTruhluUcastnika() { spustitVideoAnimationTruhly("ucastnik"); }
 
@@ -735,6 +769,7 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
 
     overlayElement.appendChild(rewardsBox);
     aktualizujPanelDielne();
+    vykresliRozbalovaciBatoh();
 }
 
 function zatvoritTruhluAOpustit(overlayId) {
@@ -744,9 +779,7 @@ function zatvoritTruhluAOpustit(overlayId) {
     zobraziťObrazovku("hlavne-menu");
 }
 
-// =========================================================================
-// 9. VYHODNOCOVACÍ ENGINE STOLA
-// =========================================================================
+// VYHODNOCOVANIE STOLA
 function prepočitajSkoreStola() {
     var isNelaOnTable = false;
     [p1_played_cards, p2_played_cards].forEach(function(list) {
@@ -827,9 +860,7 @@ function aktualizujKolaUI() {
     if (el2) el2.innerText = "🔴".repeat(r2) || "⚪";
 }
 
-// =========================================================================
-// 10. KNIŽNÝ NÁVOD KRÁĽOVSTVA
-// =========================================================================
+// KNIŽNÝ NÁVOD
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
     if (!modal) {
@@ -1014,9 +1045,7 @@ function vykresliStraneKnihy() {
     }
 }
 
-// =========================================================================
-// 11. DIELŇA, DYNAMICKÁ VIDEO ANIMÁCIA KOVANIA (vylepsovanie.mp4) & DEV MENU
-// =========================================================================
+// DIELŇA, ANIMÁCIA KOVANIA (vylepsovanie.mp4) & DEV MENU
 function devPridatSurovinyACheaty() {
     inventar.mince += 10000;
     inventar.suroviny["Koža"] = (inventar.suroviny["Koža"] || 0) + 100;
@@ -1039,6 +1068,7 @@ function devPridatSurovinyACheaty() {
 
     ukazOznamenie("⚡ DEV CHEAT AKTIVOVANÝ", "Pridaných 10 000 mincí, 1000g Zlata, suroviny a duplikáty F/E/D ku všetkým kartám!");
     aktualizujPanelDielne();
+    vykresliRozbalovaciBatoh();
 }
 
 function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
@@ -1083,22 +1113,24 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
     var oldPwr = getRealPower({ n: meno, cls: oldCls });
     var nextPwr = getRealPower({ n: meno, cls: nextCls });
 
+    var fourthCardHtml = isSuccess ? `
+        <div id="forge-card-4" class="karta cls-${nextCls} forge-slot-card" style="opacity:0; transition:opacity 0.6s ease, transform 0.6s ease;">
+            ${vytvorHTMLKarty(meno, nextPwr, nextCls, reg.row, reg.p)}
+        </div>
+    ` : '';
+
     overlay.innerHTML = `
         <video id="forge-video-element" src="Img/vylepsovanie.mp4" autoplay playsinline></video>
         <div class="forge-cards-container">
             <div id="forge-card-1" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
             <div id="forge-card-2" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
             <div id="forge-card-3" class="karta cls-${oldCls} forge-slot-card">${vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)}</div>
-            
-            <div id="forge-card-4" class="karta cls-${nextCls} forge-slot-card" style="opacity:0; transition:opacity 0.6s ease, transform 0.6s ease;">
-                ${vytvorHTMLKarty(meno, nextPwr, nextCls, reg.row, reg.p)}
-            </div>
+            ${fourthCardHtml}
         </div>
     `;
 
     document.body.appendChild(overlay);
 
-    var vid = document.getElementById("forge-video-element");
     var card1 = document.getElementById("forge-card-1");
     var card2 = document.getElementById("forge-card-2");
     var card3 = document.getElementById("forge-card-3");
@@ -1113,10 +1145,11 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
     setTimeout(function() {
         if (isSuccess && card4) {
             card4.style.opacity = "1";
-            card4.style.transform = "translate(-50%, -50%) scale(1.1)";
+            card4.style.transform = "translate(-50%, -50%) scale(1.05)";
         }
     }, 7800);
 
+    var vid = document.getElementById("forge-video-element");
     vid.onended = function() {
         var t = inventar.karty[meno];
         if (typeof t.repliky !== "object") {
@@ -1128,7 +1161,7 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
             t.repliky[oldCls] = Math.max(0, (t.repliky[oldCls] || 0) - 3);
             t.repliky[nextCls] = (t.repliky[nextCls] || 0) + 1;
             t.aktivnaTrieda = nextCls;
-            ukazOznamenie("🎉 KOVANIE ÚSPEŠNÉ!", "Karta <strong>" + meno + "</strong> bola úspešne povýšená z <strong>" + oldCls + "</strong> na <strong>" + nextCls + "-Class</strong>!");
+            ukazOznamenie("🎉 KOVANIE ÚSPEŠNÉ!", "Karta <strong>" + meno + "</strong> bola úspešne povýšená na <strong>" + nextCls + "-Class</strong>!");
         } else {
             if (!wasProtected) {
                 t.repliky[oldCls] = Math.max(0, (t.repliky[oldCls] || 0) - 1);
@@ -1141,6 +1174,7 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
         overlay.remove();
         obnovitHudbuPoVideu();
         aktualizujPanelDielne();
+        vykresliRozbalovaciBatoh();
     };
 }
 
@@ -1155,6 +1189,7 @@ function recyklujKartuDielne(meno) {
             inventar.mince += 3;
             ukazOznamenie("♻️ VÝKUP", "Predané systému za výkupnú cenu (+3 mince)!");
             aktualizujPanelDielne();
+            vykresliRozbalovaciBatoh();
         }
     }
 }
@@ -1240,15 +1275,13 @@ function aktualizujPanelDielne() {
 
         e.appendChild(wrapper);
     });
-
-    var wallet = document.getElementById("wallet-p1");
-    if (wallet) wallet.innerText = inventar.mince + " m | Zlato: " + (inventar.suroviny["Zlato"] || 0) + "g";
 }
 
 document.addEventListener("DOMContentLoaded", function() {
     zobraziťObrazovku("hlavne-menu");
     aktualizujPanelDielne();
     vygenerujSimulaciuTrhu();
+    vykresliRozbalovaciBatoh();
 });
 
 // GLOBÁLNE PREPOJENIA
@@ -1275,3 +1308,4 @@ window.spustitHudbuPoPrvomKliknuti = spustitHudbuPoPrvomKliknuti;
 window.potvrditMulliganRuku = potvrditMulliganRuku;
 window.otvorDetailKarty = otvorDetailKarty;
 window.ukazOznamenie = ukazOznamenie;
+window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu;
