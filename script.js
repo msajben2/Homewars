@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 25.0.0 - FULL UNUNCUT)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 25.1.0 - FULL FIX)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "25.0.0";
+var VERZIA = "25.1.0";
 
 // =========================================================================
 // 1. REGISTER KARIET (MASTER REGISTRY)
@@ -69,7 +69,6 @@ var MASTER_REGISTRY = {
     "Šicko v porádku": { row: 0, p: 0, isSpell: true, img: "Img/sicko-v-poradku.webp", desc: "Šašo.", abilityDesc: "⚡ Odstráni kúzla zo stola." }
 };
 
-// CONFIGS
 var CLASS_CONFIG = {
     "F": { bonusPwr: 0, matName: "Koža", itemBonus: 1, coinFee: 10 },
     "E": { bonusPwr: 1, matName: "Drevo", itemBonus: 2, coinFee: 25 },
@@ -104,7 +103,7 @@ var inventar = {
     zostava: []
 };
 
-// 📊 DATABÁZA PRE 10 REBRÍČKOV S HLAVNÝMI AJ NOVÝMI KATEGÓRIAMI
+// 📊 DATABÁZA PRE 10 REBRÍČKOV
 var simulačneRebríčky = {
     vyhry: [ { hrac: "Hráč 1 (Ty)", skore: 12, inaktivny: false, titulCard: "Katy" }, { hrac: "Lord_Grob", skore: 8, inaktivny: false, titulCard: null }, { hrac: "Mníchov_Master", skore: 1, inaktivny: false, titulCard: "Vzbúrenec" } ],
     remizy: [ { hrac: "Mníchov_Master", skore: 5, inaktivny: false, titulCard: "Nela" }, { hrac: "Hráč 1 (Ty)", skore: 2, inaktivny: false, titulCard: null }, { hrac: "Lord_Grob", skore: 0, inaktivny: false, titulCard: "Šaman" } ],
@@ -406,7 +405,6 @@ function anonymnePrihoditSumu() {
     if (inventar.mince < ponuka) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Nemáš dostatok mincí v batohu!"); return; }
 
     if (ponuka >= aktualnyAnonymnyStrop) {
-        // AUTOMATICKÝ STROP - KARTA JE TVOJA ZA CENU OKAMŽITÉHO VÝKUPU!
         inventar.mince -= aktualnyAnonymnyStrop;
         if (!inventar.karty["Neviditeľný Mário"]) inventar.karty["Neviditeľný Mário"] = { repliky: { "E": 0 }, aktivnaTrieda: "E" };
         inventar.karty["Neviditeľný Mário"].repliky["E"] = (inventar.karty["Neviditeľný Mário"].repliky["E"] || 0) + 1;
@@ -497,7 +495,6 @@ function vypocitajSiluHracovychKariet(pNum, myCards, oppCards, isNela, myKaty, o
     var upokojSa = neutralne_vplyvy.indexOf("Upokoj sa") !== -1;
     var ohnostroj = neutralne_vplyvy.indexOf("Ohnostroj") !== -1;
 
-    // KALKULÁCIA SČÍTATEĽNÝCH SETOVÝCH BONUSOV RADOV (S=1, A=2, B=3, C=4, D=5, E=6)
     var rowSetBonus1 = vypocitajSetBonusRadu(1, myCards);
     var rowSetBonus2 = vypocitajSetBonusRadu(2, myCards);
     var rowSetBonus3 = vypocitajSetBonusRadu(3, myCards);
@@ -558,8 +555,7 @@ function vypocitajSetBonusRadu(targetRow, cardList) {
         if (cls === "S") countS++;
     });
 
-    // Ak je v rade Turnajová unikátna karta, zberá VŠETKY BONUSY!
-    if (isTournamentUniqueInRow) return 6; // Sčítané všetky +1b bonusy (S+A+B+C+D+E)
+    if (isTournamentUniqueInRow) return 6;
 
     var bonusTotal = 0;
     if (countS >= 1) bonusTotal += 1;
@@ -1272,6 +1268,7 @@ function aktualizujKolaUI() {
     if (el2) el2.innerText = "🔴".repeat(r2) || "⚪";
 }
 
+// INICATILIZÁCIA DOM PO NAČÍTANÍ STRÁNKY
 document.addEventListener("DOMContentLoaded", function() {
     zobraziťObrazovku("hlavne-menu");
     aktualizujPanelDielne();
@@ -1279,15 +1276,15 @@ document.addEventListener("DOMContentLoaded", function() {
     vykresliRozbalovaciBatoh();
 });
 
-// GLOBÁLNE BINDY
+// GLOBÁLNE PREPOJENIE VŠETKÝCH FUNKCIÍ PRE HTML DOM
 window.spustitZapasLokálnePVP = spustitZapasLokálnePVP;
 window.zobraziťMenuAI = zobraziťMenuAI;
 window.spustitZapasProtiAI = spustitZapasProtiAI;
 window.otvoriťObchod = otvoriťObchod;
 window.otvoriťDielňu = otvoriťDielňu;
 window.otvoriťDeckbuilder = otvoriťDeckbuilder;
-window.otvoriťNavodHry = otvoriťNavodHry;
 window.otvoriťStatistiky = otvoriťStatistiky;
+window.otvoriťNavodHry = otvoriťNavodHry;
 window.posunStraneKnihy = posunStraneKnihy;
 window.vylepsiKartuVoForge = vylepsiKartuVoForge;
 window.devPridatSurovinyACheaty = devPridatSurovinyACheaty;
@@ -1311,3 +1308,5 @@ window.testSimulaciaRychlychPredajov = testSimulaciaRychlychPredajov;
 window.testSimulaciaInaktivity = testSimulaciaInaktivity;
 window.testSimulaciaPridatBota = testSimulaciaPridatBota;
 window.testSimulaciaGlobalnyOznam = testSimulaciaGlobalnyOznam;
+window.vykresliGridStatistik = vykresliGridStatistik;
+window.aktualizujPanelDielne = aktualizujPanelDielne;
