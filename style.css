@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 23.0.0)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 23.1.0)
    ========================================================================= */
 
 * {
@@ -231,7 +231,7 @@ body {
 }
 
 /* =========================================================================
-   3. ČISTÝ DESIGN KARIET (BEZ DDLHÝCH POPISOV V MALEJ VERZII)
+   3. DESIGN KARIET & PLATINOVÝ RÁM
    ========================================================================= */
 .karta-karta-wrapper { 
     display: flex; 
@@ -492,18 +492,17 @@ body {
 }
 
 /* =========================================================================
-   5. RESPONZÍVNE ZAMKNUTÉ VIDEO KOVADLINY (16:9 CONTAINER)
+   5. KALIBRAČNÝ NÁSTROJ & RESPONZÍVNE VIDEO KOVADLINY
    ========================================================================= */
 #forge-video-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999;
     display: flex; justify-content: center; align-items: center;
 }
 
-/* ZAMKNUTÝ PERSPEKTÍVNY CONTAINER S POMEROM 16:9 PRE PERFEKTNÉ SÚRADNICE */
 .forge-stage-169 {
     position: relative;
     width: 100vw;
-    height: 56.25vw; /* 16:9 ratio */
+    height: 56.25vw;
     max-height: 100vh;
     max-width: 177.78vh;
     perspective: 1200px;
@@ -521,11 +520,16 @@ body {
     transition: opacity 0.5s ease;
 }
 
-/* PRESNE ZASADENÉ RÁMY NA KOVADLINE */
-#forge-card-1 { top: 52.5%; left: 21.0%; transform: translate(-50%, -50%) rotateX(16deg) scale(0.95); }
-#forge-card-2 { top: 52.5%; left: 39.0%; transform: translate(-50%, -50%) rotateX(16deg) scale(0.95); }
-#forge-card-3 { top: 52.5%; left: 57.0%; transform: translate(-50%, -50%) rotateX(16deg) scale(0.95); }
-#forge-card-4 { top: 52.5%; left: 75.0%; transform: translate(-50%, -50%) rotateX(16deg) scale(0.95); }
+/* KALIBRAČNÝ CONTROL PANEL VO VIDEU */
+.forge-calibration-box {
+    position: absolute; top: 15px; left: 15px;
+    background: rgba(10, 8, 5, 0.95); border: 2px solid #ffcc00;
+    padding: 12px; border-radius: 10px; color: #ffcc00; font-size: 0.85em;
+    z-index: 999999; pointer-events: auto; max-width: 340px; box-shadow: 0 0 20px #000;
+}
+
+.forge-calibration-box label { display: flex; justify-content: space-between; margin-top: 6px; }
+.forge-calibration-box input { width: 100px; }
 
 /* ZLATÝ KRÁĽOVSKÝ BANNER PRE S-CLASS KARTIČKY */
 .global-announce-banner {
