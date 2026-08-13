@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 25.0.0)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 26.0.0)
    ========================================================================= */
 
 * {
@@ -395,7 +395,7 @@ body {
 .karta-surovina .surovina-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; }
 
 /* =========================================================================
-   4. MODÁLNE OKNÁ & SIEŇ SLÁVY (10 REBRÍČKOV)
+   4. MODÁLNE OKNÁ & SIEŇ SLÁVY
    ========================================================================= */
 .card-modal {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -419,7 +419,6 @@ body {
     justify-items: center;
 }
 
-/* DESIGN PRE ŠTATISTIKY A REBRÍČKY (GRID PRE 10 COLUMNS) */
 .stats-dev-panel {
     background: rgba(30, 20, 10, 0.85);
     border: 2px dashed #d4af37;
@@ -493,11 +492,11 @@ body {
 }
 
 /* =========================================================================
-   5. FINÁLNE A PRECIZNE ZAKÓDOVANÁ KOVADLINA (16:9)
+   5. KOVADLINA & FULLSCREEN OVERLAYE VIDEO
    ========================================================================= */
-#forge-video-overlay {
+#forge-video-overlay, #chest-video-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999;
-    display: flex; justify-content: center; align-items: center;
+    display: flex; justify-content: center; align-items: center; flex-direction: column;
 }
 
 .forge-stage-169 {
@@ -510,7 +509,7 @@ body {
     overflow: hidden;
 }
 
-#forge-video-element { width: 100%; height: 100%; object-fit: cover; }
+#forge-video-element, #chest-video-element { width: 100%; height: 100%; object-fit: cover; }
 .forge-cards-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; transform-style: preserve-3d; }
 
 .forge-slot-card {
@@ -519,16 +518,39 @@ body {
     height: 295px !important;
     pointer-events: none;
     transition: opacity 0.5s ease;
-    box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.85); /* INSET TIEŇ PRE PRECIZNE ZASADENIE */
+    box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.85);
 }
 
-/* PRESNÉ NAMERANÉ SÚRADNICE NATVRDO */
 #forge-card-1 { top: 50.65%; left: 26.75%; transform: translate(-50%, -50%) rotateX(20deg) scale(1.191, 1.212); }
 #forge-card-2 { top: 50.80%; left: 41.45%; transform: translate(-50%, -50%) rotateX(20deg) scale(1.195, 1.215); }
 #forge-card-3 { top: 50.95%; left: 56.10%; transform: translate(-50%, -50%) rotateX(16deg) scale(1.190, 1.195); }
 #forge-card-4 { top: 50.70%; left: 73.95%; transform: translate(-50%, -50%) rotateX(18deg) scale(1.200, 1.200); }
 
-/* ZLATÝ KRÁĽOVSKÝ BANNER PRE S-CLASS KARTIČKY */
+/* TRUHLICE OVERLAY & REWARDS MENU */
+.chest-prompt-text {
+    position: absolute; bottom: 40px; color: #ffcc00; font-size: 1.5em; font-weight: bold;
+    text-shadow: 0 0 10px #000; animation: pulse 1.5s infinite; cursor: pointer;
+}
+
+@keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+.chest-rewards-modal {
+    position: absolute;
+    background: rgba(15, 10, 5, 0.96);
+    border: 3px solid #d4af37;
+    border-radius: 16px;
+    padding: 25px;
+    text-align: center;
+    max-width: 850px;
+    width: 90%;
+    box-shadow: 0 0 50px rgba(212, 175, 55, 0.5);
+    z-index: 1000000;
+}
+
+.rewards-card-container {
+    display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin: 20px 0; max-height: 50vh; overflow-y: auto;
+}
+
 .global-announce-banner {
     position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
     background: linear-gradient(135deg, #2a1a08 0%, #0d0a07 100%);
@@ -542,7 +564,6 @@ body {
     100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
 }
 
-/* TRHOVISKO A AUKCIE */
 .auction-card-box {
     display: flex; gap: 20px; align-items: center; background: rgba(0, 0, 0, 0.6);
     border: 1px solid #5a4d3e; border-radius: 10px; padding: 15px; margin-top: 15px;
