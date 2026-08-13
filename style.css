@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 21.0.0)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 21.1.0)
    ========================================================================= */
 
 * {
@@ -19,7 +19,7 @@ body {
 }
 
 /* =========================================================================
-   1. HLAVNÉ MENU
+   1. HLAVNÉ MENU & ROZBALOVACÍ BATOH
    ========================================================================= */
 .menu-container {
     display: flex;
@@ -87,15 +87,81 @@ body {
     z-index: 5000;
 }
 
-.wallet-display {
+/* DESIGN ROZBALOVACIEHO BATOHU */
+.inventory-dropdown-container {
     margin-top: 20px;
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid #5a4d3e;
-    padding: 10px 25px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.btn-inventory-toggle {
+    background: #21180e;
+    color: #ffcc00;
+    border: 1.5px solid #d4af37;
+    padding: 10px 22px;
     border-radius: 20px;
-    color: #d4af37;
     font-weight: bold;
-    font-size: 1.2em;
+    font-size: 1.05em;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+    transition: all 0.2s ease;
+}
+
+.btn-inventory-toggle:hover {
+    background: #3b2d1d;
+    border-color: #ffe066;
+}
+
+.inventory-dropdown-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    background: rgba(15, 10, 5, 0.95);
+    border: 2px solid #d4af37;
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 10px;
+    max-width: 520px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.9);
+}
+
+.inventory-mini-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid #5a4d3e;
+    border-radius: 8px;
+    padding: 6px 12px;
+    min-width: 120px;
+}
+
+.inventory-mini-img {
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #d4af37;
+}
+
+.inventory-mini-info {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.inventory-mini-title {
+    font-size: 0.75em;
+    color: #a89060;
+}
+
+.inventory-mini-val {
+    font-size: 0.95em;
+    font-weight: bold;
+    color: #ffcc00;
 }
 
 /* =========================================================================
@@ -194,6 +260,7 @@ body {
     transition: transform 0.15s ease;
     flex-shrink: 0;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .karta:hover { transform: translateY(-8px) scale(1.05); z-index: 30; }
@@ -206,11 +273,19 @@ body {
 .karta.cls-C { border: 4px solid #f59e0b; border-image: url('Img/cclassram.webp') 30 stretch; }
 .karta.cls-B { border: 4px solid #8b5cf6; border-image: url('Img/bclassram.webp') 30 stretch; }
 .karta.cls-A { border: 4px solid #ec4899; border-image: url('Img/aclassram.webp') 30 stretch; }
+
+/* FIX PRE S-CLASS A PLATINUM RÁM (NEBUDE HORE USEKNUTÝ) */
+.karta.cls-S, .karta.cls-PLATINUM {
+    box-sizing: border-box !important;
+    background-clip: padding-box !important;
+    overflow: visible !important;
+}
+
 .karta.cls-S { border: 4px solid #ffcc00; border-image: url('Img/sclassram.webp') 30 stretch; box-shadow: 0 0 20px rgba(255, 204, 0, 0.7); }
 
 .karta.cls-PLATINUM {
-    border: 4px solid #e0e7ff !important;
-    border-image: url('Img/platinumclassram.webp') 30 stretch !important;
+    border: 5px solid #e0e7ff !important;
+    border-image: url('Img/platinumclassram.webp') 35 stretch !important;
     box-shadow: 0 0 25px rgba(224, 231, 255, 0.85);
     background-color: #0f0b08 !important;
 }
@@ -393,17 +468,17 @@ body {
 .forge-slot-card {
     position: absolute;
     transform: translate(-50%, -50%);
-    width: 138px !important;
-    height: 190px !important;
+    width: 235px !important;
+    height: 330px !important;
     pointer-events: none;
     transition: opacity 0.5s ease;
 }
 
-/* DOKONALÉ SÚRADNICE PRE 4 RÁMY NA KOVADLINE */
-#forge-card-1 { top: 48.0%; left: 32.2%; }
-#forge-card-2 { top: 48.0%; left: 43.8%; }
-#forge-card-3 { top: 48.0%; left: 55.4%; }
-#forge-card-4 { top: 48.0%; left: 67.0%; }
+/* KARTA 1 až 4 (Naladené presne na výrezy v podklade videa) */
+#forge-card-1 { top: 48.5%; left: 18.2%; }
+#forge-card-2 { top: 48.5%; left: 39.4%; }
+#forge-card-3 { top: 48.5%; left: 60.6%; }
+#forge-card-4 { top: 48.5%; left: 81.8%; }
 
 /* TRUHLE */
 #chest-video-overlay {
