@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 31.0.0 - HEURISTICS & CEMETERY)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 32.0.0 - PRODUCTION)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "31.0.0";
+var VERZIA = "32.0.0";
 
 // =========================================================================
 // 1. MASTER REGISTRY (20 PLATINIEK + 19 OBYČAJNÝCH KARIET)
@@ -178,8 +178,8 @@ var p1_erik_buff_row = null, p2_erik_buff_row = null;
 var sc1 = 0, sc2 = 0, r1 = 0, r2 = 0, p1Pass = false, p2Pass = false, aktualnyHrac = 1;
 var p1_draft_hand = [], p2_draft_hand = [];
 var p1_active_deck = [], p2_active_deck = [];
-var p1_spalene = [], p2_spalene = []; // ⚰️ IBA KARTY ZNIČENÉ V OHNI (Medveď/Jakub/Marek)
-var odhodene_karty_kola = []; // 🗃️ KARTY Z DOHRANÝCH KÔL
+var p1_spalene = [], p2_spalene = []; 
+var odhodene_karty_kola = []; 
 var neutralne_vplyvy = [];
 var jeSingleplayer = false; var obtiaznostAI = "B"; var blokujVykladanie = false;
 var aktualnaStranaKnihy = 1;
@@ -416,7 +416,7 @@ function spustitVideoAnimationTruhly(typ) {
 
     var videoSrc = (typ === "vitaz") ? "Img/truhlavitaza.mp4" : "Img/truhlaucastnika.mp4";
 
-    overlay.innerHTML = '<video id="chest-video-element" src="' + videoSrc + '" playsinline></video><div id="chest-click-prompt" class="chest-prompt-text">🎬 KLIKNI PRE OTVORENIE TRUHLE</div>';
+    overlay.innerHTML = '<video id="chest-video-element" src="' + videoSrc + '" playsinline webkit-playsinline></video><div id="chest-click-prompt" class="chest-prompt-text">🎬 KLIKNI PRE OTVORENIE TRUHLE</div>';
 
     document.body.appendChild(overlay);
 
@@ -425,7 +425,7 @@ function spustitVideoAnimationTruhly(typ) {
 
     overlay.onclick = function() {
         if (vid.paused) {
-            vid.play();
+            vid.play().catch(function(){});
             promptTxt.style.display = "none";
         }
     };
@@ -647,6 +647,7 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
     spustitVideoAnimationKovania(meno, fromCls, nextCls, isSuccess, pCfg.saveCard);
 }
 
+// 📱 100% RESPONZÍVNA ANIMÁCIA KOVANIA
 function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected) {
     pozastavitHudbuPreVideo();
 
@@ -659,7 +660,7 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
 
     var fourthCardHtml = isSuccess ? '<div id="forge-card-4" class="karta cls-' + nextCls + ' forge-slot-card" style="opacity:0;">' + vytvorHTMLKarty(meno, nextPwr, nextCls, reg.row, reg.p) + '</div>' : '';
 
-    overlay.innerHTML = '<div class="forge-stage-169"><video id="forge-video-element" src="Img/vylepsovanie.mp4" autoplay playsinline></video><div class="forge-cards-container"><div id="forge-card-1" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div><div id="forge-card-2" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div><div id="forge-card-3" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div>' + fourthCardHtml + '</div></div>';
+    overlay.innerHTML = '<div class="forge-stage-169"><video id="forge-video-element" src="Img/vylepsovanie.mp4" autoplay playsinline webkit-playsinline></video><div class="forge-cards-container"><div id="forge-card-1" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div><div id="forge-card-2" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div><div id="forge-card-3" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div>' + fourthCardHtml + '</div></div>';
 
     document.body.appendChild(overlay);
 
@@ -681,6 +682,8 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
     }, 7800);
 
     var vid = document.getElementById("forge-video-element");
+    vid.play().catch(function(){});
+
     vid.onended = function() {
         if (reg.isJoker) {
             if (isSuccess) {
@@ -700,7 +703,6 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
             if (!t) { inventar.karty[meno] = { repliky: {}, aktivnaTrieda: "F" }; t = inventar.karty[meno]; }
             if (typeof t.repliky !== "object") t.repliky = {};
 
-            // 🔨 KOREKTNÉ ODPOČÍTAVANIE REÁLNYCH KARIET A JOKEROV
             var availableReal = t.repliky[oldCls] || 0;
             var realToDeduct = Math.min(3, availableReal);
             var jokersToDeduct = 3 - realToDeduct;
@@ -741,7 +743,7 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
 }
 
 // =========================================================================
-// 📦 TRHOVISKO, KRÁĽOVSKÝ SKLAD & PREDAJ S OCHRANOU KARIET
+// 📦 TRHOVISKO, KRÁĽOVSKÝ SKLAD & NOVÝ PREDAJNÝ FORMULÁR
 // =========================================================================
 var aukcnyCasomeračInterval = null;
 var aktualnyAnonymnyStrop = 250; 
@@ -787,7 +789,20 @@ function vygenerujSimulaciuTrhu() {
         skladHtml += '</div>';
         e.innerHTML = skladHtml;
     } else if (aktualnaZalozkaTrhu === "predaj") {
-        var predajHtml = '<div style="background:rgba(30,20,10,0.85); border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:15px;"><h3 style="color:#d4af37; margin-top:0;">📦 VYVESIŤ POLOŽKU NA TRHOVISKO</h3><p style="font-size:0.9em; color:#ccc;">Predaj vybranú triedu a počet kusov. Karty aktívne v balíčku sú chránené varovaním!</p></div><div class="dielna-grid">';
+        // 📦 NOVÝ INTERAKTÍVNY PREDAJNÝ FORMULÁR
+        var dostupneKarty = Object.keys(inventar.karty).filter(function(k) {
+            var cData = inventar.karty[k];
+            return typeof cData.repliky === "object";
+        });
+
+        var optionsHtml = "";
+        dostupneKarty.forEach(function(k) {
+            optionsHtml += '<option value="' + k + '">' + k + '</option>';
+        });
+
+        var predajHtml = '<div class="sell-form-container"><h3 style="color:#ffcc00; margin-top:0; text-align:center; font-family:Georgia, serif;">📦 VYVESIŤ NOVÚ AUKCIU NA TRHOVISKO</h3><div class="sell-form-row"><label>1. Vyber kartu z batohu:</label><select id="sell-card-select" class="sell-form-select" onchange="aktualizujDostupneTriedyPrePredaj()">' + optionsHtml + '</select></div><div class="sell-form-row"><label>2. Vyber triedu karty:</label><select id="sell-class-select" class="sell-form-select" onchange="aktualizujMaxKusovPrePredaj()"><option value="F">F-Class</option><option value="E">E-Class</option><option value="D">D-Class</option><option value="C">C-Class</option><option value="B">B-Class</option><option value="A">A-Class</option></select></div><div class="sell-form-row"><label>3. Počet kusov v balíku: <strong id="sell-count-label" style="color:#ffcc00;">1x</strong> (Skladom: <span id="sell-max-stock">1</span>x)</label><input type="range" id="sell-count-range" min="1" max="1" value="1" style="width:100%;" oninput="document.getElementById(\'sell-count-label\').innerText = this.value + \'x\';"></div><div class="sell-form-row"><label>4. Cena Okamžitého výkupu (m):</label><input type="number" id="sell-price-input" class="sell-form-input" value="35" min="1"></div><div style="text-align:center; margin-top:15px;"><button onclick="odoslatPredajnyFormular()" style="background:#10b981; color:#fff; border:none; padding:12px 30px; border-radius:6px; font-weight:bold; font-size:1.05em; cursor:pointer; width:100%;">🚀 Potvrdiť a Vyvesiť na Trh</button></div></div>';
+
+        predajHtml += '<h4 style="color:#d4af37; text-align:center;">📋 PREHĽAD TVOJICH ZÁSOB V BATOHU</h4><div class="dielna-grid">';
 
         Object.keys(inventar.karty).forEach(function(kName) {
             var cData = inventar.karty[kName];
@@ -797,8 +812,8 @@ function vygenerujSimulaciuTrhu() {
                     var count = cData.repliky[cls] || 0;
                     if (count > 0) {
                         var isInDeck = (inventar.zostava.indexOf(kName) !== -1);
-                        var deckTag = isInDeck ? '<span style="color:#ff4d4d; font-size:0.75em; display:block;">⚠️ KARTA V BALÍČKU</span>' : '';
-                        predajHtml += '<div class="karta-karta-wrapper"><div class="karta cls-' + cls + '">' + vytvorHTMLKarty(kName, getRealPower({n:kName, cls:cls}), cls, reg.row, reg.p, false) + '</div><div style="font-size:0.8em; margin:6px 0; color:#ffcc00; text-align:center;">Na sklade: <strong>' + count + 'x</strong>' + deckTag + '</div><button onclick="overAPredatKartuNaTrhu(\'' + kName.replace(/'/g, "\\'") + '\', \'' + cls + '\', ' + count + ', ' + isInDeck + ')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:0.85em;">🛒 Predať na Trhu</button></div>';
+                        var deckTag = isInDeck ? '<span style="color:#ff4d4d; font-size:0.75em; display:block;">⚠️ V BALÍČKU</span>' : '';
+                        predajHtml += '<div class="karta-karta-wrapper"><div class="karta cls-' + cls + '">' + vytvorHTMLKarty(kName, getRealPower({n:kName, cls:cls}), cls, reg.row, reg.p, false) + '</div><div style="font-size:0.8em; margin:6px 0; color:#ffcc00; text-align:center;">Na sklade: <strong>' + count + 'x</strong>' + deckTag + '</div></div>';
                     }
                 });
             }
@@ -806,7 +821,77 @@ function vygenerujSimulaciuTrhu() {
 
         predajHtml += '</div>';
         e.innerHTML = predajHtml;
+        setTimeout(aktualizujMaxKusovPrePredaj, 50);
     }
+}
+
+function aktualizujDostupneTriedyPrePredaj() {
+    var kName = document.getElementById("sell-card-select").value;
+    var cData = inventar.karty[kName];
+    var sel = document.getElementById("sell-class-select");
+    if (!sel || !cData) return;
+    sel.innerHTML = "";
+
+    ["F", "E", "D", "C", "B", "A"].forEach(function(cls) {
+        if (cData.repliky && cData.repliky[cls] > 0) {
+            sel.innerHTML += '<option value="' + cls + '">' + cls + '-Class (' + cData.repliky[cls] + 'x)</option>';
+        }
+    });
+
+    aktualizujMaxKusovPrePredaj();
+}
+
+function aktualizujMaxKusovPrePredaj() {
+    var kName = document.getElementById("sell-card-select").value;
+    var cls = document.getElementById("sell-class-select").value;
+    var cData = inventar.karty[kName];
+    var max = (cData && cData.repliky && cData.repliky[cls]) ? cData.repliky[cls] : 1;
+
+    var range = document.getElementById("sell-count-range");
+    var stockLabel = document.getElementById("sell-max-stock");
+    var countLabel = document.getElementById("sell-count-label");
+
+    if (range) {
+        range.max = max;
+        range.value = 1;
+    }
+    if (stockLabel) stockLabel.innerText = max;
+    if (countLabel) countLabel.innerText = "1x";
+}
+
+function odoslatPredajnyFormular() {
+    var kName = document.getElementById("sell-card-select").value;
+    var cls = document.getElementById("sell-class-select").value;
+    var count = parseInt(document.getElementById("sell-count-range").value);
+    var price = parseInt(document.getElementById("sell-price-input").value);
+
+    if (isNaN(price) || price <= 0) {
+        ukazOznamenie("⚠️ CHYBA", "Zadaj platnú cenu!");
+        return;
+    }
+
+    var isInDeck = (inventar.zostava.indexOf(kName) !== -1);
+    if (isInDeck) {
+        var potvrd = confirm("⚠️ KARTA JE V BALÍČKU!\nTúto kartu (" + kName + ") máš zaradenú vo svojej zápasovej zostave!\n\nNaozaj ju chceš vyvesiť na trh?");
+        if (!potvrd) return;
+    }
+
+    inventar.karty[kName].repliky[cls] -= count;
+    
+    var hasRemaining = false;
+    Object.keys(inventar.karty[kName].repliky).forEach(function(cKey) {
+        if (inventar.karty[kName].repliky[cKey] > 0) hasRemaining = true;
+    });
+
+    if (!hasRemaining) {
+        inventar.karty[kName].repliky["F"] = 1;
+        inventar.karty[kName].aktivnaTrieda = "F";
+    }
+
+    ukazOznamenie("🎉 POLOŽKA ZALISTOVANÁ", "Balík **" + count + "x " + kName + " (" + cls + "-Class)** bol vyvesený na anonymný trh za " + price + " mincí!");
+    vygenerujSimulaciuTrhu();
+    aktualizujVsetkyStickyWallety();
+    vygenerujDeckbuilder();
 }
 
 function kupitSurovinuZoStatnehoSkladu(mat, pocetOz) {
@@ -823,44 +908,6 @@ function kupitSurovinuZoStatnehoSkladu(mat, pocetOz) {
     inventar.suroviny[mat] = (inventar.suroviny[mat] || 0) + pocetOz;
     ukazOznamenie("🏛️ NÁKUP ZO ŠTÁTNEHO SKLADU", "Kúpil si **" + pocetOz + " oz " + mat + "** za " + celkovaCena + " mincí!");
     aktualizujVsetkyStickyWallety();
-}
-
-function overAPredatKartuNaTrhu(kName, cls, maxCount, isInDeck) {
-    if (isInDeck) {
-        var potvrd = confirm("⚠️ KARTA JE V BALÍČKU!\nTúto kartu (" + kName + ") máš práve zaradenú vo svojej zápasovej zostave!\n\nNaozaj si istý, že ju chceš vyvesiť na trh?");
-        if (!potvrd) return;
-    }
-
-    var countStr = prompt("Koľko kusov karty " + kName + " (" + cls + "-Class) chceš predať? (Dostupných: " + maxCount + "):", "1");
-    if (!countStr) return;
-    var countToSell = parseInt(countStr);
-    if (isNaN(countToSell) || countToSell <= 0 || countToSell > maxCount) {
-        ukazOznamenie("⚠️ CHYBA", "Zadaj platný počet kusov od 1 po " + maxCount + "!");
-        return;
-    }
-
-    var cenaStr = prompt("Zadaj cenu Okamžitého výkupu v minciach za balík (" + countToSell + "x):", (countToSell * 35).toString());
-    if (!cenaStr) return;
-    var cena = parseInt(cenaStr);
-    if (isNaN(cena) || cena <= 0) { ukazOznamenie("⚠️ CHYBA", "Zadaj platnú cenu!"); return; }
-
-    inventar.karty[kName].repliky[cls] -= countToSell;
-    
-    // Ak sa predala aktívna trieda, zosynchronizujeme najvyššiu dostupnú
-    var hasRemaining = false;
-    Object.keys(inventar.karty[kName].repliky).forEach(function(cKey) {
-        if (inventar.karty[kName].repliky[cKey] > 0) hasRemaining = true;
-    });
-
-    if (!hasRemaining) {
-        inventar.karty[kName].repliky["F"] = 1; // Garancia minimálne 1 F kópie
-        inventar.karty[kName].aktivnaTrieda = "F";
-    }
-
-    ukazOznamenie("🎉 POLOŽKA ZALISTOVANÁ", "Balík **" + countToSell + "x " + kName + " (" + cls + "-Class)** bol úspešne vyvesený na anonymný trh za " + cena + " mincí!");
-    vygenerujSimulaciuTrhu();
-    aktualizujVsetkyStickyWallety();
-    vygenerujDeckbuilder();
 }
 
 function anonymnePrihoditSumu(stropVal) {
@@ -942,7 +989,7 @@ function prepniZvuk() {
     var btn = document.getElementById("mute-btn");
     if (!audio) return;
     if (audio.paused) {
-        audio.play();
+        audio.play().catch(function(){});
         hudbaSpustena = true;
         audioMutedByUser = false;
         if (btn) btn.innerText = "🔊";
@@ -992,7 +1039,7 @@ function upravHlasitost(val) {
 }
 
 // =========================================================================
-// 🛡️ DYNAMICKÝ A PREPOČET SILY & INTERAKTÍVNY ERIK BUFF
+// 🛡️ DYNAMICKÝ PREPOČET SILY & INTERAKTÍVNY ERIK BUFF
 // =========================================================================
 function vypocitajDynamickuSiluJednejKarty(card, pNum) {
     var reg = getRegistryCard(card.n);
@@ -1117,7 +1164,6 @@ function vypocitajSetBonusRadu(targetRow, cardList) {
 
 function otvorErikBuffDialog(pNum, callback) {
     if (pNum === 2 && jeSingleplayer) {
-        // AI Heuristika podľa obtiažnosti
         var roll = Math.random();
         var chooseBest = (obtiaznostAI === "A") || (obtiaznostAI === "B" && roll <= 0.65);
         if (chooseBest) {
@@ -1444,7 +1490,6 @@ function potvrditMulliganAkciu(chceVymenu) {
         ukazOznamenie("✅ RUKA POTVRDENÁ", "Ponechal si si pôvodnú ruku.");
     }
 
-    // 🤖 AI HEURISTICKÝ MULLIGAN
     if (jeSingleplayer) {
         vyhodnotAIMulligan();
     }
@@ -1555,7 +1600,6 @@ function vylozitKartuZRuky(pNum, cardIndex) {
         ukazOznamenie("🕵️ ŠPIÓN VYLOŽENÝ", "Karta <strong>" + card.n + "</strong> bola vyložená na súperovu stranu stola a potiahol si 2 nové karty!");
     } else if (reg.isSpell) {
         if (card.n === "Šicko v porádku") {
-            // ⚡ DISPEL: Odstráni všetky kúzla a samo zmizne zo stola do odhodených
             neutralne_vplyvy = [];
             odhodene_karty_kola.push(card);
             ukazOznamenie("⚡ ŠICKO V PORÁDKU", "Všetky neutrálne kúzla boli vyčistené zo stola!");
@@ -1627,7 +1671,7 @@ function vykonajAutoSpalenie(pôvodcaMeno) {
     var spalenychKariet = 0;
     p1_played_cards = p1_played_cards.filter(function(c) {
         if (c.n !== pôvodcaMeno && c.n !== "Oli" && getRealPower(c) === maxPwr) {
-            p1_spalene.push(c); // ⚰️ Presun do ohňa
+            p1_spalene.push(c);
             spalenychKariet++;
             return false;
         }
@@ -1636,7 +1680,7 @@ function vykonajAutoSpalenie(pôvodcaMeno) {
 
     p2_played_cards = p2_played_cards.filter(function(c) {
         if (c.n !== pôvodcaMeno && c.n !== "Oli" && getRealPower(c) === maxPwr) {
-            p2_spalene.push(c); // ⚰️ Presun do ohňa
+            p2_spalene.push(c);
             spalenychKariet++;
             return false;
         }
@@ -1727,7 +1771,6 @@ function skontrolujKoniecKola() {
 }
 
 function pripravNoveKolo() {
-    // 🗃️ Presun kariet zo stola do odhodených (NIE do p1_spalene!)
     odhodene_karty_kola = odhodene_karty_kola.concat(p1_played_cards).concat(p2_played_cards);
     p1_played_cards = []; p2_played_cards = [];
     neutralne_vplyvy = [];
@@ -1791,4 +1834,6 @@ window.prepniVyberMulliganKarty = prepniVyberMulliganKarty;
 window.potvrditMulliganAkciu = potvrditMulliganAkciu;
 window.prepniZalozkuTrhu = prepniZalozkuTrhu;
 window.kupitSurovinuZoStatnehoSkladu = kupitSurovinuZoStatnehoSkladu;
-window.overAPredatKartuNaTrhu = overAPredatKartuNaTrhu;
+window.aktualizujDostupneTriedyPrePredaj = aktualizujDostupneTriedyPrePredaj;
+window.aktualizujMaxKusovPrePredaj = aktualizujMaxKusovPrePredaj;
+window.odoslatPredajnyFormular = odoslatPredajnyFormular;
