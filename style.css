@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 37.0.0 - REFINED FRAMES)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 38.0.0 - PERFECT PLATINUM)
    ========================================================================= */
 
 * {
@@ -302,7 +302,7 @@ body {
 }
 
 /* =========================================================================
-   5. DESIGN KARIET - ZJEMNENÉ RÁMY & 68% VÝŠKA OBRÁZKA
+   5. DESIGN KARIET - ZJEMNENÉ RÁMY & DOKONALÝ PLATINUM OFFSET
    ========================================================================= */
 .karta-karta-wrapper { 
     display: flex; 
@@ -421,7 +421,7 @@ body {
     display: none !important;
 }
 
-/* 🖼️ OBRÁZOK DO 68% VÝŠKY KARTY ZVRCHU */
+/* 🖼️ OBRÁZOK BEŽNÝCH KARIET DO 68% VÝŠKY ZVRCHU */
 .karta-foto {
     width: 100%;
     height: 68% !important;
@@ -437,9 +437,13 @@ body {
     background-color: #1a120b;
 }
 
+/* 👑 DOKONALÉ ZASADENIE DO PLATINOVÉHO OKNA POD ŠTÍTOM (BEZ OREZANIA HLAVY) */
 .karta.cls-PLATINUM .karta-foto {
-    height: 68% !important;
-    background-position: center 28% !important;
+    top: 18% !important;
+    height: 62% !important;
+    background-size: cover !important;
+    background-position: center top !important;
+    border-radius: 0 !important;
 }
 
 .karta-kruh {
