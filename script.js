@@ -738,7 +738,21 @@ function vykresliStol() {
     });
 }
 
-function vykresliHraciuPlochu() { prepočitajSkoreStola(); aktualizujKolaUI(); vykresliStol(); vykresliRukuHraca(1); vykresliRukuHraca(2); }
+function aktualizujSpaleniskoUI() {
+    var el1 = document.getElementById("p1-grave-count");
+    var el2 = document.getElementById("p2-grave-count");
+    if (el1) el1.innerText = p1_spalene.length;
+    if (el2) el2.innerText = p2_spalene.length;
+}
+
+function vykresliHraciuPlochu() { 
+    prepočitajSkoreStola(); 
+    aktualizujKolaUI(); 
+    vykresliStol(); 
+    vykresliRukuHraca(1); 
+    vykresliRukuHraca(2); 
+    aktualizujSpaleniskoUI(); 
+}
 
 function vylozitKartuZRuky(pNum, cardIndex) {
     if (blokujVykladanie || pNum !== aktualnyHrac) return;
@@ -763,11 +777,14 @@ function vylozitKartuZRuky(pNum, cardIndex) {
         myPlayed.push(card);
         if (card.n === "Zatúlaný tatranský medveď" || card.n === "Jakub") { vykonajAutoSpalenie(card.n, function() { vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); }); return; }
         if (card.n === "Marek") vykonajCieleneSpalenieMarekom(pNum);
-        if (card.n === "Doktor" || card.n === "Sestrička" || card.n === "Kornélia") vykonajOzivenieZArchivu(pNum);
+        
+        // TU JE ZMENA PRE OŽIVOVANIE (pridané return)
+        if (card.n === "Doktor" || card.n === "Sestrička" || card.n === "Kornélia") { vykonajOzivenieZArchivu(pNum); return; }
+        
         if (card.n === "Erik") { otvorErikBuffDialog(pNum, function() { vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); }); return; }
     }
     vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
-}
+}    
 
 function pokracujPoVylozeni(pNum) { if ((pNum === 1 && !p2Pass) || (pNum === 2 && !p1Pass)) prepniHracov(); else spravujAI(); }
 
@@ -799,11 +816,78 @@ function vykonajCieleneSpalenieMarekom(pNum) {
     if (vIdx !== -1) { oppCards.splice(vIdx, 1); oppSpalene.push(victim); ukazOznamenie("🧹 MAREK FILOZOF", "Marek zmanipuloval a poslal do ohňa súperovu kartu <strong>" + victim.n + "</strong>!"); }
 }
 
+function otvorSpalenisko(pNum, isReviving) {
+    var arch = (pNum === 1) ? p1_spalene : p2_spalene;
+    var modal = document.getElementById("graveyard-modal");
+    var container = document.getElementById("graveyard-container");
+    var subtitle = document.getElementById("graveyard-subtitle");
+    if (!modal || !container) return;
+
+    if (arch.length === 0) {
+        ukazOznamenie("🔥 PRÁZDNY ARCHÍV", "V ohni sa nenachádzajú žiadne karty.");
+        if (isReviving) { vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); }
+        return;
+    }
+
+    container.innerHTML = "";
+    subtitle.innerText = isReviving ? "Vyber kartu, ktorú chceš oživiť z plameňov!" : "Zoznam kariet, ktoré zhoreli v plameňoch.";
+    subtitle.style.color = isReviving ? "#10b981" : "#ccc";
+
+    arch.forEach(function(c, idx) {
+        var reg = getRegistryCard(c.n);
+        var cardDiv = document.createElement("div");
+        cardDiv.className = "karta-karta-wrapper";
+        cardDiv.style.border = isReviving && pNum === 1 ? "2px solid #10b981" : "1px solid #4a3d2e";
+        cardDiv.style.cursor = isReviving && pNum === 1 ? "pointer" : "default";
+        
+        var innerCard = document.createElement("div");
+        innerCard.className = "karta cls-" + (reg.isPlatinum ? "PLATINUM" : (c.cls || "F"));
+        innerCard.innerHTML = vytvorHTMLKarty(c.n, getRealPower(c), c.cls || "F", reg.row, reg.p, false);
+        cardDiv.appendChild(innerCard);
+
+        if (isReviving && pNum === 1) {
+            cardDiv.onclick = function() { potvrdOzivenieKarty(pNum, idx); modal.style.display = "none"; };
+        }
+        container.appendChild(cardDiv);
+    });
+
+    modal.style.display = "flex";
+
+    // Ak oživuje Bot, vyberie si najsilnejšiu kartu automaticky po sekunde
+    if (isReviving && pNum === 2 && jeSingleplayer) {
+        setTimeout(function() {
+            var bestIdx = 0; var maxPwr = -1;
+            arch.forEach(function(c, i) { var p = getRealPower(c); if (p > maxPwr) { maxPwr = p; bestIdx = i; } });
+            potvrdOzivenieKarty(2, bestIdx);
+            modal.style.display = "none";
+        }, 1200);
+    }
+}
+
+function potvrdOzivenieKarty(pNum, index) {
+    var arch = (pNum === 1) ? p1_spalene : p2_spalene;
+    var myPlayed = (pNum === 1) ? p1_played_cards : p2_played_cards;
+    var oživenaKarta = arch.splice(index, 1)[0];
+    
+    if (oživenaKarta) {
+        myPlayed.push(oživenaKarta);
+        ukazOznamenie("🕊️ OŽIVENIE Z OHŇA!", "Z plameňov sa vrátila karta <strong>" + oživenaKarta.n + "</strong>!", function() {
+            vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
+        });
+    } else {
+        vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
+    }
+}
+
 function vykonajOzivenieZArchivu(pNum) {
-    var arch = (pNum === 1) ? p1_spalene : p2_spalene; var myPlayed = (pNum === 1) ? p1_played_cards : p2_played_cards;
-    if (arch.length === 0) { ukazOznamenie("🏥 PRÁZDNY ARCHÍV OHŇA", "V archíve nie je žiadna karta!"); return; }
-    var oživenaKarta = arch.pop(); myPlayed.push(oživenaKarta);
-    ukazOznamenie("🕊️ OŽIVENIE Z OHŇA!", "Bola oživená karta <strong>" + oživenaKarta.n + "</strong>!");
+    var arch = (pNum === 1) ? p1_spalene : p2_spalene;
+    if (arch.length === 0) {
+        ukazOznamenie("🏥 PRÁZDNY ARCHÍV OHŇA", "V tvojom archíve nie je žiadna jednotka na oživenie!", function() {
+            vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
+        });
+        return;
+    }
+    otvorSpalenisko(pNum, true);
 }
 
 function hracPassuje(pNum) {
