@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 28.1.0 - DYNAMIC BOARD)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 28.2.0 - CALIBRATED)
    ========================================================================= */
 
 * {
@@ -195,13 +195,13 @@ body {
 .inventory-mini-val { font-size: 0.95em; font-weight: bold; color: #ffcc00; }
 
 /* =========================================================================
-   3. HRACÍ STÔL A ZVÄČŠENÉ RADY (PRE PLATINIUM KARTY)
+   3. HRACÍ STÔL A ZVÄČŠENÉ RADY
    ========================================================================= */
 .board-container {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    max-width: 1500px;
+    max-width: 1550px;
     margin: 0 auto;
     padding: 10px;
     justify-content: space-between;
@@ -225,16 +225,15 @@ body {
 
 .board-half { display: flex; flex-direction: column; gap: 8px; }
 
-/* ZVÄČŠENÁ VÝŠKA RADU NA 275px PRE PLATINIUM KARTY */
 .board-row {
     background: rgba(0, 0, 0, 0.45);
     border: 1px dashed #4a3d2e;
-    min-height: 275px;
+    min-height: 380px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     padding: 10px 15px;
-    gap: 14px;
+    gap: 16px;
     position: relative;
     overflow-x: auto;
     backdrop-filter: blur(2px);
@@ -251,14 +250,13 @@ body {
     text-transform: uppercase;
 }
 
-.row-neutral { background: rgba(30, 20, 10, 0.7); border: 1px solid #d4af37; min-height: 240px; justify-content: center; }
+.row-neutral { background: rgba(30, 20, 10, 0.7); border: 1px solid #d4af37; min-height: 250px; justify-content: center; }
 
-/* ZVÄČŠENÁ VÝŠKA RUKY NA 270px */
 .card-hand {
     display: flex;
     justify-content: center;
-    gap: 12px;
-    min-height: 270px;
+    gap: 14px;
+    min-height: 380px;
     padding: 8px;
     overflow-x: auto;
     background: rgba(0, 0, 0, 0.45);
@@ -267,7 +265,7 @@ body {
 }
 
 /* =========================================================================
-   4. DESIGN KARIET & DYNAMICKÉ ODDIAĽOVANIE OBRÁZKOV
+   4. DESIGN KARIET (NASTAVENÝ PRESNE PODĽA SCREENSHOTOV 222px x 360px)
    ========================================================================= */
 .karta-karta-wrapper { 
     display: flex; 
@@ -278,12 +276,12 @@ body {
     padding: 12px;
     border-radius: 12px;
     width: 100%;
-    max-width: 240px;
+    max-width: 260px;
 }
 
 .karta {
-    width: 165px;
-    height: 228px;
+    width: 222px;
+    height: 360px;
     background: #0f0b08;
     border-radius: 12px;
     position: relative;
@@ -299,7 +297,7 @@ body {
     box-sizing: border-box;
 }
 
-.karta:hover { transform: translateY(-8px) scale(1.05); z-index: 30; }
+.karta:hover { transform: translateY(-8px) scale(1.03); z-index: 30; }
 .karta-disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.6); }
 
 /* RÁMY KARIET */
@@ -318,24 +316,39 @@ body {
 .karta.cls-JOKER-B { border: 3px solid #8b5cf6 !important; border-image: none !important; box-shadow: 0 0 12px rgba(139, 92, 246, 0.6); }
 .karta.cls-JOKER-A { border: 3px solid #ec4899 !important; border-image: none !important; box-shadow: 0 0 12px rgba(236, 72, 153, 0.6); }
 
+/* 🌟 FINÁLNA PLATINOVÁ KARTA BEZ ČIERNYCH ROHOV A PRESVEDČIVÝ VZHĽAD */
 .karta.cls-PLATINUM {
     border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
     overflow: visible !important;
-    box-shadow: 0 0 25px rgba(224, 231, 255, 0.85);
 }
 
 .karta.cls-PLATINUM::after {
     content: "";
     position: absolute;
-    top: -26px;
-    left: -10px;
-    right: -10px;
-    bottom: -10px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background-image: url('Img/platinumclassram.webp');
     background-size: 100% 100%;
     background-repeat: no-repeat;
     pointer-events: none;
     z-index: 10;
+}
+
+.karta.cls-PLATINUM .karta-foto {
+    background-size: 142% auto !important;
+    background-position: 65% 31% !important;
+    border-radius: 6px;
+    z-index: 1;
+}
+
+/* OBYČAJNÉ KARTY NASTAVENÉ PODĽA HODNÔT (142% | 63% 6%) */
+.karta:not(.cls-PLATINUM) .karta-foto {
+    background-size: 142% auto;
+    background-position: 63% 6%;
 }
 
 .karta-kruh {
@@ -368,13 +381,10 @@ body {
     z-index: 12;
 }
 
-/* ODDIAĽENÉ A VYCENTROVANÉ FOTKY NA CELÚ PLOCHU BEZ OREZANIA */
 .karta-foto {
     width: 100%;
     height: 100%;
-    background-size: contain;
     background-repeat: no-repeat;
-    background-position: center;
     position: absolute;
     top: 0;
     left: 0;
@@ -388,18 +398,18 @@ body {
     right: 0;
     background: rgba(12, 8, 5, 0.9);
     border-top: 1px solid #d4af37;
-    padding: 5px 4px;
+    padding: 6px 4px;
     text-align: center;
     z-index: 11;
     backdrop-filter: blur(2px);
 }
 
-.karta-nazov { font-size: 0.88em; font-weight: bold; color: #ffcc00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.karta-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ROVNAKO VEĽKÉ KARTY PRE SUROVINY V TRUHLI */
 .karta-surovina {
-    width: 165px;
-    height: 228px;
+    width: 222px;
+    height: 360px;
     background: #100c08;
     border: 3px solid #d4af37;
     border-radius: 8px;
@@ -415,11 +425,11 @@ body {
 
 .karta-surovina .surovina-foto {
     width: 100%;
-    height: 145px;
+    height: 240px;
     background-size: cover;
     background-position: center;
     border-radius: 4px;
-    margin-top: 15px;
+    margin-top: 25px;
 }
 
 .karta-surovina .surovina-badge {
@@ -429,20 +439,20 @@ body {
     background: #ffcc00;
     color: #000;
     font-weight: bold;
-    font-size: 0.95em;
-    padding: 3px 9px;
+    font-size: 1.05em;
+    padding: 4px 10px;
     border-radius: 12px;
     border: 1px solid #000;
 }
 
 .karta-surovina .surovina-stitok {
     background: rgba(0, 0, 0, 0.9);
-    padding: 5px;
+    padding: 6px;
     border-radius: 4px;
     text-align: center;
 }
 
-.karta-surovina .surovina-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; }
+.karta-surovina .surovina-nazov { font-size: 0.95em; font-weight: bold; color: #ffcc00; }
 
 /* =========================================================================
    5. MODÁLY & REBRÍČKY
@@ -463,7 +473,7 @@ body {
 
 .dielna-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 36px 24px;
     margin-top: 30px;
     justify-items: center;
