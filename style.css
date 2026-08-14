@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 28.0.0 - FULL GRAPHICS)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 28.1.0 - DYNAMIC BOARD)
    ========================================================================= */
 
 * {
@@ -18,7 +18,7 @@ body {
 }
 
 /* =========================================================================
-   1. POZADIA PRE OBRAZOVKY A MODÁLY (RESPONZÍVNY FULLSCREEN)
+   1. POZADIA PRE OBRAZOVKY A MODÁLY
    ========================================================================= */
 .screen-bg {
     background-size: cover !important;
@@ -195,12 +195,12 @@ body {
 .inventory-mini-val { font-size: 0.95em; font-weight: bold; color: #ffcc00; }
 
 /* =========================================================================
-   3. HRACÍ STÔL A ZÁPAS
+   3. HRACÍ STÔL A ZVÄČŠENÉ RADY (PRE PLATINIUM KARTY)
    ========================================================================= */
 .board-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
     max-width: 1500px;
     margin: 0 auto;
     padding: 10px;
@@ -223,17 +223,18 @@ body {
 .btn-pass { background: #8b0000; color: #fff; border: 1px solid #ff4d4d; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 .btn-exit { background: #3b2d1d; color: #ffcc00; border: 1px solid #d4af37; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
-.board-half { display: flex; flex-direction: column; gap: 6px; }
+.board-half { display: flex; flex-direction: column; gap: 8px; }
 
+/* ZVÄČŠENÁ VÝŠKA RADU NA 275px PRE PLATINIUM KARTY */
 .board-row {
     background: rgba(0, 0, 0, 0.45);
     border: 1px dashed #4a3d2e;
-    min-height: 240px;
+    min-height: 275px;
     border-radius: 8px;
     display: flex;
     align-items: center;
-    padding: 8px 15px;
-    gap: 12px;
+    padding: 10px 15px;
+    gap: 14px;
     position: relative;
     overflow-x: auto;
     backdrop-filter: blur(2px);
@@ -250,21 +251,23 @@ body {
     text-transform: uppercase;
 }
 
-.row-neutral { background: rgba(30, 20, 10, 0.7); border: 1px solid #d4af37; min-height: 200px; justify-content: center; }
+.row-neutral { background: rgba(30, 20, 10, 0.7); border: 1px solid #d4af37; min-height: 240px; justify-content: center; }
 
+/* ZVÄČŠENÁ VÝŠKA RUKY NA 270px */
 .card-hand {
     display: flex;
     justify-content: center;
     gap: 12px;
-    min-height: 245px;
+    min-height: 270px;
     padding: 8px;
     overflow-x: auto;
     background: rgba(0, 0, 0, 0.45);
     border-radius: 8px;
+    align-items: center;
 }
 
 /* =========================================================================
-   4. DESIGN KARIET & DYNAMICKÉ PREKRÝVANIE POPISOV
+   4. DESIGN KARIET & DYNAMICKÉ ODDIAĽOVANIE OBRÁZKOV
    ========================================================================= */
 .karta-karta-wrapper { 
     display: flex; 
@@ -365,10 +368,12 @@ body {
     z-index: 12;
 }
 
+/* ODDIAĽENÉ A VYCENTROVANÉ FOTKY NA CELÚ PLOCHU BEZ OREZANIA */
 .karta-foto {
     width: 100%;
     height: 100%;
-    background-size: cover;
+    background-size: contain;
+    background-repeat: no-repeat;
     background-position: center;
     position: absolute;
     top: 0;
@@ -381,15 +386,15 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(12, 8, 5, 0.88);
+    background: rgba(12, 8, 5, 0.9);
     border-top: 1px solid #d4af37;
-    padding: 6px 4px;
+    padding: 5px 4px;
     text-align: center;
     z-index: 11;
     backdrop-filter: blur(2px);
 }
 
-.karta-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.karta-nazov { font-size: 0.88em; font-weight: bold; color: #ffcc00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ROVNAKO VEĽKÉ KARTY PRE SUROVINY V TRUHLI */
 .karta-surovina {
@@ -440,7 +445,7 @@ body {
 .karta-surovina .surovina-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; }
 
 /* =========================================================================
-   5. MODÁLY & 20 ŠTATISTICKÝCH STĹPCOV
+   5. MODÁLY & REBRÍČKY
    ========================================================================= */
 .card-modal {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
