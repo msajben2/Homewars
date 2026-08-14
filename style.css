@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 29.0.0 - PRODUCTION FIX)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 30.0.0 - STICKY WALLET & OZ)
    ========================================================================= */
 
 * {
@@ -56,7 +56,43 @@ body {
 }
 
 /* =========================================================================
-   2. HLAVNÉ MENU & ROZBALOVACÍ BATOH
+   2. STICKY WALLET (KOMPAKTNÁ ŽIVÁ POKLADNICA V MODÁLOCH)
+   ========================================================================= */
+.modal-sticky-wallet {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    background: rgba(12, 8, 5, 0.92);
+    border: 1.5px solid #d4af37;
+    border-radius: 8px;
+    padding: 6px 14px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+}
+
+.wallet-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #5a4d3e;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 0.85em;
+    font-weight: bold;
+    color: #ffcc00;
+}
+
+.wallet-chip-img {
+    width: 20px;
+    height: 20px;
+    object-fit: cover;
+    border-radius: 3px;
+}
+
+/* =========================================================================
+   3. HLAVNÉ MENU & ROZBALOVACÍ BATOH
    ========================================================================= */
 .menu-container {
     display: flex;
@@ -195,7 +231,7 @@ body {
 .inventory-mini-val { font-size: 0.95em; font-weight: bold; color: #ffcc00; }
 
 /* =========================================================================
-   3. HRACÍ STÔL A RADY
+   4. HRACÍ STÔL A RADY
    ========================================================================= */
 .board-container {
     display: flex;
@@ -265,7 +301,7 @@ body {
 }
 
 /* =========================================================================
-   4. DESIGN KARIET (OPTIMALIZOVANÝ NA RESPONZIVITU 175px x 275px)
+   5. DESIGN KARIET (175px x 275px)
    ========================================================================= */
 .karta-karta-wrapper { 
     display: flex; 
@@ -301,7 +337,6 @@ body {
 .karta:hover { transform: translateY(-8px) scale(1.04); z-index: 30; }
 .karta-disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.6); }
 
-/* VÝBEROVÝ EFEKT PRE MULLIGAN & DECKBUILDER */
 .karta-selected-mulligan {
     border: 3px solid #ff4d4d !important;
     box-shadow: 0 0 25px rgba(255, 77, 77, 0.9) !important;
@@ -334,7 +369,6 @@ body {
 .karta.cls-JOKER-B { border: 3px solid #8b5cf6 !important; border-image: none !important; box-shadow: 0 0 12px rgba(139, 92, 246, 0.6); }
 .karta.cls-JOKER-A { border: 3px solid #ec4899 !important; border-image: none !important; box-shadow: 0 0 12px rgba(236, 72, 153, 0.6); }
 
-/* 🌟 PLATINOVÁ KARTA BEZ ČIERNYCH ROHOV */
 .karta.cls-PLATINUM {
     border: none !important;
     background: transparent !important;
@@ -472,7 +506,58 @@ body {
 .karta-surovina .surovina-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; }
 
 /* =========================================================================
-   5. MODÁLY & REBRÍČKY
+   6. ZÁLOŽKY TRHOVISKA & NÚDZOVÝ SKLAD
+   ========================================================================= */
+.btn-market-tab {
+    background: #21180e;
+    color: #ffcc00;
+    border: 1px solid #5a4d3e;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-market-tab:hover, .active-market-tab {
+    background: #d4af37 !important;
+    color: #111 !important;
+    border-color: #ffe066 !important;
+}
+
+.market-store-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.market-store-card {
+    background: rgba(0, 0, 0, 0.65);
+    border: 1.5px solid #5a4d3e;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.market-store-card:hover {
+    border-color: #d4af37;
+}
+
+.market-store-img {
+    width: 65px;
+    height: 65px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #d4af37;
+}
+
+/* =========================================================================
+   7. MODÁLY & REBRÍČKY
    ========================================================================= */
 .card-modal {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
