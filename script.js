@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 28.0.0 - 20 PLATINUM)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 28.1.0 - DYNAMIC STATS)
 // =========================================================================
 
 (function() {
@@ -13,10 +13,10 @@
     }
 })();
 
-var VERZIA = "28.0.0";
+var VERZIA = "28.1.0";
 
 // =========================================================================
-// 1. MASTER REGISTRY (KOMPLETNÝCH 20 PLATINIEK + 19 OBYČAJNÝCH KARIET)
+// 1. MASTER REGISTRY (20 PLATINIEK + 19 OBYČAJNÝCH KARIET)
 // =========================================================================
 var MASTER_REGISTRY = {
     // 🌟 20 PLATINOVÝCH KARIET
@@ -120,9 +120,7 @@ var inventar = {
     zostava: []
 };
 
-// =========================================================================
-// 2. 20 KRÁĽOVSKÝCH REBRÍČKOV & SIEŇ SLÁVY
-// =========================================================================
+// 20 REBRÍČKOV
 var simulačneRebríčky = {
     sampión: [ { hrac: "Hráč 1 (Ty)", skore: 12, inaktivny: false, titulCard: "Zvedavá suseda" }, { hrac: "Lord_Grob", skore: 8, inaktivny: false }, { hrac: "Mníchov_Master", skore: 1, inaktivny: false } ],
     nerozhodny: [ { hrac: "Mníchov_Master", skore: 5, inaktivny: false, titulCard: "Ďuri" }, { hrac: "Hráč 1 (Ty)", skore: 2, inaktivny: false }, { hrac: "Lord_Grob", skore: 0, inaktivny: false } ],
@@ -178,7 +176,7 @@ var jeSingleplayer = false; var obtiaznostAI = "B"; var blokujVykladanie = false
 var aktualnaStranaKnihy = 1;
 var p1MulliganBonusScore = 0, p2MulliganBonusScore = 0;
 
-// AUDIO ENGINE S PAMÄŤOU STÍŠENIA ZVUKU
+// AUDIO ENGINE
 var hudbaSpustena = false;
 var audioMutedByUser = false;
 var audioTracks = [ "Audio/track1.mp3", "Audio/track2.mp3", "Audio/track3.mp3", "Audio/track4.mp3", "Audio/track5.mp3", "Audio/track6.mp3" ];
@@ -199,10 +197,10 @@ function getRealPower(card) {
     return Math.max(0, reg.p + bonus);
 }
 
-// 🖼️ RENDERER KARTY (ČISTÝ OVERLAY NA POZADIE)
+// 🖼️ RENDERER KARTY S ČISTÝM VZHĽADOM
 function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
     if (isHidden) {
-        return '<div class="karta-foto" style="background-image: url(\'Img/default.webp\'); height:100%; border-radius:8px;"></div><div class="karta-stitok-spodok"><div class="karta-nazov" style="color:#aaa;">🔒 Skrytá Karta</div></div>';
+        return '<div class="karta-foto" style="background-image: url(\'Img/default.webp\');"></div><div class="karta-stitok-spodok"><div class="karta-nazov" style="color:#aaa;">🔒 Skrytá Karta</div></div>';
     }
 
     var reg = getRegistryCard(meno);
@@ -279,7 +277,7 @@ function vykresliRukuHraca(pNum) {
     });
 }
 
-// 🎬 TRUHLICE S BOHATÝM MENU ODMIEN
+// 🎬 TRUHLICE
 function otvorTruhluVitaza() { spustitVideoAnimationTruhly("vitaz"); }
 function otvorTruhluUcastnika() { spustitVideoAnimationTruhly("ucastnik"); }
 
@@ -330,7 +328,6 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
         maxKariet = Math.floor(Math.random() * 3) + 1;
     }
 
-    // 💰 ODSTUPŇOVANÝ BONUS ZA SLABÉ KARTY NA STOLE (ZÁKLAD 1b AŽ 4b)
     var extraLowPwrCoins = 0;
     p1_played_cards.forEach(function(c) {
         var reg = getRegistryCard(c.n);
@@ -389,7 +386,7 @@ function zatvoritTruhluAOpustit(overlayId) {
     zobraziťObrazovku("hlavne-menu");
 }
 
-// 🔨 DIELŇA & KOVANIE JOKERA
+// 🔨 DIELŇA
 function aktualizujPanelDielne() {
     var e = document.getElementById("dielna-zoznam");
     if (!e) return;
@@ -733,7 +730,68 @@ function upravHlasitost(val) {
     if (audio) audio.volume = val;
 }
 
-// 🛡️ SČÍTATEĽNÉ SETOVÉ BONUSY RADOV A VÝPOČET SILY
+// 🛡️ DYNAMICKÝ VÝPOČET SILY KARTY NA STOLE S VŠETKÝMI BUFFMI
+function vypocitajDynamickuSiluJednejKarty(card, pNum) {
+    var reg = getRegistryCard(card.n);
+    if (reg.isSpell || reg.isItem || reg.isJoker) return "none";
+
+    var myCards = (pNum === 1) ? p1_played_cards : p2_played_cards;
+    var oppCards = (pNum === 1) ? p2_played_cards : p1_played_cards;
+
+    var isNelaOnTable = false;
+    [p1_played_cards, p2_played_cards].forEach(function(list) {
+        list.forEach(function(c) { if (c.n === "Nela") isNelaOnTable = true; });
+    });
+
+    var p1Katy = p1_played_cards.some(function(c) { return c.n === "Katy"; });
+    var p2Katy = p2_played_cards.some(function(c) { return c.n === "Katy"; });
+    var myKaty = (pNum === 1) ? p1Katy : p2Katy;
+    var oppKaty = (pNum === 1) ? p2Katy : p1Katy;
+
+    var itemBonus = 0;
+    myCards.forEach(function(c) {
+        var r = getRegistryCard(c.n);
+        if (r.isItem && r.row === reg.row) {
+            itemBonus += CLASS_CONFIG[c.cls || "F"].itemBonus;
+        }
+    });
+
+    var rowSetBonus = vypocitajSetBonusRadu(reg.row, myCards);
+    var basePwr = getRealPower(card);
+
+    var rozhovor = neutralne_vplyvy.indexOf("Musíme sa porozprávať") !== -1;
+    var upokojSa = neutralne_vplyvy.indexOf("Upokoj sa") !== -1;
+    var ohnostroj = neutralne_vplyvy.indexOf("Ohnostroj") !== -1;
+
+    if (card.n !== "Oli") {
+        if (reg.row === 1 && rozhovor) basePwr = 1;
+        if (reg.row === 2 && upokojSa) basePwr = 1;
+        if (reg.row === 3 && ohnostroj) basePwr = 1;
+    }
+
+    basePwr += itemBonus + rowSetBonus;
+
+    var rowMultiplier = 1.0;
+    var hasAlkohol = myCards.some(function(c) { return c.n === "Alcohol"; });
+    var hasSisa = myCards.some(function(c) { return c.n === "Sisa"; });
+    var hasVlk = myCards.some(function(c) { return c.n === "Vlk"; });
+    var myErikRow = (pNum === 1) ? p1_erik_buff_row : p2_erik_buff_row;
+
+    if (!isNelaOnTable && card.n !== "Oli") {
+        if (reg.row === 1 && hasSisa) rowMultiplier += 0.50;
+        if (reg.row === 2 && card.n === "Ďuri" && hasAlkohol) rowMultiplier += 1.00;
+        if (reg.row === 3 && hasVlk) rowMultiplier += 0.50;
+        if (myErikRow === reg.row) rowMultiplier += 0.50;
+        if (card.n === "Michal") rowMultiplier += 1.00;
+    }
+
+    var finalPwr = Math.round(basePwr * rowMultiplier);
+    if (myKaty) finalPwr += 2;
+    if (oppKaty) finalPwr -= 2;
+
+    return Math.max(0, finalPwr);
+}
+
 function prepočitajSkoreStola() {
     var isNelaOnTable = false;
     [p1_played_cards, p2_played_cards].forEach(function(list) {
@@ -754,62 +812,10 @@ function prepočitajSkoreStola() {
 
 function vypocitajSiluHracovychKariet(pNum, myCards, oppCards, isNela, myKaty, oppKaty, myErikRow) {
     var total = 0;
-    var itemRow1 = 0, itemRow2 = 0, itemRow3 = 0;
-
     myCards.forEach(function(c) {
-        var reg = getRegistryCard(c.n);
-        if (reg.isItem) {
-            var bonus = CLASS_CONFIG[c.cls || "F"].itemBonus;
-            if (reg.row === 1) itemRow1 += bonus;
-            if (reg.row === 2) itemRow2 += bonus;
-            if (reg.row === 3) itemRow3 += bonus;
-        }
+        var dynPwr = vypocitajDynamickuSiluJednejKarty(c, pNum);
+        if (dynPwr !== "none") total += dynPwr;
     });
-
-    var hasAlkohol = myCards.some(function(c) { return c.n === "Alcohol"; });
-    var hasSisa = myCards.some(function(c) { return c.n === "Sisa"; });
-    var hasVlk = myCards.some(function(c) { return c.n === "Vlk"; });
-
-    var rozhovor = neutralne_vplyvy.indexOf("Musíme sa porozprávať") !== -1;
-    var upokojSa = neutralne_vplyvy.indexOf("Upokoj sa") !== -1;
-    var ohnostroj = neutralne_vplyvy.indexOf("Ohnostroj") !== -1;
-
-    var rowSetBonus1 = vypocitajSetBonusRadu(1, myCards);
-    var rowSetBonus2 = vypocitajSetBonusRadu(2, myCards);
-    var rowSetBonus3 = vypocitajSetBonusRadu(3, myCards);
-
-    myCards.forEach(function(c) {
-        var reg = getRegistryCard(c.n);
-        if (reg.isSpell || reg.isItem || reg.isJoker) return;
-
-        var basePwr = getRealPower(c);
-
-        if (c.n !== "Oli") {
-            if (reg.row === 1 && rozhovor) basePwr = 1;
-            if (reg.row === 2 && upokojSa) basePwr = 1;
-            if (reg.row === 3 && ohnostroj) basePwr = 1;
-        }
-
-        if (reg.row === 1) basePwr += itemRow1 + rowSetBonus1;
-        if (reg.row === 2) basePwr += itemRow2 + rowSetBonus2;
-        if (reg.row === 3) basePwr += itemRow3 + rowSetBonus3;
-
-        var rowMultiplier = 1.0;
-        if (!isNela && c.n !== "Oli") {
-            if (reg.row === 1 && hasSisa) rowMultiplier += 0.50;
-            if (reg.row === 2 && c.n === "Ďuri" && hasAlkohol) rowMultiplier += 1.00;
-            if (reg.row === 3 && hasVlk) rowMultiplier += 0.50;
-            if (myErikRow === reg.row) rowMultiplier += 0.50;
-            if (c.n === "Michal") rowMultiplier += 1.00;
-        }
-
-        var finalPwr = Math.round(basePwr * rowMultiplier);
-        if (myKaty) finalPwr += 2;
-        if (oppKaty) finalPwr -= 2;
-
-        total += Math.max(0, finalPwr);
-    });
-
     return total;
 }
 
@@ -848,7 +854,7 @@ function vypocitajSetBonusRadu(targetRow, cardList) {
     return bonusTotal;
 }
 
-// 📖 KNIŽNÝ NÁVOD (POZADIE DÚHA)
+// 📖 KNIŽNÝ NÁVOD
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
     if (!modal) {
@@ -927,7 +933,7 @@ function vykresliRozbalovaciBatoh() {
     el.innerHTML = html;
 }
 
-// DETAJL KARTY MODAL
+// 🔍 DETAJL KARTY MODAL (VYČISTENÝ BEZ DUPLICITNÉHO MENA)
 function otvorDetailKarty(meno, inicialnaTrieda) {
     var reg = getRegistryCard(meno);
     var modal = document.createElement("div");
@@ -935,7 +941,7 @@ function otvorDetailKarty(meno, inicialnaTrieda) {
     modal.style.zIndex = "9999999";
     modal.onclick = function() { modal.remove(); };
 
-    modal.innerHTML = '<div class="modal-content" style="text-align:center; max-width:580px; background:rgba(15,10,5,0.97);" onclick="event.stopPropagation()"><span class="card-modal-close" onclick="this.closest(\'.card-modal\').remove()">&times;</span><h2 style="color:#d4af37; margin-top:0; font-family:Georgia, serif;">🔍 DETAJLNÝ NÁHĽAD KARTY</h2><div style="display:flex; justify-content:center; margin:20px 0;"><div class="karta cls-' + inicialnaTrieda + '" style="transform: scale(1.6); transform-origin: center; margin:35px 0;">' + vytvorHTMLKarty(meno, getRealPower({ n: meno, cls: inicialnaTrieda }), inicialnaTrieda, reg.row, reg.p, false) + '</div></div><h3 style="color:#ffcc00; margin-top:40px; font-size:1.5em;">' + meno + '</h3><p style="font-size:1.05em; line-height:1.6; color:#e0d0b0; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px; border:1px solid #5a4d3e;">' + (reg.abilityDesc || reg.desc || "Obyčajná bojová jednotka.") + '</p></div>';
+    modal.innerHTML = '<div class="modal-content" style="text-align:center; max-width:580px; background:rgba(15,10,5,0.97);" onclick="event.stopPropagation()"><span class="card-modal-close" onclick="this.closest(\'.card-modal\').remove()">&times;</span><h2 style="color:#d4af37; margin-top:0; font-family:Georgia, serif;">🔍 DETAJLNÝ NÁHĽAD KARTY</h2><div style="display:flex; justify-content:center; margin:15px 0;"><div class="karta cls-' + inicialnaTrieda + '" style="transform: scale(1.55); transform-origin: center; margin:35px 0;">' + vytvorHTMLKarty(meno, getRealPower({ n: meno, cls: inicialnaTrieda }), inicialnaTrieda, reg.row, reg.p, false) + '</div></div><p style="font-size:1.05em; line-height:1.6; color:#e0d0b0; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px; border:1px solid #5a4d3e; margin-top:35px;">' + (reg.abilityDesc || reg.desc || "Obyčajná bojová jednotka.") + '</p></div>';
 
     document.body.appendChild(modal);
 }
@@ -1091,6 +1097,7 @@ function potvrditMulliganRuku(chceRiskovat) {
     vykresliHraciuPlochu();
 }
 
+// ⚡ VYKRESLENIE STOLA S DYNAMICKÝM PREPOČÍTAVANÍM BODOV V KRÚŽKU
 function vykresliStol() {
     for (var r = 1; r <= 3; r++) {
         var el1 = document.getElementById("p1-row" + r);
@@ -1106,9 +1113,10 @@ function vykresliStol() {
         var reg = getRegistryCard(c.n);
         var targetRow = document.getElementById("p1-row" + reg.row);
         if (targetRow) {
+            var dynPwr = vypocitajDynamickuSiluJednejKarty(c, 1);
             var div = document.createElement("div");
             div.className = "karta cls-" + (reg.isPlatinum ? "PLATINUM" : (c.cls || "F"));
-            div.innerHTML = vytvorHTMLKarty(c.n, getRealPower(c), c.cls || "F", reg.row, reg.p, false);
+            div.innerHTML = vytvorHTMLKarty(c.n, dynPwr, c.cls || "F", reg.row, reg.p, false);
             targetRow.appendChild(div);
         }
     });
@@ -1117,9 +1125,10 @@ function vykresliStol() {
         var reg = getRegistryCard(c.n);
         var targetRow = document.getElementById("p2-row" + reg.row);
         if (targetRow) {
+            var dynPwr = vypocitajDynamickuSiluJednejKarty(c, 2);
             var div = document.createElement("div");
             div.className = "karta cls-" + (reg.isPlatinum ? "PLATINUM" : (c.cls || "F"));
-            div.innerHTML = vytvorHTMLKarty(c.n, getRealPower(c), c.cls || "F", reg.row, reg.p, false);
+            div.innerHTML = vytvorHTMLKarty(c.n, dynPwr, c.cls || "F", reg.row, reg.p, false);
             targetRow.appendChild(div);
         }
     });
@@ -1133,7 +1142,7 @@ function vykresliHraciuPlochu() {
     vykresliRukuHraca(2);
 }
 
-// ⚔️ MECHANIKY VYKLADANIA, ŠPIÓNOV, AUTO-SPÁLENIA & OŽIVENIA
+// VYKLADANIE KARIET
 function vylozitKartuZRuky(pNum, cardIndex) {
     if (blokujVykladanie) return;
     if (pNum !== aktualnyHrac) return;
@@ -1153,7 +1162,6 @@ function vylozitKartuZRuky(pNum, cardIndex) {
         return;
     }
 
-    // 🕵️ ŠPIÓN MECHANIKA (+2 KARTY DO RUKY A VYLOŽENIE K SÚPEROVI)
     if (reg.isSpy) {
         oppPlayed.push(card);
         tahatNoveKartyZBalicka(pNum, 2);
@@ -1164,12 +1172,10 @@ function vylozitKartuZRuky(pNum, cardIndex) {
     } else {
         myPlayed.push(card);
 
-        // 🔥 AUTO-SPÁLENIE NAJSILNEJŠÍCH KARIET (MEDVEĎ & JAKUB)
         if (card.n === "Zatúlaný tatranský medveď" || card.n === "Jakub") {
             vykonajAutoSpalenie(card.n);
         }
 
-        // 🏥 OŽIVENIE KARTY Z ARCHÍVU (DOKTOR, SESTRIČKA, KORNÉLIA)
         if (card.n === "Doktor" || card.n === "Sestrička" || card.n === "Kornélia") {
             vykonajOzivenieZArchivu(pNum);
         }
