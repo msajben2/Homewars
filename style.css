@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 27.0.0 - GRAPHICS FIX)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 28.0.0 - FULL GRAPHICS)
    ========================================================================= */
 
 * {
@@ -11,7 +11,6 @@ body {
     margin: 0;
     padding: 0;
     background-color: #0c0a08;
-    background-image: radial-gradient(circle, #1a140e 0%, #080605 100%);
     color: #e0d0b0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     overflow-x: hidden;
@@ -19,7 +18,45 @@ body {
 }
 
 /* =========================================================================
-   1. HLAVNÉ MENU & ROZBALOVACÍ BATOH
+   1. POZADIA PRE OBRAZOVKY A MODÁLY (RESPONZÍVNY FULLSCREEN)
+   ========================================================================= */
+.screen-bg {
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+}
+
+#hlavne-menu {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('Img/skala.webp') !important;
+}
+
+#hracia-plocha {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('Img/krcma.webp') !important;
+}
+
+.modal-bg-dedina {
+    background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/dedina.jpg') center/cover no-repeat !important;
+}
+
+.modal-bg-polia {
+    background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/polia.webp') center/cover no-repeat !important;
+}
+
+.modal-bg-dielna {
+    background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/dielna.webp') center/cover no-repeat !important;
+}
+
+.modal-bg-trhovisko {
+    background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/trhovisko.webp') center/cover no-repeat !important;
+}
+
+.modal-bg-duha {
+    background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/duha.webp') center/cover no-repeat !important;
+}
+
+/* =========================================================================
+   2. HLAVNÉ MENU & ROZBALOVACÍ BATOH
    ========================================================================= */
 .menu-container {
     display: flex;
@@ -34,7 +71,7 @@ body {
 .game-title {
     font-size: 3.8em;
     color: #d4af37;
-    text-shadow: 0 0 20px rgba(212, 175, 55, 0.6), 2px 2px 5px #000;
+    text-shadow: 0 0 25px rgba(212, 175, 55, 0.7), 2px 2px 8px #000;
     margin-bottom: 5px;
     font-family: Georgia, serif;
 }
@@ -44,6 +81,7 @@ body {
     color: #a89060;
     margin-bottom: 25px;
     font-style: italic;
+    text-shadow: 1px 1px 4px #000;
 }
 
 .menu-buttons {
@@ -55,7 +93,7 @@ body {
 }
 
 .btn-menu {
-    background: linear-gradient(180deg, #3b2d1d 0%, #21180e 100%);
+    background: linear-gradient(180deg, rgba(59, 45, 29, 0.9) 0%, rgba(33, 24, 14, 0.9) 100%);
     color: #ffcc00;
     border: 2px solid #d4af37;
     padding: 14px 20px;
@@ -63,8 +101,9 @@ body {
     font-weight: bold;
     border-radius: 8px;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
     transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
 }
 
 .btn-menu:hover {
@@ -87,7 +126,6 @@ body {
     z-index: 5000;
 }
 
-/* DESIGN ROZBALOVACIEHO BATOHU */
 .inventory-dropdown-container {
     margin-top: 20px;
     position: relative;
@@ -97,7 +135,7 @@ body {
 }
 
 .btn-inventory-toggle {
-    background: #21180e;
+    background: rgba(33, 24, 14, 0.9);
     color: #ffcc00;
     border: 1.5px solid #d4af37;
     padding: 10px 22px;
@@ -119,7 +157,7 @@ body {
     flex-wrap: wrap;
     gap: 10px;
     justify-content: center;
-    background: rgba(15, 10, 5, 0.95);
+    background: rgba(15, 10, 5, 0.96);
     border: 2px solid #d4af37;
     border-radius: 12px;
     padding: 14px;
@@ -153,19 +191,11 @@ body {
     text-align: left;
 }
 
-.inventory-mini-title {
-    font-size: 0.75em;
-    color: #a89060;
-}
-
-.inventory-mini-val {
-    font-size: 0.95em;
-    font-weight: bold;
-    color: #ffcc00;
-}
+.inventory-mini-title { font-size: 0.75em; color: #a89060; }
+.inventory-mini-val { font-size: 0.95em; font-weight: bold; color: #ffcc00; }
 
 /* =========================================================================
-   2. HRACÍ STÔL A ZÁPAS
+   3. HRACÍ STÔL A ZÁPAS
    ========================================================================= */
 .board-container {
     display: flex;
@@ -181,29 +211,32 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(20, 15, 10, 0.85);
+    background: rgba(20, 15, 10, 0.9);
     border: 1px solid #5a4d3e;
-    padding: 10px 20px;
+    padding: 8px 20px;
     border-radius: 8px;
+    backdrop-filter: blur(4px);
 }
 
 .player-name { font-weight: bold; color: #ffcc00; font-size: 1.2em; }
-.score-badge { background: #d4af37; color: #111; font-weight: bold; font-size: 1.6em; padding: 6px 20px; border-radius: 6px; }
+.score-badge { background: #d4af37; color: #111; font-weight: bold; font-size: 1.6em; padding: 4px 18px; border-radius: 6px; }
 .btn-pass { background: #8b0000; color: #fff; border: 1px solid #ff4d4d; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+.btn-exit { background: #3b2d1d; color: #ffcc00; border: 1px solid #d4af37; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
-.board-half { display: flex; flex-direction: column; gap: 8px; }
+.board-half { display: flex; flex-direction: column; gap: 6px; }
 
 .board-row {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.45);
     border: 1px dashed #4a3d2e;
-    min-height: 245px;
+    min-height: 240px;
     border-radius: 8px;
     display: flex;
     align-items: center;
-    padding: 10px 15px;
-    gap: 15px;
+    padding: 8px 15px;
+    gap: 12px;
     position: relative;
     overflow-x: auto;
+    backdrop-filter: blur(2px);
 }
 
 .row-label, .row-label-neutral {
@@ -217,29 +250,29 @@ body {
     text-transform: uppercase;
 }
 
-.row-neutral { background: rgba(30, 20, 10, 0.6); border: 1px solid #d4af37; min-height: 210px; justify-content: center; }
+.row-neutral { background: rgba(30, 20, 10, 0.7); border: 1px solid #d4af37; min-height: 200px; justify-content: center; }
 
 .card-hand {
     display: flex;
     justify-content: center;
-    gap: 15px;
-    min-height: 250px;
-    padding: 10px;
+    gap: 12px;
+    min-height: 245px;
+    padding: 8px;
     overflow-x: auto;
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.45);
     border-radius: 8px;
 }
 
 /* =========================================================================
-   3. DESIGN KARIET & JOKER S ČISTÝM FAREBNÝM LEMOM
+   4. DESIGN KARIET & DYNAMICKÉ PREKRÝVANIE POPISOV
    ========================================================================= */
 .karta-karta-wrapper { 
     display: flex; 
     flex-direction: column; 
     align-items: center; 
-    background: rgba(15, 10, 5, 0.75);
+    background: rgba(15, 10, 5, 0.85);
     border: 1px solid #4a3d2e;
-    padding: 14px;
+    padding: 12px;
     border-radius: 12px;
     width: 100%;
     max-width: 240px;
@@ -254,7 +287,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 6px;
+    padding: 0;
     cursor: pointer;
     box-shadow: 0 5px 18px rgba(0, 0, 0, 0.9);
     transition: transform 0.15s ease;
@@ -266,7 +299,7 @@ body {
 .karta:hover { transform: translateY(-8px) scale(1.05); z-index: 30; }
 .karta-disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.6); }
 
-/* RÁMY PRE BOJOVÉ KARTY */
+/* RÁMY KARIET */
 .karta.cls-F { border: 3px solid #8b5a2b; }
 .karta.cls-E { border: 4px solid #3b82f6; border-image: url('Img/eclassram.webp') 30 stretch; }
 .karta.cls-D { border: 4px solid #10b981; border-image: url('Img/dclassram.webp') 30 stretch; }
@@ -275,7 +308,6 @@ body {
 .karta.cls-A { border: 4px solid #ec4899; border-image: url('Img/aclassram.webp') 30 stretch; }
 .karta.cls-S { border: 4px solid #ffcc00; border-image: url('Img/sclassram.webp') 30 stretch; box-shadow: 0 0 20px rgba(255, 204, 0, 0.7); }
 
-/* JOKER KARTA - IBA ČISTÁ FARBA LEMU PODĽA TRIEDY (BEZ OFICIÁLNEHO RÁMU) */
 .karta.cls-JOKER-F { border: 3px solid #8b5a2b !important; border-image: none !important; box-shadow: 0 0 12px rgba(139, 90, 43, 0.6); }
 .karta.cls-JOKER-E { border: 3px solid #3b82f6 !important; border-image: none !important; box-shadow: 0 0 12px rgba(59, 130, 246, 0.6); }
 .karta.cls-JOKER-D { border: 3px solid #10b981 !important; border-image: none !important; box-shadow: 0 0 12px rgba(16, 185, 129, 0.6); }
@@ -283,7 +315,6 @@ body {
 .karta.cls-JOKER-B { border: 3px solid #8b5cf6 !important; border-image: none !important; box-shadow: 0 0 12px rgba(139, 92, 246, 0.6); }
 .karta.cls-JOKER-A { border: 3px solid #ec4899 !important; border-image: none !important; box-shadow: 0 0 12px rgba(236, 72, 153, 0.6); }
 
-/* PERFECT PLATINUM OVERLAY */
 .karta.cls-PLATINUM {
     border: none !important;
     overflow: visible !important;
@@ -336,22 +367,29 @@ body {
 
 .karta-foto {
     width: 100%;
-    height: 150px;
+    height: 100%;
     background-size: cover;
     background-position: center;
-    border-radius: 4px;
-    margin-top: 24px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
 }
 
 .karta-stitok-spodok {
-    background: rgba(0, 0, 0, 0.92);
-    padding: 6px;
-    border-radius: 4px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(12, 8, 5, 0.88);
+    border-top: 1px solid #d4af37;
+    padding: 6px 4px;
     text-align: center;
     z-index: 11;
+    backdrop-filter: blur(2px);
 }
 
-.karta-nazov { font-size: 0.95em; font-weight: bold; color: #ffcc00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.karta-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ROVNAKO VEĽKÉ KARTY PRE SUROVINY V TRUHLI */
 .karta-surovina {
@@ -401,7 +439,9 @@ body {
 
 .karta-surovina .surovina-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; }
 
-/* MODÁLNE OKNÁ & SIEŇ SLÁVY */
+/* =========================================================================
+   5. MODÁLY & 20 ŠTATISTICKÝCH STĹPCOV
+   ========================================================================= */
 .card-modal {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(0, 0, 0, 0.88); z-index: 10000;
@@ -409,9 +449,9 @@ body {
 }
 
 .modal-content {
-    background: linear-gradient(135deg, #1c140c 0%, #0d0a07 100%);
     border: 2px solid #d4af37; border-radius: 12px;
     width: 95vw; max-width: 1450px; max-height: 88vh; padding: 25px; color: #e0d0b0; overflow-y: auto; position: relative;
+    box-shadow: 0 0 35px rgba(0, 0, 0, 0.95);
 }
 
 .card-modal-close { position: absolute; top: 10px; right: 15px; font-size: 2.2em; color: #d4af37; cursor: pointer; }
@@ -424,17 +464,19 @@ body {
     justify-items: center;
 }
 
-.stats-grid {
+.stats-grid-20 {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
     gap: 15px;
+    margin-top: 20px;
 }
 
 .leaderboard-column {
-    background: rgba(15, 10, 5, 0.8);
+    background: rgba(15, 10, 5, 0.85);
     border: 1.5px solid #5a4d3e;
     border-radius: 10px;
     padding: 12px;
+    backdrop-filter: blur(3px);
 }
 
 .leaderboard-title {
@@ -447,6 +489,14 @@ body {
     margin-top: 0;
 }
 
+.leaderboard-reward-tag {
+    text-align: center;
+    font-size: 0.8em;
+    color: #a855f7;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
 .leaderboard-item {
     display: flex;
     justify-content: space-between;
@@ -455,13 +505,12 @@ body {
     border-radius: 6px;
     margin-top: 5px;
     font-size: 0.85em;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.5);
 }
 
 .leaderboard-item.rank-1 { background: rgba(212, 175, 55, 0.25); border: 1.5px solid #d4af37; color: #ffeb99; font-weight: bold; }
 .leaderboard-item.rank-2 { background: rgba(192, 192, 192, 0.2); border: 1.5px solid #c0c0c0; color: #fff; }
 .leaderboard-item.rank-3 { background: rgba(205, 127, 50, 0.2); border: 1.5px solid #cd7f32; color: #e6a880; }
-.leaderboard-item.rank-last { border: 1.5px dashed #ff4d4d; color: #ff9999; }
 
 .plat-badge {
     font-size: 0.75em;
@@ -530,20 +579,19 @@ body {
     display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin: 20px 0; max-height: 50vh; overflow-y: auto;
 }
 
-.global-announce-banner {
-    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-    background: linear-gradient(135deg, #2a1a08 0%, #0d0a07 100%);
-    border: 3px solid #ffcc00; box-shadow: 0 0 35px rgba(255, 204, 0, 0.8);
-    border-radius: 12px; padding: 15px 35px; text-align: center; color: #ffcc00;
-    z-index: 99999999; animation: bannerPop 0.5s ease;
+.custom-notify-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.75); z-index: 99999999;
+    display: flex; justify-content: center; align-items: center;
 }
 
-@keyframes bannerPop {
-    0% { transform: translate(-50%, -50px) scale(0.8); opacity: 0; }
-    100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+.custom-notify-box {
+    background: linear-gradient(135deg, #24170c 0%, #110c08 100%);
+    border: 2px solid #d4af37; border-radius: 12px;
+    padding: 25px; max-width: 460px; text-align: center; color: #e0d0b0;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
 }
 
-.auction-card-box {
-    display: flex; gap: 20px; align-items: center; background: rgba(0, 0, 0, 0.6);
-    border: 1px solid #5a4d3e; border-radius: 10px; padding: 15px; margin-top: 15px;
-}
+.custom-notify-title { color: #ffcc00; margin-top: 0; font-family: Georgia, serif; font-size: 1.3em; }
+.custom-notify-msg { margin: 15px 0 20px 0; font-size: 1em; line-height: 1.5; }
+.custom-notify-btn { background: #d4af37; color: #111; border: none; padding: 10px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1em; }
