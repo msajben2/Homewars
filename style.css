@@ -246,4 +246,17 @@ body {
     .player-header { padding: 4px 10px; }
     .score-badge { font-size: 1.2em; padding: 2px 10px; }
 }
+/* ... tvoj predchádzajúci kód pre mobily ... */
+    @media (max-width: 768px) {
+        .karta { width: 110px; height: 172px; }
+        /* ... atď ... */
+    }
+
+    /* SEM VLOŽÍŠ TEN NOVÝ KÓD PRE BANNER */
+    .global-announce-banner { 
+        position: fixed; 
+        top: 20px; 
+        /* ... atď ... */
+    }
+    @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
 </style>
