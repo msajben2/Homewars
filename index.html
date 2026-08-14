@@ -16,7 +16,8 @@
         <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.4" oninput="upravHlasitost(this.value)" style="width:70px;">
     </div>
 
-    <div id="hlavne-menu" class="menu-container">
+    <!-- HLAVNÉ MENU (POZADIE SKALA) -->
+    <div id="hlavne-menu" class="screen-bg menu-container">
         <h1 class="game-title">🏰 HOME WARS 🏰</h1>
         <p class="game-subtitle">Kráľovská kartová stratégia</p>
 
@@ -26,7 +27,7 @@
             <button class="btn-menu" onclick="otvoriťDeckbuilder()">🎴 Vytvoriť Zostavu (Deckbuilder)</button>
             <button class="btn-menu" onclick="otvoriťDielňu()">🔨 Kráľovská Dielňa (Forge)</button>
             <button class="btn-menu" onclick="otvoriťObchod()">🛒 Player-Driven Trhovisko</button>
-            <button class="btn-menu" style="background:#4a2c00; border-color:#ffcc00;" onclick="otvoriťStatistiky()">🏆 Sieň Slávy & Štatistiky</button>
+            <button class="btn-menu" style="background:#4a2c00; border-color:#ffcc00;" onclick="otvoriťStatistiky()">🏆 Sieň Slávy & Štatistiky (20)</button>
             <button class="btn-menu" onclick="otvoriťNavodHry()">📖 Kronika & Návod Hry</button>
             
             <button class="btn-menu" style="background:#523f29; border-color:#ffcc00;" onclick="otvorTruhluVitaza()">🏆 Otvoriť Truhlu Víťaza (Test)</button>
@@ -40,7 +41,8 @@
         </div>
     </div>
 
-    <div id="hracia-plocha" class="board-container" style="display: none;">
+    <!-- HRACIA PLOCHA (POZADIE KRČMA) -->
+    <div id="hracia-plocha" class="screen-bg board-container" style="display: none;">
         
         <div class="player-header p2-header">
             <div class="player-info">
@@ -83,11 +85,11 @@
 
     </div>
 
-    <!-- MODÁLNE OKNO PRE ŠTATISTIKY A SIEŇ SLÁVY -->
+    <!-- MODÁLNE OKNO PRE ŠTATISTIKY A SIEŇ SLÁVY (POZADIE DEDINA) -->
     <div id="stats-modal" class="card-modal" style="display: none;" onclick="if(event.target === this) this.style.display='none';">
-        <div class="modal-content" style="max-width: 1450px;">
+        <div class="modal-content modal-bg-dedina" style="max-width: 1450px;">
             <span class="card-modal-close" onclick="document.getElementById('stats-modal').style.display='none'">&times;</span>
-            <h2 class="modal-title">🏆 SIEŇ SLÁVY & KRÁĽOVSKÉ REBRÍČKY (10 KATEGÓRIÍ)</h2>
+            <h2 class="modal-title">🏆 SIEŇ SLÁVY & KRÁĽOVSKÉ REBRÍČKY (20 KATEGÓRIÍ)</h2>
             
             <div class="stats-dev-panel">
                 <h4>🧪 SIMULAČNÝ PANEL PRE TESTOVANIE REBRÍČKOV & INAKTIVITY</h4>
@@ -98,28 +100,31 @@
                 </div>
             </div>
 
-            <div id="stats-grid-container" class="stats-grid"></div>
+            <div id="stats-grid-container" class="stats-grid-20"></div>
         </div>
     </div>
 
+    <!-- MODÁLNE OKNO PRE DECKBUILDER (POZADIE POLIA) -->
     <div id="deckbuilder-modal" class="card-modal" style="display: none;" onclick="if(event.target === this) this.style.display='none';">
-        <div class="modal-content">
+        <div class="modal-content modal-bg-polia">
             <span class="card-modal-close" onclick="document.getElementById('deckbuilder-modal').style.display='none'">&times;</span>
             <h2 class="modal-title">🎴 VYTVORIŤ ZOSTRAVU DO HRY</h2>
             <div id="deckbuilder-zoznam" class="dielna-grid"></div>
         </div>
     </div>
 
+    <!-- MODÁLNE OKNO PRE DIELŇU (POZADIE DIELŇA) -->
     <div id="dielna-modal" class="card-modal" style="display: none;" onclick="if(event.target === this) this.style.display='none';">
-        <div class="modal-content">
+        <div class="modal-content modal-bg-dielna">
             <span class="card-modal-close" onclick="document.getElementById('dielna-modal').style.display='none'">&times;</span>
             <h2 class="modal-title">🔨 KRÁĽOVSKÁ DIELŇA (FORGE)</h2>
             <div id="dielna-zoznam" class="dielna-grid"></div>
         </div>
     </div>
 
+    <!-- MODÁLNE OKNO PRE TRHOVISKO (POZADIE TRHOVISKO) -->
     <div id="obchod-modal" class="card-modal" style="display: none;" onclick="if(event.target === this) this.style.display='none';">
-        <div class="modal-content">
+        <div class="modal-content modal-bg-trhovisko">
             <span class="card-modal-close" onclick="document.getElementById('obchod-modal').style.display='none'">&times;</span>
             <h2 class="modal-title">🛒 ANONYMNÉ TRHOVISKO & AUKCIE</h2>
             <div id="obchod-regaly-zoznam"></div>
