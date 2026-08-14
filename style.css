@@ -1,10 +1,11 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 31.0.0 - FULL CUSTOM FRAMES)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 32.0.0 - FULL OVERLAY FRAMES)
    ========================================================================= */
 
 * {
     box-sizing: border-box;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -105,7 +106,7 @@ body {
 }
 
 .game-title {
-    font-size: 3.8em;
+    font-size: clamp(2.2em, 6vw, 3.8em);
     color: #d4af37;
     text-shadow: 0 0 25px rgba(212, 175, 55, 0.7), 2px 2px 8px #000;
     margin-bottom: 5px;
@@ -113,7 +114,7 @@ body {
 }
 
 .game-subtitle {
-    font-size: 1.3em;
+    font-size: clamp(1em, 2.5vw, 1.3em);
     color: #a89060;
     margin-bottom: 25px;
     font-style: italic;
@@ -301,7 +302,7 @@ body {
 }
 
 /* =========================================================================
-   5. DESIGN KARIET & DYNAMICKÉ OBRÁZKOVÉ RÁMY (F až S + PLATINUM)
+   5. DESIGN KARIET S ČISTÝMI ::after OBRÁZKOVÝMI RÁMAMI
    ========================================================================= */
 .karta-karta-wrapper { 
     display: flex; 
@@ -319,7 +320,7 @@ body {
 .karta {
     width: 175px;
     height: 275px;
-    background: #0f0b08;
+    background: transparent !important;
     border-radius: 12px;
     position: relative;
     display: flex;
@@ -330,7 +331,7 @@ body {
     box-shadow: 0 5px 18px rgba(0, 0, 0, 0.9);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
     flex-shrink: 0;
-    overflow: hidden;
+    overflow: visible !important;
     box-sizing: border-box;
 }
 
@@ -338,7 +339,6 @@ body {
 .karta-disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.6); }
 
 .karta-selected-mulligan {
-    border: 3px solid #ff4d4d !important;
     box-shadow: 0 0 25px rgba(255, 77, 77, 0.9) !important;
     transform: translateY(-10px) scale(1.05);
 }
@@ -353,54 +353,64 @@ body {
     filter: grayscale(0.7);
 }
 
-/* 🖼️ APLIKÁCIA OBRÁZKOVÝCH RÁMOV PRE TRIEDY */
-.karta.cls-F { border: 4px solid #8b5a2b; }
-.karta.cls-E { border: 6px solid transparent; border-image: url('Img/eclassram.webp') 30 stretch; }
-.karta.cls-D { border: 6px solid transparent; border-image: url('Img/dclassram.webp') 30 stretch; }
-.karta.cls-C { border: 6px solid transparent; border-image: url('Img/cclassram.webp') 30 stretch; }
-.karta.cls-B { border: 6px solid transparent; border-image: url('Img/bclassram.webp') 30 stretch; }
-.karta.cls-A { border: 6px solid transparent; border-image: url('Img/aclassram.webp') 30 stretch; }
-.karta.cls-S { border: 6px solid transparent; border-image: url('Img/sclassram.webp') 30 stretch; box-shadow: 0 0 22px rgba(255, 204, 0, 0.85); }
-
-.karta.cls-JOKER-F { border: 4px solid #8b5a2b !important; border-image: none !important; box-shadow: 0 0 12px rgba(139, 90, 43, 0.6); }
-.karta.cls-JOKER-E { border: 6px solid transparent !important; border-image: url('Img/eclassram.webp') 30 stretch !important; box-shadow: 0 0 12px rgba(59, 130, 246, 0.6); }
-.karta.cls-JOKER-D { border: 6px solid transparent !important; border-image: url('Img/dclassram.webp') 30 stretch !important; box-shadow: 0 0 12px rgba(16, 185, 129, 0.6); }
-.karta.cls-JOKER-C { border: 6px solid transparent !important; border-image: url('Img/cclassram.webp') 30 stretch !important; box-shadow: 0 0 12px rgba(245, 158, 11, 0.6); }
-.karta.cls-JOKER-B { border: 6px solid transparent !important; border-image: url('Img/bclassram.webp') 30 stretch !important; box-shadow: 0 0 12px rgba(139, 92, 246, 0.6); }
-.karta.cls-JOKER-A { border: 6px solid transparent !important; border-image: url('Img/aclassram.webp') 30 stretch !important; box-shadow: 0 0 12px rgba(236, 72, 153, 0.6); }
-
-/* 🌟 FINÁLNA PLATINOVÁ KARTA S TRANSPARENTNÝM VÝREZOM */
-.karta.cls-PLATINUM {
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    overflow: visible !important;
-}
-
-.karta.cls-PLATINUM::after {
+/* ZÁKLADNÁ ŠABLÓNA PRE VŠETKY ::after RÁMY KARIET */
+.karta::after {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url('Img/platinumclassram.webp');
     background-size: 100% 100%;
     background-repeat: no-repeat;
     pointer-events: none;
     z-index: 10;
 }
 
+/* JEDNOTLIVÉ OVERLAY OBRÁZKOVÉ RÁMY */
+.karta.cls-F { border: 3.5px solid #8b5a2b; border-radius: 10px; }
+.karta.cls-F::after { display: none; }
+
+.karta.cls-E::after, .karta.cls-JOKER-E::after { background-image: url('Img/eclassram.webp'); }
+.karta.cls-D::after, .karta.cls-JOKER-D::after { background-image: url('Img/dclassram.webp'); }
+.karta.cls-C::after, .karta.cls-JOKER-C::after { background-image: url('Img/cclassram.webp'); }
+.karta.cls-B::after, .karta.cls-JOKER-B::after { background-image: url('Img/bclassram.webp'); }
+.karta.cls-A::after, .karta.cls-JOKER-A::after { background-image: url('Img/aclassram.webp'); }
+
+.karta.cls-S::after { 
+    background-image: url('Img/sclassram.webp'); 
+}
+.karta.cls-S {
+    box-shadow: 0 0 22px rgba(255, 204, 0, 0.85) !important;
+}
+
+.karta.cls-JOKER-F { border: 3.5px solid #8b5a2b !important; }
+.karta.cls-JOKER-F::after { display: none; }
+
+.karta.cls-PLATINUM::after {
+    background-image: url('Img/platinumclassram.webp');
+}
+.karta.cls-PLATINUM {
+    box-shadow: 0 0 25px rgba(224, 231, 255, 0.85) !important;
+}
+
+/* ODDIAĽENÉ A VYCENTROVANÉ FOTKY NA CELÚ PLOCHU BEZ OREZANIA */
+.karta-foto {
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-size: 142% auto;
+    background-position: 63% 6%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    border-radius: 8px;
+}
+
 .karta.cls-PLATINUM .karta-foto {
     background-size: 142% auto !important;
     background-position: 65% 31% !important;
-    border-radius: 6px;
-    z-index: 1;
-}
-
-.karta:not(.cls-PLATINUM) .karta-foto {
-    background-size: 142% auto;
-    background-position: 63% 6%;
 }
 
 .karta-kruh {
@@ -433,16 +443,6 @@ body {
     z-index: 12;
 }
 
-.karta-foto {
-    width: 100%;
-    height: 100%;
-    background-repeat: no-repeat;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
-}
-
 .karta-stitok-spodok {
     position: absolute;
     bottom: 0;
@@ -454,6 +454,8 @@ body {
     text-align: center;
     z-index: 11;
     backdrop-filter: blur(2px);
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
 .karta-nazov { font-size: 0.88em; font-weight: bold; color: #ffcc00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -507,7 +509,7 @@ body {
 .karta-surovina .surovina-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; }
 
 /* =========================================================================
-   6. ZÁLOŽKY TRHOVISKA & NÚDZOVÝ SKLAD
+   6. ZÁLOŽKY TRHOVISKA & PREDAJNÝ FORMULÁR
    ========================================================================= */
 .btn-market-tab {
     background: #21180e;
@@ -557,9 +559,129 @@ body {
     border: 1px solid #d4af37;
 }
 
+.sell-form-container {
+    background: rgba(15, 10, 5, 0.9);
+    border: 1.5px solid #d4af37;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 650px;
+    margin: 0 auto 25px auto;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+.sell-form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.sell-form-select, .sell-form-input {
+    background: #110c08;
+    color: #ffcc00;
+    border: 1px solid #5a4d3e;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 1em;
+    min-width: 180px;
+}
+
 /* =========================================================================
-   7. MODÁLY & REBRÍČKY
+   7. 📱 100% RESPONZÍVNA KOVÁČSKA VYHŇA (FORGE STAGE 16:9 PRE MOBIL AJ PC)
    ========================================================================= */
+#forge-video-overlay, #chest-video-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999;
+    display: flex; justify-content: center; align-items: center; flex-direction: column;
+}
+
+.forge-stage-169 {
+    position: relative;
+    width: 100vw;
+    height: 56.25vw;
+    max-height: 100vh;
+    max-width: 177.78vh;
+    perspective: 1200px;
+    overflow: hidden;
+    margin: auto;
+}
+
+#forge-video-element, #chest-video-element {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.forge-cards-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transform-style: preserve-3d;
+}
+
+/* 📱 RELATÍVNE ŠKÁLOVANIE KARIET NA KOVADLINE */
+.forge-slot-card {
+    position: absolute !important;
+    width: 12.8% !important;
+    height: 48.5% !important;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+#forge-card-1 { top: 50.65%; left: 26.75%; transform: translate(-50%, -50%) rotateX(20deg) scale(1.191, 1.212); }
+#forge-card-2 { top: 50.80%; left: 41.45%; transform: translate(-50%, -50%) rotateX(20deg) scale(1.195, 1.215); }
+#forge-card-3 { top: 50.95%; left: 56.10%; transform: translate(-50%, -50%) rotateX(16deg) scale(1.190, 1.195); }
+#forge-card-4 { top: 50.70%; left: 73.95%; transform: translate(-50%, -50%) rotateX(18deg) scale(1.200, 1.200); }
+
+/* =========================================================================
+   8. TRUHLICE OVERLAY & REWARDS MENU
+   ========================================================================= */
+.chest-prompt-text {
+    position: absolute; bottom: 40px; color: #ffcc00; font-size: 1.5em; font-weight: bold;
+    text-shadow: 0 0 10px #000; animation: pulse 1.5s infinite; cursor: pointer;
+}
+
+@keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+.chest-rewards-modal {
+    position: absolute;
+    background: rgba(15, 10, 5, 0.96);
+    border: 3px solid #d4af37;
+    border-radius: 16px;
+    padding: 25px;
+    text-align: center;
+    max-width: 850px;
+    width: 90%;
+    box-shadow: 0 0 50px rgba(212, 175, 55, 0.5);
+    z-index: 1000000;
+}
+
+.rewards-card-container {
+    display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin: 20px 0; max-height: 50vh; overflow-y: auto;
+}
+
+.custom-notify-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.75); z-index: 99999999;
+    display: flex; justify-content: center; align-items: center;
+}
+
+.custom-notify-box {
+    background: linear-gradient(135deg, #24170c 0%, #110c08 100%);
+    border: 2px solid #d4af37; border-radius: 12px;
+    padding: 25px; max-width: 460px; text-align: center; color: #e0d0b0;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+}
+
+.custom-notify-title { color: #ffcc00; margin-top: 0; font-family: Georgia, serif; font-size: 1.3em; }
+.custom-notify-msg { margin: 15px 0 20px 0; font-size: 1em; line-height: 1.5; }
+.custom-notify-btn { background: #d4af37; color: #111; border: none; padding: 10px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1em; }
+
+/* MODÁLY & REBRÍČKY */
 .card-modal {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(0, 0, 0, 0.88); z-index: 10000;
@@ -638,78 +760,3 @@ body {
     border-radius: 4px;
     font-weight: bold;
 }
-
-/* KOVADLINA & FULLSCREEN OVERLAYE VIDEO */
-#forge-video-overlay, #chest-video-overlay {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999;
-    display: flex; justify-content: center; align-items: center; flex-direction: column;
-}
-
-.forge-stage-169 {
-    position: relative;
-    width: 100vw;
-    height: 56.25vw;
-    max-height: 100vh;
-    max-width: 177.78vh;
-    perspective: 1200px;
-    overflow: hidden;
-}
-
-#forge-video-element, #chest-video-element { width: 100%; height: 100%; object-fit: cover; }
-.forge-cards-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; transform-style: preserve-3d; }
-
-.forge-slot-card {
-    position: absolute;
-    width: 215px !important;
-    height: 295px !important;
-    pointer-events: none;
-    transition: opacity 0.5s ease;
-    box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.85);
-}
-
-#forge-card-1 { top: 50.65%; left: 26.75%; transform: translate(-50%, -50%) rotateX(20deg) scale(1.191, 1.212); }
-#forge-card-2 { top: 50.80%; left: 41.45%; transform: translate(-50%, -50%) rotateX(20deg) scale(1.195, 1.215); }
-#forge-card-3 { top: 50.95%; left: 56.10%; transform: translate(-50%, -50%) rotateX(16deg) scale(1.190, 1.195); }
-#forge-card-4 { top: 50.70%; left: 73.95%; transform: translate(-50%, -50%) rotateX(18deg) scale(1.200, 1.200); }
-
-/* TRUHLICE OVERLAY & REWARDS MENU */
-.chest-prompt-text {
-    position: absolute; bottom: 40px; color: #ffcc00; font-size: 1.5em; font-weight: bold;
-    text-shadow: 0 0 10px #000; animation: pulse 1.5s infinite; cursor: pointer;
-}
-
-@keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-
-.chest-rewards-modal {
-    position: absolute;
-    background: rgba(15, 10, 5, 0.96);
-    border: 3px solid #d4af37;
-    border-radius: 16px;
-    padding: 25px;
-    text-align: center;
-    max-width: 850px;
-    width: 90%;
-    box-shadow: 0 0 50px rgba(212, 175, 55, 0.5);
-    z-index: 1000000;
-}
-
-.rewards-card-container {
-    display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin: 20px 0; max-height: 50vh; overflow-y: auto;
-}
-
-.custom-notify-overlay {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.75); z-index: 99999999;
-    display: flex; justify-content: center; align-items: center;
-}
-
-.custom-notify-box {
-    background: linear-gradient(135deg, #24170c 0%, #110c08 100%);
-    border: 2px solid #d4af37; border-radius: 12px;
-    padding: 25px; max-width: 460px; text-align: center; color: #e0d0b0;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
-}
-
-.custom-notify-title { color: #ffcc00; margin-top: 0; font-family: Georgia, serif; font-size: 1.3em; }
-.custom-notify-msg { margin: 15px 0 20px 0; font-size: 1em; line-height: 1.5; }
-.custom-notify-btn { background: #d4af37; color: #111; border: none; padding: 10px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1em; }
