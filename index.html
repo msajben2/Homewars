@@ -54,6 +54,7 @@
                 <span id="p2-rounds" class="round-indicators">⚪</span>
             </div>
             <div id="p2-score" class="score-badge">0</div>
+            <div id="p2-graveyard" class="graveyard-pile" onclick="otvorSpalenisko(2)">🔥 <span id="p2-grave-count">0</span></div>
             <button class="btn-pass" onclick="hracPassuje(2)">🏳️ Pass (P2)</button>
         </div>
 
@@ -83,6 +84,7 @@
                 <span id="p1-rounds" class="round-indicators">⚪</span>
             </div>
             <div id="p1-score" class="score-badge">0</div>
+            <div id="p1-graveyard" class="graveyard-pile" onclick="otvorSpalenisko(1)">🔥 <span id="p1-grave-count">0</span></div>
             <button class="btn-pass" onclick="hracPassuje(1)">🏳️ Pass (P1)</button>
             <button class="btn-exit" onclick="zobraziťObrazovku('hlavne-menu')">🚪 Opustiť Zápas</button>
         </div>
@@ -154,7 +156,15 @@
             <div id="obchod-regaly-zoznam"></div>
         </div>
     </div>
-
+    <!-- MODÁLNE OKNO PRE SPÁLENISKO -->
+    <div id="graveyard-modal" class="card-modal" style="display: none;" onclick="if(event.target === this) this.style.display='none';">
+        <div class="modal-content modal-bg-dedina" style="max-width: 900px; text-align: center;">
+            <span class="card-modal-close" onclick="document.getElementById('graveyard-modal').style.display='none'">&times;</span>
+            <h2 class="modal-title" style="color: #ff4d4d;">🔥 ARCHÍV SPÁLENÝCH KARIET</h2>
+            <p id="graveyard-subtitle" style="color: #ccc;">Zoznam kariet, ktoré zhoreli v plameňoch.</p>
+            <div id="graveyard-container" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-top: 20px;"></div>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
