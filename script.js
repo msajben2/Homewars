@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 33.0.0 - STABLE FORGE & BATTLE)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 34.0.0 - UNIVERSAL ENGINE)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "33.0.0";
+var VERZIA = "34.0.0";
 
 // =========================================================================
 // 1. MASTER REGISTRY
@@ -646,7 +646,7 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
     spustitVideoAnimationKovania(meno, fromCls, nextCls, isSuccess, pCfg.saveCard);
 }
 
-// 📱 100% RESPONZÍVNA ANIMÁCIA KOVANIA (MOBIL & PC FIX)
+// 📱 100% RESPONZÍVNA ANIMÁCIA KOVANIA
 function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected) {
     pozastavitHudbuPreVideo();
 
@@ -1674,7 +1674,6 @@ function tahatNoveKartyZBalicka(pNum, count) {
     }
 }
 
-// 🔥 AUTO-SPÁLENIE BEZ RACE-CONDITION
 function vykonajAutoSpalenie(pôvodcaMeno, callback) {
     var vsetkyKartyStola = [];
     p1_played_cards.forEach(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli") vsetkyKartyStola.push(c); });
