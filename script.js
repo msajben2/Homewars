@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 28.2.0 - FINAL ENGINE)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 29.0.0 - PRODUCTION)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "28.2.0";
+var VERZIA = "29.0.0";
 
 // =========================================================================
 // 1. MASTER REGISTRY (20 PLATINIEK + 19 OBYČAJNÝCH KARIET)
@@ -171,10 +171,12 @@ var p1_played_cards = [], p2_played_cards = [];
 var p1_erik_buff_row = null, p2_erik_buff_row = null;
 var sc1 = 0, sc2 = 0, r1 = 0, r2 = 0, p1Pass = false, p2Pass = false, aktualnyHrac = 1;
 var p1_draft_hand = [], p2_draft_hand = [];
+var p1_active_deck = [], p2_active_deck = [];
 var p1_spalene = [], p2_spalene = [], neutralne_vplyvy = [];
 var jeSingleplayer = false; var obtiaznostAI = "B"; var blokujVykladanie = false;
 var aktualnaStranaKnihy = 1;
-var p1MulliganBonusScore = 0, p2MulliganBonusScore = 0;
+var p1MulliganRound1Bonus = 0, p2MulliganRound1Bonus = 0;
+var mulliganSelectedIndices = [];
 
 // AUDIO ENGINE
 var hudbaSpustena = false;
@@ -224,30 +226,116 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
     return html;
 }
 
-// 🃏 GENEROVANIE UNIKÁTNEJ RUKY PRE ZÁPAS
-function vygenerujRuku10Kariet() {
-    var validKeys = Object.keys(MASTER_REGISTRY).filter(function(k) {
-        var r = MASTER_REGISTRY[k];
-        return !r.isJoker;
+// =========================================================================
+// 🎴 DECKBUILDER & PERSISTENTNÁ ZOSTRAVA (MIN. 25 KARIET)
+// =========================================================================
+function nacitatUlozenuZostavu() {
+    try {
+        var ulozene = localStorage.getItem("homewars_deck_v1");
+        if (ulozene) {
+            inventar.zostava = JSON.parse(ulozene);
+        }
+    } catch(e) {}
+
+    if (!Array.isArray(inventar.zostava) || inventar.zostava.length < 25) {
+        automatickyDoplnitDefaultZostavu(false);
+    }
+}
+
+function ulozitZostavuDoStorage() {
+    try {
+        localStorage.setItem("homewars_deck_v1", JSON.stringify(inventar.zostava));
+    } catch(e) {}
+}
+
+function automatickyDoplnitDefaultZostavu(showNotify) {
+    var defaultPool = Object.keys(MASTER_REGISTRY).filter(function(k) {
+        return !MASTER_REGISTRY[k].isJoker;
     });
 
-    var hand = [];
-    var addedPlatinum = {};
+    inventar.zostava = defaultPool.slice(0, 25);
+    ulozitZostavuDoStorage();
+    if (showNotify !== false) {
+        ukazOznamenie("⚡ PREDVOLENÁ ZOSTRAVA", "Zostava bola automaticky naplnená 25 základnými kartami!");
+    }
+    vygenerujDeckbuilder();
+}
 
-    while (hand.length < 10) {
-        var k = validKeys[Math.floor(Math.random() * validKeys.length)];
-        var reg = MASTER_REGISTRY[k];
+function prepniKartuVZostave(kartaMeno) {
+    var idx = inventar.zostava.indexOf(kartaMeno);
+    if (idx !== -1) {
+        inventar.zostava.splice(idx, 1);
+    } else {
+        inventar.zostava.push(kartaMeno);
+    }
+    ulozitZostavuDoStorage();
+    vygenerujDeckbuilder();
+}
 
-        if (reg.isPlatinum) {
-            if (!addedPlatinum[k]) {
-                addedPlatinum[k] = true;
-                hand.push({ n: k, cls: "F" });
-            }
+function vygenerujDeckbuilder() {
+    var e = document.getElementById("deckbuilder-zoznam");
+    var countEl = document.getElementById("deckbuilder-count");
+    var msgEl = document.getElementById("deckbuilder-msg");
+    if (!e) return;
+    e.innerHTML = "";
+
+    var count = inventar.zostava.length;
+    if (countEl) countEl.innerText = count;
+
+    if (msgEl) {
+        if (count >= 25) {
+            msgEl.innerHTML = "<span style='color:#10b981;'>✅ Zostava je pripravená na boj!</span>";
         } else {
-            hand.push({ n: k, cls: "F" });
+            msgEl.innerHTML = "<span style='color:#ff4d4d;'>⚠️ Potrebuješ ešte pridať " + (25 - count) + " kariet!</span>";
         }
     }
 
+    Object.keys(MASTER_REGISTRY).forEach(function(t) {
+        var reg = MASTER_REGISTRY[t];
+        if (reg.isJoker) return;
+
+        var isVBaliku = (inventar.zostava.indexOf(t) !== -1);
+
+        var wrap = document.createElement("div");
+        wrap.className = "karta-karta-wrapper " + (isVBaliku ? "deck-active-card" : "deck-inactive-card");
+        wrap.onclick = function() { prepniKartuVZostave(t); };
+
+        var div = document.createElement("div");
+        div.className = "karta cls-" + (reg.isPlatinum ? "PLATINUM" : "F");
+        div.innerHTML = vytvorHTMLKarty(t, getRealPower({n:t, cls:"F"}), "F", reg.row, reg.p, false);
+        wrap.appendChild(div);
+
+        var badge = document.createElement("div");
+        badge.style.marginTop = "8px";
+        badge.style.fontWeight = "bold";
+        badge.style.fontSize = "0.85em";
+        badge.innerHTML = isVBaliku ? "<span style='color:#10b981;'>✅ V Zostave</span>" : "<span style='color:#888;'>+ Pridať do Zostavy</span>";
+        wrap.appendChild(badge);
+
+        e.appendChild(wrap);
+    });
+}
+
+function pripravBalicekPreZapas(pNum) {
+    var pool = (pNum === 1) ? inventar.zostava.slice() : inventar.zostava.slice();
+    // Premiešanie balíčka
+    for (var i = pool.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp;
+    }
+    return pool;
+}
+
+// 🃏 GENEROVANIE RUKY (10 KARIET Z HRÁČOVHO BALÍČKA)
+function vytiahniRukuZRozdanehoBalicka(pNum) {
+    var deck = (pNum === 1) ? p1_active_deck : p2_active_deck;
+    var hand = [];
+    for (var i = 0; i < 10; i++) {
+        if (deck.length > 0) {
+            var cardName = deck.pop();
+            hand.push({ n: cardName, cls: "F" });
+        }
+    }
     return hand;
 }
 
@@ -328,16 +416,20 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
         maxKariet = Math.floor(Math.random() * 3) + 1;
     }
 
+    // 💰 ODSTUPŇOVANÝ BONUS ZA SLABÉ KARTY NA STOLE S MAX STROPOM 125m
     var extraLowPwrCoins = 0;
-    p1_played_cards.forEach(function(c) {
-        var reg = getRegistryCard(c.n);
-        if (!reg.isSpell && !reg.isItem && !reg.isJoker && !reg.isPlatinum) {
-            if (reg.p === 1) extraLowPwrCoins += 50;
-            else if (reg.p === 2) extraLowPwrCoins += 30;
-            else if (reg.p === 3) extraLowPwrCoins += 20;
-            else if (reg.p === 4) extraLowPwrCoins += 10;
-        }
-    });
+    if (r1 >= 2) {
+        p1_played_cards.forEach(function(c) {
+            var reg = getRegistryCard(c.n);
+            if (!reg.isSpell && !reg.isItem && !reg.isJoker && !reg.isPlatinum) {
+                if (reg.p === 1) extraLowPwrCoins += 25;
+                else if (reg.p === 2) extraLowPwrCoins += 15;
+                else if (reg.p === 3) extraLowPwrCoins += 10;
+                else if (reg.p === 4) extraLowPwrCoins += 5;
+            }
+        });
+        extraLowPwrCoins = Math.min(125, extraLowPwrCoins);
+    }
 
     coinsEarned += extraLowPwrCoins;
     ziskaneSuroviny["Koža"] = (ziskaneSuroviny["Koža"] || 0) + 1;
@@ -600,11 +692,12 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
     };
 }
 
-// 📦 TRHOVISKO
+// 📦 TRHOVISKO S OKAMŽITÝM STRHÁVANÍM MINCÍ (ESCROW)
 var aukcnyCasomeračInterval = null;
 var aktualnyAnonymnyStrop = 250; 
 var trhovaPriemernaCenaEMA = 210; 
 var aktualnyVeduciHrac = "Lord_Grob_33";
+var hracovaAktivnaPonukaNaTrhu = 0;
 
 function vygenerujSimulaciuTrhu() {
     var e = document.getElementById("obchod-regaly-zoznam");
@@ -628,19 +721,25 @@ function anonymnePrihoditSumu(stropVal) {
 
     if (ponuka >= stropVal) {
         inventar.mince -= stropVal;
+        hracovaAktivnaPonukaNaTrhu = 0;
         ukazOznamenie("⚡ AUTOMATICKÝ VÝKUP!", "Tvoja ponuka (" + ponuka + "m) presiahla hodnotu Okamžitého výkupu (" + stropVal + "m). Položka je okamžite tvoja za " + stropVal + "m!");
         vykresliRozbalovaciBatoh();
     } else {
+        // Okamžité strhnutie mincí (Escrow)
+        inventar.mince -= ponuka;
+        hracovaAktivnaPonukaNaTrhu = ponuka;
         aktualnyVeduciHrac = "Hráč 1 (Ty)";
         var lEl = document.getElementById("auction-leader");
         if (lEl) lEl.innerText = aktualnyVeduciHrac;
-        ukazOznamenie("🕵️ PONUKA ZAREGISTROVANÁ", "Tvoja anonymná ponuka bola odoslaná! Teraz si na **1. mieste** ako najvyšší prihadzujúci!");
+        ukazOznamenie("🕵️ PONUKA ZAREGISTROVANÁ", "Tvoja ponuka " + ponuka + "m bola rezervovaná z batohu a teraz si na **1. mieste**!");
+        vykresliRozbalovaciBatoh();
     }
 }
 
 function okamziteOdkupitKartu(stropVal, nazov) {
     if (inventar.mince < stropVal) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Potrebuješ " + stropVal + "m na okamžitý výkup!"); return; }
     inventar.mince -= stropVal;
+    hracovaAktivnaPonukaNaTrhu = 0;
     ukazOznamenie("🎉 KÚPENÉ IHNEĎ!", "Zaplatil si " + stropVal + "m. Položka " + nazov + " ti pristala v batohu!");
     vykresliRozbalovaciBatoh();
 }
@@ -649,7 +748,16 @@ function testSimulaciaPrihodeniaBota() {
     aktualnyVeduciHrac = "Bot_Tester_" + Math.floor(Math.random() * 100);
     var lEl = document.getElementById("auction-leader");
     if (lEl) lEl.innerText = aktualnyVeduciHrac;
-    ukazOznamenie("🤖 PRIHODENIE BOTA", "Súper <strong>" + aktualnyVeduciHrac + "</strong> ťa práve prehodil a prevzal 1. miesto!");
+
+    // Vrátenie mincí hráčovi pri prebití
+    if (hracovaAktivnaPonukaNaTrhu > 0) {
+        inventar.mince += hracovaAktivnaPonukaNaTrhu;
+        ukazOznamenie("🤖 PREBITIE PONUKY", "Súper <strong>" + aktualnyVeduciHrac + "</strong> ťa prehodil! Tvojich **" + hracovaAktivnaPonukaNaTrhu + " m** ti bolo vrátených späť do batohu!");
+        hracovaAktivnaPonukaNaTrhu = 0;
+        vykresliRozbalovaciBatoh();
+    } else {
+        ukazOznamenie("🤖 PRIHODENIE BOTA", "Súper <strong>" + aktualnyVeduciHrac + "</strong> práve prevzal 1. miesto na trhu!");
+    }
 }
 
 function testSimulaciaRychlychPredajov() {
@@ -730,7 +838,7 @@ function upravHlasitost(val) {
     if (audio) audio.volume = val;
 }
 
-// 🛡️ DYNAMICKÝ VÝPOČET SILY KARTY NA STOLE
+// 🛡️ DYNAMICKÝ A OPTIMALIZOVANÝ VÝPOČET SILY STOLA
 function vypocitajDynamickuSiluJednejKarty(card, pNum) {
     var reg = getRegistryCard(card.n);
     if (reg.isSpell || reg.isItem || reg.isJoker) return "none";
@@ -801,8 +909,8 @@ function prepočitajSkoreStola() {
     var p1Katy = p1_played_cards.some(function(c) { return c.n === "Katy"; });
     var p2Katy = p2_played_cards.some(function(c) { return c.n === "Katy"; });
 
-    sc1 = vypocitajSiluHracovychKariet(1, p1_played_cards, p2_played_cards, isNelaOnTable, p1Katy, p2Katy, p1_erik_buff_row) + p1MulliganBonusScore;
-    sc2 = vypocitajSiluHracovychKariet(2, p2_played_cards, p1_played_cards, isNelaOnTable, p2Katy, p1Katy, p2_erik_buff_row) + p2MulliganBonusScore;
+    sc1 = vypocitajSiluHracovychKariet(1, p1_played_cards, p2_played_cards, isNelaOnTable, p1Katy, p2Katy, p1_erik_buff_row) + p1MulliganRound1Bonus;
+    sc2 = vypocitajSiluHracovychKariet(2, p2_played_cards, p1_played_cards, isNelaOnTable, p2Katy, p1Katy, p2_erik_buff_row) + p2MulliganRound1Bonus;
 
     var el1 = document.getElementById("p1-score");
     var el2 = document.getElementById("p2-score");
@@ -933,7 +1041,7 @@ function vykresliRozbalovaciBatoh() {
     el.innerHTML = html;
 }
 
-// 🔍 DETAJL KARTY MODAL (VYČISTENÝ)
+// 🔍 DETAJL KARTY MODAL
 function otvorDetailKarty(meno, inicialnaTrieda) {
     var reg = getRegistryCard(meno);
     var modal = document.createElement("div");
@@ -971,19 +1079,6 @@ function zobraziťObrazovku(idObrazovky) {
 function otvoriťDeckbuilder() { document.getElementById("deckbuilder-modal").style.display = "flex"; vygenerujDeckbuilder(); }
 function otvoriťObchod() { document.getElementById("obchod-modal").style.display = "flex"; vygenerujSimulaciuTrhu(); }
 function otvoriťDielňu() { document.getElementById("dielna-modal").style.display = "flex"; aktualizujPanelDielne(); }
-
-function vygenerujDeckbuilder() {
-    var e = document.getElementById("deckbuilder-zoznam");
-    if (!e) return;
-    e.innerHTML = "";
-    Object.keys(MASTER_REGISTRY).forEach(function(t) {
-        var reg = MASTER_REGISTRY[t];
-        var div = document.createElement("div");
-        div.className = "karta cls-" + (reg.isPlatinum ? "PLATINUM" : "F");
-        div.innerHTML = vytvorHTMLKarty(t, getRealPower({n:t, cls:"F"}), "F", reg.row, reg.p, false);
-        e.appendChild(div);
-    });
-}
 
 function otvoriťStatistiky() {
     document.getElementById("stats-modal").style.display = "flex";
@@ -1049,9 +1144,35 @@ function vyhlasGlobalnySClassOznam(hracMeno, kartaMeno) {
     setTimeout(function() { banner.remove(); }, 6000);
 }
 
-function spustitZapasLokálnePVP() { jeSingleplayer = false; inicializujNovyZapas(); }
-function zobraziťMenuAI() { var obt = prompt("Vyber obtiažnosť AI (A, B, C):", "B"); if (obt) { obtiaznostAI = obt.toUpperCase(); spustitZapasProtiAI(); } }
-function spustitZapasProtiAI() { jeSingleplayer = true; inicializujNovyZapas(); }
+// =========================================================================
+// ⚔️ INICIALIZÁCIA ZÁPASU & NOVÝ CIELENÝ MULLIGAN (MAX 2 KARTY)
+// =========================================================================
+function spustitZapasLokálnePVP() { 
+    if (inventar.zostava.length < 25) {
+        ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Na vstup do zápasu potrebuješ mať v Deckbuilderi aspoň 25 kariet! (Aktuálne: " + inventar.zostava.length + ")");
+        return;
+    }
+    jeSingleplayer = false; 
+    inicializujNovyZapas(); 
+}
+
+function zobraziťMenuAI() { 
+    if (inventar.zostava.length < 25) {
+        ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Na vstup do zápasu potrebuješ mať v Deckbuilderi aspoň 25 kariet! (Aktuálne: " + inventar.zostava.length + ")");
+        return;
+    }
+    var obt = prompt("Vyber obtiažnosť AI (A, B, C):", "B"); 
+    if (obt) { obtiaznostAI = obt.toUpperCase(); spustitZapasProtiAI(); } 
+}
+
+function spustitZapasProtiAI() { 
+    if (inventar.zostava.length < 25) {
+        ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Na vstup do zápasu potrebuješ mať v Deckbuilderi aspoň 25 kariet! (Aktuálne: " + inventar.zostava.length + ")");
+        return;
+    }
+    jeSingleplayer = true; 
+    inicializujNovyZapas(); 
+}
 
 function inicializujNovyZapas() {
     p1_played_cards = []; p2_played_cards = [];
@@ -1060,11 +1181,14 @@ function inicializujNovyZapas() {
     p1_erik_buff_row = null; p2_erik_buff_row = null;
     r1 = 0; r2 = 0; sc1 = 0; sc2 = 0;
     p1Pass = false; p2Pass = false;
-    p1MulliganBonusScore = 0; p2MulliganBonusScore = 0;
+    p1MulliganRound1Bonus = 0; p2MulliganRound1Bonus = 0;
     aktualnyHrac = 1; blokujVykladanie = false;
 
-    p1_draft_hand = vygenerujRuku10Kariet();
-    p2_draft_hand = vygenerujRuku10Kariet();
+    p1_active_deck = pripravBalicekPreZapas(1);
+    p2_active_deck = pripravBalicekPreZapas(2);
+
+    p1_draft_hand = vytiahniRukuZRozdanehoBalicka(1);
+    p2_draft_hand = vytiahniRukuZRozdanehoBalicka(2);
 
     zobraziťObrazovku("hracia-plocha");
     vykresliHraciuPlochu();
@@ -1072,31 +1196,70 @@ function inicializujNovyZapas() {
 }
 
 function otvorMulliganModal() {
+    mulliganSelectedIndices = [];
     var modal = document.createElement("div");
     modal.id = "mulligan-modal-overlay";
     modal.className = "card-modal";
     modal.style.zIndex = "99999";
 
-    modal.innerHTML = '<div class="custom-notify-box" style="max-width:500px;"><h2 style="color:#d4af37; margin-top:0;">🃏 MULLIGAN FÁZA (10 Kariet)</h2><p style="font-size:1.05em; line-height:1.6; color:#ccc;">Preskúmaj svoju ruku. Chceš vymeniť všetkých 10 kariet?</p><div style="background:rgba(255,77,77,0.15); border:1px solid #ff4d4d; padding:10px; border-radius:6px; color:#ff9999; font-size:0.9em; margin:15px 0;">⚠️ TREST ZA RISK: Súper získa +4b náskok!</div><div style="display:flex; gap:12px; justify-content:center;"><button onclick="potvrditMulliganRuku(false)" style="background:#10b981; color:#fff; border:none; padding:10px 22px; border-radius:6px; font-weight:bold; cursor:pointer;">✅ Hrať</button><button onclick="potvrditMulliganRuku(true)" style="background:#8b0000; color:#fff; border:1px solid #ff4d4d; padding:10px 22px; border-radius:6px; font-weight:bold; cursor:pointer;">🎲 Vymeniť (+4b Súper)</button></div></div>';
+    var cardsHtml = "";
+    p1_draft_hand.forEach(function(c, idx) {
+        var reg = getRegistryCard(c.n);
+        cardsHtml += '<div id="mull-card-' + idx + '" class="karta cls-F" onclick="prepniVyberMulliganKarty(' + idx + ')" style="cursor:pointer;">' + vytvorHTMLKarty(c.n, getRealPower(c), "F", reg.row, reg.p, false) + '</div>';
+    });
+
+    modal.innerHTML = '<div class="modal-content" style="max-width:1200px; text-align:center;"><h2 style="color:#d4af37; margin-top:0;">🃏 CIELENÝ MULLIGAN (Vyber 0 až 2 karty na výmenu)</h2><p style="color:#ccc; font-size:1em; margin-bottom:15px;">Klikni na kartu, ktorú chceš vymeniť (max 2 karty). Ak vymeníš karty, súper získa +5b náskok <strong>iba v 1. kole</strong>!</p><div id="mulligan-cards-container" style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:20px 0;">' + cardsHtml + '</div><div style="display:flex; gap:15px; justify-content:center; margin-top:15px;"><button onclick="potvrditMulliganAkciu(false)" style="background:#10b981; color:#fff; border:none; padding:12px 28px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:1.05em;">✅ Ponechať ruku (0:0)</button><button id="btn-mull-swap" onclick="potvrditMulliganAkciu(true)" style="background:#8b0000; color:#fff; border:1px solid #ff4d4d; padding:12px 28px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:1.05em;">🎲 Vymeniť vybrané karty (+5b Súper)</button></div></div>';
 
     document.body.appendChild(modal);
 }
 
-function potvrditMulliganRuku(chceRiskovat) {
+function prepniVyberMulliganKarty(idx) {
+    var cardEl = document.getElementById("mull-card-" + idx);
+    var pos = mulliganSelectedIndices.indexOf(idx);
+
+    if (pos !== -1) {
+        mulliganSelectedIndices.splice(pos, 1);
+        if (cardEl) cardEl.classList.remove("karta-selected-mulligan");
+    } else {
+        if (mulliganSelectedIndices.length >= 2) {
+            ukazOznamenie("⚠️ MULLIGAN LIMIT", "Môžeš vymeniť maximálne 2 karty!");
+            return;
+        }
+        mulliganSelectedIndices.push(idx);
+        if (cardEl) cardEl.classList.add("karta-selected-mulligan");
+    }
+}
+
+function potvrditMulliganAkciu(chceVymenu) {
     var el = document.getElementById("mulligan-modal-overlay");
     if (el) el.remove();
 
-    if (chceRiskovat) {
-        p1_draft_hand = vygenerujRuku10Kariet();
-        p2MulliganBonusScore += 4;
-        ukazOznamenie("🎲 MULLIGAN RISK", "Potiahol si 10 nových kariet! Súper má +4b náskok!");
+    if (chceVymenu && mulliganSelectedIndices.length > 0) {
+        // Zoradíme indexy od najvyššieho po najnižší pre bezpečné odstránenie
+        mulliganSelectedIndices.sort(function(a, b) { return b - a; });
+        var pocetVymen = mulliganSelectedIndices.length;
+
+        mulliganSelectedIndices.forEach(function(idx) {
+            p1_draft_hand.splice(idx, 1);
+        });
+
+        for (var i = 0; i < pocetVymen; i++) {
+            if (p1_active_deck.length > 0) {
+                var novaKarta = p1_active_deck.pop();
+                p1_draft_hand.push({ n: novaKarta, cls: "F" });
+            }
+        }
+
+        p2MulliganRound1Bonus = 5;
+        ukazOznamenie("🎲 MULLIGAN DOKONČENÝ", "Vymenil si " + pocetVymen + " kariet! Súper získal +5b náskok v 1. kole.");
     } else {
-        ukazOznamenie("✅ RUKA POTVRDENÁ", "Zápas začína. Si na ťahu!");
+        ukazOznamenie("✅ RUKA POTVRDENÁ", "Ponechal si si pôvodnú ruku. Zápas začína!");
     }
 
     vykresliHraciuPlochu();
 }
 
+// ⚡ VYKRESLENIE STOLA S NEUTRÁLNYM RADOM A DYNAMICKÝMI BODMI
 function vykresliStol() {
     for (var r = 1; r <= 3; r++) {
         var el1 = document.getElementById("p1-row" + r);
@@ -1106,7 +1269,16 @@ function vykresliStol() {
     }
 
     var neutralEl = document.getElementById("neutral-row");
-    if (neutralEl) neutralEl.innerHTML = "";
+    if (neutralEl) {
+        neutralEl.innerHTML = '<span class="row-label-neutral">⚡ Neutrálne Kúzla Stola ⚡</span>';
+        neutralne_vplyvy.forEach(function(spellName) {
+            var reg = getRegistryCard(spellName);
+            var div = document.createElement("div");
+            div.className = "karta cls-F";
+            div.innerHTML = vytvorHTMLKarty(spellName, "none", "F", 0, 0, false);
+            neutralEl.appendChild(div);
+        });
+    }
 
     p1_played_cards.forEach(function(c) {
         var reg = getRegistryCard(c.n);
@@ -1165,8 +1337,13 @@ function vylozitKartuZRuky(pNum, cardIndex) {
         tahatNoveKartyZBalicka(pNum, 2);
         ukazOznamenie("🕵️ ŠPIÓN VYLOŽENÝ", "Karta <strong>" + card.n + "</strong> bola vyložená na súperovu stranu stola a potiahol si 2 nové karty!");
     } else if (reg.isSpell) {
-        if (card.n === "Šicko v porádku") neutralne_vplyvy = [];
-        else neutralne_vplyvy.push(card.n);
+        if (card.n === "Šicko v porádku") {
+            neutralne_vplyvy = [];
+            ukazOznamenie("⚡ ŠICKO V PORÁDKU", "Všetky neutrálne kúzla boli odstránené zo stola!");
+        } else {
+            neutralne_vplyvy.push(card.n);
+            ukazOznamenie("⚡ KÚZLO STOLA", "Bolo aktivované neutrálne kúzlo <strong>" + card.n + "</strong>!");
+        }
     } else {
         myPlayed.push(card);
 
@@ -1186,11 +1363,13 @@ function vylozitKartuZRuky(pNum, cardIndex) {
 
 function tahatNoveKartyZBalicka(pNum, count) {
     var hand = (pNum === 1) ? p1_draft_hand : p2_draft_hand;
-    var validKeys = Object.keys(MASTER_REGISTRY).filter(function(k) { return !MASTER_REGISTRY[k].isJoker; });
+    var deck = (pNum === 1) ? p1_active_deck : p2_active_deck;
 
     for (var i = 0; i < count; i++) {
-        var randKey = validKeys[Math.floor(Math.random() * validKeys.length)];
-        hand.push({ n: randKey, cls: "F" });
+        if (deck.length > 0) {
+            var cardName = deck.pop();
+            hand.push({ n: cardName, cls: "F" });
+        }
     }
 }
 
@@ -1287,6 +1466,10 @@ function skontrolujKoniecKola() {
     else if (sc2 > sc1) r2++;
     else { r1++; r2++; }
 
+    // Vynulovanie jednorazového Mulligan hendikepu po 1. kole
+    p1MulliganRound1Bonus = 0;
+    p2MulliganRound1Bonus = 0;
+
     aktualizujKolaUI();
     if (r1 >= 2 || r2 >= 2) vyhodnotKoniecZapasu();
     else pripravNoveKolo();
@@ -1310,6 +1493,7 @@ function aktualizujKolaUI() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+    nacitatUlozenuZostavu();
     zobraziťObrazovku("hlavne-menu");
     aktualizujPanelDielne();
     vygenerujSimulaciuTrhu();
@@ -1337,7 +1521,6 @@ window.upravHlasitost = upravHlasitost;
 window.otvorTruhluVitaza = otvorTruhluVitaza;
 window.otvorTruhluUcastnika = otvorTruhluUcastnika;
 window.spustitHudbuPoPrvomKliknuti = spustitHudbuPoPrvomKliknuti;
-window.potvrditMulliganRuku = potvrditMulliganRuku;
 window.otvorDetailKarty = otvorDetailKarty;
 window.ukazOznamenie = ukazOznamenie;
 window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu;
@@ -1350,3 +1533,7 @@ window.testSimulaciaPridatBota = testSimulaciaPridatBota;
 window.testSimulaciaGlobalnyOznam = testSimulaciaGlobalnyOznam;
 window.vykresliGridStatistik = vykresliGridStatistik;
 window.aktualizujPanelDielne = aktualizujPanelDielne;
+window.automatickyDoplnitDefaultZostavu = automatickyDoplnitDefaultZostavu;
+window.prepniKartuVZostave = prepniKartuVZostave;
+window.prepniVyberMulliganKarty = prepniVyberMulliganKarty;
+window.potvrditMulliganAkciu = potvrditMulliganAkciu;
