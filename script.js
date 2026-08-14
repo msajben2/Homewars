@@ -387,7 +387,6 @@ function vykresliRukuHraca(pNum) {
         var cardDiv = document.createElement("div");
         var isHidden = (pNum === 2 && jeSingleplayer);
         
-        // 🎭 SKRYTÁ RUKA AI BEZ PREZRÁDZANIA RÁMOV TRIED
         if (isHidden) {
             cardDiv.className = "karta cls-HIDDEN";
         } else {
@@ -451,7 +450,6 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
         coinsEarned = Math.floor(Math.random() * 151) + 150;
         goldEarned = Math.floor(Math.random() * 4) + 2;
         maxKariet = Math.floor(Math.random() * 4) + 3;
-        // 👻 Drop rate Prízraka vo Winner Cheste: 60% na 1ks, 15% na 2ks
         var rollP = Math.random();
         if (rollP <= 0.15) prizrakCount = 2;
         else if (rollP <= 0.75) prizrakCount = 1;
@@ -459,7 +457,6 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
         coinsEarned = Math.floor(Math.random() * 51) + 50;
         goldEarned = (Math.random() < 0.1) ? 1 : 0;
         maxKariet = Math.floor(Math.random() * 3) + 1;
-        // 👻 Drop rate Prízraka v Participant Cheste: 20% na 1ks
         if (Math.random() <= 0.20) prizrakCount = 1;
     }
 
@@ -618,13 +615,15 @@ function devPridatSurovinyACheaty() {
 
     Object.keys(MASTER_REGISTRY).forEach(function(t) {
         var reg = MASTER_REGISTRY[t];
-        if (!reg.isPlatinum && !reg.isSpell && !reg.isPrizrak) {
+        if (!reg.isPlatinum && !reg.isSpell && !reg.isPrizrak && !reg.isTournamentUnique) {
             if (!inventar.karty[t]) inventar.karty[t] = { repliky: {}, aktivnaTrieda: "F" };
             inventar.karty[t].repliky = { "F": 20, "E": 10, "D": 10, "C": 10, "B": 10, "A": 10 };
         }
     });
 
-    inventar.karty["Kráľovský Šampión"] = { repliky: { "F": 1 }, aktivnaTrieda: "F" };
+    if (!inventar.karty["Kráľovský Šampión"]) {
+        inventar.karty["Kráľovský Šampión"] = { repliky: { "F": 1 }, aktivnaTrieda: "F" };
+    }
 
     ukazOznamenie("⚡ DEV CHEAT AKTIVOVANÝ", "Pridané mince, Zlato (oz), Prízraky, suroviny (oz) a duplikáty!");
     aktualizujPanelDielne();
@@ -643,7 +642,6 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
         var countPrizraky = inventar.prizraky[fromCls] || 0;
         if (countPrizraky < 3) { ukazOznamenie("⚠️ NEDOSTATOK PRÍZRAKOV", "Potrebuješ 3x " + fromCls + "-Prízrakov na povýšenie!"); return; }
     } else if (reg.isTournamentUnique) {
-        // 👑 KRÁĽOVSKÝ ŠAMPIÓN POTREBUJE 2x PRÍZRAKA PRÍSLUŠNEJ TRIEDY
         var t = inventar.karty[meno];
         if (!t || t.aktivnaTrieda !== fromCls) {
             ukazOznamenie("⚠️ NESPRÁVNA TRIEDA", "Tvoj Kráľovský Šampión má triedu " + (t ? t.aktivnaTrieda : "F") + "!");
@@ -699,9 +697,21 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
     var oldPwr = getRealPower({ n: meno, cls: oldCls });
     var nextPwr = getRealPower({ n: meno, cls: nextCls });
 
+    var slot1Html = "", slot2Html = "", slot3Html = "";
+
+    if (reg.isTournamentUnique) {
+        slot1Html = '<div id="forge-card-1" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty("Kráľovský Šampión", oldPwr, oldCls, 1, reg.p) + '</div>';
+        slot2Html = '<div id="forge-card-2" class="karta cls-PRIZRAK-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty("Prízrak", "none", oldCls, 0, 0) + '</div>';
+        slot3Html = '<div id="forge-card-3" class="karta cls-PRIZRAK-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty("Prízrak", "none", oldCls, 0, 0) + '</div>';
+    } else {
+        slot1Html = '<div id="forge-card-1" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div>';
+        slot2Html = '<div id="forge-card-2" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div>';
+        slot3Html = '<div id="forge-card-3" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div>';
+    }
+
     var fourthCardHtml = isSuccess ? '<div id="forge-card-4" class="karta cls-' + nextCls + ' forge-slot-card" style="opacity:0;">' + vytvorHTMLKarty(meno, nextPwr, nextCls, reg.row, reg.p) + '</div>' : '';
 
-    overlay.innerHTML = '<div class="forge-stage-169"><video id="forge-video-element" src="Img/vylepsovanie.mp4" autoplay playsinline webkit-playsinline></video><div class="forge-cards-container"><div id="forge-card-1" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div><div id="forge-card-2" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div><div id="forge-card-3" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div>' + fourthCardHtml + '</div></div>';
+    overlay.innerHTML = '<div class="forge-stage-169"><video id="forge-video-element" src="Img/vylepsovanie.mp4" autoplay playsinline webkit-playsinline></video><div class="forge-cards-container">' + slot1Html + slot2Html + slot3Html + fourthCardHtml + '</div></div>';
 
     document.body.appendChild(overlay);
 
@@ -723,7 +733,7 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
     }, 7800);
 
     var vid = document.getElementById("forge-video-element");
-    vid.play().catch(function(){});
+    if (vid) vid.play().catch(function(){});
 
     vid.onended = function() {
         if (reg.isPrizrak) {
