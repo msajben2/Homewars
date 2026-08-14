@@ -1,5 +1,5 @@
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 34.0.0 - FULL RESPONSIVE)
+   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 35.0.0 - PERFECT FRAMES)
    ========================================================================= */
 
 * {
@@ -302,7 +302,7 @@ body {
 }
 
 /* =========================================================================
-   5. DESIGN KARIET S ČISTÝMI ::after OBRÁZKOVÝMI RÁMAMI
+   5. DESIGN KARIET S ODDIAĽENÝMI VYCENTROVANÝMI OBRÁZKAMI A BEZ ODSTÁVAJÚCICH UŠÍ
    ========================================================================= */
 .karta-karta-wrapper { 
     display: flex; 
@@ -321,7 +321,7 @@ body {
     width: 175px;
     height: 275px;
     background: #150f0a;
-    border-radius: 12px;
+    border-radius: 10px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -383,22 +383,36 @@ body {
 .karta.cls-JOKER-F { border: 3.5px solid #8b5a2b !important; }
 .karta.cls-JOKER-F::after { display: none; }
 
-.karta.cls-PLATINUM::after { background-image: url('Img/platinumclassram.webp'); }
-.karta.cls-PLATINUM { box-shadow: 0 0 25px rgba(224, 231, 255, 0.85) !important; background: transparent !important; }
+/* 👑 PLATINOVÁ KARTA BEZ ODSTÁVAJÚCICH UŠÍ */
+.karta.cls-PLATINUM {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: 0 0 25px rgba(224, 231, 255, 0.85) !important;
+    border-radius: 10px;
+}
 
-/* ODDIAĽENÉ A VYCENTROVANÉ FOTKY */
+.karta.cls-PLATINUM::after {
+    background-image: url('Img/platinumclassram.webp');
+}
+
+/* 🖼️ ODDIAĽENÉ A PERFEKTNE VYCENTROVANÉ OBRÁZKY (BEZ OREZANIA MAČIAKA ČI MÁRIA) */
 .karta-foto {
     width: 100%;
     height: 100%;
     background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center 20%;
+    background-size: 105% auto;
+    background-position: center 30%;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 1;
     border-radius: 8px;
     background-color: #1a120b;
+}
+
+.karta.cls-PLATINUM .karta-foto {
+    background-size: 105% auto !important;
+    background-position: center 38% !important;
 }
 
 .karta-kruh {
