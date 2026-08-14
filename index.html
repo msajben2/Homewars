@@ -26,7 +26,7 @@
             <button class="btn-menu" onclick="zobraziťMenuAI()">🤖 Zápas proti AI Botovi</button>
             <button class="btn-menu" onclick="otvoriťDeckbuilder()">🎴 Vytvoriť Zostavu (Deckbuilder)</button>
             <button class="btn-menu" onclick="otvoriťDielňu()">🔨 Kráľovská Dielňa (Forge)</button>
-            <button class="btn-menu" onclick="otvoriťObchod()">🛒 Player-Driven Trhovisko</button>
+            <button class="btn-menu" onclick="otvoriťObchod()">🛒 Player-Driven Trhovisko & Sklad</button>
             <button class="btn-menu" style="background:#4a2c00; border-color:#ffcc00;" onclick="otvoriťStatistiky()">🏆 Sieň Slávy & Štatistiky (20)</button>
             <button class="btn-menu" onclick="otvoriťNavodHry()">📖 Kronika & Návod Hry</button>
             
@@ -108,6 +108,7 @@
     <div id="deckbuilder-modal" class="card-modal" style="display: none;" onclick="if(event.target === this) this.style.display='none';">
         <div class="modal-content modal-bg-polia">
             <span class="card-modal-close" onclick="document.getElementById('deckbuilder-modal').style.display='none'">&times;</span>
+            <div id="deckbuilder-sticky-wallet" class="modal-sticky-wallet"></div>
             <h2 class="modal-title">🎴 VYTVORIŤ ZOSTRAVU DO HRY</h2>
             <div id="deckbuilder-status-bar" style="background: rgba(0,0,0,0.7); border: 1.5px solid #d4af37; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div style="font-size: 1.1em; color: #ffcc00;">
@@ -124,16 +125,26 @@
     <div id="dielna-modal" class="card-modal" style="display: none;" onclick="if(event.target === this) this.style.display='none';">
         <div class="modal-content modal-bg-dielna">
             <span class="card-modal-close" onclick="document.getElementById('dielna-modal').style.display='none'">&times;</span>
+            <div id="dielna-sticky-wallet" class="modal-sticky-wallet"></div>
             <h2 class="modal-title">🔨 KRÁĽOVSKÁ DIELŇA (FORGE)</h2>
             <div id="dielna-zoznam" class="dielna-grid"></div>
         </div>
     </div>
 
-    <!-- MODÁLNE OKNO PRE TRHOVISKO (POZADIE TRHOVISKO) -->
+    <!-- MODÁLNE OKNO PRE TRHOVISKO & NÚDZOVÝ SKLAD (POZADIE TRHOVISKO) -->
     <div id="obchod-modal" class="card-modal" style="display: none;" onclick="if(event.target === this) this.style.display='none';">
         <div class="modal-content modal-bg-trhovisko">
             <span class="card-modal-close" onclick="document.getElementById('obchod-modal').style.display='none'">&times;</span>
-            <h2 class="modal-title">🛒 ANONYMNÉ TRHOVISKO & AUKCIE</h2>
+            <div id="obchod-sticky-wallet" class="modal-sticky-wallet"></div>
+            <h2 class="modal-title">🛒 PLAYER-DRIVEN TRHOVISKO & KRÁĽOVSKÝ SKLAD</h2>
+            
+            <!-- PREPÍNAČ ZÁLOŽIEK TRHU -->
+            <div style="display:flex; justify-content:center; gap:10px; margin-bottom:20px;">
+                <button id="btn-tab-trh" class="btn-market-tab active-market-tab" onclick="prepniZalozkuTrhu('trh')">🏛️ Aktuálne Aukcie</button>
+                <button id="btn-tab-sklad" class="btn-market-tab" onclick="prepniZalozkuTrhu('sklad')">👑 Kráľovský Núdzový Sklad</button>
+                <button id="btn-tab-predaj" class="btn-market-tab" onclick="prepniZalozkuTrhu('predaj')">📦 Vyvesiť Predaj z Batohu</button>
+            </div>
+
             <div id="obchod-regaly-zoznam"></div>
         </div>
     </div>
