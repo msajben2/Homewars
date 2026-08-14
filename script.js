@@ -657,11 +657,17 @@ function spustitZapasProtiAI() {
     jeSingleplayer = true; inicializujNovyZapas(); 
 }
 
+var cisloKola = 1; // NOVA PREMENNA
+
 function inicializujNovyZapas() {
     p1_played_cards = []; p2_played_cards = []; p1_spalene = []; p2_spalene = []; odhodene_karty_kola = [];
     neutralne_vplyvy = []; p1_erik_buff_row = null; p2_erik_buff_row = null;
     r1 = 0; r2 = 0; sc1 = 0; sc2 = 0; p1Pass = false; p2Pass = false;
-    p1MulliganRound1Bonus = 0; p2MulliganRound1Bonus = 0; aktualnyHrac = 1; blokujVykladanie = false;
+    p1MulliganRound1Bonus = 0; p2MulliganRound1Bonus = 0; blokujVykladanie = false;
+    
+    // HOD MINCOU NA ZAČIATKU
+    cisloKola = 1;
+    aktualnyHrac = (Math.random() < 0.5) ? 1 : 2; 
 
     p1_active_deck = pripravBalicekPreZapas(1); p2_active_deck = pripravBalicekPreZapas(2);
     p1_draft_hand = vytiahniRukuZRozdanehoBalicka(1); p2_draft_hand = vytiahniRukuZRozdanehoBalicka(2);
@@ -692,8 +698,16 @@ function potvrditMulliganAkciu(chceVymenu) {
         p2MulliganRound1Bonus = 5; ukazOznamenie("🎲 MULLIGAN DOKONČENÝ", "Vymenil si " + pocetVymen + " kariet! Súper získal +5b náskok v 1. kole.");
     } else { ukazOznamenie("✅ RUKA POTVRDENÁ", "Ponechal si si pôvodnú ruku."); }
 
-    if (jeSingleplayer) vyhodnotAIMulligan();
-    vykresliHraciuPlochu();
+    // ASYNCHRÓNNY FIX - Dáme hre 400ms na nádych
+    if (jeSingleplayer) {
+        setTimeout(function() {
+            vyhodnotAIMulligan();
+            vykresliHraciuPlochu();
+            setTimeout(spravujAI, 800); // Necháme bota hrať, ak náhodou začína on
+        }, 400);
+    } else {
+        vykresliHraciuPlochu();
+    }
 }
 
 function vyhodnotAIMulligan() {
@@ -823,12 +837,13 @@ function pripravNoveKolo() {
     odhodene_karty_kola = odhodene_karty_kola.concat(p1_played_cards).concat(p2_played_cards);
     p1_played_cards = []; p2_played_cards = []; neutralne_vplyvy = []; p1_erik_buff_row = null; p2_erik_buff_row = null;
     p1Pass = false; p2Pass = false; blokujVykladanie = false;
+    
+    cisloKola++;
+    if (cisloKola === 2) aktualnyHrac = 2; // V druhom kole začína P2
+    else if (cisloKola === 3) aktualnyHrac = 1; // V treťom kole opäť P1
+    
     vykresliHraciuPlochu();
-}
-
-function aktualizujKolaUI() {
-    var el1 = document.getElementById("p1-rounds"); var el2 = document.getElementById("p2-rounds");
-    if (el1) el1.innerText = "🔴".repeat(r1) || "⚪"; if (el2) el2.innerText = "🔴".repeat(r2) || "⚪";
+    setTimeout(spravujAI, 1000); // 1 sekunda pauza, kým bot po reštarte stola niečo urobí
 }
 
 // =====================================================================
