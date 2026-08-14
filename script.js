@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 29.0.0 - PRODUCTION)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 30.0.0 - STICKY WALLET & OZ)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "29.0.0";
+var VERZIA = "30.0.0";
 
 // =========================================================================
 // 1. MASTER REGISTRY (20 PLATINIEK + 19 OBYČAJNÝCH KARIET)
@@ -105,6 +105,15 @@ var FORGE_RATES = {
     "A->S": { rate: 0.40, from: "A", nextClass: "S", reqMat: "Zlato", reqMatCount: 3, coinFee: 500 }
 };
 
+var STATNY_SKLAD_CENNIK = {
+    "Koža": { price: 8, img: "Img/koza.webp" },
+    "Drevo": { price: 18, img: "Img/drevo.webp" },
+    "Kov": { price: 38, img: "Img/zelezo.webp" },
+    "Bronz": { price: 75, img: "Img/bronz.webp" },
+    "Striebro": { price: 180, img: "Img/striebro.webp" },
+    "Zlato": { price: 80, img: "Img/zlato.webp" }
+};
+
 var PERGAMENY_CONFIG = {
     "none": { name: "Bez Zvitku", goldCost: 0, rateBonus: 0.00, saveCard: false },
     "basic": { name: "Základný Zvitok", goldCost: 100, rateBonus: 0.10, saveCard: true },
@@ -177,6 +186,7 @@ var jeSingleplayer = false; var obtiaznostAI = "B"; var blokujVykladanie = false
 var aktualnaStranaKnihy = 1;
 var p1MulliganRound1Bonus = 0, p2MulliganRound1Bonus = 0;
 var mulliganSelectedIndices = [];
+var aktualnaZalozkaTrhu = "trh";
 
 // AUDIO ENGINE
 var hudbaSpustena = false;
@@ -227,6 +237,28 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
 }
 
 // =========================================================================
+// 🎒 STICKY WALLET (ŽIVÁ POKLADNICA V MODÁLOCH)
+// =========================================================================
+function aktualizujVsetkyStickyWallety() {
+    var walletIds = ["deckbuilder-sticky-wallet", "dielna-sticky-wallet", "obchod-sticky-wallet"];
+    var html = '<div class="wallet-chip"><img src="Img/mince.webp" class="wallet-chip-img"> ' + inventar.mince + ' m</div>' +
+               '<div class="wallet-chip"><img src="Img/zlato.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Zlato"]||0) + ' oz Zlato</div>' +
+               '<div class="wallet-chip"><img src="Img/koza.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Koža"]||0) + ' oz Koža</div>' +
+               '<div class="wallet-chip"><img src="Img/drevo.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Drevo"]||0) + ' oz Drevo</div>' +
+               '<div class="wallet-chip"><img src="Img/zelezo.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Kov"]||0) + ' oz Kov</div>' +
+               '<div class="wallet-chip"><img src="Img/bronz.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Bronz"]||0) + ' oz Bronz</div>' +
+               '<div class="wallet-chip"><img src="Img/striebro.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Striebro"]||0) + ' oz Striebro</div>' +
+               '<div class="wallet-chip"><img src="Img/zlato.webp" class="wallet-chip-img"> ' + (inventar.jokers["F"]||0) + 'x F-JK</div>';
+
+    walletIds.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.innerHTML = html;
+    });
+
+    vykresliRozbalovaciBatoh();
+}
+
+// =========================================================================
 // 🎴 DECKBUILDER & PERSISTENTNÁ ZOSTRAVA (MIN. 25 KARIET)
 // =========================================================================
 function nacitatUlozenuZostavu() {
@@ -259,6 +291,7 @@ function automatickyDoplnitDefaultZostavu(showNotify) {
         ukazOznamenie("⚡ PREDVOLENÁ ZOSTRAVA", "Zostava bola automaticky naplnená 25 základnými kartami!");
     }
     vygenerujDeckbuilder();
+    aktualizujVsetkyStickyWallety();
 }
 
 function prepniKartuVZostave(kartaMeno) {
@@ -314,11 +347,12 @@ function vygenerujDeckbuilder() {
 
         e.appendChild(wrap);
     });
+
+    aktualizujVsetkyStickyWallety();
 }
 
 function pripravBalicekPreZapas(pNum) {
     var pool = (pNum === 1) ? inventar.zostava.slice() : inventar.zostava.slice();
-    // Premiešanie balíčka
     for (var i = pool.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp;
@@ -326,7 +360,6 @@ function pripravBalicekPreZapas(pNum) {
     return pool;
 }
 
-// 🃏 GENEROVANIE RUKY (10 KARIET Z HRÁČOVHO BALÍČKA)
 function vytiahniRukuZRozdanehoBalicka(pNum) {
     var deck = (pNum === 1) ? p1_active_deck : p2_active_deck;
     var hand = [];
@@ -416,7 +449,6 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
         maxKariet = Math.floor(Math.random() * 3) + 1;
     }
 
-    // 💰 ODSTUPŇOVANÝ BONUS ZA SLABÉ KARTY NA STOLE S MAX STROPOM 125m
     var extraLowPwrCoins = 0;
     if (r1 >= 2) {
         p1_played_cards.forEach(function(c) {
@@ -443,7 +475,7 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
     var odmenyHtml = '<div class="karta-surovina"><div class="surovina-badge">+' + coinsEarned + '</div><div class="surovina-foto" style="background-image: url(\'Img/mince.webp\');"></div><div class="surovina-stitok"><div class="surovina-nazov">Kopa Mincí' + (extraLowPwrCoins > 0 ? ' (+' + extraLowPwrCoins + ' bonus)' : '') + '</div></div></div>';
 
     if (goldEarned > 0) {
-        odmenyHtml += '<div class="karta-surovina"><div class="surovina-badge">+' + goldEarned + 'g</div><div class="surovina-foto" style="background-image: url(\'Img/zlato.webp\');"></div><div class="surovina-stitok"><div class="surovina-nazov">Hruda Zlata</div></div></div>';
+        odmenyHtml += '<div class="karta-surovina"><div class="surovina-badge">+' + goldEarned + ' oz</div><div class="surovina-foto" style="background-image: url(\'Img/zlato.webp\');"></div><div class="surovina-stitok"><div class="surovina-nazov">Hruda Zlata</div></div></div>';
     }
 
     var dostupneFm = Object.keys(MASTER_REGISTRY).filter(function(m) {
@@ -468,7 +500,7 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
 
     overlayElement.appendChild(rewardsBox);
     aktualizujPanelDielne();
-    vykresliRozbalovaciBatoh();
+    aktualizujVsetkyStickyWallety();
 }
 
 function zatvoritTruhluAOpustit(overlayId) {
@@ -503,7 +535,7 @@ function aktualizujPanelDielne() {
     jokerWrapper.appendChild(jokerCardDiv);
     var jokerActions = document.createElement("div");
     jokerActions.style.width = "100%";
-    jokerActions.innerHTML = '<div style="font-size:0.75em; margin:6px 0; color:#a855f7; text-align:center;">Joker Zásoby: <strong>' + jokerCountsText + '</strong></div><select id="step-select-JokerCard" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="F->E">F ➔ E (3xF JK | 10m | Koža)</option><option value="E->D">E ➔ D (3xE JK | 25m | Drevo)</option><option value="D->C">D ➔ C (3xD JK | 50m | Kov)</option><option value="C->B">C ➔ B (3xC JK | 100m | Bronz)</option><option value="B->A">B ➔ A (3xB JK | 250m | Striebro)</option></select><button class="btn-forge" style="background:#8b5cf6;" onclick="vylepsiKartuVoForge(\'Joker Card\', document.getElementById(\'step-select-JokerCard\').value, \'none\')">🔨 Vykovat Jokera</button>';
+    jokerActions.innerHTML = '<div style="font-size:0.75em; margin:6px 0; color:#a855f7; text-align:center;">Joker Zásoby: <strong>' + jokerCountsText + '</strong></div><select id="step-select-JokerCard" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="F->E">F ➔ E (3xF JK | 10m | 3 oz Koža)</option><option value="E->D">E ➔ D (3xE JK | 25m | 3 oz Drevo)</option><option value="D->C">D ➔ C (3xD JK | 50m | 3 oz Kov)</option><option value="C->B">C ➔ B (3xC JK | 100m | 3 oz Bronz)</option><option value="B->A">B ➔ A (3xB JK | 250m | 3 oz Striebro)</option></select><button class="btn-forge" style="background:#8b5cf6;" onclick="vylepsiKartuVoForge(\'Joker Card\', document.getElementById(\'step-select-JokerCard\').value, \'none\')">🔨 Vykovat Jokera</button>';
     jokerWrapper.appendChild(jokerActions);
     e.appendChild(jokerWrapper);
 
@@ -529,7 +561,7 @@ function aktualizujPanelDielne() {
 
         var countsText = 'F:' + (cardData.repliky["F"] || 0) + ' | E:' + (cardData.repliky["E"] || 0) + ' | D:' + (cardData.repliky["D"] || 0) + ' | C:' + (cardData.repliky["C"] || 0) + ' | B:' + (cardData.repliky["B"] || 0) + ' | A:' + (cardData.repliky["A"] || 0);
 
-        var actions = '<div style="font-size:0.75em; margin:6px 0; color:#ffcc00; text-align:center;">Počty: <strong>' + countsText + '</strong></div><label style="font-size:0.75em; color:#aaa;">Krok kovania:</label><select id="step-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="F->E">F ➔ E (3xF | 10m | Koža)</option><option value="E->D">E ➔ D (3xE | 25m | Drevo)</option><option value="D->C">D ➔ C (3xD | 50m | Kov)</option><option value="C->B">C ➔ B (3xC | 100m | Bronz)</option><option value="B->A">B ➔ A (3xB | 250m | Striebro)</option><option value="A->S">A ➔ S (3xA | 500m | Zlato)</option></select><label style="font-size:0.75em; color:#aaa;">Zvitok ochrany:</label><select id="pergamen-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:6px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="none">Bez Zvitku (0g / Risk)</option><option value="basic">Základný Zvitok (100g / +10%)</option><option value="advanced">Pokročilý Zvitok (500g / +25%)</option><option value="legendary">Legendárny Zvitok (1000g / +55%)</option></select><button class="btn-forge" onclick="vylepsiKartuVoForge(\'' + t.replace(/'/g, "\\'") + '\', document.getElementById(\'step-select-' + t.replace(/\s+/g, '') + '\').value, document.getElementById(\'pergamen-select-' + t.replace(/\s+/g, '') + '\').value)">🔨 Forge</button>';
+        var actions = '<div style="font-size:0.75em; margin:6px 0; color:#ffcc00; text-align:center;">Počty: <strong>' + countsText + '</strong></div><label style="font-size:0.75em; color:#aaa;">Krok kovania:</label><select id="step-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="F->E">F ➔ E (3xF | 10m | 3 oz Koža)</option><option value="E->D">E ➔ D (3xE | 25m | 3 oz Drevo)</option><option value="D->C">D ➔ C (3xD | 50m | 3 oz Kov)</option><option value="C->B">C ➔ B (3xC | 100m | 3 oz Bronz)</option><option value="B->A">B ➔ A (3xB | 250m | 3 oz Striebro)</option><option value="A->S">A ➔ S (3xA | 500m | 3 oz Zlato)</option></select><label style="font-size:0.75em; color:#aaa;">Zvitok ochrany:</label><select id="pergamen-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:6px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="none">Bez Zvitku (0 oz Zlata / Risk)</option><option value="basic">Základný Zvitok (100 oz Zlata / +10%)</option><option value="advanced">Pokročilý Zvitok (500 oz Zlata / +25%)</option><option value="legendary">Legendárny Zvitok (1000 oz Zlata / +55%)</option></select><button class="btn-forge" onclick="vylepsiKartuVoForge(\'' + t.replace(/'/g, "\\'") + '\', document.getElementById(\'step-select-' + t.replace(/\s+/g, '') + '\').value, document.getElementById(\'pergamen-select-' + t.replace(/\s+/g, '') + '\').value)">🔨 Forge</button>';
 
         wrapper.appendChild(cardDiv);
         var actDiv = document.createElement("div");
@@ -539,6 +571,8 @@ function aktualizujPanelDielne() {
 
         e.appendChild(wrapper);
     });
+
+    aktualizujVsetkyStickyWallety();
 }
 
 function devPridatSurovinyACheaty() {
@@ -560,9 +594,9 @@ function devPridatSurovinyACheaty() {
 
     inventar.karty["Kráľovský Šampión"] = { repliky: { "F": 1, "E": 3, "D": 3, "C": 3, "B": 3, "A": 3 }, aktivnaTrieda: "F" };
 
-    ukazOznamenie("⚡ DEV CHEAT AKTIVOVANÝ", "Pridané mince, Zlato, suroviny a duplikáty pre testovanie kovania až po S-Class!");
+    ukazOznamenie("⚡ DEV CHEAT AKTIVOVANÝ", "Pridané mince, Zlato (oz), suroviny (oz) a duplikáty!");
     aktualizujPanelDielne();
-    vykresliRozbalovaciBatoh();
+    aktualizujVsetkyStickyWallety();
 }
 
 function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
@@ -590,7 +624,7 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
 
     var reqMat = cfg.reqMat;
     if ((inventar.suroviny[reqMat] || 0) < cfg.reqMatCount) {
-        ukazOznamenie("⚠️ NEDOSTATOK SUROVÍN", "Potrebuješ " + cfg.reqMatCount + "x " + reqMat + "!");
+        ukazOznamenie("⚠️ NEDOSTATOK SUROVÍN", "Potrebuješ " + cfg.reqMatCount + " oz " + reqMat + "!");
         return;
     }
 
@@ -688,27 +722,105 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
         overlay.remove();
         obnovitHudbuPoVideu();
         aktualizujPanelDielne();
-        vykresliRozbalovaciBatoh();
+        aktualizujVsetkyStickyWallety();
     };
 }
 
-// 📦 TRHOVISKO S OKAMŽITÝM STRHÁVANÍM MINCÍ (ESCROW)
+// =========================================================================
+// 📦 TRHOVISKO, KRÁĽOVSKÝ SKLAD & PREDAJNÝ INVENTÁR
+// =========================================================================
 var aukcnyCasomeračInterval = null;
 var aktualnyAnonymnyStrop = 250; 
 var trhovaPriemernaCenaEMA = 210; 
+var pocetRealnychPredajovEMA = 0; // 0 = Obstarávacia cena, >=3 = Trhová cena
 var aktualnyVeduciHrac = "Lord_Grob_33";
 var hracovaAktivnaPonukaNaTrhu = 0;
+
+function prepniZalozkuTrhu(tabName) {
+    aktualnaZalozkaTrhu = tabName;
+    document.querySelectorAll(".btn-market-tab").forEach(function(b) { b.classList.remove("active-market-tab"); });
+    
+    if (tabName === "trh") document.getElementById("btn-tab-trh").classList.add("active-market-tab");
+    if (tabName === "sklad") document.getElementById("btn-tab-sklad").classList.add("active-market-tab");
+    if (tabName === "predaj") document.getElementById("btn-tab-predaj").classList.add("active-market-tab");
+
+    vygenerujSimulaciuTrhu();
+}
 
 function vygenerujSimulaciuTrhu() {
     var e = document.getElementById("obchod-regaly-zoznam");
     if (!e) return;
+    e.innerHTML = "";
 
-    var reg = MASTER_REGISTRY["Neviditeľný Mário"];
-    var realPwr = getRealPower({ n: "Neviditeľný Mário", cls: "E" });
+    aktualizujVsetkyStickyWallety();
 
-    e.innerHTML = '<div style="background:rgba(30,20,10,0.85); border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:20px;"><h3 style="color:#d4af37; margin-top:0;">👑 ANONYMNÉ AUKČNÉ TRHOVISKO</h3><p style="font-size:0.9em; color:#ccc;">Predávaj samostatné karty aj HOMOGÉNNE Balíčky (rovnaká karta & trieda)!</p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;"><button onclick="ukazOznamenie(\'📦 Vytvoriť Balíček\', \'Predávaš 10x E-Class Neviditeľný Mário v balíku! Zalistovací poplatok vopred je 15 mincí!\')" class="btn-dev-action">📦 Predať Balíček (10x E-Mário)</button><button onclick="testSimulaciaPrihodeniaBota()" class="btn-dev-action">🤖 Simulovať prihodenie Bota</button><button onclick="testSimulaciaRychlychPredajov()" class="btn-dev-action">📊 Simulovať 10 predajov (EMA Indikátor)</button></div></div><div class="auction-card-box"><div class="karta cls-E">' + vytvorHTMLKarty("Neviditeľný Mário", realPwr, "E", reg.row, reg.p) + '</div><div style="flex-grow:1;"><h3 style="color:#ffcc00; margin:0 0 5px 0;">Neviditeľný Mário (E-Class) - 10x Balíček</h3><p style="margin:2px 0; color:#aaa; font-size:0.9em;">Predajca: <strong>Mníchov_Master</strong></p><div style="background:rgba(0,0,0,0.6); border:1px solid #5a4d3e; padding:12px; border-radius:6px; margin:10px 0; max-width:440px;"><div>⏱️ Čas aukcie: <span id="auction-timer" style="color:#ffcc00; font-weight:bold;">00:59:59</span> <small style="color:#888;">(Anti-Snipe: +3m)</small></div><div style="margin-top:4px;">👑 Aktuálne najvyššia ponuka (Vedie): <strong style="color:#ffcc00;" id="auction-leader">' + aktualnyVeduciHrac + '</strong></div><div style="margin-top:4px;">📊 Indikátor Ceny (EMA): <strong style="color:#3b82f6;">' + trhovaPriemernaCenaEMA + ' m</strong></div><div style="margin-top:4px;">💰 Okamžitý Výkup (Strop): <strong style="color:#10b981;">' + aktualnyAnonymnyStrop + ' m</strong></div></div><div style="display:flex; gap:10px;"><button onclick="anonymnePrihoditSumu(' + aktualnyAnonymnyStrop + ')" style="background:linear-gradient(180deg, #3b2d1d 0%, #21180e 100%); color:#ffcc00; border:1px solid #d4af37; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">🕵️ Anonymne Prihodiť</button><button onclick="okamziteOdkupitKartu(' + aktualnyAnonymnyStrop + ', \'Balíček 10x E-Mário\')" style="background:#10b981; color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">⚡ Kúpiť Ihneď za ' + aktualnyAnonymnyStrop + 'm</button></div></div></div>';
+    if (aktualnaZalozkaTrhu === "trh") {
+        var reg = MASTER_REGISTRY["Neviditeľný Mário"];
+        var realPwr = getRealPower({ n: "Neviditeľný Mário", cls: "E" });
+        var emaTypLabel = (pocetRealnychPredajovEMA >= 3) ? '<span style="color:#10b981; font-size:0.8em;">(🛒 Reálna trhová cena)</span>' : '<span style="color:#f59e0b; font-size:0.8em;">(⚙️ Vypočítaná obstarávacia cena)</span>';
 
-    spustitOdpocitavanieAukcie();
+        e.innerHTML = '<div style="background:rgba(30,20,10,0.85); border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:20px;"><h3 style="color:#d4af37; margin-top:0;">👑 ANONYMNÉ AUKČNÉ TRHOVISKO</h3><p style="font-size:0.9em; color:#ccc;">Súťaž o vzácne položky od iných hráčov na serveri!</p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;"><button onclick="testSimulaciaPrihodeniaBota()" class="btn-dev-action">🤖 Simulovať prihodenie Bota</button><button onclick="testSimulaciaRychlychPredajov()" class="btn-dev-action">📊 Simulovať reálny predaj (Prepnúť EMA)</button></div></div><div class="auction-card-box"><div class="karta cls-E">' + vytvorHTMLKarty("Neviditeľný Mário", realPwr, "E", reg.row, reg.p) + '</div><div style="flex-grow:1;"><h3 style="color:#ffcc00; margin:0 0 5px 0;">Neviditeľný Mário (E-Class) - 10x Balíček</h3><p style="margin:2px 0; color:#aaa; font-size:0.9em;">Predajca: <strong>Mníchov_Master</strong></p><div style="background:rgba(0,0,0,0.6); border:1px solid #5a4d3e; padding:12px; border-radius:6px; margin:10px 0; max-width:480px;"><div>⏱️ Čas aukcie: <span id="auction-timer" style="color:#ffcc00; font-weight:bold;">00:59:59</span> <small style="color:#888;">(Anti-Snipe: +3m)</small></div><div style="margin-top:4px;">👑 Aktuálne najvyššia ponuka (Vedie): <strong style="color:#ffcc00;" id="auction-leader">' + aktualnyVeduciHrac + '</strong></div><div style="margin-top:4px;">📊 Indikátor Ceny (EMA): <strong style="color:#3b82f6;">' + trhovaPriemernaCenaEMA + ' m</strong> ' + emaTypLabel + '</div><div style="margin-top:4px;">💰 Okamžitý Výkup (Strop): <strong style="color:#10b981;">' + aktualnyAnonymnyStrop + ' m</strong></div></div><div style="display:flex; gap:10px;"><button onclick="anonymnePrihoditSumu(' + aktualnyAnonymnyStrop + ')" style="background:linear-gradient(180deg, #3b2d1d 0%, #21180e 100%); color:#ffcc00; border:1px solid #d4af37; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">🕵️ Anonymne Prihodiť</button><button onclick="okamziteOdkupitKartu(' + aktualnyAnonymnyStrop + ', \'Balíček 10x E-Mário\')" style="background:#10b981; color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">⚡ Kúpiť Ihneď za ' + aktualnyAnonymnyStrop + 'm</button></div></div></div>';
+
+        spustitOdpocitavanieAukcie();
+    } else if (aktualnaZalozkaTrhu === "sklad") {
+        // 🏛️ KRÁĽOVSKÝ ŠTÁTNY NÚDZOVÝ SKLAD SUROVÍN
+        var skladHtml = '<div style="background:rgba(30,20,10,0.85); border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:15px;"><h3 style="color:#d4af37; margin-top:0;">🏛️ KRÁĽOVSKÝ ŠTÁTNY SKLAD (NÚDZOVÉ ZÁSOBY)</h3><p style="font-size:0.9em; color:#ccc;">Ak na hráčskom trhu chýbajú suroviny na kovanie, kráľovská pokladnica ti garantovane predá zásoby za mince (štátna prirážka +40%).</p></div><div class="market-store-grid">';
+
+        Object.keys(STATNY_SKLAD_CENNIK).forEach(function(mat) {
+            var item = STATNY_SKLAD_CENNIK[mat];
+            skladHtml += '<div class="market-store-card"><img src="' + item.img + '" class="market-store-img"><strong style="color:#ffcc00; font-size:1em;">' + mat + '</strong><span style="color:#aaa; font-size:0.85em;">Cena: <strong style="color:#ffcc00;">' + item.price + ' m / 1 oz</strong></span><div style="display:flex; gap:6px; margin-top:6px;"><button onclick="kupitSurovinuZoStatnehoSkladu(\'' + mat + '\', 1)" style="background:#3b2d1d; color:#ffcc00; border:1px solid #d4af37; padding:5px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:0.8em;">+1 oz</button><button onclick="kupitSurovinuZoStatnehoSkladu(\'' + mat + '\', 5)" style="background:#10b981; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:0.8em;">+5 oz</button></div></div>';
+        });
+
+        skladHtml += '</div>';
+        e.innerHTML = skladHtml;
+    } else if (aktualnaZalozkaTrhu === "predaj") {
+        // 📦 VYVESIŤ POLOŽKU Z BATOHU NA PREDAJ
+        var predajHtml = '<div style="background:rgba(30,20,10,0.85); border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:15px;"><h3 style="color:#d4af37; margin-top:0;">📦 VYVESIŤ POLOŽKU NA TRHOVISKO</h3><p style="font-size:0.9em; color:#ccc;">Vyber kartu alebo suroviny zo svojho batohu a vytvor novú aukciu pre ostatných hráčov!</p></div><div class="dielna-grid">';
+
+        Object.keys(inventar.karty).forEach(function(kName) {
+            var cData = inventar.karty[kName];
+            var reg = getRegistryCard(kName);
+            if (typeof cData.repliky === "object") {
+                Object.keys(cData.repliky).forEach(function(cls) {
+                    var count = cData.repliky[cls] || 0;
+                    if (count > 0) {
+                        predajHtml += '<div class="karta-karta-wrapper"><div class="karta cls-' + cls + '">' + vytvorHTMLKarty(kName, getRealPower({n:kName, cls:cls}), cls, reg.row, reg.p, false) + '</div><div style="font-size:0.8em; margin:6px 0; color:#ffcc00;">Na sklade: <strong>' + count + 'x</strong></div><button onclick="vystavitKartuNaTrh(\'' + kName.replace(/'/g, "\\'") + '\', \'' + cls + '\', ' + count + ')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:0.85em;">🛒 Predať na Trhu</button></div>';
+                    }
+                });
+            }
+        });
+
+        predajHtml += '</div>';
+        e.innerHTML = predajHtml;
+    }
+}
+
+function kupitSurovinuZoStatnehoSkladu(mat, pocetOz) {
+    var item = STATNY_SKLAD_CENNIK[mat];
+    if (!item) return;
+
+    var celkovaCena = item.price * pocetOz;
+    if (inventar.mince < celkovaCena) {
+        ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Na nákup " + pocetOz + " oz " + mat + " potrebuješ " + celkovaCena + " mincí!");
+        return;
+    }
+
+    inventar.mince -= celkovaCena;
+    inventar.suroviny[mat] = (inventar.suroviny[mat] || 0) + pocetOz;
+    ukazOznamenie("🏛️ NÁKUP ZO ŠTÁTNEHO SKLADU", "Kúpil si **" + pocetOz + " oz " + mat + "** za " + celkovaCena + " mincí!");
+    aktualizujVsetkyStickyWallety();
+}
+
+function vystavitKartuNaTrh(kName, cls, maxCount) {
+    var cenaStr = prompt("Zadaj cenu Okamžitého výkupu v minciach za 1x " + kName + " (" + cls + "-Class):", "35");
+    if (!cenaStr) return;
+    var cena = parseInt(cenaStr);
+    if (isNaN(cena) || cena <= 0) { ukazOznamenie("⚠️ CHYBA", "Zadaj platnú cenu!"); return; }
+
+    inventar.karty[kName].repliky[cls] -= 1;
+    ukazOznamenie("🎉 POLOŽKA ZALISTOVANÁ", "Karta **" + kName + " (" + cls + "-Class)** bola úspešne vyvesená na anonymný trh za " + cena + " mincí!");
+    vygenerujSimulaciuTrhu();
+    aktualizujVsetkyStickyWallety();
 }
 
 function anonymnePrihoditSumu(stropVal) {
@@ -722,17 +834,17 @@ function anonymnePrihoditSumu(stropVal) {
     if (ponuka >= stropVal) {
         inventar.mince -= stropVal;
         hracovaAktivnaPonukaNaTrhu = 0;
+        pocetRealnychPredajovEMA++;
         ukazOznamenie("⚡ AUTOMATICKÝ VÝKUP!", "Tvoja ponuka (" + ponuka + "m) presiahla hodnotu Okamžitého výkupu (" + stropVal + "m). Položka je okamžite tvoja za " + stropVal + "m!");
-        vykresliRozbalovaciBatoh();
+        aktualizujVsetkyStickyWallety();
     } else {
-        // Okamžité strhnutie mincí (Escrow)
         inventar.mince -= ponuka;
         hracovaAktivnaPonukaNaTrhu = ponuka;
         aktualnyVeduciHrac = "Hráč 1 (Ty)";
         var lEl = document.getElementById("auction-leader");
         if (lEl) lEl.innerText = aktualnyVeduciHrac;
         ukazOznamenie("🕵️ PONUKA ZAREGISTROVANÁ", "Tvoja ponuka " + ponuka + "m bola rezervovaná z batohu a teraz si na **1. mieste**!");
-        vykresliRozbalovaciBatoh();
+        aktualizujVsetkyStickyWallety();
     }
 }
 
@@ -740,8 +852,9 @@ function okamziteOdkupitKartu(stropVal, nazov) {
     if (inventar.mince < stropVal) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Potrebuješ " + stropVal + "m na okamžitý výkup!"); return; }
     inventar.mince -= stropVal;
     hracovaAktivnaPonukaNaTrhu = 0;
+    pocetRealnychPredajovEMA++;
     ukazOznamenie("🎉 KÚPENÉ IHNEĎ!", "Zaplatil si " + stropVal + "m. Položka " + nazov + " ti pristala v batohu!");
-    vykresliRozbalovaciBatoh();
+    aktualizujVsetkyStickyWallety();
 }
 
 function testSimulaciaPrihodeniaBota() {
@@ -749,21 +862,21 @@ function testSimulaciaPrihodeniaBota() {
     var lEl = document.getElementById("auction-leader");
     if (lEl) lEl.innerText = aktualnyVeduciHrac;
 
-    // Vrátenie mincí hráčovi pri prebití
     if (hracovaAktivnaPonukaNaTrhu > 0) {
         inventar.mince += hracovaAktivnaPonukaNaTrhu;
         ukazOznamenie("🤖 PREBITIE PONUKY", "Súper <strong>" + aktualnyVeduciHrac + "</strong> ťa prehodil! Tvojich **" + hracovaAktivnaPonukaNaTrhu + " m** ti bolo vrátených späť do batohu!");
         hracovaAktivnaPonukaNaTrhu = 0;
-        vykresliRozbalovaciBatoh();
+        aktualizujVsetkyStickyWallety();
     } else {
         ukazOznamenie("🤖 PRIHODENIE BOTA", "Súper <strong>" + aktualnyVeduciHrac + "</strong> práve prevzal 1. miesto na trhu!");
     }
 }
 
 function testSimulaciaRychlychPredajov() {
-    trhovaPriemernaCenaEMA = Math.floor(Math.random() * 80) + 200;
+    pocetRealnychPredajovEMA = 5;
+    trhovaPriemernaCenaEMA = Math.floor(Math.random() * 60) + 190;
     vygenerujSimulaciuTrhu();
-    ukazOznamenie("📊 TEST EMA INDIKÁTORA", "Indikátor trhu sa prispôsobil na **" + trhovaPriemernaCenaEMA + " m**!");
+    ukazOznamenie("📊 PREPNUTIE EMA INDIKÁTORA", "Prebehlo 5 reálnych transakcií! Indikátor sa prepol na **(🛒 Reálna trhová cena)** s hodnotou **" + trhovaPriemernaCenaEMA + " m**!");
 }
 
 function spustitOdpocitavanieAukcie() {
@@ -994,15 +1107,15 @@ function vykresliStraneKnihy() {
     pNum.innerText = aktualnaStranaKnihy;
 
     if (aktualnaStranaKnihy === 1) {
-        container.innerHTML = '<h3 style="color:#ffcc00;">📜 KAPITOLA I: ŠANCE DROPINGU Z TRUHIEL & BONUSY</h3><p style="font-size:1.05em; line-height:1.6;">Odmeny dostávaš po dokončení zápasu. Slabé karty (základ 1b až 4b) na stole ti navyše generujú extra mincový bonus pri výhre!</p><div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:20px;"><div style="background:rgba(0,0,0,0.6); border:2px solid #5a4d3e; padding:18px; border-radius:10px;"><h4 style="color:#d4af37; margin-top:0;">📦 TRUHLA ÚČASTNÍKA</h4><ul style="line-height:1.8;"><li><strong>Mince:</strong> 50 až 100 mincí.</li><li><strong>Karty:</strong> 1× až 3× náhodná F-kópia.</li><li><strong>Tvrdená koža:</strong> 100% garancia.</li><li><strong>Zlato:</strong> 10 % šanca na 1g Zlata.</li></ul></div><div style="background:rgba(0,0,0,0.6); border:2px solid #5a4d3e; padding:18px; border-radius:10px;"><h4 style="color:#ffcc00; margin-top:0;">🏆 TRUHLA VÍŤAZA</h4><ul style="line-height:1.8;"><li><strong>Mince:</strong> 150 až 300 mincí.</li><li><strong>Karty (Balík):</strong> 3× až 6× F-kariet.</li><li><strong>Garantované Zlato:</strong> 2g až 5g Zlata.</li></ul></div></div>';
+        container.innerHTML = '<h3 style="color:#ffcc00;">📜 KAPITOLA I: ŠANCE DROPINGU Z TRUHIEL & BONUSY</h3><p style="font-size:1.05em; line-height:1.6;">Odmeny dostávaš po dokončení zápasu. Všetky suroviny sa evidujú v Unciach (oz). Slabé karty (základ 1b až 4b) na stole ti navyše generujú extra mincový bonus pri výhre!</p><div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:20px;"><div style="background:rgba(0,0,0,0.6); border:2px solid #5a4d3e; padding:18px; border-radius:10px;"><h4 style="color:#d4af37; margin-top:0;">📦 TRUHLA ÚČASTNÍKA</h4><ul style="line-height:1.8;"><li><strong>Mince:</strong> 50 až 100 mincí.</li><li><strong>Karty:</strong> 1× až 3× náhodná F-kópia.</li><li><strong>Tvrdená koža:</strong> 100% garancia (1 oz).</li><li><strong>Zlato:</strong> 10 % šanca na 1 oz Zlata.</li></ul></div><div style="background:rgba(0,0,0,0.6); border:2px solid #5a4d3e; padding:18px; border-radius:10px;"><h4 style="color:#ffcc00; margin-top:0;">🏆 TRUHLA VÍŤAZA</h4><ul style="line-height:1.8;"><li><strong>Mince:</strong> 150 až 300 mincí.</li><li><strong>Karty (Balík):</strong> 3× až 6× F-kariet.</li><li><strong>Garantované Zlato:</strong> 2 oz až 5 oz Zlata.</li></ul></div></div>';
     } else if (aktualnaStranaKnihy === 2) {
-        container.innerHTML = '<h3 style="color:#ffcc00;">🔨 KAPITOLA II: KOVÁČSKY STROM & JOKER CARD</h3><p style="font-size:1.05em; line-height:1.6;">Na kovanie potrebuješ 3 rovnocenné karty zvolenej triedy (alebo <strong>Joker Cards</strong>) + surovinu + poplatok. Joker sa ková samostatne od F po A a nahradí akúkoľvek kartu v Dielni!</p>';
+        container.innerHTML = '<h3 style="color:#ffcc00;">🔨 KAPITOLA II: KOVÁČSKY STROM & JOKER CARD</h3><p style="font-size:1.05em; line-height:1.6;">Na kovanie potrebuješ 3 rovnocenné karty zvolenej triedy (alebo <strong>Joker Cards</strong>) + 3 oz suroviny + poplatok. Joker sa ková samostatne od F po A a nahradí akúkoľvek kartu v Dielni!</p>';
     } else if (aktualnaStranaKnihy === 3) {
         container.innerHTML = '<h3 style="color:#ffcc00;">🛠️ KAPITOLA III: SETOVÉ BONUSY RADOV</h3><p style="font-size:1.05em; line-height:1.6;">Za určité počty vykovaných kariet v tom istom rade získavaš sčítateľné +1b bonusy pre celý rad:</p><ul><li><strong>1× S-Class:</strong> +1b pre celý rad</li><li><strong>2× A-Class:</strong> +1b pre celý rad</li><li><strong>3× B-Class:</strong> +1b pre celý rad</li><li><strong>4× C-Class:</strong> +1b pre celý rad</li><li><strong>5× D-Class:</strong> +1b pre celý rad</li><li><strong>6× E-Class:</strong> +1b pre celý rad</li></ul>';
     } else if (aktualnaStranaKnihy === 4) {
         container.innerHTML = '<h3 style="color:#ffcc00;">⚡ KAPITOLA IV: 20 PLATINOVÝCH KARIET & REBRÍČKY</h3><p style="font-size:1.05em; line-height:1.6;">V kráľovstve existuje presne 20 unikátnych Platinových kariet, z ktorých každá je naviazaná na 1. miesto v jednej z 20 kategórií Siene Slávy! Pri 7-dňovej inaktivite sa karta dočasne uvoľňuje 2. hráčovi v poradí.</p>';
     } else if (aktualnaStranaKnihy === 5) {
-        container.innerHTML = '<h3 style="color:#ffcc00;">🛒 KAPITOLA V: ANONYMNÉ TRHOVISKO & AUKCIE</h3><p style="font-size:1.05em; line-height:1.6;">Aukcie prebiehajú anonymne s možnosťou Okamžitého výkupu. Na trh možno vyvesiť aj homogénne balíčky kariet rovnakej jednotky a rovnakej triedy!</p>';
+        container.innerHTML = '<h3 style="color:#ffcc00;">🛒 KAPITOLA V: TRHOVISKO & KRÁĽOVSKÝ SKLAD</h3><p style="font-size:1.05em; line-height:1.6;">Aukcie prebiehajú anonymne. Ak ti chýbajú suroviny na kovanie, Kráľovský štátny sklad ti ich kedykoľvek predá za mince!</p>';
     }
 }
 
@@ -1024,12 +1137,12 @@ function vykresliRozbalovaciBatoh() {
 
     var items = [
         { name: "Mince", val: inventar.mince, img: "Img/mince.webp" },
-        { name: "Koža", val: (inventar.suroviny["Koža"] || 0) + "x", img: "Img/koza.webp" },
-        { name: "Drevo", val: (inventar.suroviny["Drevo"] || 0) + "x", img: "Img/drevo.webp" },
-        { name: "Kov", val: (inventar.suroviny["Kov"] || 0) + "x", img: "Img/zelezo.webp" },
-        { name: "Bronz", val: (inventar.suroviny["Bronz"] || 0) + "x", img: "Img/bronz.webp" },
-        { name: "Striebro", val: (inventar.suroviny["Striebro"] || 0) + "x", img: "Img/striebro.webp" },
-        { name: "Zlato", val: (inventar.suroviny["Zlato"] || 0) + "g", img: "Img/zlato.webp" },
+        { name: "Koža", val: (inventar.suroviny["Koža"] || 0) + " oz", img: "Img/koza.webp" },
+        { name: "Drevo", val: (inventar.suroviny["Drevo"] || 0) + " oz", img: "Img/drevo.webp" },
+        { name: "Kov", val: (inventar.suroviny["Kov"] || 0) + " oz", img: "Img/zelezo.webp" },
+        { name: "Bronz", val: (inventar.suroviny["Bronz"] || 0) + " oz", img: "Img/bronz.webp" },
+        { name: "Striebro", val: (inventar.suroviny["Striebro"] || 0) + " oz", img: "Img/striebro.webp" },
+        { name: "Zlato", val: (inventar.suroviny["Zlato"] || 0) + " oz", img: "Img/zlato.webp" },
         { name: "Jokers", val: (inventar.jokers["F"] || 0) + "x F-JK", img: "Img/zlato.webp" }
     ];
 
@@ -1077,7 +1190,7 @@ function zobraziťObrazovku(idObrazovky) {
 }
 
 function otvoriťDeckbuilder() { document.getElementById("deckbuilder-modal").style.display = "flex"; vygenerujDeckbuilder(); }
-function otvoriťObchod() { document.getElementById("obchod-modal").style.display = "flex"; vygenerujSimulaciuTrhu(); }
+function otvoriťObchod() { document.getElementById("obchod-modal").style.display = "flex"; prepniZalozkuTrhu("trh"); }
 function otvoriťDielňu() { document.getElementById("dielna-modal").style.display = "flex"; aktualizujPanelDielne(); }
 
 function otvoriťStatistiky() {
@@ -1235,7 +1348,6 @@ function potvrditMulliganAkciu(chceVymenu) {
     if (el) el.remove();
 
     if (chceVymenu && mulliganSelectedIndices.length > 0) {
-        // Zoradíme indexy od najvyššieho po najnižší pre bezpečné odstránenie
         mulliganSelectedIndices.sort(function(a, b) { return b - a; });
         var pocetVymen = mulliganSelectedIndices.length;
 
@@ -1466,7 +1578,6 @@ function skontrolujKoniecKola() {
     else if (sc2 > sc1) r2++;
     else { r1++; r2++; }
 
-    // Vynulovanie jednorazového Mulligan hendikepu po 1. kole
     p1MulliganRound1Bonus = 0;
     p2MulliganRound1Bonus = 0;
 
@@ -1497,7 +1608,7 @@ document.addEventListener("DOMContentLoaded", function() {
     zobraziťObrazovku("hlavne-menu");
     aktualizujPanelDielne();
     vygenerujSimulaciuTrhu();
-    vykresliRozbalovaciBatoh();
+    aktualizujVsetkyStickyWallety();
 });
 
 // GLOBÁLNE PREPOJENIE FUNKCIÍ
@@ -1537,3 +1648,6 @@ window.automatickyDoplnitDefaultZostavu = automatickyDoplnitDefaultZostavu;
 window.prepniKartuVZostave = prepniKartuVZostave;
 window.prepniVyberMulliganKarty = prepniVyberMulliganKarty;
 window.potvrditMulliganAkciu = potvrditMulliganAkciu;
+window.prepniZalozkuTrhu = prepniZalozkuTrhu;
+window.kupitSurovinuZoStatnehoSkladu = kupitSurovinuZoStatnehoSkladu;
+window.vystavitKartuNaTrh = vystavitKartuNaTrh;
