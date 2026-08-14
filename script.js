@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 34.0.0 - UNIVERSAL ENGINE)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 35.0.0 - PERFECT FRAMES)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "34.0.0";
+var VERZIA = "35.0.0";
 
 // =========================================================================
 // 1. MASTER REGISTRY
@@ -207,7 +207,7 @@ function getRealPower(card) {
     return Math.max(0, reg.p + bonus);
 }
 
-// 🖼️ RENDERER KARTY (BEZPEČNÝ FALLBACK BEZ 404)
+// 🖼️ RENDERER KARTY (BEZ ŽLTÉHO KRUHU SO SILOU PRE KÚZLA A PREDMETY)
 function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
     if (isHidden) {
         return '<div class="karta-foto" style="background-color:#1c130c; background-image:none; border:2px solid #5a4d3e;"><div style="display:flex; height:100%; align-items:center; justify-content:center; font-size:2em;">🛡️</div></div><div class="karta-stitok-spodok"><div class="karta-nazov" style="color:#aaa;">🔒 Skrytá Karta</div></div>';
@@ -218,7 +218,8 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
     var cisteMeno = meno.replace(/\s+\d+$/, "").trim();
 
     var html = "";
-    if (livePwr !== "none") {
+    // Žltý kruh sily zobrazujeme IBA pre bežné jednotky, nie pre kúzla, predmety a žolíkov
+    if (livePwr !== "none" && !reg.isSpell && !reg.isItem && !reg.isJoker) {
         html += "<div class='karta-kruh karta-kruh-pwr'>" + livePwr + "</div>";
     }
     
@@ -398,7 +399,7 @@ function vykresliRukuHraca(pNum) {
     });
 }
 
-// 🎬 TRUHLICE
+// 🎬 TRUHLICE S AKTÍVNYM ZVUKOM
 function otvorTruhluVitaza() { spustitVideoAnimationTruhly("vitaz"); }
 function otvorTruhluUcastnika() { spustitVideoAnimationTruhly("ucastnik"); }
 
@@ -415,7 +416,7 @@ function spustitVideoAnimationTruhly(typ) {
 
     var videoSrc = (typ === "vitaz") ? "Img/truhlavitaza.mp4" : "Img/truhlaucastnika.mp4";
 
-    overlay.innerHTML = '<video id="chest-video-element" src="' + videoSrc + '" playsinline webkit-playsinline muted></video><div id="chest-click-prompt" class="chest-prompt-text">🎬 KLIKNI PRE OTVORENIE TRUHLE</div>';
+    overlay.innerHTML = '<video id="chest-video-element" src="' + videoSrc + '" playsinline webkit-playsinline></video><div id="chest-click-prompt" class="chest-prompt-text">🎬 KLIKNI PRE OTVORENIE TRUHLE</div>';
 
     document.body.appendChild(overlay);
 
@@ -646,7 +647,7 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
     spustitVideoAnimationKovania(meno, fromCls, nextCls, isSuccess, pCfg.saveCard);
 }
 
-// 📱 100% RESPONZÍVNA ANIMÁCIA KOVANIA
+// 📱 100% RESPONZÍVNA ANIMÁCIA KOVANIA SO ZVUKOM
 function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected) {
     pozastavitHudbuPreVideo();
 
@@ -659,7 +660,7 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
 
     var fourthCardHtml = isSuccess ? '<div id="forge-card-4" class="karta cls-' + nextCls + ' forge-slot-card" style="opacity:0;">' + vytvorHTMLKarty(meno, nextPwr, nextCls, reg.row, reg.p) + '</div>' : '';
 
-    overlay.innerHTML = '<div class="forge-stage-169"><video id="forge-video-element" src="Img/vylepsovanie.mp4" autoplay playsinline webkit-playsinline muted></video><div class="forge-cards-container"><div id="forge-card-1" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div><div id="forge-card-2" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div><div id="forge-card-3" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div>' + fourthCardHtml + '</div></div>';
+    overlay.innerHTML = '<div class="forge-stage-169"><video id="forge-video-element" src="Img/vylepsovanie.mp4" autoplay playsinline webkit-playsinline></video><div class="forge-cards-container"><div id="forge-card-1" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div><div id="forge-card-2" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div><div id="forge-card-3" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div>' + fourthCardHtml + '</div></div>';
 
     document.body.appendChild(overlay);
 
