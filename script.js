@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 28.1.0 - DYNAMIC STATS)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 28.2.0 - FINAL ENGINE)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "28.1.0";
+var VERZIA = "28.2.0";
 
 // =========================================================================
 // 1. MASTER REGISTRY (20 PLATINIEK + 19 OBYČAJNÝCH KARIET)
@@ -197,7 +197,7 @@ function getRealPower(card) {
     return Math.max(0, reg.p + bonus);
 }
 
-// 🖼️ RENDERER KARTY S ČISTÝM VZHĽADOM
+// 🖼️ RENDERER KARTY
 function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
     if (isHidden) {
         return '<div class="karta-foto" style="background-image: url(\'Img/default.webp\');"></div><div class="karta-stitok-spodok"><div class="karta-nazov" style="color:#aaa;">🔒 Skrytá Karta</div></div>';
@@ -730,7 +730,7 @@ function upravHlasitost(val) {
     if (audio) audio.volume = val;
 }
 
-// 🛡️ DYNAMICKÝ VÝPOČET SILY KARTY NA STOLE S VŠETKÝMI BUFFMI
+// 🛡️ DYNAMICKÝ VÝPOČET SILY KARTY NA STOLE
 function vypocitajDynamickuSiluJednejKarty(card, pNum) {
     var reg = getRegistryCard(card.n);
     if (reg.isSpell || reg.isItem || reg.isJoker) return "none";
@@ -933,7 +933,7 @@ function vykresliRozbalovaciBatoh() {
     el.innerHTML = html;
 }
 
-// 🔍 DETAJL KARTY MODAL (VYČISTENÝ BEZ DUPLICITNÉHO MENA)
+// 🔍 DETAJL KARTY MODAL (VYČISTENÝ)
 function otvorDetailKarty(meno, inicialnaTrieda) {
     var reg = getRegistryCard(meno);
     var modal = document.createElement("div");
@@ -941,7 +941,7 @@ function otvorDetailKarty(meno, inicialnaTrieda) {
     modal.style.zIndex = "9999999";
     modal.onclick = function() { modal.remove(); };
 
-    modal.innerHTML = '<div class="modal-content" style="text-align:center; max-width:580px; background:rgba(15,10,5,0.97);" onclick="event.stopPropagation()"><span class="card-modal-close" onclick="this.closest(\'.card-modal\').remove()">&times;</span><h2 style="color:#d4af37; margin-top:0; font-family:Georgia, serif;">🔍 DETAJLNÝ NÁHĽAD KARTY</h2><div style="display:flex; justify-content:center; margin:15px 0;"><div class="karta cls-' + inicialnaTrieda + '" style="transform: scale(1.55); transform-origin: center; margin:35px 0;">' + vytvorHTMLKarty(meno, getRealPower({ n: meno, cls: inicialnaTrieda }), inicialnaTrieda, reg.row, reg.p, false) + '</div></div><p style="font-size:1.05em; line-height:1.6; color:#e0d0b0; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px; border:1px solid #5a4d3e; margin-top:35px;">' + (reg.abilityDesc || reg.desc || "Obyčajná bojová jednotka.") + '</p></div>';
+    modal.innerHTML = '<div class="modal-content" style="text-align:center; max-width:580px; background:rgba(15,10,5,0.97);" onclick="event.stopPropagation()"><span class="card-modal-close" onclick="this.closest(\'.card-modal\').remove()">&times;</span><h2 style="color:#d4af37; margin-top:0; font-family:Georgia, serif;">🔍 DETAJLNÝ NÁHĽAD KARTY</h2><div style="display:flex; justify-content:center; margin:15px 0;"><div class="karta cls-' + inicialnaTrieda + '" style="transform: scale(1.15); transform-origin: center; margin:20px 0;">' + vytvorHTMLKarty(meno, getRealPower({ n: meno, cls: inicialnaTrieda }), inicialnaTrieda, reg.row, reg.p, false) + '</div></div><p style="font-size:1.05em; line-height:1.6; color:#e0d0b0; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px; border:1px solid #5a4d3e; margin-top:20px;">' + (reg.abilityDesc || reg.desc || "Obyčajná bojová jednotka.") + '</p></div>';
 
     document.body.appendChild(modal);
 }
@@ -1097,7 +1097,6 @@ function potvrditMulliganRuku(chceRiskovat) {
     vykresliHraciuPlochu();
 }
 
-// ⚡ VYKRESLENIE STOLA S DYNAMICKÝM PREPOČÍTAVANÍM BODOV V KRÚŽKU
 function vykresliStol() {
     for (var r = 1; r <= 3; r++) {
         var el1 = document.getElementById("p1-row" + r);
@@ -1142,7 +1141,6 @@ function vykresliHraciuPlochu() {
     vykresliRukuHraca(2);
 }
 
-// VYKLADANIE KARIET
 function vylozitKartuZRuky(pNum, cardIndex) {
     if (blokujVykladanie) return;
     if (pNum !== aktualnyHrac) return;
@@ -1352,45 +1350,3 @@ window.testSimulaciaPridatBota = testSimulaciaPridatBota;
 window.testSimulaciaGlobalnyOznam = testSimulaciaGlobalnyOznam;
 window.vykresliGridStatistik = vykresliGridStatistik;
 window.aktualizujPanelDielne = aktualizujPanelDielne;
-// =========================================================================
-// 🎛️ ŽIVÉ LADENIE ROZMEROV A OBRÁZKA KARIET
-// =========================================================================
-function aplikujTuning() {
-    var sizeVal = document.getElementById("tune-bg-size").value;
-    var posX = document.getElementById("tune-pos-x").value;
-    var posY = document.getElementById("tune-pos-y").value;
-    var cardW = document.getElementById("tune-card-w").value;
-    var cardH = document.getElementById("tune-card-h").value;
-
-    // Aktualizácia textov v paneli
-    document.getElementById("lbl-bg-size").innerText = sizeVal + "%";
-    document.getElementById("lbl-pos-x").innerText = posX + "%";
-    document.getElementById("lbl-pos-y").innerText = posY + "%";
-    document.getElementById("lbl-card-w").innerText = cardW + "px";
-    document.getElementById("lbl-card-h").innerText = cardH + "px";
-
-    // Aplikovanie na všetky karty na obrazovke
-    var karty = document.querySelectorAll(".karta");
-    karty.forEach(function(k) {
-        k.style.width = cardW + "px";
-        k.style.height = cardH + "px";
-    });
-
-    var fotky = document.querySelectorAll(".karta-foto");
-    fotky.forEach(function(f) {
-        f.style.backgroundSize = sizeVal + "% auto";
-        f.style.backgroundPosition = posX + "% " + posY + "%";
-    });
-
-    // Výpis do poľa
-    var cssText = "W: " + cardW + "px | H: " + cardH + "px | Size: " + sizeVal + "% | Pos: " + posX + "% " + posY + "%";
-    var outEl = document.getElementById("tune-output-css");
-    if (outEl) outEl.innerText = cssText;
-}
-
-// Spustenie pri štarte pre inicializáciu hodnôt
-document.addEventListener("DOMContentLoaded", function() {
-    setTimeout(aplikujTuning, 300);
-});
-
-window.aplikujTuning = aplikujTuning;
