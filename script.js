@@ -1,5 +1,5 @@
 // =========================================================================
-// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 30.0.0 - STICKY WALLET & OZ)
+// RODINNÁ HRA - HOME WARS (KOMPLETNÝ ENGINE - VERZIA 31.0.0 - HEURISTICS & CEMETERY)
 // =========================================================================
 
 (function() {
@@ -13,7 +13,7 @@
     }
 })();
 
-var VERZIA = "30.0.0";
+var VERZIA = "31.0.0";
 
 // =========================================================================
 // 1. MASTER REGISTRY (20 PLATINIEK + 19 OBYČAJNÝCH KARIET)
@@ -25,21 +25,21 @@ var MASTER_REGISTRY = {
     "Makak": { row: 3, p: 2, isPlatinum: true, isSpy: true, img: "Img/makak.webp", desc: "Lesný šibal.", abilityDesc: "🕵️ Špión: Dáva súperovi len 2b a potiahne ti 2 nové karty!" },
     "Oli": { row: 2, p: 12, isPlatinum: true, img: "Img/oli.webp", desc: "Duchovná matka.", abilityDesc: "✝️ Imunita: Jej 12b sila je nedotknuteľná kúzlam aj spáleniu." },
     "Vinár Dávid": { row: 1, p: 4, isPlatinum: true, isSpy: true, img: "Img/david.webp", desc: "Kráľovský vinár.", abilityDesc: "🕵️ Špión: Vykladá sa súperovi do 1. radu a dá ti 2 nové karty." },
-    "Sestrička": { row: 2, p: 3, isPlatinum: true, img: "Img/sestricka.webp", desc: "Ošetrovateľka.", abilityDesc: "🏥 Oživenie: Vráti do hry poslednú spálenú kartu z tvojho archívu." },
+    "Sestrička": { row: 2, p: 3, isPlatinum: true, img: "Img/sestricka.webp", desc: "Ošetrovateľka.", abilityDesc: "🏥 Oživenie: Vráti do hry poslednú spálenú kartu z tvojho archívu ohňa." },
     "Vlk": { row: 3, p: 3, isPlatinum: true, img: "Img/vlk.webp", desc: "Vodca svorky.", abilityDesc: "🐾 Svorka: Zvyšuje silu všetkých zvierat v 3. rade o +50%." },
-    "Erik": { row: 1, p: 3, isPlatinum: true, img: "Img/erik.webp", desc: "Taktik.", abilityDesc: "📢 Buff: Po vyložení pridá zvolenému radu +50% k celkovej sile." },
+    "Erik": { row: 1, p: 3, isPlatinum: true, img: "Img/erik.webp", desc: "Taktik.", abilityDesc: "📢 Buff: Po vyložení zvolíš rad, ktorému pridá +50% k celkovej sile." },
     "Sisa": { row: 2, p: 4, isPlatinum: true, img: "Img/sisa.webp", desc: "Dvorná dáma.", abilityDesc: "📢 Dvorná dáma: Zvyšuje silu celého mužského radu o +50%." },
     "Mária Trhovkyňa": { row: 2, p: 9, isPlatinum: true, isSpy: true, img: "Img/maria.webp", desc: "Trhovkyňa.", abilityDesc: "🕵️ Špión: Vyloží sa súperovi a potiahne ti 2 karty (daň 9b)." },
     "Nela": { row: 2, p: 1, isPlatinum: true, img: "Img/nela.webp", desc: "Ochranný štít.", abilityDesc: "🛡️ Štít: Zmrazí stôl! Vypne všetky percentuálne buffy a aury." },
     "Zatúlaný tatranský medveď": { row: 3, p: 5, isPlatinum: true, img: "Img/zatulany-tatransky-medved.webp", desc: "Horská šelma.", abilityDesc: "🔥 Dravec: Automaticky spáli najsilnejšiu kartu/karty na celom stole (okrem seba a Oli)." },
     "Jakub": { row: 1, p: 4, isPlatinum: true, img: "Img/jakub.webp", desc: "Pevnostný strážca.", abilityDesc: "🔥 Bojovník: Automaticky spáli najsilnejšiu kartu/karty na celom stole (okrem seba a Oli)." },
     "Kika": { row: 2, p: 3, isPlatinum: true, isSpy: true, img: "Img/kika.webp", desc: "Archivárka.", abilityDesc: "🕵️ Špión: Vykladá sa na súperovu stranu. Potiahne ti 2 nové karty." },
-    "Doktor": { row: 1, p: 5, isPlatinum: true, img: "Img/doktor.webp", desc: "Lekár.", abilityDesc: "🏥 Oživenie: Vráti do hry poslednú spálenú kartu z tvojho archívu." },
+    "Doktor": { row: 1, p: 5, isPlatinum: true, img: "Img/doktor.webp", desc: "Lekár.", abilityDesc: "🏥 Oživenie: Vráti do hry poslednú spálenú kartu z tvojho archívu ohňa." },
     "Michal": { row: 1, p: 5, isPlatinum: true, img: "Img/michal.webp", desc: "Obchodník.", abilityDesc: "📢 Obchodník: Ak nie je na stole Nela, dáva sám sebe buff +100% k sile." },
-    "Kornélia": { row: 2, p: 3, isPlatinum: true, img: "Img/kornelia.webp", desc: "Bylinkárka.", abilityDesc: "🏥 Oživenie: Vráti do hry poslednú spálenú kartu z tvojho archívu." },
+    "Kornélia": { row: 2, p: 3, isPlatinum: true, img: "Img/kornelia.webp", desc: "Bylinkárka.", abilityDesc: "🏥 Oživenie: Vráti do hry poslednú spálenú kartu z tvojho archívu ohňa." },
     "Katy": { row: 1, p: 6, isPlatinum: true, img: "Img/katy.webp", desc: "Kráľovná výhier.", abilityDesc: "💖 Pomoc: Pridáva +2b tvojim kartám a uberá -2b všetkým súperovým kartám." },
     "Krčmár Boris": { row: 1, p: 4, isPlatinum: true, isSpy: true, img: "Img/krcmar-boris.webp", desc: "Hostinský.", abilityDesc: "🕵️ Špión: Vykladá sa súperovi do 1. radu a potiahne ti 2 nové karty." },
-    "Marek": { row: 1, p: 4, isPlatinum: true, img: "Img/marek.webp", desc: "Filozof.", abilityDesc: "🧹 Filozof: Cielene zmatie vybranú kartu súpera a pošle ju do archívu." },
+    "Marek": { row: 1, p: 4, isPlatinum: true, img: "Img/marek.webp", desc: "Filozof.", abilityDesc: "🧹 Filozof: Cielene zmatie vybranú kartu súpera a pošle ju do ohňa." },
 
     // 🏆 UNIKÁTNA TURNAJOVÁ KARTA
     "Kráľovský Šampión": { row: 1, p: 8, isTournamentUnique: true, img: "Img/neviditelny-mario.webp", desc: "Unikátna turnajová trofej existujúca len v 1 kuse na celom serveri!", abilityDesc: "👑 Turnajový Unikát: Má základ 8b, v Dielni sa NIKDY nezničí a v rade aktivuje plný setový bonus +6b!" },
@@ -48,7 +48,6 @@ var MASTER_REGISTRY = {
     "Joker Card": { row: 0, p: 0, isJoker: true, img: "Img/zlato.webp", desc: "Univerzálny kováčsky žolík.", abilityDesc: "🃏 Dielenský Žolík: Nedá sa s ním hrať v zápase, no v Dielni ková od F po A a nahradí akúkoľvek kartu." },
 
     // 🔨 19 OBYČAJNÝCH KOVÁČSKYCH JEDNOTIEK (F ➔ S)
-    // 1. Rad (Muži)
     "Dominik": { row: 1, p: 1, img: "Img/dominik.webp", desc: "Hradné dieťa s dreveným koníkom. Bonus mincí pri výhre." },
     "Marcus": { row: 1, p: 1, img: "Img/marcus.webp", desc: "Zvedavý chlapec s lienkou. Bonus mincí pri výhre." },
     "Timko": { row: 1, p: 1, img: "Img/tymko.webp", desc: "Obranný bojovník s dreveným mečom." },
@@ -57,14 +56,12 @@ var MASTER_REGISTRY = {
     "Nicolas": { row: 1, p: 4, img: "Img/nicolas.webp", desc: "Mladý zručný kamenár." },
     "Jaro": { row: 1, p: 5, img: "Img/jaro.webp", desc: "Zručný kováč." },
 
-    // 2. Rad (Ženy)
     "Lula": { row: 2, p: 4, img: "Img/lula.webp", desc: "Dvorná harfistka." },
     "Nika": { row: 2, p: 4, img: "Img/nika.webp", desc: "Hradná kuchárka pri kotli." },
     "Darinka": { row: 2, p: 5, img: "Img/darinka.webp", desc: "Majsterka tkáčka." },
     "Viera": { row: 2, p: 6, img: "Img/viera.webp", desc: "Hradná pekárka." },
     "Anka": { row: 2, p: 7, img: "Img/anka.webp", desc: "Správkyňa hradných kľúčov." },
 
-    // 3. Rad (Zvieratá)
     "Grobské Mravce": { row: 3, p: 1, img: "Img/grobske-mravce.webp", desc: "Húževnatá svorka lesných mravcov." },
     "Petržalské holuby": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli." },
     "Patkaňe": { row: 3, p: 2, img: "Img/patkane.webp", desc: "Hladná pivničná svorka." },
@@ -83,7 +80,7 @@ var MASTER_REGISTRY = {
     "Musíme sa porozprávať": { row: 0, p: 0, isSpell: true, img: "Img/musime-sa-porozpravat.webp", desc: "Vážny rozhovor.", abilityDesc: "⚡ Zníži základ mužov na 1b." },
     "Upokoj sa": { row: 0, p: 0, isSpell: true, img: "Img/upokoj-sa.webp", desc: "Hnev.", abilityDesc: "⚡ Zníži základ žien na 1b." },
     "Ohnostroj": { row: 0, p: 0, isSpell: true, img: "Img/ohnostroj.webp", desc: "Rachot.", abilityDesc: "⚡ Zníži základ zvierat na 1b." },
-    "Šicko v porádku": { row: 0, p: 0, isSpell: true, img: "Img/sicko-v-poradku.webp", desc: "Šašo.", abilityDesc: "⚡ Odstráni kúzla zo stola." }
+    "Šicko v porádku": { row: 0, p: 0, isSpell: true, img: "Img/sicko-v-poradku.webp", desc: "Šašo.", abilityDesc: "⚡ Vyčistí stôl od všetkých neutrálnych kúziel!" }
 };
 
 var CLASS_CONFIG = {
@@ -181,7 +178,9 @@ var p1_erik_buff_row = null, p2_erik_buff_row = null;
 var sc1 = 0, sc2 = 0, r1 = 0, r2 = 0, p1Pass = false, p2Pass = false, aktualnyHrac = 1;
 var p1_draft_hand = [], p2_draft_hand = [];
 var p1_active_deck = [], p2_active_deck = [];
-var p1_spalene = [], p2_spalene = [], neutralne_vplyvy = [];
+var p1_spalene = [], p2_spalene = []; // ⚰️ IBA KARTY ZNIČENÉ V OHNI (Medveď/Jakub/Marek)
+var odhodene_karty_kola = []; // 🗃️ KARTY Z DOHRANÝCH KÔL
+var neutralne_vplyvy = [];
 var jeSingleplayer = false; var obtiaznostAI = "B"; var blokujVykladanie = false;
 var aktualnaStranaKnihy = 1;
 var p1MulliganRound1Bonus = 0, p2MulliganRound1Bonus = 0;
@@ -333,9 +332,10 @@ function vygenerujDeckbuilder() {
         wrap.className = "karta-karta-wrapper " + (isVBaliku ? "deck-active-card" : "deck-inactive-card");
         wrap.onclick = function() { prepniKartuVZostave(t); };
 
+        var cardCls = (inventar.karty[t] && inventar.karty[t].aktivnaTrieda) ? inventar.karty[t].aktivnaTrieda : "F";
         var div = document.createElement("div");
-        div.className = "karta cls-" + (reg.isPlatinum ? "PLATINUM" : "F");
-        div.innerHTML = vytvorHTMLKarty(t, getRealPower({n:t, cls:"F"}), "F", reg.row, reg.p, false);
+        div.className = "karta cls-" + (reg.isPlatinum ? "PLATINUM" : cardCls);
+        div.innerHTML = vytvorHTMLKarty(t, getRealPower({n:t, cls:cardCls}), cardCls, reg.row, reg.p, false);
         wrap.appendChild(div);
 
         var badge = document.createElement("div");
@@ -366,7 +366,8 @@ function vytiahniRukuZRozdanehoBalicka(pNum) {
     for (var i = 0; i < 10; i++) {
         if (deck.length > 0) {
             var cardName = deck.pop();
-            hand.push({ n: cardName, cls: "F" });
+            var cardCls = (pNum === 1 && inventar.karty[cardName] && inventar.karty[cardName].aktivnaTrieda) ? inventar.karty[cardName].aktivnaTrieda : "F";
+            hand.push({ n: cardName, cls: cardCls });
         }
     }
     return hand;
@@ -510,7 +511,9 @@ function zatvoritTruhluAOpustit(overlayId) {
     zobraziťObrazovku("hlavne-menu");
 }
 
-// 🔨 DIELŇA
+// =========================================================================
+// 🔨 DIELŇA & KOREKTNÝ ODPOČET JOKEROV
+// =========================================================================
 function aktualizujPanelDielne() {
     var e = document.getElementById("dielna-zoznam");
     if (!e) return;
@@ -644,7 +647,6 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
     spustitVideoAnimationKovania(meno, fromCls, nextCls, isSuccess, pCfg.saveCard);
 }
 
-// 🎬 ANIMÁCIA KOVANIA
 function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected) {
     pozastavitHudbuPreVideo();
 
@@ -698,8 +700,16 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
             if (!t) { inventar.karty[meno] = { repliky: {}, aktivnaTrieda: "F" }; t = inventar.karty[meno]; }
             if (typeof t.repliky !== "object") t.repliky = {};
 
+            // 🔨 KOREKTNÉ ODPOČÍTAVANIE REÁLNYCH KARIET A JOKEROV
+            var availableReal = t.repliky[oldCls] || 0;
+            var realToDeduct = Math.min(3, availableReal);
+            var jokersToDeduct = 3 - realToDeduct;
+
             if (isSuccess) {
-                t.repliky[oldCls] = Math.max(0, (t.repliky[oldCls] || 0) - 3);
+                t.repliky[oldCls] = Math.max(0, availableReal - realToDeduct);
+                if (jokersToDeduct > 0) {
+                    inventar.jokers[oldCls] = Math.max(0, (inventar.jokers[oldCls] || 0) - jokersToDeduct);
+                }
                 t.aktivnaTrieda = nextCls;
                 if (nextCls !== "S") {
                     t.repliky[nextCls] = (t.repliky[nextCls] || 0) + 1;
@@ -711,8 +721,12 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
                 }
             } else {
                 if (!wasProtected && !reg.isTournamentUnique) {
-                    t.repliky[oldCls] = Math.max(0, (t.repliky[oldCls] || 0) - 1);
-                    ukazOznamenie("💥 KOVANIE ZLYHALO!", "Suroviny zhoreli v plameňoch a prišiel si o 1 duplikát karty!");
+                    if (availableReal > 0) {
+                        t.repliky[oldCls] = Math.max(0, availableReal - 1);
+                    } else {
+                        inventar.jokers[oldCls] = Math.max(0, (inventar.jokers[oldCls] || 0) - 1);
+                    }
+                    ukazOznamenie("💥 KOVANIE ZLYHALO!", "Suroviny zhoreli v plameňoch a prišiel si o 1 kartu!");
                 } else {
                     ukazOznamenie("🛡️ KARTA OCHRÁNENÁ!", "Kovanie zlyhalo, ale Zvitok alebo Turnajová Imunita ochránila tvoju kartu!");
                 }
@@ -727,12 +741,12 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
 }
 
 // =========================================================================
-// 📦 TRHOVISKO, KRÁĽOVSKÝ SKLAD & PREDAJNÝ INVENTÁR
+// 📦 TRHOVISKO, KRÁĽOVSKÝ SKLAD & PREDAJ S OCHRANOU KARIET
 // =========================================================================
 var aukcnyCasomeračInterval = null;
 var aktualnyAnonymnyStrop = 250; 
 var trhovaPriemernaCenaEMA = 210; 
-var pocetRealnychPredajovEMA = 0; // 0 = Obstarávacia cena, >=3 = Trhová cena
+var pocetRealnychPredajovEMA = 0;
 var aktualnyVeduciHrac = "Lord_Grob_33";
 var hracovaAktivnaPonukaNaTrhu = 0;
 
@@ -763,8 +777,7 @@ function vygenerujSimulaciuTrhu() {
 
         spustitOdpocitavanieAukcie();
     } else if (aktualnaZalozkaTrhu === "sklad") {
-        // 🏛️ KRÁĽOVSKÝ ŠTÁTNY NÚDZOVÝ SKLAD SUROVÍN
-        var skladHtml = '<div style="background:rgba(30,20,10,0.85); border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:15px;"><h3 style="color:#d4af37; margin-top:0;">🏛️ KRÁĽOVSKÝ ŠTÁTNY SKLAD (NÚDZOVÉ ZÁSOBY)</h3><p style="font-size:0.9em; color:#ccc;">Ak na hráčskom trhu chýbajú suroviny na kovanie, kráľovská pokladnica ti garantovane predá zásoby za mince (štátna prirážka +40%).</p></div><div class="market-store-grid">';
+        var skladHtml = '<div style="background:rgba(30,20,10,0.85); border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:15px;"><h3 style="color:#d4af37; margin-top:0;">🏛️ KRÁĽOVSKÝ ŠTÁTNY SKLAD (NÚDZOVÉ ZÁSOBY)</h3><p style="font-size:0.9em; color:#ccc;">Ak na trhu chýbajú suroviny, štát ti ich garantovane predá za mince.</p></div><div class="market-store-grid">';
 
         Object.keys(STATNY_SKLAD_CENNIK).forEach(function(mat) {
             var item = STATNY_SKLAD_CENNIK[mat];
@@ -774,8 +787,7 @@ function vygenerujSimulaciuTrhu() {
         skladHtml += '</div>';
         e.innerHTML = skladHtml;
     } else if (aktualnaZalozkaTrhu === "predaj") {
-        // 📦 VYVESIŤ POLOŽKU Z BATOHU NA PREDAJ
-        var predajHtml = '<div style="background:rgba(30,20,10,0.85); border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:15px;"><h3 style="color:#d4af37; margin-top:0;">📦 VYVESIŤ POLOŽKU NA TRHOVISKO</h3><p style="font-size:0.9em; color:#ccc;">Vyber kartu alebo suroviny zo svojho batohu a vytvor novú aukciu pre ostatných hráčov!</p></div><div class="dielna-grid">';
+        var predajHtml = '<div style="background:rgba(30,20,10,0.85); border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:15px;"><h3 style="color:#d4af37; margin-top:0;">📦 VYVESIŤ POLOŽKU NA TRHOVISKO</h3><p style="font-size:0.9em; color:#ccc;">Predaj vybranú triedu a počet kusov. Karty aktívne v balíčku sú chránené varovaním!</p></div><div class="dielna-grid">';
 
         Object.keys(inventar.karty).forEach(function(kName) {
             var cData = inventar.karty[kName];
@@ -784,7 +796,9 @@ function vygenerujSimulaciuTrhu() {
                 Object.keys(cData.repliky).forEach(function(cls) {
                     var count = cData.repliky[cls] || 0;
                     if (count > 0) {
-                        predajHtml += '<div class="karta-karta-wrapper"><div class="karta cls-' + cls + '">' + vytvorHTMLKarty(kName, getRealPower({n:kName, cls:cls}), cls, reg.row, reg.p, false) + '</div><div style="font-size:0.8em; margin:6px 0; color:#ffcc00;">Na sklade: <strong>' + count + 'x</strong></div><button onclick="vystavitKartuNaTrh(\'' + kName.replace(/'/g, "\\'") + '\', \'' + cls + '\', ' + count + ')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:0.85em;">🛒 Predať na Trhu</button></div>';
+                        var isInDeck = (inventar.zostava.indexOf(kName) !== -1);
+                        var deckTag = isInDeck ? '<span style="color:#ff4d4d; font-size:0.75em; display:block;">⚠️ KARTA V BALÍČKU</span>' : '';
+                        predajHtml += '<div class="karta-karta-wrapper"><div class="karta cls-' + cls + '">' + vytvorHTMLKarty(kName, getRealPower({n:kName, cls:cls}), cls, reg.row, reg.p, false) + '</div><div style="font-size:0.8em; margin:6px 0; color:#ffcc00; text-align:center;">Na sklade: <strong>' + count + 'x</strong>' + deckTag + '</div><button onclick="overAPredatKartuNaTrhu(\'' + kName.replace(/'/g, "\\'") + '\', \'' + cls + '\', ' + count + ', ' + isInDeck + ')" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:0.85em;">🛒 Predať na Trhu</button></div>';
                     }
                 });
             }
@@ -811,16 +825,42 @@ function kupitSurovinuZoStatnehoSkladu(mat, pocetOz) {
     aktualizujVsetkyStickyWallety();
 }
 
-function vystavitKartuNaTrh(kName, cls, maxCount) {
-    var cenaStr = prompt("Zadaj cenu Okamžitého výkupu v minciach za 1x " + kName + " (" + cls + "-Class):", "35");
+function overAPredatKartuNaTrhu(kName, cls, maxCount, isInDeck) {
+    if (isInDeck) {
+        var potvrd = confirm("⚠️ KARTA JE V BALÍČKU!\nTúto kartu (" + kName + ") máš práve zaradenú vo svojej zápasovej zostave!\n\nNaozaj si istý, že ju chceš vyvesiť na trh?");
+        if (!potvrd) return;
+    }
+
+    var countStr = prompt("Koľko kusov karty " + kName + " (" + cls + "-Class) chceš predať? (Dostupných: " + maxCount + "):", "1");
+    if (!countStr) return;
+    var countToSell = parseInt(countStr);
+    if (isNaN(countToSell) || countToSell <= 0 || countToSell > maxCount) {
+        ukazOznamenie("⚠️ CHYBA", "Zadaj platný počet kusov od 1 po " + maxCount + "!");
+        return;
+    }
+
+    var cenaStr = prompt("Zadaj cenu Okamžitého výkupu v minciach za balík (" + countToSell + "x):", (countToSell * 35).toString());
     if (!cenaStr) return;
     var cena = parseInt(cenaStr);
     if (isNaN(cena) || cena <= 0) { ukazOznamenie("⚠️ CHYBA", "Zadaj platnú cenu!"); return; }
 
-    inventar.karty[kName].repliky[cls] -= 1;
-    ukazOznamenie("🎉 POLOŽKA ZALISTOVANÁ", "Karta **" + kName + " (" + cls + "-Class)** bola úspešne vyvesená na anonymný trh za " + cena + " mincí!");
+    inventar.karty[kName].repliky[cls] -= countToSell;
+    
+    // Ak sa predala aktívna trieda, zosynchronizujeme najvyššiu dostupnú
+    var hasRemaining = false;
+    Object.keys(inventar.karty[kName].repliky).forEach(function(cKey) {
+        if (inventar.karty[kName].repliky[cKey] > 0) hasRemaining = true;
+    });
+
+    if (!hasRemaining) {
+        inventar.karty[kName].repliky["F"] = 1; // Garancia minimálne 1 F kópie
+        inventar.karty[kName].aktivnaTrieda = "F";
+    }
+
+    ukazOznamenie("🎉 POLOŽKA ZALISTOVANÁ", "Balík **" + countToSell + "x " + kName + " (" + cls + "-Class)** bol úspešne vyvesený na anonymný trh za " + cena + " mincí!");
     vygenerujSimulaciuTrhu();
     aktualizujVsetkyStickyWallety();
+    vygenerujDeckbuilder();
 }
 
 function anonymnePrihoditSumu(stropVal) {
@@ -951,14 +991,14 @@ function upravHlasitost(val) {
     if (audio) audio.volume = val;
 }
 
-// 🛡️ DYNAMICKÝ A OPTIMALIZOVANÝ VÝPOČET SILY STOLA
+// =========================================================================
+// 🛡️ DYNAMICKÝ A PREPOČET SILY & INTERAKTÍVNY ERIK BUFF
+// =========================================================================
 function vypocitajDynamickuSiluJednejKarty(card, pNum) {
     var reg = getRegistryCard(card.n);
     if (reg.isSpell || reg.isItem || reg.isJoker) return "none";
 
     var myCards = (pNum === 1) ? p1_played_cards : p2_played_cards;
-    var oppCards = (pNum === 1) ? p2_played_cards : p1_played_cards;
-
     var isNelaOnTable = false;
     [p1_played_cards, p2_played_cards].forEach(function(list) {
         list.forEach(function(c) { if (c.n === "Nela") isNelaOnTable = true; });
@@ -1073,6 +1113,41 @@ function vypocitajSetBonusRadu(targetRow, cardList) {
     if (countE >= 6) bonusTotal += 1;
 
     return bonusTotal;
+}
+
+function otvorErikBuffDialog(pNum, callback) {
+    if (pNum === 2 && jeSingleplayer) {
+        // AI Heuristika podľa obtiažnosti
+        var roll = Math.random();
+        var chooseBest = (obtiaznostAI === "A") || (obtiaznostAI === "B" && roll <= 0.65);
+        if (chooseBest) {
+            var r1Points = p2_played_cards.filter(function(c){return getRegistryCard(c.n).row === 1;}).length;
+            var r2Points = p2_played_cards.filter(function(c){return getRegistryCard(c.n).row === 2;}).length;
+            var r3Points = p2_played_cards.filter(function(c){return getRegistryCard(c.n).row === 3;}).length;
+            if (r3Points >= r1Points && r3Points >= r2Points) p2_erik_buff_row = 3;
+            else if (r2Points >= r1Points) p2_erik_buff_row = 2;
+            else p2_erik_buff_row = 1;
+        } else {
+            p2_erik_buff_row = Math.floor(Math.random() * 3) + 1;
+        }
+        ukazOznamenie("📢 ERIK BUFF (SÚPER)", "Súper zvolil posilnenie **" + p2_erik_buff_row + ". Radu** o +50%!");
+        if (typeof callback === "function") callback();
+        return;
+    }
+
+    var modal = document.createElement("div");
+    modal.className = "custom-notify-overlay";
+    modal.style.zIndex = "999999";
+    modal.innerHTML = '<div class="custom-notify-box"><h3 class="custom-notify-title">📢 ERIK - VOĽBA RADU (+50%)</h3><p>Ktorý rad chceš natrvalo posilniť o +50%?</p><div style="display:flex; gap:8px; justify-content:center; margin-top:15px;"><button onclick="zvolErikRow(1)" class="btn-dev-action">1. Muži</button><button onclick="zvolErikRow(2)" class="btn-dev-action">2. Ženy</button><button onclick="zvolErikRow(3)" class="btn-dev-action">3. Zvieratá</button></div></div>';
+    document.body.appendChild(modal);
+
+    window.zvolErikRow = function(r) {
+        if (pNum === 1) p1_erik_buff_row = r;
+        else p2_erik_buff_row = r;
+        modal.remove();
+        ukazOznamenie("📢 ERIK AKTIVOVANÝ", "Posilnil si **" + r + ". Rad** o +50%!");
+        if (typeof callback === "function") callback();
+    };
 }
 
 // 📖 KNIŽNÝ NÁVOD
@@ -1258,7 +1333,7 @@ function vyhlasGlobalnySClassOznam(hracMeno, kartaMeno) {
 }
 
 // =========================================================================
-// ⚔️ INICIALIZÁCIA ZÁPASU & NOVÝ CIELENÝ MULLIGAN (MAX 2 KARTY)
+// ⚔️ INICIALIZÁCIA ZÁPASU & HEURISTICKÝ MULLIGAN
 // =========================================================================
 function spustitZapasLokálnePVP() { 
     if (inventar.zostava.length < 25) {
@@ -1290,6 +1365,7 @@ function spustitZapasProtiAI() {
 function inicializujNovyZapas() {
     p1_played_cards = []; p2_played_cards = [];
     p1_spalene = []; p2_spalene = [];
+    odhodene_karty_kola = [];
     neutralne_vplyvy = [];
     p1_erik_buff_row = null; p2_erik_buff_row = null;
     r1 = 0; r2 = 0; sc1 = 0; sc2 = 0;
@@ -1318,7 +1394,7 @@ function otvorMulliganModal() {
     var cardsHtml = "";
     p1_draft_hand.forEach(function(c, idx) {
         var reg = getRegistryCard(c.n);
-        cardsHtml += '<div id="mull-card-' + idx + '" class="karta cls-F" onclick="prepniVyberMulliganKarty(' + idx + ')" style="cursor:pointer;">' + vytvorHTMLKarty(c.n, getRealPower(c), "F", reg.row, reg.p, false) + '</div>';
+        cardsHtml += '<div id="mull-card-' + idx + '" class="karta cls-' + (reg.isPlatinum ? "PLATINUM" : c.cls) + '" onclick="prepniVyberMulliganKarty(' + idx + ')" style="cursor:pointer;">' + vytvorHTMLKarty(c.n, getRealPower(c), c.cls, reg.row, reg.p, false) + '</div>';
     });
 
     modal.innerHTML = '<div class="modal-content" style="max-width:1200px; text-align:center;"><h2 style="color:#d4af37; margin-top:0;">🃏 CIELENÝ MULLIGAN (Vyber 0 až 2 karty na výmenu)</h2><p style="color:#ccc; font-size:1em; margin-bottom:15px;">Klikni na kartu, ktorú chceš vymeniť (max 2 karty). Ak vymeníš karty, súper získa +5b náskok <strong>iba v 1. kole</strong>!</p><div id="mulligan-cards-container" style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:20px 0;">' + cardsHtml + '</div><div style="display:flex; gap:15px; justify-content:center; margin-top:15px;"><button onclick="potvrditMulliganAkciu(false)" style="background:#10b981; color:#fff; border:none; padding:12px 28px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:1.05em;">✅ Ponechať ruku (0:0)</button><button id="btn-mull-swap" onclick="potvrditMulliganAkciu(true)" style="background:#8b0000; color:#fff; border:1px solid #ff4d4d; padding:12px 28px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:1.05em;">🎲 Vymeniť vybrané karty (+5b Súper)</button></div></div>';
@@ -1358,17 +1434,46 @@ function potvrditMulliganAkciu(chceVymenu) {
         for (var i = 0; i < pocetVymen; i++) {
             if (p1_active_deck.length > 0) {
                 var novaKarta = p1_active_deck.pop();
-                p1_draft_hand.push({ n: novaKarta, cls: "F" });
+                p1_draft_hand.push({ n: novaKarta, cls: (inventar.karty[novaKarta] ? inventar.karty[novaKarta].aktivnaTrieda : "F") });
             }
         }
 
         p2MulliganRound1Bonus = 5;
         ukazOznamenie("🎲 MULLIGAN DOKONČENÝ", "Vymenil si " + pocetVymen + " kariet! Súper získal +5b náskok v 1. kole.");
     } else {
-        ukazOznamenie("✅ RUKA POTVRDENÁ", "Ponechal si si pôvodnú ruku. Zápas začína!");
+        ukazOznamenie("✅ RUKA POTVRDENÁ", "Ponechal si si pôvodnú ruku.");
+    }
+
+    // 🤖 AI HEURISTICKÝ MULLIGAN
+    if (jeSingleplayer) {
+        vyhodnotAIMulligan();
     }
 
     vykresliHraciuPlochu();
+}
+
+function vyhodnotAIMulligan() {
+    var weakIndices = [];
+    p2_draft_hand.forEach(function(c, idx) {
+        var reg = getRegistryCard(c.n);
+        if (!reg.isSpell && !reg.isSpy && !reg.isItem && getRealPower(c) <= 2) {
+            weakIndices.push(idx);
+        }
+    });
+
+    if (weakIndices.length >= 2) {
+        var toSwap = weakIndices.slice(0, 2);
+        toSwap.sort(function(a, b) { return b - a; });
+        toSwap.forEach(function(idx) { p2_draft_hand.splice(idx, 1); });
+        for (var i = 0; i < 2; i++) {
+            if (p2_active_deck.length > 0) {
+                var newKarta = p2_active_deck.pop();
+                p2_draft_hand.push({ n: newKarta, cls: "F" });
+            }
+        }
+        p1MulliganRound1Bonus = 5;
+        ukazOznamenie("🤖 AI MULLIGAN", "Súper vymenil 2 najslabšie karty! Získavaš +5b náskok v 1. kole.");
+    }
 }
 
 // ⚡ VYKRESLENIE STOLA S NEUTRÁLNYM RADOM A DYNAMICKÝMI BODMI
@@ -1450,8 +1555,10 @@ function vylozitKartuZRuky(pNum, cardIndex) {
         ukazOznamenie("🕵️ ŠPIÓN VYLOŽENÝ", "Karta <strong>" + card.n + "</strong> bola vyložená na súperovu stranu stola a potiahol si 2 nové karty!");
     } else if (reg.isSpell) {
         if (card.n === "Šicko v porádku") {
+            // ⚡ DISPEL: Odstráni všetky kúzla a samo zmizne zo stola do odhodených
             neutralne_vplyvy = [];
-            ukazOznamenie("⚡ ŠICKO V PORÁDKU", "Všetky neutrálne kúzla boli odstránené zo stola!");
+            odhodene_karty_kola.push(card);
+            ukazOznamenie("⚡ ŠICKO V PORÁDKU", "Všetky neutrálne kúzla boli vyčistené zo stola!");
         } else {
             neutralne_vplyvy.push(card.n);
             ukazOznamenie("⚡ KÚZLO STOLA", "Bolo aktivované neutrálne kúzlo <strong>" + card.n + "</strong>!");
@@ -1463,12 +1570,28 @@ function vylozitKartuZRuky(pNum, cardIndex) {
             vykonajAutoSpalenie(card.n);
         }
 
+        if (card.n === "Marek") {
+            vykonajCieleneSpalenieMarekom(pNum);
+        }
+
         if (card.n === "Doktor" || card.n === "Sestrička" || card.n === "Kornélia") {
             vykonajOzivenieZArchivu(pNum);
+        }
+
+        if (card.n === "Erik") {
+            otvorErikBuffDialog(pNum, function() {
+                vykresliHraciuPlochu();
+                pokracujPoVylozeni(pNum);
+            });
+            return;
         }
     }
 
     vykresliHraciuPlochu();
+    pokracujPoVylozeni(pNum);
+}
+
+function pokracujPoVylozeni(pNum) {
     if ((pNum === 1 && !p2Pass) || (pNum === 2 && !p1Pass)) prepniHracov();
     else spravujAI();
 }
@@ -1480,7 +1603,8 @@ function tahatNoveKartyZBalicka(pNum, count) {
     for (var i = 0; i < count; i++) {
         if (deck.length > 0) {
             var cardName = deck.pop();
-            hand.push({ n: cardName, cls: "F" });
+            var cardCls = (pNum === 1 && inventar.karty[cardName] && inventar.karty[cardName].aktivnaTrieda) ? inventar.karty[cardName].aktivnaTrieda : "F";
+            hand.push({ n: cardName, cls: cardCls });
         }
     }
 }
@@ -1503,7 +1627,7 @@ function vykonajAutoSpalenie(pôvodcaMeno) {
     var spalenychKariet = 0;
     p1_played_cards = p1_played_cards.filter(function(c) {
         if (c.n !== pôvodcaMeno && c.n !== "Oli" && getRealPower(c) === maxPwr) {
-            p1_spalene.push(c);
+            p1_spalene.push(c); // ⚰️ Presun do ohňa
             spalenychKariet++;
             return false;
         }
@@ -1512,7 +1636,7 @@ function vykonajAutoSpalenie(pôvodcaMeno) {
 
     p2_played_cards = p2_played_cards.filter(function(c) {
         if (c.n !== pôvodcaMeno && c.n !== "Oli" && getRealPower(c) === maxPwr) {
-            p2_spalene.push(c);
+            p2_spalene.push(c); // ⚰️ Presun do ohňa
             spalenychKariet++;
             return false;
         }
@@ -1524,18 +1648,34 @@ function vykonajAutoSpalenie(pôvodcaMeno) {
     }
 }
 
+function vykonajCieleneSpalenieMarekom(pNum) {
+    var oppCards = (pNum === 1) ? p2_played_cards : p1_played_cards;
+    var oppSpalene = (pNum === 1) ? p2_spalene : p1_spalene;
+
+    var targetable = oppCards.filter(function(c) { return c.n !== "Oli"; });
+    if (targetable.length === 0) return;
+
+    var victim = targetable[Math.floor(Math.random() * targetable.length)];
+    var vIdx = oppCards.indexOf(victim);
+    if (vIdx !== -1) {
+        oppCards.splice(vIdx, 1);
+        oppSpalene.push(victim);
+        ukazOznamenie("🧹 MAREK FILOZOF", "Marek zmanipuloval a poslal do ohňa súperovu kartu <strong>" + victim.n + "</strong>!");
+    }
+}
+
 function vykonajOzivenieZArchivu(pNum) {
     var arch = (pNum === 1) ? p1_spalene : p2_spalene;
     var myPlayed = (pNum === 1) ? p1_played_cards : p2_played_cards;
 
     if (arch.length === 0) {
-        ukazOznamenie("🏥 PRÁZDNY ARCHÍV", "V tvojom archíve spálených kariet sa nenachádza žiadna jednotka na oživenie!");
+        ukazOznamenie("🏥 PRÁZDNY ARCHÍV OHŇA", "V tvojom archíve spálených kariet sa nenachádza žiadna jednotka na oživenie!");
         return;
     }
 
     var oživenaKarta = arch.pop();
     myPlayed.push(oživenaKarta);
-    ukazOznamenie("🕊️ OŽIVENIE!", "Z archívu bola úspešne vrátená do boja karta <strong>" + oživenaKarta.n + "</strong>!");
+    ukazOznamenie("🕊️ OŽIVENIE Z OHŇA!", "Z plameňov bola úspešne oživená a vrátená do boja karta <strong>" + oživenaKarta.n + "</strong>!");
 }
 
 function hracPassuje(pNum) {
@@ -1587,10 +1727,11 @@ function skontrolujKoniecKola() {
 }
 
 function pripravNoveKolo() {
-    p1_spalene = p1_spalene.concat(p1_played_cards);
-    p2_spalene = p2_spalene.concat(p2_played_cards);
+    // 🗃️ Presun kariet zo stola do odhodených (NIE do p1_spalene!)
+    odhodene_karty_kola = odhodene_karty_kola.concat(p1_played_cards).concat(p2_played_cards);
     p1_played_cards = []; p2_played_cards = [];
     neutralne_vplyvy = [];
+    p1_erik_buff_row = null; p2_erik_buff_row = null;
     p1Pass = false; p2Pass = false; blokujVykladanie = false;
 
     vykresliHraciuPlochu();
@@ -1650,4 +1791,4 @@ window.prepniVyberMulliganKarty = prepniVyberMulliganKarty;
 window.potvrditMulliganAkciu = potvrditMulliganAkciu;
 window.prepniZalozkuTrhu = prepniZalozkuTrhu;
 window.kupitSurovinuZoStatnehoSkladu = kupitSurovinuZoStatnehoSkladu;
-window.vystavitKartuNaTrh = vystavitKartuNaTrh;
+window.overAPredatKartuNaTrhu = overAPredatKartuNaTrhu;
