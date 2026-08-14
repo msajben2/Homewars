@@ -302,7 +302,7 @@ body {
 }
 
 /* =========================================================================
-   5. DESIGN KARIET S ODDIAĽENÝMI VYCENTROVANÝMI OBRÁZKAMI A BEZ ODSTÁVAJÚCICH UŠÍ
+   5. DESIGN KARIET - 65% VÝŠKA OBRÁZKA & PERFEKTNÉ CENTROVANIE
    ========================================================================= */
 .karta-karta-wrapper { 
     display: flex; 
@@ -331,7 +331,7 @@ body {
     box-shadow: 0 5px 18px rgba(0, 0, 0, 0.9);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
     flex-shrink: 0;
-    overflow: visible !important;
+    overflow: hidden !important;
     box-sizing: border-box;
 }
 
@@ -383,19 +383,18 @@ body {
 .karta.cls-PRIZRAK-F { border: 3.5px solid #8b5a2b !important; }
 .karta.cls-PRIZRAK-F::after { display: none; }
 
-/* 👑 PLATINOVÁ KARTA BEZ ODSTÁVAJÚCICH UŠÍ */
+/* 👑 PLATINOVÁ KARTA */
 .karta.cls-PLATINUM {
     background: transparent !important;
     border: none !important;
     box-shadow: 0 0 25px rgba(224, 231, 255, 0.85) !important;
     border-radius: 10px;
 }
-
 .karta.cls-PLATINUM::after {
     background-image: url('Img/platinumclassram.webp');
 }
 
-/* 🎭 SKRYTÁ KARTA SÚPERA (BEZ RÁMU A PREZRÁDZANIA TRIEDY) */
+/* 🎭 SKRYTÁ KARTA SÚPERA */
 .karta.cls-HIDDEN {
     border: 3px solid #3a2e20 !important;
     background: #110c08 !important;
@@ -405,24 +404,25 @@ body {
     display: none !important;
 }
 
-/* 🖼️ ODDIAĽENÉ A VYCENTROVANÉ OBRÁZKY */
+/* 🖼️ OBRÁZOK DO 65% VÝŠKY KARTY ZVRCHU */
 .karta-foto {
     width: 100%;
-    height: 100%;
+    height: 65% !important;
     background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-position: center center;
+    background-size: cover !important;
+    background-position: center 15% !important;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 1;
-    border-radius: 8px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
     background-color: #1a120b;
 }
 
 .karta.cls-PLATINUM .karta-foto {
-    background-size: 100% 100% !important;
-    background-position: center center !important;
+    height: 65% !important;
+    background-position: center 25% !important;
 }
 
 .karta-kruh {
