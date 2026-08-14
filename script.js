@@ -1352,3 +1352,45 @@ window.testSimulaciaPridatBota = testSimulaciaPridatBota;
 window.testSimulaciaGlobalnyOznam = testSimulaciaGlobalnyOznam;
 window.vykresliGridStatistik = vykresliGridStatistik;
 window.aktualizujPanelDielne = aktualizujPanelDielne;
+// =========================================================================
+// 🎛️ ŽIVÉ LADENIE ROZMEROV A OBRÁZKA KARIET
+// =========================================================================
+function aplikujTuning() {
+    var sizeVal = document.getElementById("tune-bg-size").value;
+    var posX = document.getElementById("tune-pos-x").value;
+    var posY = document.getElementById("tune-pos-y").value;
+    var cardW = document.getElementById("tune-card-w").value;
+    var cardH = document.getElementById("tune-card-h").value;
+
+    // Aktualizácia textov v paneli
+    document.getElementById("lbl-bg-size").innerText = sizeVal + "%";
+    document.getElementById("lbl-pos-x").innerText = posX + "%";
+    document.getElementById("lbl-pos-y").innerText = posY + "%";
+    document.getElementById("lbl-card-w").innerText = cardW + "px";
+    document.getElementById("lbl-card-h").innerText = cardH + "px";
+
+    // Aplikovanie na všetky karty na obrazovke
+    var karty = document.querySelectorAll(".karta");
+    karty.forEach(function(k) {
+        k.style.width = cardW + "px";
+        k.style.height = cardH + "px";
+    });
+
+    var fotky = document.querySelectorAll(".karta-foto");
+    fotky.forEach(function(f) {
+        f.style.backgroundSize = sizeVal + "% auto";
+        f.style.backgroundPosition = posX + "% " + posY + "%";
+    });
+
+    // Výpis do poľa
+    var cssText = "W: " + cardW + "px | H: " + cardH + "px | Size: " + sizeVal + "% | Pos: " + posX + "% " + posY + "%";
+    var outEl = document.getElementById("tune-output-css");
+    if (outEl) outEl.innerText = cssText;
+}
+
+// Spustenie pri štarte pre inicializáciu hodnôt
+document.addEventListener("DOMContentLoaded", function() {
+    setTimeout(aplikujTuning, 300);
+});
+
+window.aplikujTuning = aplikujTuning;
