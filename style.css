@@ -1,5 +1,6 @@
+<style>
 /* =========================================================================
-   RODINNÁ HRA - HOME WARS (KOMPLETNÉ CSS - VERZIA 38.0.0 - PERFECT PLATINUM)
+   [SEKCIA 4 - CSS] ZÁKLAD, POZADIA A STICKY WALLET
    ========================================================================= */
 
 * {
@@ -18,9 +19,6 @@ body {
     min-height: 100vh;
 }
 
-/* =========================================================================
-   1. RESPONZÍVNE POZADIA PRE OBRAZOVKY A MODÁLY
-   ========================================================================= */
 .screen-bg {
     background-size: cover !important;
     background-position: center !important;
@@ -28,809 +26,206 @@ body {
     background-attachment: fixed !important;
 }
 
-#hlavne-menu {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('Img/skala.webp') !important;
-}
+#hlavne-menu { background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('Img/skala.webp') !important; }
+#hracia-plocha { background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('Img/krcma.webp') !important; }
+.modal-bg-dedina { background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/dedina.jpg') center/cover no-repeat !important; }
+.modal-bg-polia { background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/polia.webp') center/cover no-repeat !important; }
+.modal-bg-dielna { background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/dielna.webp') center/cover no-repeat !important; }
+.modal-bg-trhovisko { background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/trhovisko.webp') center/cover no-repeat !important; }
+.modal-bg-duha { background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/duha.webp') center/cover no-repeat !important; }
 
-#hracia-plocha {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('Img/krcma.webp') !important;
-}
-
-.modal-bg-dedina {
-    background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/dedina.jpg') center/cover no-repeat !important;
-}
-
-.modal-bg-polia {
-    background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/polia.webp') center/cover no-repeat !important;
-}
-
-.modal-bg-dielna {
-    background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/dielna.webp') center/cover no-repeat !important;
-}
-
-.modal-bg-trhovisko {
-    background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/trhovisko.webp') center/cover no-repeat !important;
-}
-
-.modal-bg-duha {
-    background: linear-gradient(rgba(15, 10, 5, 0.88), rgba(10, 7, 4, 0.92)), url('Img/duha.webp') center/cover no-repeat !important;
-}
-
-/* =========================================================================
-   2. STICKY WALLET (KOMPAKTNÁ ŽIVÁ POKLADNICA V MODÁLOCH)
-   ========================================================================= */
 .modal-sticky-wallet {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    background: rgba(12, 8, 5, 0.92);
-    border: 1.5px solid #d4af37;
-    border-radius: 8px;
-    padding: 6px 14px;
-    margin-bottom: 15px;
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    background: rgba(12, 8, 5, 0.92); border: 1.5px solid #d4af37;
+    border-radius: 8px; padding: 6px 14px; margin-bottom: 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
 }
 
 .wallet-chip {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid #5a4d3e;
-    border-radius: 6px;
-    padding: 3px 10px;
-    font-size: 0.85em;
-    font-weight: bold;
-    color: #ffcc00;
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(0, 0, 0, 0.6); border: 1px solid #5a4d3e;
+    border-radius: 6px; padding: 3px 10px; font-size: 0.85em;
+    font-weight: bold; color: #ffcc00;
 }
 
-.wallet-chip-img {
-    width: 20px;
-    height: 20px;
-    object-fit: cover;
-    border-radius: 3px;
-}
+.wallet-chip-img { width: 20px; height: 20px; object-fit: cover; border-radius: 3px; }
 
 /* =========================================================================
-   3. HLAVNÉ MENU & ROZBALOVACÍ BATOH
+   [SEKCIA 5 - CSS] HLAVNÉ MENU, BATOH A HRACIA PLOCHA
    ========================================================================= */
 .menu-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 20px;
-    text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 20px; text-align: center;
 }
 
-.game-title {
-    font-size: clamp(2.2em, 6vw, 3.8em);
-    color: #d4af37;
-    text-shadow: 0 0 25px rgba(212, 175, 55, 0.7), 2px 2px 8px #000;
-    margin-bottom: 5px;
-    font-family: Georgia, serif;
-}
-
-.game-subtitle {
-    font-size: clamp(1em, 2.5vw, 1.3em);
-    color: #a89060;
-    margin-bottom: 25px;
-    font-style: italic;
-    text-shadow: 1px 1px 4px #000;
-}
-
-.menu-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
-    max-width: 460px;
-}
+.game-title { font-size: clamp(2.2em, 6vw, 3.8em); color: #d4af37; text-shadow: 0 0 25px rgba(212, 175, 55, 0.7), 2px 2px 8px #000; margin-bottom: 5px; font-family: Georgia, serif; }
+.game-subtitle { font-size: clamp(1em, 2.5vw, 1.3em); color: #a89060; margin-bottom: 25px; font-style: italic; text-shadow: 1px 1px 4px #000; }
+.menu-buttons { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 460px; }
 
 .btn-menu {
-    background: linear-gradient(180deg, rgba(59, 45, 29, 0.9) 0%, rgba(33, 24, 14, 0.9) 100%);
-    color: #ffcc00;
-    border: 2px solid #d4af37;
-    padding: 14px 20px;
-    font-size: 1.15em;
-    font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
-    transition: all 0.2s ease;
-    backdrop-filter: blur(4px);
+    background: linear-gradient(180deg, rgba(59, 45, 29, 0.9) 0%, rgba(33, 24, 14, 0.9) 100%); color: #ffcc00; border: 2px solid #d4af37;
+    padding: 14px 20px; font-size: 1.15em; font-weight: bold; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+    transition: all 0.2s ease; backdrop-filter: blur(4px);
 }
+.btn-menu:hover { background: linear-gradient(180deg, #523f29 0%, #302315 100%); border-color: #ffe066; transform: translateY(-2px); }
 
-.btn-menu:hover {
-    background: linear-gradient(180deg, #523f29 0%, #302315 100%);
-    border-color: #ffe066;
-    transform: translateY(-2px);
-}
+.audio-control-bar { position: fixed; bottom: 20px; right: 20px; background: rgba(15, 10, 5, 0.9); border: 1px solid #d4af37; padding: 8px 15px; border-radius: 20px; display: flex; align-items: center; gap: 10px; z-index: 5000; }
 
-.audio-control-bar {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(15, 10, 5, 0.9);
-    border: 1px solid #d4af37;
-    padding: 8px 15px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 5000;
-}
-
-.inventory-dropdown-container {
-    margin-top: 20px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.btn-inventory-toggle {
-    background: rgba(33, 24, 14, 0.9);
-    color: #ffcc00;
-    border: 1.5px solid #d4af37;
-    padding: 10px 22px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 1.05em;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
-    transition: all 0.2s ease;
-}
-
-.btn-inventory-toggle:hover {
-    background: #3b2d1d;
-    border-color: #ffe066;
-}
-
-.inventory-dropdown-content {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    background: rgba(15, 10, 5, 0.96);
-    border: 2px solid #d4af37;
-    border-radius: 12px;
-    padding: 14px;
-    margin-top: 10px;
-    max-width: 550px;
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.9);
-}
-
-.inventory-mini-card {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(0, 0, 0, 0.65);
-    border: 1px solid #5a4d3e;
-    border-radius: 8px;
-    padding: 6px 12px;
-    min-width: 120px;
-}
-
-.inventory-mini-img {
-    width: 36px;
-    height: 36px;
-    object-fit: cover;
-    border-radius: 6px;
-    border: 1px solid #d4af37;
-}
-
-.inventory-mini-info {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-}
-
+.inventory-dropdown-container { margin-top: 20px; position: relative; display: flex; flex-direction: column; align-items: center; }
+.btn-inventory-toggle { background: rgba(33, 24, 14, 0.9); color: #ffcc00; border: 1.5px solid #d4af37; padding: 10px 22px; border-radius: 20px; font-weight: bold; font-size: 1.05em; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7); transition: all 0.2s ease; }
+.btn-inventory-toggle:hover { background: #3b2d1d; border-color: #ffe066; }
+.inventory-dropdown-content { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; background: rgba(15, 10, 5, 0.96); border: 2px solid #d4af37; border-radius: 12px; padding: 14px; margin-top: 10px; max-width: 550px; box-shadow: 0 0 25px rgba(0, 0, 0, 0.9); }
+.inventory-mini-card { display: flex; align-items: center; gap: 10px; background: rgba(0, 0, 0, 0.65); border: 1px solid #5a4d3e; border-radius: 8px; padding: 6px 12px; min-width: 120px; }
+.inventory-mini-img { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; border: 1px solid #d4af37; }
+.inventory-mini-info { display: flex; flex-direction: column; text-align: left; }
 .inventory-mini-title { font-size: 0.75em; color: #a89060; }
 .inventory-mini-val { font-size: 0.95em; font-weight: bold; color: #ffcc00; }
 
-/* =========================================================================
-   4. HRACÍ STÔL A RADY
-   ========================================================================= */
-.board-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 10px;
-    justify-content: space-between;
-}
-
-.player-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(20, 15, 10, 0.9);
-    border: 1px solid #5a4d3e;
-    padding: 8px 20px;
-    border-radius: 8px;
-    backdrop-filter: blur(4px);
-}
-
+.board-container { display: flex; flex-direction: column; min-height: 100vh; max-width: 1600px; margin: 0 auto; padding: 10px; justify-content: space-between; }
+.player-header { display: flex; justify-content: space-between; align-items: center; background: rgba(20, 15, 10, 0.9); border: 1px solid #5a4d3e; padding: 8px 20px; border-radius: 8px; backdrop-filter: blur(4px); }
 .player-name { font-weight: bold; color: #ffcc00; font-size: 1.2em; }
 .score-badge { background: #d4af37; color: #111; font-weight: bold; font-size: 1.6em; padding: 4px 18px; border-radius: 6px; }
 .btn-pass { background: #8b0000; color: #fff; border: 1px solid #ff4d4d; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 .btn-exit { background: #3b2d1d; color: #ffcc00; border: 1px solid #d4af37; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-
 .board-half { display: flex; flex-direction: column; gap: 8px; }
 
 .board-row {
-    background: rgba(0, 0, 0, 0.45);
-    border: 1px dashed #4a3d2e;
-    min-height: 290px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    padding: 10px 15px;
-    gap: 14px;
-    position: relative;
-    overflow-x: auto;
-    backdrop-filter: blur(2px);
+    background: rgba(0, 0, 0, 0.45); border: 1px dashed #4a3d2e; min-height: 290px; border-radius: 8px;
+    display: flex; align-items: center; padding: 10px 15px; gap: 14px; position: relative; overflow-x: auto; backdrop-filter: blur(2px);
 }
-
-.row-label, .row-label-neutral {
-    position: absolute;
-    right: 12px;
-    bottom: 6px;
-    font-size: 0.85em;
-    color: rgba(212, 175, 55, 0.4);
-    pointer-events: none;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
+.row-label, .row-label-neutral { position: absolute; right: 12px; bottom: 6px; font-size: 0.85em; color: rgba(212, 175, 55, 0.4); pointer-events: none; font-weight: bold; text-transform: uppercase; }
 .row-neutral { background: rgba(30, 20, 10, 0.7); border: 1.5px solid #d4af37; min-height: 290px; justify-content: center; }
-
-.card-hand {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    min-height: 290px;
-    padding: 8px;
-    overflow-x: auto;
-    background: rgba(0, 0, 0, 0.45);
-    border-radius: 8px;
-    align-items: center;
-}
+.card-hand { display: flex; justify-content: center; gap: 12px; min-height: 290px; padding: 8px; overflow-x: auto; background: rgba(0, 0, 0, 0.45); border-radius: 8px; align-items: center; }
 
 /* =========================================================================
-   5. DESIGN KARIET - ZJEMNENÉ RÁMY & DOKONALÝ PLATINUM OFFSET
+   [SEKCIA 6 - CSS] DESIGN KARIET - RÁMY & DOKONALÝ PLATINUM OFFSET
    ========================================================================= */
 .karta-karta-wrapper { 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    background: rgba(15, 10, 5, 0.85);
-    border: 1px solid #4a3d2e;
-    padding: 12px;
-    border-radius: 12px;
-    width: 100%;
-    max-width: 250px;
-    transition: all 0.2s ease;
+    display: flex; flex-direction: column; align-items: center; background: rgba(15, 10, 5, 0.85); border: 1px solid #4a3d2e; padding: 12px; border-radius: 12px; width: 100%; max-width: 250px; transition: all 0.2s ease;
 }
 
 .karta {
-    width: 175px;
-    height: 275px;
-    background: #150f0a;
-    border-radius: 10px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 0;
-    cursor: pointer;
-    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.9);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    flex-shrink: 0;
-    overflow: hidden !important;
-    box-sizing: border-box;
+    width: 175px; height: 275px; background: #150f0a; border-radius: 10px; position: relative;
+    display: flex; flex-direction: column; justify-content: space-between; padding: 0; cursor: pointer;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.9); transition: transform 0.15s ease, box-shadow 0.15s ease;
+    flex-shrink: 0; overflow: hidden !important; box-sizing: border-box;
 }
 
 .karta:hover { transform: translateY(-8px) scale(1.04); z-index: 30; }
 .karta-disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.6); }
+.karta-selected-mulligan { box-shadow: 0 0 25px rgba(255, 77, 77, 0.9) !important; transform: translateY(-10px) scale(1.05); }
+.deck-active-card { border-color: #10b981 !important; box-shadow: 0 0 20px rgba(16, 185, 129, 0.6) !important; }
+.deck-inactive-card { opacity: 0.45; filter: grayscale(0.7); }
 
-.karta-selected-mulligan {
-    box-shadow: 0 0 25px rgba(255, 77, 77, 0.9) !important;
-    transform: translateY(-10px) scale(1.05);
-}
-
-.deck-active-card {
-    border-color: #10b981 !important;
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.6) !important;
-}
-
-.deck-inactive-card {
-    opacity: 0.45;
-    filter: grayscale(0.7);
-}
-
-/* ZÁKLADNÁ ŠABLÓNA PRE VŠETKY ::after RÁMY KARIET */
 .karta::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    pointer-events: none;
-    z-index: 10;
+    content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-size: 100% 100%; background-repeat: no-repeat; pointer-events: none; z-index: 10;
 }
 
-/* JEDNOTLIVÉ OVERLAY OBRÁZKOVÉ RÁMY SO ZJEMNENÍM */
 .karta.cls-F { border: 2.5px solid #8b5a2b; border-radius: 8px; }
 .karta.cls-F::after { display: none; }
-
 .karta.cls-E::after, .karta.cls-PRIZRAK-E::after { background-image: url('Img/eclassram.webp'); opacity: 0.95; }
 .karta.cls-D::after, .karta.cls-PRIZRAK-D::after { background-image: url('Img/dclassram.webp'); opacity: 0.95; }
 .karta.cls-C::after, .karta.cls-PRIZRAK-C::after { background-image: url('Img/cclassram.webp'); opacity: 0.95; }
-
-/* B-Class & A-Class zjemnené o 25% */
-.karta.cls-B::after, .karta.cls-PRIZRAK-B::after { 
-    background-image: url('Img/bclassram.webp'); 
-    transform: scale(0.96);
-    transform-origin: center;
-}
-.karta.cls-A::after, .karta.cls-PRIZRAK-A::after { 
-    background-image: url('Img/aclassram.webp'); 
-    transform: scale(0.96);
-    transform-origin: center;
-}
-
-/* S-Class (Zlato) zjemnené o 50% & tenká luxusná linka */
-.karta.cls-S::after { 
-    background-image: url('Img/sclassram.webp'); 
-    transform: scale(0.93);
-    transform-origin: center;
-}
-.karta.cls-S { 
-    box-shadow: 0 0 16px rgba(255, 204, 0, 0.65) !important; 
-}
-
+.karta.cls-B::after, .karta.cls-PRIZRAK-B::after { background-image: url('Img/bclassram.webp'); transform: scale(0.96); transform-origin: center; }
+.karta.cls-A::after, .karta.cls-PRIZRAK-A::after { background-image: url('Img/aclassram.webp'); transform: scale(0.96); transform-origin: center; }
+.karta.cls-S::after { background-image: url('Img/sclassram.webp'); transform: scale(0.93); transform-origin: center; }
+.karta.cls-S { box-shadow: 0 0 16px rgba(255, 204, 0, 0.65) !important; }
 .karta.cls-PRIZRAK-F { border: 2.5px solid #8b5a2b !important; }
 .karta.cls-PRIZRAK-F::after { display: none; }
 
 /* 👑 PLATINOVÁ KARTA */
-.karta.cls-PLATINUM {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: 0 0 20px rgba(224, 231, 255, 0.75) !important;
-    border-radius: 10px;
-}
-.karta.cls-PLATINUM::after {
-    background-image: url('Img/platinumclassram.webp');
-}
+.karta.cls-PLATINUM { background: transparent !important; border: none !important; box-shadow: 0 0 20px rgba(224, 231, 255, 0.75) !important; border-radius: 10px; }
+.karta.cls-PLATINUM::after { background-image: url('Img/platinumclassram.webp'); }
 
 /* 🎭 SKRYTÁ KARTA SÚPERA */
-.karta.cls-HIDDEN {
-    border: 3px solid #3a2e20 !important;
-    background: #110c08 !important;
-    box-shadow: none !important;
-}
-.karta.cls-HIDDEN::after {
-    display: none !important;
-}
+.karta.cls-HIDDEN { border: 3px solid #3a2e20 !important; background: #110c08 !important; box-shadow: none !important; }
+.karta.cls-HIDDEN::after { display: none !important; }
 
-/* 🖼️ OBRÁZOK BEŽNÝCH KARIET DO 68% VÝŠKY ZVRCHU */
+/* 🖼️ OBRÁZOK BEŽNÝCH KARIET A PLATINUM OFFSET */
 .karta-foto {
-    width: 100%;
-    height: 68% !important;
-    background-repeat: no-repeat;
-    background-size: cover !important;
-    background-position: center 20% !important;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-    background-color: #1a120b;
+    width: 100%; height: 68% !important; background-repeat: no-repeat; background-size: cover !important;
+    background-position: center 20% !important; position: absolute; top: 0; left: 0; z-index: 1;
+    border-top-left-radius: 8px; border-top-right-radius: 8px; background-color: #1a120b;
 }
 
-/* 👑 DOKONALÉ ZASADENIE DO PLATINOVÉHO OKNA POD ŠTÍTOM (BEZ OREZANIA HLAVY) */
 .karta.cls-PLATINUM .karta-foto {
-    top: 18% !important;
-    height: 62% !important;
-    background-size: cover !important;
-    background-position: center top !important;
-    border-radius: 0 !important;
+    top: 18% !important; height: 62% !important; background-size: cover !important; background-position: center top !important; border-radius: 0 !important;
 }
 
 .karta-kruh {
-    position: absolute;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.05em;
-    font-weight: bold;
-    z-index: 12;
+    position: absolute; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.05em; font-weight: bold; z-index: 12;
 }
-
 .karta-kruh-pwr { top: 6px; left: 6px; background: #ffcc00; color: #000; border: 1.5px solid #000; }
 .karta-kruh-cls { top: 6px; right: 6px; background: #111; color: #ffcc00; border: 1.5px solid #d4af37; }
 
-.karta-btn-inspect {
-    position: absolute;
-    bottom: 35px;
-    right: 8px;
-    background: rgba(0, 0, 0, 0.88);
-    border: 1px solid #5a4d3e;
-    color: #fff;
-    font-size: 0.95em;
-    padding: 3px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    z-index: 12;
-}
-
-.karta-stitok-spodok {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(12, 8, 5, 0.92);
-    border-top: 1px solid #d4af37;
-    padding: 5px 4px;
-    text-align: center;
-    z-index: 11;
-    backdrop-filter: blur(2px);
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
-}
-
+.karta-btn-inspect { position: absolute; bottom: 35px; right: 8px; background: rgba(0, 0, 0, 0.88); border: 1px solid #5a4d3e; color: #fff; font-size: 0.95em; padding: 3px 8px; border-radius: 4px; cursor: pointer; z-index: 12; }
+.karta-stitok-spodok { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(12, 8, 5, 0.92); border-top: 1px solid #d4af37; padding: 5px 4px; text-align: center; z-index: 11; backdrop-filter: blur(2px); border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
 .karta-nazov { font-size: 0.88em; font-weight: bold; color: #ffcc00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* ROVNAKO VEĽKÉ KARTY PRE SUROVINY V TRUHLI */
 .karta-surovina {
-    width: 175px;
-    height: 275px;
-    background: #100c08;
-    border: 3px solid #d4af37;
-    border-radius: 8px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 6px;
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-    flex-shrink: 0;
-    overflow: hidden;
+    width: 175px; height: 275px; background: #100c08; border: 3px solid #d4af37; border-radius: 8px; position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 6px; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); flex-shrink: 0; overflow: hidden;
 }
-
-.karta-surovina .surovina-foto {
-    width: 100%;
-    height: 180px;
-    background-size: cover;
-    background-position: center;
-    border-radius: 4px;
-    margin-top: 20px;
-}
-
-.karta-surovina .surovina-badge {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    background: #ffcc00;
-    color: #000;
-    font-weight: bold;
-    font-size: 0.95em;
-    padding: 3px 9px;
-    border-radius: 12px;
-    border: 1px solid #000;
-}
-
-.karta-surovina .surovina-stitok {
-    background: rgba(0, 0, 0, 0.9);
-    padding: 5px;
-    border-radius: 4px;
-    text-align: center;
-}
-
+.karta-surovina .surovina-foto { width: 100%; height: 180px; background-size: cover; background-position: center; border-radius: 4px; margin-top: 20px; }
+.karta-surovina .surovina-badge { position: absolute; top: 6px; right: 6px; background: #ffcc00; color: #000; font-weight: bold; font-size: 0.95em; padding: 3px 9px; border-radius: 12px; border: 1px solid #000; }
+.karta-surovina .surovina-stitok { background: rgba(0, 0, 0, 0.9); padding: 5px; border-radius: 4px; text-align: center; }
 .karta-surovina .surovina-nazov { font-size: 0.9em; font-weight: bold; color: #ffcc00; }
 
 /* =========================================================================
-   6. ZÁLOŽKY TRHOVISKA & PREDAJNÝ FORMULÁR
+   [SEKCIA 7 - CSS] TRHOVISKO, KOVÁČSKA VYHŇA A TRUHLICE
    ========================================================================= */
-.btn-market-tab {
-    background: #21180e;
-    color: #ffcc00;
-    border: 1px solid #5a4d3e;
-    padding: 8px 18px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+.btn-market-tab { background: #21180e; color: #ffcc00; border: 1px solid #5a4d3e; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s ease; }
+.btn-market-tab:hover, .active-market-tab { background: #d4af37 !important; color: #111 !important; border-color: #ffe066 !important; }
+.market-store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+.market-store-card { background: rgba(0, 0, 0, 0.65); border: 1.5px solid #5a4d3e; border-radius: 8px; padding: 12px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.market-store-card:hover { border-color: #d4af37; }
+.market-store-img { width: 65px; height: 65px; object-fit: cover; border-radius: 6px; border: 1px solid #d4af37; }
 
-.btn-market-tab:hover, .active-market-tab {
-    background: #d4af37 !important;
-    color: #111 !important;
-    border-color: #ffe066 !important;
-}
+.sell-form-container { background: rgba(15, 10, 5, 0.9); border: 1.5px solid #d4af37; border-radius: 10px; padding: 20px; max-width: 650px; margin: 0 auto 25px auto; box-shadow: 0 0 20px rgba(0, 0, 0, 0.8); }
+.sell-form-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+.sell-form-select, .sell-form-input { background: #110c08; color: #ffcc00; border: 1px solid #5a4d3e; padding: 8px 12px; border-radius: 6px; font-size: 1em; min-width: 180px; }
 
-.market-store-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-}
+#forge-video-overlay, #chest-video-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+.forge-stage-169 { position: relative; width: min(100vw, 177.78vh); height: min(56.25vw, 100vh); aspect-ratio: 16 / 9; perspective: 1200px; overflow: hidden; margin: auto; background: #000; }
+#forge-video-element, #chest-video-element { width: 100%; height: 100%; object-fit: cover; display: block; }
+.forge-cards-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; transform-style: preserve-3d; }
 
-.market-store-card {
-    background: rgba(0, 0, 0, 0.65);
-    border: 1.5px solid #5a4d3e;
-    border-radius: 8px;
-    padding: 12px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-}
-
-.market-store-card:hover {
-    border-color: #d4af37;
-}
-
-.market-store-img {
-    width: 65px;
-    height: 65px;
-    object-fit: cover;
-    border-radius: 6px;
-    border: 1px solid #d4af37;
-}
-
-.sell-form-container {
-    background: rgba(15, 10, 5, 0.9);
-    border: 1.5px solid #d4af37;
-    border-radius: 10px;
-    padding: 20px;
-    max-width: 650px;
-    margin: 0 auto 25px auto;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-}
-
-.sell-form-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.sell-form-select, .sell-form-input {
-    background: #110c08;
-    color: #ffcc00;
-    border: 1px solid #5a4d3e;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 1em;
-    min-width: 180px;
-}
-
-/* =========================================================================
-   7. 📱 RESPONZÍVNA KOVÁČSKA VYHŇA (FORGE STAGE 16:9 - CLEAN OVERLAY)
-   ========================================================================= */
-#forge-video-overlay, #chest-video-overlay {
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100vw; 
-    height: 100vh; 
-    background: #000; 
-    z-index: 999999;
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    overflow: hidden;
-}
-
-.forge-stage-169 {
-    position: relative;
-    width: min(100vw, 177.78vh);
-    height: min(56.25vw, 100vh);
-    aspect-ratio: 16 / 9;
-    perspective: 1200px;
-    overflow: hidden;
-    margin: auto;
-    background: #000;
-}
-
-#forge-video-element, #chest-video-element {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.forge-cards-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    transform-style: preserve-3d;
-}
-
-/* 🎯 ČISTÝ A PRIRODZENÝ VZHĽAD KARTY NA KOVADLINE */
-.forge-slot-card {
-    position: absolute !important;
-    width: 11.2% !important;
-    height: 27.4% !important;
-    pointer-events: none;
-    transition: opacity 0.5s ease;
-    border-radius: 6px !important;
-    overflow: hidden !important;
-    background: transparent !important;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.9) !important;
-}
-
-/* Obrázok na kovadline pokryje celé telo karty */
-.forge-slot-card .karta-foto {
-    width: 100% !important;
-    height: 100% !important;
-    background-size: cover !important;
-    background-position: center 20% !important;
-    border-radius: 6px !important;
-}
-
-/* Skrytie lupy na kovadline */
-.forge-slot-card .karta-btn-inspect {
-    display: none !important;
-}
-
-/* Zjemnený štítok s názvom na kovadline */
-.forge-slot-card .karta-stitok-spodok {
-    padding: 3px 2px !important;
-    font-size: 0.8em !important;
-    background: rgba(10, 6, 3, 0.88) !important;
-}
+.forge-slot-card { position: absolute !important; width: 11.2% !important; height: 27.4% !important; pointer-events: none; transition: opacity 0.5s ease; border-radius: 6px !important; overflow: hidden !important; background: transparent !important; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.9) !important; }
+.forge-slot-card .karta-foto { width: 100% !important; height: 100% !important; background-size: cover !important; background-position: center 20% !important; border-radius: 6px !important; }
+.forge-slot-card .karta-btn-inspect { display: none !important; }
+.forge-slot-card .karta-stitok-spodok { padding: 3px 2px !important; font-size: 0.8em !important; background: rgba(10, 6, 3, 0.88) !important; }
 
 #forge-card-1 { top: 50.65%; left: 26.75%; transform: translate(-50%, -50%) rotateX(20deg) scale(1.191, 1.212); }
 #forge-card-2 { top: 50.80%; left: 41.45%; transform: translate(-50%, -50%) rotateX(20deg) scale(1.195, 1.215); }
 #forge-card-3 { top: 50.95%; left: 56.10%; transform: translate(-50%, -50%) rotateX(16deg) scale(1.190, 1.195); }
 #forge-card-4 { top: 50.70%; left: 73.95%; transform: translate(-50%, -50%) rotateX(18deg) scale(1.200, 1.200); }
 
-/* =========================================================================
-   8. TRUHLICE OVERLAY & REWARDS MENU
-   ========================================================================= */
-.chest-prompt-text {
-    position: absolute; bottom: 40px; color: #ffcc00; font-size: 1.5em; font-weight: bold;
-    text-shadow: 0 0 10px #000; animation: pulse 1.5s infinite; cursor: pointer;
-}
-
+.chest-prompt-text { position: absolute; bottom: 40px; color: #ffcc00; font-size: 1.5em; font-weight: bold; text-shadow: 0 0 10px #000; animation: pulse 1.5s infinite; cursor: pointer; }
 @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-
-.chest-rewards-modal {
-    position: absolute;
-    background: rgba(15, 10, 5, 0.96);
-    border: 3px solid #d4af37;
-    border-radius: 16px;
-    padding: 25px;
-    text-align: center;
-    max-width: 850px;
-    width: 90%;
-    box-shadow: 0 0 50px rgba(212, 175, 55, 0.5);
-    z-index: 1000000;
-}
-
-.rewards-card-container {
-    display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin: 20px 0; max-height: 50vh; overflow-y: auto;
-}
-
-.custom-notify-overlay {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.75); z-index: 99999999;
-    display: flex; justify-content: center; align-items: center;
-}
-
-.custom-notify-box {
-    background: linear-gradient(135deg, #24170c 0%, #110c08 100%);
-    border: 2px solid #d4af37; border-radius: 12px;
-    padding: 25px; max-width: 460px; text-align: center; color: #e0d0b0;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
-}
-
+.chest-rewards-modal { position: absolute; background: rgba(15, 10, 5, 0.96); border: 3px solid #d4af37; border-radius: 16px; padding: 25px; text-align: center; max-width: 850px; width: 90%; box-shadow: 0 0 50px rgba(212, 175, 55, 0.5); z-index: 1000000; }
+.rewards-card-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin: 20px 0; max-height: 50vh; overflow-y: auto; }
+.custom-notify-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); z-index: 99999999; display: flex; justify-content: center; align-items: center; }
+.custom-notify-box { background: linear-gradient(135deg, #24170c 0%, #110c08 100%); border: 2px solid #d4af37; border-radius: 12px; padding: 25px; max-width: 460px; text-align: center; color: #e0d0b0; box-shadow: 0 0 30px rgba(0, 0, 0, 0.9); }
 .custom-notify-title { color: #ffcc00; margin-top: 0; font-family: Georgia, serif; font-size: 1.3em; }
 .custom-notify-msg { margin: 15px 0 20px 0; font-size: 1em; line-height: 1.5; }
 .custom-notify-btn { background: #d4af37; color: #111; border: none; padding: 10px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1em; }
 
-/* MODÁLY & REBRÍČKY */
-.card-modal {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.88); z-index: 10000;
-    display: flex; justify-content: center; align-items: center;
-}
-
-.modal-content {
-    border: 2px solid #d4af37; border-radius: 12px;
-    width: 95vw; max-width: 1450px; max-height: 88vh; padding: 25px; color: #e0d0b0; overflow-y: auto; position: relative;
-    box-shadow: 0 0 35px rgba(0, 0, 0, 0.95);
-}
-
+.card-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.88); z-index: 10000; display: flex; justify-content: center; align-items: center; }
+.modal-content { border: 2px solid #d4af37; border-radius: 12px; width: 95vw; max-width: 1450px; max-height: 88vh; padding: 25px; color: #e0d0b0; overflow-y: auto; position: relative; box-shadow: 0 0 35px rgba(0, 0, 0, 0.95); }
 .card-modal-close { position: absolute; top: 10px; right: 15px; font-size: 2.2em; color: #d4af37; cursor: pointer; }
 
-.dielna-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-    gap: 30px 20px;
-    margin-top: 20px;
-    justify-items: center;
-}
-
-.stats-grid-20 {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.leaderboard-column {
-    background: rgba(15, 10, 5, 0.85);
-    border: 1.5px solid #5a4d3e;
-    border-radius: 10px;
-    padding: 12px;
-    backdrop-filter: blur(3px);
-}
-
-.leaderboard-title {
-    font-family: Georgia, serif;
-    font-size: 1.05em;
-    color: #ffcc00;
-    text-align: center;
-    border-bottom: 1px solid #5a4d3e;
-    padding-bottom: 6px;
-    margin-top: 0;
-}
-
-.leaderboard-reward-tag {
-    text-align: center;
-    font-size: 0.8em;
-    color: #a855f7;
-    margin-bottom: 8px;
-    font-weight: bold;
-}
-
-.leaderboard-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 8px;
-    border-radius: 6px;
-    margin-top: 5px;
-    font-size: 0.85em;
-    background: rgba(0, 0, 0, 0.5);
-}
-
+.dielna-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 30px 20px; margin-top: 20px; justify-items: center; }
+.stats-grid-20 { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 15px; margin-top: 20px; }
+.leaderboard-column { background: rgba(15, 10, 5, 0.85); border: 1.5px solid #5a4d3e; border-radius: 10px; padding: 12px; backdrop-filter: blur(3px); }
+.leaderboard-title { font-family: Georgia, serif; font-size: 1.05em; color: #ffcc00; text-align: center; border-bottom: 1px solid #5a4d3e; padding-bottom: 6px; margin-top: 0; }
+.leaderboard-reward-tag { text-align: center; font-size: 0.8em; color: #a855f7; margin-bottom: 8px; font-weight: bold; }
+.leaderboard-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-radius: 6px; margin-top: 5px; font-size: 0.85em; background: rgba(0, 0, 0, 0.5); }
 .leaderboard-item.rank-1 { background: rgba(212, 175, 55, 0.25); border: 1.5px solid #d4af37; color: #ffeb99; font-weight: bold; }
 .leaderboard-item.rank-2 { background: rgba(192, 192, 192, 0.2); border: 1.5px solid #c0c0c0; color: #fff; }
 .leaderboard-item.rank-3 { background: rgba(205, 127, 50, 0.2); border: 1.5px solid #cd7f32; color: #e6a880; }
-
-.plat-badge {
-    font-size: 0.75em;
-    background: #e0e7ff;
-    color: #000;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-weight: bold;
-}
+.plat-badge { font-size: 0.75em; background: #e0e7ff; color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
 
 /* =========================================================================
-   9. 📱 ADAPTÍVNE MEDIA QUERIES PRE TABLETY A MOBILY
+   [SEKCIA 8 - CSS] ADAPTÍVNE MEDIA QUERIES (TABLETY A MOBILY)
    ========================================================================= */
 @media (max-width: 1024px) {
     .karta { width: 140px; height: 220px; }
@@ -849,3 +244,4 @@ body {
     .player-header { padding: 4px 10px; }
     .score-badge { font-size: 1.2em; padding: 2px 10px; }
 }
+</style>
