@@ -1,5 +1,5 @@
 // =====================================================================
-// RODINNÁ HRA - HOME WARS (JAVASCRIPT ENGINE - ČASŤ 1/2)
+// RODINNÁ HRA - HOME WARS (JAVASCRIPT ENGINE)
 // =====================================================================
 
 // =====================================================================
@@ -39,7 +39,7 @@ var MASTER_REGISTRY = {
     "Kornélia": { row: 2, p: 3, isPlatinum: true, img: "Img/kornelia.webp", desc: "Tichá bylinkárka z okraja lesa.", abilityDesc: "🏥 <strong>Oživenie:</strong> Vráti do hry tebou vybranú spálenú kartu z archívu ohňa." },
     "Katy": { row: 1, p: 6, isPlatinum: true, img: "Img/katy.webp", desc: "Kráľovná výhier, ktorá prináša na stôl rovnováhu.", abilityDesc: "💖 <strong>Pomoc:</strong> Pridáva +2 body tvojim kartám a uberá -2 body všetkým súperovým kartám." },
     "Krčmár Boris": { row: 1, p: 4, isPlatinum: true, isSpy: true, img: "Img/krcmar-boris.webp", desc: "Hostinský, u ktorého sa zbiehajú všetky klebety.", abilityDesc: "🕵️ <strong>Špión:</strong> Vykladá sa súperovi do 1. radu a potiahne ti 2 nové karty." },
-    "Marek": { row: 1, p: 4, isPlatinum: true, img: "Img/marek.webp", desc: "Zádumčivý filozof analyzujúci súperove ťahy.", abilityDesc: "🧹 <strong>Filozof:</strong> Cielene zmatie náhodne vybranú kartu súpera a pošle ju do ohňa." },
+    "Marek": { row: 1, p: 4, isPlatinum: true, img: "Img/marek.webp", desc: "Zádumčivý filozof analyzujúci súperove ťahy.", abilityDesc: "🔥 <strong>Filozof:</strong> Automaticky spáli najsilnejšiu kartu (alebo karty pri zhode) na celom stole (okrem seba a Oli)." },
     "Kráľovský Šampión": { row: 1, p: 8, isTournamentUnique: true, img: "Img/neviditelny-mario.webp", desc: "Extrémne vzácna turnajová trofej. V kráľovstve existuje len jeden kus.", abilityDesc: "👑 <strong>Turnajový Unikát:</strong> V Dielni sa nedá zničiť, ková sa výhradne s Prízrakmi a v rade sám aktivuje plný setový bonus +6b!" },
     "Prízrak": { row: 0, p: 0, isPrizrak: true, img: "Img/prizrak.webp", desc: "Tajuplná esencia z pradávnych čias.", abilityDesc: "👻 <strong>Kováčsky Prízrak:</strong> Neslúži na boj. V Dielni nahrádza akúkoľvek kartu pri kovaní (od F po A)." },
     
@@ -87,13 +87,15 @@ var CLASS_CONFIG = {
 
 var p1_pouzite_predmety = [];
 
-var FORGE_RATES = { "F->E": { rate: 1.00, from: "F", nextClass: "E", reqMat: "Koža", reqMatCount: 3, coinFee: 10 }, "E->D": { rate: 0.90, from: "E", nextClass: "D", reqMat: "Drevo", reqMatCount: 3, coinFee: 25 }, "D->C": { rate: 0.80, from: "D", nextClass: "C", reqMat: "Kov", reqMatCount: 3, coinFee: 50 }, "C->B": { rate: 0.70, from: "C", nextClass: "B", reqMat: "Bronz", reqMatCount: 3, coinFee: 100 }, "B->A": { rate: 0.55, from: "B", nextClass: "A", reqMat: "Striebro", reqMatCount: 3, coinFee: 250 }, "A->S": { rate: 0.40, from: "A", nextClass: "S", reqMat: "Zlato", reqMatCount: 3, coinFee: 500 } };
+var FORGE_RATES = { 
+    "F->E": { rate: 1.00, from: "F", nextClass: "E", reqMat: "Koža", reqMatCount: 3, coinFee: 10 }, 
+    "E->D": { rate: 0.90, from: "E", nextClass: "D", reqMat: "Drevo", reqMatCount: 3, coinFee: 25 }, 
+    "D->C": { rate: 0.80, from: "D", nextClass: "C", reqMat: "Kov", reqMatCount: 3, coinFee: 50 }, 
+    "C->B": { rate: 0.70, from: "C", nextClass: "B", reqMat: "Bronz", reqMatCount: 3, coinFee: 100 }, 
+    "B->A": { rate: 0.55, from: "B", nextClass: "A", reqMat: "Striebro", reqMatCount: 3, coinFee: 250 }, 
+    "A->S": { rate: 0.40, from: "A", nextClass: "S", reqMat: "Zlato", reqMatCount: 3, coinFee: 500 } 
+};
 
-var p1_pouzite_predmety = [];
-
-var FORGE_RATES = { "F->E": { rate: 1.00, from: "F", nextClass: "E", reqMat: "Koža", reqMatCount: 3, coinFee: 10 }, 
-// ... a tu pokračuje tvoj pôvodný kód ...
-var FORGE_RATES = { "F->E": { rate: 1.00, from: "F", nextClass: "E", reqMat: "Koža", reqMatCount: 3, coinFee: 10 }, "E->D": { rate: 0.90, from: "E", nextClass: "D", reqMat: "Drevo", reqMatCount: 3, coinFee: 25 }, "D->C": { rate: 0.80, from: "D", nextClass: "C", reqMat: "Kov", reqMatCount: 3, coinFee: 50 }, "C->B": { rate: 0.70, from: "C", nextClass: "B", reqMat: "Bronz", reqMatCount: 3, coinFee: 100 }, "B->A": { rate: 0.55, from: "B", nextClass: "A", reqMat: "Striebro", reqMatCount: 3, coinFee: 250 }, "A->S": { rate: 0.40, from: "A", nextClass: "S", reqMat: "Zlato", reqMatCount: 3, coinFee: 500 } };
 var STATNY_SKLAD_CENNIK = { "Koža": { price: 8, img: "Img/koza.webp" }, "Drevo": { price: 18, img: "Img/drevo.webp" }, "Kov": { price: 38, img: "Img/zelezo.webp" }, "Bronz": { price: 75, img: "Img/bronz.webp" }, "Striebro": { price: 180, img: "Img/striebro.webp" }, "Zlato": { price: 80, img: "Img/zlato.webp" } };
 var PERGAMENY_CONFIG = { "none": { name: "Bez Zvitku", goldCost: 0, rateBonus: 0.00, saveCard: false }, "basic": { name: "Základný Zvitok", goldCost: 100, rateBonus: 0.10, saveCard: true }, "advanced": { name: "Pokročilý Zvitok", goldCost: 500, rateBonus: 0.25, saveCard: true }, "legendary": { name: "Legendárny Zvitok", goldCost: 1000, rateBonus: 0.55, saveCard: true } };
 
@@ -142,7 +144,7 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
     if (livePwr !== "none" && !reg.isSpell && !reg.isItem && !reg.isPrizrak) html += "<div class='karta-kruh karta-kruh-pwr'>" + livePwr + "</div>";
     var renderCls = reg.isPlatinum ? "PLATINUM" : (reg.isPrizrak ? "PRIZRAK-" + cls : cls);
     html += "<div class='karta-kruh karta-kruh-cls cls-" + renderCls + "'>" + (reg.isPlatinum ? "P" : cls) + "</div>";
-    html += "<button class='karta-btn-inspect' title='Zväčšiť kartu' onclick=\"event.stopPropagation(); otvorDetailKarty('" + meno.replace(/'/g, "\\'") + "', '" + cls + "');\">🔍</button>";
+    html += "<button class='karta-btn-inspect' title='Zväčšiť kartu' onclick=\"event.stopPropagation(); otvorDetailKarty('" + meno.replace(/'/g, "\\'") + "');\">🔍</button>";
     html += "<div class='karta-foto' style=\"background-image: url('" + encodeURI(imgPath) + "');\"></div>";
     html += "<div class='karta-stitok-spodok'><div class='karta-nazov'>" + cisteMeno + "</div></div>";
     return html;
@@ -155,6 +157,7 @@ function automatickyDoplnitDefaultZostavu(showNotify) {
     if (showNotify !== false) ukazOznamenie("⚡ PREDVOLENÁ ZOSTRAVA", "Zostava bola automaticky naplnená 25 základnými kartami!");
     vygenerujDeckbuilder(); aktualizujVsetkyStickyWallety();
 }
+
 function aktualizujVsetkyStickyWallety() {
     var walletIds = ["deckbuilder-sticky-wallet", "dielna-sticky-wallet", "obchod-sticky-wallet"];
     var html = '<div class="wallet-chip"><img src="Img/mince.webp" class="wallet-chip-img"> ' + inventar.mince + ' m</div>' +
@@ -167,16 +170,11 @@ function aktualizujVsetkyStickyWallety() {
                '<div class="wallet-chip"><img src="Img/prizrak.webp" class="wallet-chip-img"> ' + (inventar.prizraky["F"]||0) + 'x F-Prízrak</div>';
     walletIds.forEach(function(id) { var el = document.getElementById(id); if (el) el.innerHTML = html; });
     vykresliRozbalovaciBatoh();
-    
-    // ⚡ AUTOMATICKÝ AUTO-SAVE (Simulácia Cloudu)
-    // Akákoľvek zmena inventára automaticky spustí globálne uloženie postupu!
     ulozitZostavuDoStorage();
 }
 
-// CLOUD SIMULATION: Načíta kompletne celý inventár (Karty, Mince, Suroviny, Zostavu)
 function nacitatUlozenuZostavu() {
     try { 
-        // Zmenili sme názov uložiska na "homewars_cloud_save_v1"
         var ulozene = localStorage.getItem("homewars_cloud_save_v1"); 
         if (ulozene) {
             var data = JSON.parse(ulozene);
@@ -193,12 +191,10 @@ function nacitatUlozenuZostavu() {
     }
 }
 
-// CLOUD SIMULATION: Uloží kompletne celý inventár do jedného balíka
 function ulozitZostavuDoStorage() { 
-    try { 
-        localStorage.setItem("homewars_cloud_save_v1", JSON.stringify(inventar)); 
-    } catch(e) { console.error("Chyba ukladania do Cloudu:", e); } 
+    try { localStorage.setItem("homewars_cloud_save_v1", JSON.stringify(inventar)); } catch(e) { console.error("Chyba ukladania:", e); } 
 }
+
 function prepniKartuVZostave(kartaMeno) {
     var idx = inventar.zostava.indexOf(kartaMeno);
     if (idx !== -1) inventar.zostava.splice(idx, 1); else inventar.zostava.push(kartaMeno);
@@ -217,7 +213,6 @@ function vygenerujDeckbuilder() {
         var isVBaliku = (inventar.zostava.indexOf(t) !== -1);
         var wrap = document.createElement("div"); wrap.className = "karta-karta-wrapper " + (isVBaliku ? "deck-active-card" : "deck-inactive-card"); wrap.onclick = function() { prepniKartuVZostave(t); };
         
-        // OPRAVA: Správna logika pre najlepšiu triedu v Deckbuilderi!
         var cardCls = "F";
         if (inventar.karty[t] && typeof inventar.karty[t].repliky === "object") {
             if (inventar.karty[t].repliky["S"] > 0) cardCls = "S";
@@ -301,16 +296,12 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
         });
         extraLowPwrCoins = Math.min(125, extraLowPwrCoins);
     }
-    // ⚡ VÝPOČET FARMÁRSKYCH BONUSOV Z PREDMETOV
+    
     var itemBonusCoins = 0;
     if (typ === "vitaz") {
         p1_pouzite_predmety.forEach(function(cls) {
             var drop = CLASS_CONFIG[cls].itemDrop;
-            if (drop) {
-                itemBonusCoins += drop.m;
-                goldEarned += drop.g;
-                prizrakCount += drop.p;
-            }
+            if (drop) { itemBonusCoins += drop.m; goldEarned += drop.g; prizrakCount += drop.p; }
         });
         coinsEarned += itemBonusCoins;
     }
@@ -353,7 +344,6 @@ function aktualizujPanelDielne() {
     var devBtnDiv = document.createElement("div"); devBtnDiv.style.gridColumn = "1/-1"; devBtnDiv.style.marginBottom = "15px";
     devBtnDiv.innerHTML = '<button onclick="devPridatSurovinyACheaty()" style="background:#8b5cf6; color:#fff; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; cursor:pointer; width:100%;">⚡ DEV CHEAT: Pridať Suroviny</button>'; e.appendChild(devBtnDiv);
 
-    // Zistenie najvyššieho Prízraku
     var topPrizrak = "F";
     ["S", "A", "B", "C", "D", "E"].forEach(function(c) { if (inventar.prizraky[c] > 0) topPrizrak = c; });
 
@@ -363,7 +353,6 @@ function aktualizujPanelDielne() {
     var prizrakCountsText = 'F:' + (inventar.prizraky["F"]||0) + ' | E:' + (inventar.prizraky["E"]||0) + ' | D:' + (inventar.prizraky["D"]||0) + ' | C:' + (inventar.prizraky["C"]||0) + ' | B:' + (inventar.prizraky["B"]||0) + ' | A:' + (inventar.prizraky["A"]||0);
     prizrakWrapper.appendChild(prizrakCardDiv); var prizrakActions = document.createElement("div"); prizrakActions.style.width = "100%";
     
-    // OPRAVA GRAMATIKY "Vykuť Prízrak"
     prizrakActions.innerHTML = '<div style="font-size:0.75em; margin:6px 0; color:#a855f7; text-align:center;">Prízrak Zásoby: <strong>' + prizrakCountsText + '</strong></div><select id="step-select-Prizrak" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="F->E">F ➔ E (3xF | 10m | 3 oz Koža)</option><option value="E->D">E ➔ D (3xE | 25m | 3 oz Drevo)</option><option value="D->C">D ➔ C (3xD | 50m | 3 oz Kov)</option><option value="C->B">C ➔ B (3xC | 100m | 3 oz Bronz)</option><option value="B->A">B ➔ A (3xB | 250m | 3 oz Striebro)</option></select><button class="btn-forge" style="background:#8b5cf6;" onclick="vylepsiKartuVoForge(\'Prízrak\', document.getElementById(\'step-select-Prizrak\').value, \'none\')">🔨 Vykuť Prízrak</button>';
     prizrakWrapper.appendChild(prizrakActions); e.appendChild(prizrakWrapper);
 
@@ -371,7 +360,6 @@ function aktualizujPanelDielne() {
         var reg = MASTER_REGISTRY[t]; if (reg.isPlatinum || reg.isSpell || reg.isPrizrak) return;
         if (!inventar.karty[t]) inventar.karty[t] = { repliky: { "F": 1 }, aktivnaTrieda: "F" }; var cardData = inventar.karty[t];
         
-        // Zistenie najvyššej vlastnenej triedy pre náhľad
         var topClass = "F";
         ["S", "A", "B", "C", "D", "E"].forEach(function(c) { if (cardData.repliky[c] > 0) topClass = c; });
 
@@ -503,9 +491,6 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
         overlay.remove(); obnovitHudbuPoVideu(); aktualizujPanelDielne(); aktualizujVsetkyStickyWallety();
     };
 }
-// =====================================================================
-// RODINNÁ HRA - HOME WARS (JAVASCRIPT ENGINE - ČASŤ 2/2)
-// =====================================================================
 
 // =====================================================================
 // [SEKCIA 4 - JS] TRHOVISKO, PREDAJ A SKLAD
@@ -524,17 +509,15 @@ function vygenerujSimulaciuTrhu() {
     var e = document.getElementById("obchod-regaly-zoznam"); if (!e) return; e.innerHTML = ""; aktualizujVsetkyStickyWallety();
 
     if (aktualnaZalozkaTrhu === "trh") {
-        // TOTO SME PRIDALI: Aby aukcia náhodne menila položky pre lepšiu simuláciu
         var aukcnaKarta = (Math.random() > 0.5) ? "Neviditeľný Mário" : "Kráľovský Šampión";
         var aukcnaTrieda = (aukcnaKarta === "Kráľovský Šampión") ? "A" : "E";
         var reg = getRegistryCard(aukcnaKarta) || MASTER_REGISTRY["Neviditeľný Mário"]; 
         var realPwr = getRealPower({ n: aukcnaKarta, cls: aukcnaTrieda });
         
-        // VÝPOČET TRHOVEJ HODNOTY (Tu sme zapracovali ten 10x násobok pre Unikát!)
-        trhovaPriemernaCenaEMA = 210; // Základ pre E-class karty
+        trhovaPriemernaCenaEMA = 210; 
         if (aukcnaTrieda === "A") trhovaPriemernaCenaEMA = 850;
-        if (reg.isTournamentUnique) { trhovaPriemernaCenaEMA = trhovaPriemernaCenaEMA * 10; } // Unikát = x10
-        aktualnyAnonymnyStrop = Math.floor(trhovaPriemernaCenaEMA * 1.2); // Strop je vždy o 20% vyšší ako EMA
+        if (reg.isTournamentUnique) { trhovaPriemernaCenaEMA = trhovaPriemernaCenaEMA * 10; } 
+        aktualnyAnonymnyStrop = Math.floor(trhovaPriemernaCenaEMA * 1.2); 
 
         var emaTypLabel = (pocetRealnychPredajovEMA >= 3) ? '<span style="color:#10b981; font-size:0.8em;">(🛒 Reálna trhová cena)</span>' : '<span style="color:#f59e0b; font-size:0.8em;">(⚙️ Vypočítaná obstarávacia cena)</span>';
         var textKusov = (aukcnaKarta === "Kráľovský Šampión") ? "1x Unikát" : "10x Balíček";
@@ -765,7 +748,7 @@ function spustitZapasProtiAI() {
     jeSingleplayer = true; inicializujNovyZapas(); 
 }
 
-var cisloKola = 1; // NOVA PREMENNA
+var cisloKola = 1;
 
 function inicializujNovyZapas() {
     p1_pouzite_predmety = [];
@@ -774,7 +757,6 @@ function inicializujNovyZapas() {
     r1 = 0; r2 = 0; sc1 = 0; sc2 = 0; p1Pass = false; p2Pass = false;
     p1MulliganRound1Bonus = 0; p2MulliganRound1Bonus = 0; blokujVykladanie = false;
     
-    // HOD MINCOU NA ZAČIATKU
     cisloKola = 1;
     aktualnyHrac = (Math.random() < 0.5) ? 1 : 2; 
 
@@ -807,12 +789,11 @@ function potvrditMulliganAkciu(chceVymenu) {
         p2MulliganRound1Bonus = 5; ukazOznamenie("🎲 MULLIGAN DOKONČENÝ", "Vymenil si " + pocetVymen + " kariet! Súper získal +5b náskok v 1. kole.");
     } else { ukazOznamenie("✅ RUKA POTVRDENÁ", "Ponechal si si pôvodnú ruku."); }
 
-    // ASYNCHRÓNNY FIX - Dáme hre 400ms na nádych
     if (jeSingleplayer) {
         setTimeout(function() {
             vyhodnotAIMulligan();
             vykresliHraciuPlochu();
-            setTimeout(spravujAI, 800); // Necháme bota hrať, ak náhodou začína on
+            setTimeout(spravujAI, 800);
         }, 400);
     } else {
         vykresliHraciuPlochu();
@@ -883,21 +864,20 @@ function vylozitKartuZRuky(pNum, cardIndex) {
     if (reg.isSpy) {
         oppPlayed.push(card); 
         tahatNoveKartyZBalicka(pNum, 2);
-        // Zmazané oznámenie
-        vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); return;
     } else if (reg.isSpell) {
         if (card.n === "Šicko v porádku") { neutralne_vplyvy = []; odhodene_karty_kola.push(card); } 
         else { neutralne_vplyvy.push(card.n); }
-        vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); return;
     } else {
-      myPlayed.push(card);
-        // SLEDOVAČ PREDMETOV PRE EKONOMICKÉ BONUSY:
+        myPlayed.push(card);
         if (reg.isItem && pNum === 1) { p1_pouzite_predmety.push(card.cls || "F"); }
+    }
     vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
 }
+
 function pokracujPoVylozeni(pNum) {
     prepniHracov();
 }
+
 function vykonajAutoSpalenie(pôvodcaMeno) {
     var vsetkyKartyStola = [];
     p1_played_cards.forEach(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli") vsetkyKartyStola.push(c); });
@@ -915,21 +895,6 @@ function vykonajCieleneSpalenieMarekom(pNum) {
     var targetable = oppCards.filter(function(c) { return c.n !== "Oli"; }); if (targetable.length === 0) return;
     var victim = targetable[Math.floor(Math.random() * targetable.length)]; var vIdx = oppCards.indexOf(victim);
     if (vIdx !== -1) { oppCards.splice(vIdx, 1); oppSpalene.push(victim); }
-}
-
-function potvrdOzivenieKarty(pNum, index) {
-    var arch = (pNum === 1) ? p1_spalene : p2_spalene;
-    var myPlayed = (pNum === 1) ? p1_played_cards : p2_played_cards;
-    var oppPlayed = (pNum === 1) ? p2_played_cards : p1_played_cards;
-    var oživenaKarta = arch.splice(index, 1)[0];
-    
-    if (oživenaKarta) {
-        var reg = getRegistryCard(oživenaKarta.n);
-        // Ak oživí Špióna, ide na súperovu stranu a oživovateľ si potiahne 2 karty!
-        if (reg.isSpy) { oppPlayed.push(oživenaKarta); tahatNoveKartyZBalicka(pNum, 2); } 
-        else { myPlayed.push(oživenaKarta); }
-    }
-    vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
 }
 
 function otvorSpalenisko(pNum, isReviving) {
@@ -969,7 +934,6 @@ function otvorSpalenisko(pNum, isReviving) {
 
     modal.style.display = "flex";
 
-    // Ak oživuje Bot, vyberie si najsilnejšiu kartu automaticky po sekunde
     if (isReviving && pNum === 2 && jeSingleplayer) {
         setTimeout(function() {
             var bestIdx = 0; var maxPwr = -1;
@@ -983,10 +947,13 @@ function otvorSpalenisko(pNum, isReviving) {
 function potvrdOzivenieKarty(pNum, index) {
     var arch = (pNum === 1) ? p1_spalene : p2_spalene;
     var myPlayed = (pNum === 1) ? p1_played_cards : p2_played_cards;
+    var oppPlayed = (pNum === 1) ? p2_played_cards : p1_played_cards;
     var oživenaKarta = arch.splice(index, 1)[0];
     
     if (oživenaKarta) {
-        myPlayed.push(oživenaKarta);
+        var reg = getRegistryCard(oživenaKarta.n);
+        if (reg.isSpy) { oppPlayed.push(oživenaKarta); tahatNoveKartyZBalicka(pNum, 2); } 
+        else { myPlayed.push(oživenaKarta); }
         ukazOznamenie("🕊️ OŽIVENIE Z OHŇA!", "Z plameňov sa vrátila karta <strong>" + oživenaKarta.n + "</strong>!", function() {
             vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
         });
@@ -1021,16 +988,10 @@ function spravujAI() { if (jeSingleplayer && aktualnyHrac === 2 && !p2Pass && !b
 function vykonajTachAI() {
     if (p2Pass || blokujVykladanie) return;
     
-    // 1. PRAVIDLO: Ak si ty už passol a Bot vyhráva, Bot okamžite passne (nebude plytvať).
     if (p1Pass && sc2 > sc1) { hracPassuje(2); return; }
-    
-    // 2. PRAVIDLO: Šetrenie kariet. Ak má Bot extrémny náskok (napr. o 20 bodov) a má menej ako 10 kariet, passne sám od seba!
     if (sc2 > (sc1 + 20) && p2_draft_hand.length < 10) { hracPassuje(2); return; }
-    
-    // 3. PRAVIDLO: Ak už nemá žiadne karty, passne.
     if (!p2_draft_hand || p2_draft_hand.length === 0) { hracPassuje(2); return; }
     
-    // Ak žiadne z pravidiel na passnutie neplatí, hodí náhodnú kartu
     var chosenIndex = Math.floor(Math.random() * p2_draft_hand.length); 
     vylozitKartuZRuky(2, chosenIndex);
 }
@@ -1056,11 +1017,14 @@ function pripravNoveKolo() {
     p1Pass = false; p2Pass = false; blokujVykladanie = false;
     
     cisloKola++;
-    if (cisloKola === 2) aktualnyHrac = 2; // V druhom kole začína P2
-    else if (cisloKola === 3) aktualnyHrac = 1; // V treťom kole opäť P1
+    if (cisloKola === 2) aktualnyHrac = 2;
+    else if (cisloKola === 3) aktualnyHrac = 1;
+    
+    tahatNoveKartyZBalicka(1, 2); 
+    tahatNoveKartyZBalicka(2, 2);
     
     vykresliHraciuPlochu();
-    setTimeout(spravujAI, 1000); // 1 sekunda pauza, kým bot po reštarte stola niečo urobí
+    setTimeout(spravujAI, 1000);
 }
 
 // =====================================================================
@@ -1119,7 +1083,6 @@ function otvorDetailKarty(n) {
     var reg = getRegistryCard(n); if (!reg) return;
     var modal = document.getElementById("card-detail-modal");
     if (!modal) {
-        // Ak neexistuje, vytvoríme ho! (Oprava padania náhľadu)
         modal = document.createElement("div");
         modal.id = "card-detail-modal";
         modal.className = "card-modal";
@@ -1128,7 +1091,6 @@ function otvorDetailKarty(n) {
         document.body.appendChild(modal);
     }
 
-    // OPRAVA: Správna logika pre najlepšiu triedu v Náhľade!
     var topClass = "F";
     if (inventar && inventar.karty && inventar.karty[n] && typeof inventar.karty[n].repliky === "object") {
         if (inventar.karty[n].repliky["S"] > 0) topClass = "S";
@@ -1158,20 +1120,17 @@ function otvorDetailKarty(n) {
 
 function ukazOznamenie(titulok, sprava, callback) {
     var overlay = document.createElement("div"); overlay.className = "custom-notify-overlay";
-    // Odstránili sme id="notify-confirm-btn", už ho nebudeme potrebovať
     overlay.innerHTML = '<div class="custom-notify-box"><h3 class="custom-notify-title">' + titulok + '</h3><div class="custom-notify-msg">' + sprava + '</div><button class="custom-notify-btn">Rozumiem</button></div>';
     document.body.appendChild(overlay);
-    
-    // Tlačidlo nájdeme presne vo vnútri aktuálneho okna
     var btn = overlay.querySelector(".custom-notify-btn");
     btn.onclick = function() { overlay.remove(); if (typeof callback === "function") callback(); };
 }
+
 function zobraziťObrazovku(idObrazovky) {
     var obrazovky = ["hlavne-menu", "hracia-plocha", "dielna-modal", "obchod-modal", "navod-modal", "deckbuilder-modal", "stats-modal"];
     obrazovky.forEach(function(id) { 
         var el = document.getElementById(id); 
         if (el) {
-            // OPRAVA: hracia-plocha musí byť "flex", inak sa úplne rozbije dizajn!
             el.style.display = (id === idObrazovky) ? ((id.includes("modal") || id === "hracia-plocha") ? "flex" : "block") : ((!id.includes("modal")) ? "none" : el.style.display);
         }
     });
@@ -1209,61 +1168,25 @@ document.addEventListener("DOMContentLoaded", function() {
     aktualizujPanelDielne(); vygenerujSimulaciuTrhu(); aktualizujVsetkyStickyWallety();
 });
 
-window.spustitZapasLokálnePVP = spustitZapasLokálnePVP; window.zobraziťMenuAI = zobraziťMenuAI; window.spustitZapasProtiAI = spustitZapasProtiAI; window.otvoriťObchod = otvoriťObchod; window.otvoriťDielňu = otvoriťDielňu; window.otvoriťDeckbuilder = otvoriťDeckbuilder; window.otvoriťStatistiky = otvoriťStatistiky; window.otvoriťNavodHry = otvoriťNavodHry; window.posunStraneKnihy = posunStraneKnihy; window.vylepsiKartuVoForge = vylepsiKartuVoForge; window.devPridatSurovinyACheaty = devPridatSurovinyACheaty; window.zatvoritTruhluAOpustit = zatvoritTruhluAOpustit; window.hracPassuje = hracPassuje; window.vylozitKartuZRuky = vylozitKartuZRuky; window.zobraziťObrazovku = zobraziťObrazovku; window.prepniZvuk = prepniZvuk; window.upravHlasitost = upravHlasitost; window.otvorTruhluVitaza = otvorTruhluVitaza; window.otvorTruhluUcastnika = otvorTruhluUcastnika; window.spustitHudbuPoPrvomKliknuti = spustitHudbuPoPrvomKliknuti; window.otvorDetailKarty = otvorDetailKarty; window.ukazOznamenie = ukazOznamenie; window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu; window.anonymnePrihoditSumu = anonymnePrihoditSumu; window.okamziteOdkupitKartu = okamziteOdkupitKartu; window.testSimulaciaPrihodeniaBota = testSimulaciaPrihodeniaBota; window.testSimulaciaRychlychPredajov = testSimulaciaRychlychPredajov; window.testSimulaciaInaktivity = testSimulaciaInaktivity; window.testSimulaciaPridatBota = testSimulaciaPridatBota; window.testSimulaciaGlobalnyOznam = testSimulaciaGlobalnyOznam; window.vykresliGridStatistik = vykresliGridStatistik; window.aktualizujPanelDielne = aktualizujPanelDielne; window.automatickyDoplnitDefaultZostavu = automatickyDoplnitDefaultZostavu; window.prepniKartuVZostave = prepniKartuVZostave; window.prepniVyberMulliganKarty = prepniVyberMulliganKarty; window.potvrditMulliganAkciu = potvrditMulliganAkciu; window.prepniZalozkuTrhu = prepniZalozkuTrhu; window.kupitSurovinuZoStatnehoSkladu = kupitSurovinuZoStatnehoSkladu; window.aktualizujDostupneTriedyPrePredaj = aktualizujDostupneTriedyPrePredaj; window.aktualizujMaxKusovPrePredaj = aktualizujMaxKusovPrePredaj; window.odoslatPredajnyFormular = odoslatPredajnyFormular;
-function otvorDetailKarty(n) {
-    var reg = getRegistryCard(n); if (!reg) return;
-    var modal = document.getElementById("card-detail-modal");
-    if (!modal) return;
-
-    // 1. Zistíme najlepšiu triedu karty, ktorú vlastníš, aby sa v náhľade ukázala tá najkrajšia
-    var topClass = "F";
-    if (inventar && inventar.karty && inventar.karty[n]) {
-        ["S", "A", "B", "C", "D", "E"].forEach(function(c) { if (inventar.karty[n].repliky[c] > 0) topClass = c; });
-    } else if (reg.isPlatinum) { topClass = "PLATINUM"; } else if (reg.isPrizrak) { topClass = "F"; }
-
-    // 2. Kompletne prebudujeme vnútro okna, aby sme mali istotu, že sa texty zobrazia správne
-    var realPwr = getRealPower({ n: n, cls: topClass });
-    var htmlKarty = '<div class="karta cls-' + topClass + '" style="transform: scale(1.1); margin: 20px auto; position:relative; pointer-events:none;">' + vytvorHTMLKarty(n, realPwr, topClass, reg.row, reg.p) + '</div>';
-    
-    var textPribehu = reg.desc ? '<div style="font-style:italic; color:#ddd; margin-bottom:15px; font-size:1.1em; line-height:1.4;">"' + reg.desc + '"</div>' : '';
-    var textSchopnosti = reg.abilityDesc ? '<div style="color:#ffcc00; margin-bottom:15px; font-size:1em; padding:10px; background:rgba(0,0,0,0.6); border:1px solid #d4af37; border-radius:6px;">' + reg.abilityDesc + '</div>' : '';
-    var textStats = '<div style="color:#aaa; font-size:0.9em; border-top: 1px solid #444; padding-top: 10px;"><strong>Základná Sila:</strong> ' + reg.p + ' | <strong>Rad:</strong> ' + reg.row + '</div>';
-
-    modal.innerHTML = '<div class="modal-content modal-bg-dedina" style="max-width: 450px; text-align: center; position: relative;">' +
-                      '<span class="card-modal-close" onclick="document.getElementById(\'card-detail-modal\').style.display=\'none\'">&times;</span>' +
-                      '<h2 style="color: #d4af37; margin-bottom: 10px;">👑 KRÁĽOVSKÝ NÁHĽAD</h2>' +
-                      htmlKarty +
-                      '<div style="padding: 10px;">' + textPribehu + textSchopnosti + textStats + '</div>' +
-                      '</div>';
-
-    modal.style.display = "flex";
-}
-// =====================================================================
-// FUNKCIA NA ŤAHANIE KARIET POČAS ZÁPASU (Napríklad pre Špiónov)
-// =====================================================================
 function tahatNoveKartyZBalicka(pNum, pocetKariet) {
     var deck = (pNum === 1) ? p1_active_deck : p2_active_deck;
     var hand = (pNum === 1) ? p1_draft_hand : p2_draft_hand;
     var potiahnute = 0;
 
     for (var i = 0; i < pocetKariet; i++) {
-        // Skontrolujeme, či ešte vôbec máme v balíčku nejaké karty
         if (deck.length > 0) {
             var cardName = deck.pop();
-            var cardCls = "F"; // Predvolená trieda
-            
-            // Ak ťaháš ty (Hráč 1), zistíme, akú máš na túto kartu najlepšiu aktívnu triedu v inventári
+            var cardCls = "F"; 
             if (pNum === 1 && inventar.karty[cardName] && inventar.karty[cardName].aktivnaTrieda) {
                 cardCls = inventar.karty[cardName].aktivnaTrieda;
             }
-            
             hand.push({ n: cardName, cls: cardCls });
             potiahnute++;
         }
     }
-
-    // Ak si ťahal ty, ukážeme ti o tom pekné oznámenie
     if (pNum === 1 && potiahnute > 0) {
-        ukazOznamenie("🃏 ŤAHANIE KARIET", "Vďaka Špiónovi si si potiahol " + potiahnute + " nové karty z balíčka!");
+        ukazOznamenie("🃏 ŤAHANIE KARIET", "Potiahol si si " + potiahnute + " nové karty z balíčka!");
     }
 }
+
+window.spustitZapasLokálnePVP = spustitZapasLokálnePVP; window.zobraziťMenuAI = zobraziťMenuAI; window.spustitZapasProtiAI = spustitZapasProtiAI; window.otvoriťObchod = otvoriťObchod; window.otvoriťDielňu = otvoriťDielňu; window.otvoriťDeckbuilder = otvoriťDeckbuilder; window.otvoriťStatistiky = otvoriťStatistiky; window.otvoriťNavodHry = otvoriťNavodHry; window.posunStraneKnihy = posunStraneKnihy; window.vylepsiKartuVoForge = vylepsiKartuVoForge; window.devPridatSurovinyACheaty = devPridatSurovinyACheaty; window.zatvoritTruhluAOpustit = zatvoritTruhluAOpustit; window.hracPassuje = hracPassuje; window.vylozitKartuZRuky = vylozitKartuZRuky; window.zobraziťObrazovku = zobraziťObrazovku; window.prepniZvuk = prepniZvuk; window.upravHlasitost = upravHlasitost; window.otvorTruhluVitaza = otvorTruhluVitaza; window.otvorTruhluUcastnika = otvorTruhluUcastnika; window.spustitHudbuPoPrvomKliknuti = spustitHudbuPoPrvomKliknuti; window.otvorDetailKarty = otvorDetailKarty; window.ukazOznamenie = ukazOznamenie; window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu; window.anonymnePrihoditSumu = anonymnePrihoditSumu; window.okamziteOdkupitKartu = okamziteOdkupitKartu; window.testSimulaciaPrihodeniaBota = testSimulaciaPrihodeniaBota; window.testSimulaciaRychlychPredajov = testSimulaciaRychlychPredajov; window.testSimulaciaInaktivity = testSimulaciaInaktivity; window.testSimulaciaPridatBota = testSimulaciaPridatBota; window.testSimulaciaGlobalnyOznam = testSimulaciaGlobalnyOznam; window.vykresliGridStatistik = vykresliGridStatistik; window.aktualizujPanelDielne = aktualizujPanelDielne; window.automatickyDoplnitDefaultZostavu = automatickyDoplnitDefaultZostavu; window.prepniKartuVZostave = prepniKartuVZostave; window.prepniVyberMulliganKarty = prepniVyberMulliganKarty; window.potvrditMulliganAkciu = potvrditMulliganAkciu; window.prepniZalozkuTrhu = prepniZalozkuTrhu; window.kupitSurovinuZoStatnehoSkladu = kupitSurovinuZoStatnehoSkladu; window.aktualizujDostupneTriedyPrePredaj = aktualizujDostupneTriedyPrePredaj; window.aktualizujMaxKusovPrePredaj = aktualizujMaxKusovPrePredaj; window.odoslatPredajnyFormular = odoslatPredajnyFormular;
