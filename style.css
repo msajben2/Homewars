@@ -272,13 +272,22 @@ body {
     height: 100vh;
     max-height: 100vh;
     overflow: hidden;
-    padding: 5px;
+    padding: 10px; /* Trochu viac miesta po okrajoch */
     display: flex;
     flex-direction: column;
-    justify-content: center; 
-    gap: 3px; 
+    justify-content: space-between; /* Roztiahne to pekne hore a dole */
 }
 
+/* TOTO BOLO TO STRATENÉ PRAVIDLO! */
+.board-half {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    flex: 1 !important; /* Prikáže policiam, aby rovnomerne vyplnili obrazovku */
+    gap: 8px !important; /* Medzera medzi radmi 1, 2 a 3 */
+}
+
+/* Opravená pozícia textov radov */
 .row-label {
     position: absolute !important;
     left: 10px !important;
@@ -287,11 +296,14 @@ body {
     z-index: 10 !important;
     font-size: clamp(0.7em, 1.5vh, 1.2em) !important; 
     color: #ffcc00 !important;
+    pointer-events: none;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 .board-row, .card-hand {
     min-height: 0 !important; 
-    height: 11vh !important; 
+    height: 11.5vh !important; /* Ešte o kúsok väčšie rady */
     padding: 2px 5px !important;
     display: flex !important;
     justify-content: center !important;
@@ -301,6 +313,8 @@ body {
     overflow-y: hidden !important;
     max-width: 100vw !important;
     position: relative !important; 
+    background: rgba(0,0,0,0.3) !important; /* Jemné podfarbenie radu pre lepší vizuál */
+    border-radius: 8px !important;
 }
 
 .board-row::-webkit-scrollbar, .card-hand::-webkit-scrollbar { height: 6px; }
@@ -311,8 +325,12 @@ body {
     height: 4vh !important; 
     min-height: 0 !important;
     padding: 2px 5px !important;
+    background: rgba(30, 20, 10, 0.7) !important;
+    border: 1.5px solid #d4af37 !important;
+    justify-content: center !important;
 }
 
+/* Karty vyplnia takmer celú výšku radu */
 .board-container .karta {
     height: 10.5vh !important; 
     width: calc(10.5vh * 0.636) !important; 
@@ -321,6 +339,7 @@ body {
     margin: 0 4px !important; 
 }
 
+/* Dynamické škálovanie krúžkov a textov v karte */
 .board-container .karta-kruh {
     width: 26% !important; 
     height: auto !important; 
@@ -346,6 +365,20 @@ body {
     padding: 1px 4px !important;
     font-size: clamp(0.4em, 1vh, 0.8em) !important;
     border-width: 1px !important;
+}
+
+/* OPRAVA: Plávajúce tlačidlo "Opustiť Zápas" pre hráča 1 */
+.btn-exit {
+    position: absolute !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    z-index: 9999 !important;
+    background: #3b2d1d !important;
+    color: #ffcc00 !important;
+    border: 2px solid #d4af37 !important;
+    padding: 10px 20px !important;
+    font-size: 1.1em !important;
+    box-shadow: 0 0 15px rgba(0,0,0,0.8) !important;
 }
 
 /* =========================================================================
