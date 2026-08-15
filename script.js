@@ -753,6 +753,12 @@ function vykresliHraciuPlochu() {
     vykresliRukuHraca(2); 
     aktualizujSpaleniskoUI(); 
 }
+function aktualizujKolaUI() {
+    var el1 = document.getElementById("p1-rounds");
+    var el2 = document.getElementById("p2-rounds");
+    if (el1) el1.innerText = "🔴".repeat(r1) || "⚪";
+    if (el2) el2.innerText = "🔴".repeat(r2) || "⚪";
+}
 
 function vylozitKartuZRuky(pNum, cardIndex) {
     if (blokujVykladanie || pNum !== aktualnyHrac) return;
