@@ -984,9 +984,19 @@ function spravujAI() { if (jeSingleplayer && aktualnyHrac === 2 && !p2Pass && !b
 
 function vykonajTachAI() {
     if (p2Pass || blokujVykladanie) return;
-    if (sc2 > sc1 && p1Pass) { hracPassuje(2); return; }
+    
+    // 1. PRAVIDLO: Ak si ty už passol a Bot vyhráva, Bot okamžite passne (nebude plytvať).
+    if (p1Pass && sc2 > sc1) { hracPassuje(2); return; }
+    
+    // 2. PRAVIDLO: Šetrenie kariet. Ak má Bot extrémny náskok (napr. o 20 bodov) a má menej ako 10 kariet, passne sám od seba!
+    if (sc2 > (sc1 + 20) && p2_draft_hand.length < 10) { hracPassuje(2); return; }
+    
+    // 3. PRAVIDLO: Ak už nemá žiadne karty, passne.
     if (!p2_draft_hand || p2_draft_hand.length === 0) { hracPassuje(2); return; }
-    var chosenIndex = Math.floor(Math.random() * p2_draft_hand.length); vylozitKartuZRuky(2, chosenIndex);
+    
+    // Ak žiadne z pravidiel na passnutie neplatí, hodí náhodnú kartu
+    var chosenIndex = Math.floor(Math.random() * p2_draft_hand.length); 
+    vylozitKartuZRuky(2, chosenIndex);
 }
 
 function skontrolujKoniecKola() {
