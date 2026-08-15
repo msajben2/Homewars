@@ -791,7 +791,11 @@ function vylozitKartuZRuky(pNum, cardIndex) {
     }
     vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
 }
-
+function pokracujPoVylozeni(pNum) {
+    if (pNum === 1) aktualnyHrac = 2; else aktualnyHrac = 1;
+    vykresliHraciuPlochu();
+    if (aktualnyHrac === 2 && jeSingleplayer && !p2Pass) { setTimeout(spravujAI, 800); }
+}
 function vykonajAutoSpalenie(pôvodcaMeno) {
     var vsetkyKartyStola = [];
     p1_played_cards.forEach(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli") vsetkyKartyStola.push(c); });
