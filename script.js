@@ -219,8 +219,6 @@ function vygenerujDeckbuilder() {
     });
     aktualizujVsetkyStickyWallety();
 }
-    aktualizujVsetkyStickyWallety();
-}
 
 function pripravBalicekPreZapas(pNum) {
     var pool = inventar.zostava.slice();
