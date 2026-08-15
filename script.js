@@ -131,6 +131,13 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
     return html;
 }
 
+function automatickyDoplnitDefaultZostavu(showNotify) {
+    var defaultPool = Object.keys(MASTER_REGISTRY).filter(function(k) { return !MASTER_REGISTRY[k].isPrizrak; });
+    inventar.zostava = defaultPool.slice(0, 25);
+    ulozitZostavuDoStorage();
+    if (showNotify !== false) ukazOznamenie("⚡ PREDVOLENÁ ZOSTRAVA", "Zostava bola automaticky naplnená 25 základnými kartami!");
+    vygenerujDeckbuilder(); aktualizujVsetkyStickyWallety();
+}
 function aktualizujVsetkyStickyWallety() {
     var walletIds = ["deckbuilder-sticky-wallet", "dielna-sticky-wallet", "obchod-sticky-wallet"];
     var html = '<div class="wallet-chip"><img src="Img/mince.webp" class="wallet-chip-img"> ' + inventar.mince + ' m</div>' +
@@ -143,23 +150,38 @@ function aktualizujVsetkyStickyWallety() {
                '<div class="wallet-chip"><img src="Img/prizrak.webp" class="wallet-chip-img"> ' + (inventar.prizraky["F"]||0) + 'x F-Prízrak</div>';
     walletIds.forEach(function(id) { var el = document.getElementById(id); if (el) el.innerHTML = html; });
     vykresliRozbalovaciBatoh();
-}
-
-function nacitatUlozenuZostavu() {
-    try { var ulozene = localStorage.getItem("homewars_deck_v1"); if (ulozene) inventar.zostava = JSON.parse(ulozene); } catch(e) {}
-    if (!Array.isArray(inventar.zostava) || inventar.zostava.length < 25) automatickyDoplnitDefaultZostavu(false);
-}
-
-function ulozitZostavuDoStorage() { try { localStorage.setItem("homewars_deck_v1", JSON.stringify(inventar.zostava)); } catch(e) {} }
-
-function automatickyDoplnitDefaultZostavu(showNotify) {
-    var defaultPool = Object.keys(MASTER_REGISTRY).filter(function(k) { return !MASTER_REGISTRY[k].isPrizrak; });
-    inventar.zostava = defaultPool.slice(0, 25);
+    
+    // ⚡ AUTOMATICKÝ AUTO-SAVE (Simulácia Cloudu)
+    // Akákoľvek zmena inventára automaticky spustí globálne uloženie postupu!
     ulozitZostavuDoStorage();
-    if (showNotify !== false) ukazOznamenie("⚡ PREDVOLENÁ ZOSTRAVA", "Zostava bola automaticky naplnená 25 základnými kartami!");
-    vygenerujDeckbuilder(); aktualizujVsetkyStickyWallety();
 }
 
+// CLOUD SIMULATION: Načíta kompletne celý inventár (Karty, Mince, Suroviny, Zostavu)
+function nacitatUlozenuZostavu() {
+    try { 
+        // Zmenili sme názov uložiska na "homewars_cloud_save_v1"
+        var ulozene = localStorage.getItem("homewars_cloud_save_v1"); 
+        if (ulozene) {
+            var data = JSON.parse(ulozene);
+            inventar.mince = data.mince !== undefined ? data.mince : 500;
+            inventar.suroviny = data.suroviny || { "Koža": 15, "Drevo": 10, "Kov": 5, "Bronz": 2, "Striebro": 1, "Zlato": 20 };
+            inventar.karty = data.karty || {};
+            inventar.prizraky = data.prizraky || { "F": 10, "E": 5, "D": 5, "C": 5, "B": 5, "A": 5 };
+            inventar.zostava = data.zostava || [];
+        }
+    } catch(e) { console.error("Chyba načítavania Cloudu:", e); }
+    
+    if (!Array.isArray(inventar.zostava) || inventar.zostava.length < 25) {
+        automatickyDoplnitDefaultZostavu(false);
+    }
+}
+
+// CLOUD SIMULATION: Uloží kompletne celý inventár do jedného balíka
+function ulozitZostavuDoStorage() { 
+    try { 
+        localStorage.setItem("homewars_cloud_save_v1", JSON.stringify(inventar)); 
+    } catch(e) { console.error("Chyba ukladania do Cloudu:", e); } 
+}
 function prepniKartuVZostave(kartaMeno) {
     var idx = inventar.zostava.indexOf(kartaMeno);
     if (idx !== -1) inventar.zostava.splice(idx, 1); else inventar.zostava.push(kartaMeno);
