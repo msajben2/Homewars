@@ -235,34 +235,39 @@ body {
     padding: 5px;
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: space-between;
 }
 
+.board-half {
+    gap: 4px !important; /* Menšie medzery medzi radmi pre ušetrenie miesta */
+}
+
+/* Zmenšili sme výšku na 10vh, aby sa všetko s rezervou zmestilo na 1 monitor */
 .board-row, .card-hand {
     min-height: 0 !important; 
-    height: 12.5vh !important; 
+    height: 10vh !important; 
     padding: 2px 5px !important;
 }
 
 .row-neutral {
-    height: 4vh !important; 
+    height: 3.5vh !important; 
     min-height: 0 !important;
 }
 
-/* Karta sa presne prispôsobí radu a udrží pomer */
+/* Karta sa prispôsobí novému radu */
 .board-container .karta {
-    height: 11.5vh !important; 
-    width: calc(11.5vh * 0.636) !important; /* Zlatý pomer 175/275 */
-    min-width: calc(11.5vh * 0.636) !important;
+    height: 9.2vh !important; 
+    width: calc(9.2vh * 0.636) !important; 
+    min-width: calc(9.2vh * 0.636) !important;
     flex-shrink: 0;
 }
 
-/* Dynamické škálovanie krúžkov (Vždy 26% z veľkosti karty) */
+/* Dynamické škálovanie krúžkov, aby neprekryli obrázok */
 .board-container .karta-kruh {
     width: 26% !important; 
     height: auto !important; 
     aspect-ratio: 1 / 1; 
-    font-size: clamp(0.5em, 1.4vh, 1.05em) !important;
+    font-size: clamp(0.5em, 1.2vh, 0.9em) !important;
     top: 4% !important;
     border-width: 1px !important;
 }
@@ -271,19 +276,19 @@ body {
 
 /* Dynamický štítok s menom na spodku */
 .board-container .karta-stitok-spodok {
-    padding: 2px 0 !important;
+    padding: 1px 0 !important;
     border-top-width: 1px !important;
 }
 .board-container .karta-nazov {
-    font-size: clamp(0.4em, 1.2vh, 0.88em) !important;
+    font-size: clamp(0.4em, 1vh, 0.8em) !important;
 }
 
-/* Zmenšenie lupy s plynulým textom */
+/* Zmenšená lupa */
 .board-container .karta-btn-inspect {
-    bottom: 16% !important;
+    bottom: 20% !important;
     right: 4% !important;
     padding: 1px 4px !important;
-    font-size: clamp(0.5em, 1.2vh, 0.95em) !important;
+    font-size: clamp(0.4em, 1vh, 0.8em) !important;
     border-width: 1px !important;
 }
 /* =========================================================================
