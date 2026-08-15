@@ -199,13 +199,26 @@ function vygenerujDeckbuilder() {
         var reg = MASTER_REGISTRY[t]; if (reg.isPrizrak) return;
         var isVBaliku = (inventar.zostava.indexOf(t) !== -1);
         var wrap = document.createElement("div"); wrap.className = "karta-karta-wrapper " + (isVBaliku ? "deck-active-card" : "deck-inactive-card"); wrap.onclick = function() { prepniKartuVZostave(t); };
-        var cardCls = (inventar.karty[t] && inventar.karty[t].aktivnaTrieda) ? inventar.karty[t].aktivnaTrieda : "F";
+        
+        // OPRAVA: Správna logika pre najlepšiu triedu v Deckbuilderi!
+        var cardCls = "F";
+        if (inventar.karty[t] && typeof inventar.karty[t].repliky === "object") {
+            if (inventar.karty[t].repliky["S"] > 0) cardCls = "S";
+            else if (inventar.karty[t].repliky["A"] > 0) cardCls = "A";
+            else if (inventar.karty[t].repliky["B"] > 0) cardCls = "B";
+            else if (inventar.karty[t].repliky["C"] > 0) cardCls = "C";
+            else if (inventar.karty[t].repliky["D"] > 0) cardCls = "D";
+            else if (inventar.karty[t].repliky["E"] > 0) cardCls = "E";
+        }
+
         var div = document.createElement("div"); div.className = "karta cls-" + (reg.isPlatinum ? "PLATINUM" : cardCls);
         div.innerHTML = vytvorHTMLKarty(t, getRealPower({n:t, cls:cardCls}), cardCls, reg.row, reg.p, false); wrap.appendChild(div);
         var badge = document.createElement("div"); badge.style.marginTop = "8px"; badge.style.fontWeight = "bold"; badge.style.fontSize = "0.85em";
         badge.innerHTML = isVBaliku ? "<span style='color:#10b981;'>✅ V Zostave</span>" : "<span style='color:#888;'>+ Pridať do Zostavy</span>"; wrap.appendChild(badge);
         e.appendChild(wrap);
     });
+    aktualizujVsetkyStickyWallety();
+}
     aktualizujVsetkyStickyWallety();
 }
 
@@ -1060,11 +1073,45 @@ function vykresliRozbalovaciBatoh() {
     el.innerHTML = html;
 }
 
-function otvorDetailKarty(meno, inicialnaTrieda) {
-    var reg = getRegistryCard(meno); var modal = document.createElement("div"); modal.className = "card-modal"; modal.style.zIndex = "9999999"; modal.onclick = function() { modal.remove(); };
-    var realPwr = getRealPower({ n: meno, cls: inicialnaTrieda }); var renderCls = reg.isPlatinum ? "PLATINUM" : (reg.isPrizrak ? "PRIZRAK-" + inicialnaTrieda : inicialnaTrieda);
-    modal.innerHTML = '<div class="modal-content" style="text-align:center; max-width:680px; background:rgba(12,8,5,0.98); border:2px solid #d4af37; border-radius:14px; padding:20px; display:flex; flex-direction:column; align-items:center;" onclick="event.stopPropagation()"><span class="card-modal-close" onclick="this.closest(\'.card-modal\').remove()">&times;</span><h2 style="color:#d4af37;">👑 KRÁĽOVSKÝ NÁHĽAD</h2><div class="karta cls-' + renderCls + '" style="width:290px; height:455px; transform:none !important; cursor:default; box-shadow:0 0 35px rgba(212,175,55,0.4);">' + vytvorHTMLKarty(meno, realPwr, inicialnaTrieda, reg.row, reg.p, false) + '</div><div style="margin-top:10px; color:#e0d0b0; background:rgba(0,0,0,0.65); padding:12px; border-radius:8px; border:1px solid #5a4d3e;"><strong style="color:#ffcc00; display:block;">' + meno + '</strong>' + (reg.abilityDesc || reg.desc || "Obyčajná bojová jednotka.") + '</div></div>';
-    document.body.appendChild(modal);
+function otvorDetailKarty(n) {
+    var reg = getRegistryCard(n); if (!reg) return;
+    var modal = document.getElementById("card-detail-modal");
+    if (!modal) {
+        // Ak neexistuje, vytvoríme ho! (Oprava padania náhľadu)
+        modal = document.createElement("div");
+        modal.id = "card-detail-modal";
+        modal.className = "card-modal";
+        modal.style.zIndex = "9999999";
+        modal.onclick = function() { modal.style.display = "none"; };
+        document.body.appendChild(modal);
+    }
+
+    // OPRAVA: Správna logika pre najlepšiu triedu v Náhľade!
+    var topClass = "F";
+    if (inventar && inventar.karty && inventar.karty[n] && typeof inventar.karty[n].repliky === "object") {
+        if (inventar.karty[n].repliky["S"] > 0) topClass = "S";
+        else if (inventar.karty[n].repliky["A"] > 0) topClass = "A";
+        else if (inventar.karty[n].repliky["B"] > 0) topClass = "B";
+        else if (inventar.karty[n].repliky["C"] > 0) topClass = "C";
+        else if (inventar.karty[n].repliky["D"] > 0) topClass = "D";
+        else if (inventar.karty[n].repliky["E"] > 0) topClass = "E";
+    } else if (reg.isPlatinum) { topClass = "PLATINUM"; } else if (reg.isPrizrak) { topClass = "F"; }
+
+    var realPwr = getRealPower({ n: n, cls: topClass });
+    var htmlKarty = '<div class="karta cls-' + topClass + '" style="transform: scale(1.1); margin: 20px auto; position:relative; pointer-events:none;">' + vytvorHTMLKarty(n, realPwr, topClass, reg.row, reg.p) + '</div>';
+    
+    var textPribehu = reg.desc ? '<div style="font-style:italic; color:#ddd; margin-bottom:15px; font-size:1.1em; line-height:1.4;">"' + reg.desc + '"</div>' : '';
+    var textSchopnosti = reg.abilityDesc ? '<div style="color:#ffcc00; margin-bottom:15px; font-size:1em; padding:10px; background:rgba(0,0,0,0.6); border:1px solid #d4af37; border-radius:6px;">' + reg.abilityDesc + '</div>' : '';
+    var textStats = '<div style="color:#aaa; font-size:0.9em; border-top: 1px solid #444; padding-top: 10px;"><strong>Základná Sila:</strong> ' + reg.p + ' | <strong>Rad:</strong> ' + reg.row + '</div>';
+
+    modal.innerHTML = '<div class="modal-content modal-bg-dedina" style="max-width: 450px; text-align: center; position: relative;" onclick="event.stopPropagation()">' +
+                      '<span class="card-modal-close" onclick="document.getElementById(\'card-detail-modal\').style.display=\'none\'">&times;</span>' +
+                      '<h2 style="color: #d4af37; margin-bottom: 10px;">👑 KRÁĽOVSKÝ NÁHĽAD</h2>' +
+                      htmlKarty +
+                      '<div style="padding: 10px;">' + textPribehu + textSchopnosti + textStats + '</div>' +
+                      '</div>';
+
+    modal.style.display = "flex";
 }
 
 function ukazOznamenie(titulok, sprava, callback) {
