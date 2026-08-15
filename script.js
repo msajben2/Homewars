@@ -280,27 +280,50 @@ function zatvoritTruhluAOpustit(overlayId) { var el = document.getElementById(ov
 function aktualizujPanelDielne() {
     var e = document.getElementById("dielna-zoznam"); if (!e) return; e.innerHTML = "";
     var devBtnDiv = document.createElement("div"); devBtnDiv.style.gridColumn = "1/-1"; devBtnDiv.style.marginBottom = "15px";
-    devBtnDiv.innerHTML = '<button onclick="devPridatSurovinyACheaty()" style="background:#8b5cf6; color:#fff; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; cursor:pointer; width:100%;">⚡ DEV CHEAT: Pridať 100 000 Mincí, Zlato, Prízrakov & Suroviny pre Kovanie až po S-Class</button>'; e.appendChild(devBtnDiv);
+    devBtnDiv.innerHTML = '<button onclick="devPridatSurovinyACheaty()" style="background:#8b5cf6; color:#fff; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; cursor:pointer; width:100%;">⚡ DEV CHEAT: Pridať Suroviny</button>'; e.appendChild(devBtnDiv);
+
+    // Zistenie najvyššieho Prízraku
+    var topPrizrak = "F";
+    ["S", "A", "B", "C", "D", "E"].forEach(function(c) { if (inventar.prizraky[c] > 0) topPrizrak = c; });
 
     var prizrakWrapper = document.createElement("div"); prizrakWrapper.className = "karta-karta-wrapper"; prizrakWrapper.style.borderColor = "#a855f7";
-    var prizrakCardDiv = document.createElement("div"); prizrakCardDiv.className = "karta cls-PRIZRAK-F"; prizrakCardDiv.innerHTML = vytvorHTMLKarty("Prízrak", "none", "F", 0, 0);
+    var prizrakCardDiv = document.createElement("div"); prizrakCardDiv.className = "karta cls-PRIZRAK-" + topPrizrak; 
+    prizrakCardDiv.innerHTML = vytvorHTMLKarty("Prízrak", "none", topPrizrak, 0, 0);
     var prizrakCountsText = 'F:' + (inventar.prizraky["F"]||0) + ' | E:' + (inventar.prizraky["E"]||0) + ' | D:' + (inventar.prizraky["D"]||0) + ' | C:' + (inventar.prizraky["C"]||0) + ' | B:' + (inventar.prizraky["B"]||0) + ' | A:' + (inventar.prizraky["A"]||0);
     prizrakWrapper.appendChild(prizrakCardDiv); var prizrakActions = document.createElement("div"); prizrakActions.style.width = "100%";
-    prizrakActions.innerHTML = '<div style="font-size:0.75em; margin:6px 0; color:#a855f7; text-align:center;">Prízrak Zásoby: <strong>' + prizrakCountsText + '</strong></div><select id="step-select-Prizrak" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="F->E">F ➔ E (3xF Prízrak | 10m | 3 oz Koža)</option><option value="E->D">E ➔ D (3xE Prízrak | 25m | 3 oz Drevo)</option><option value="D->C">D ➔ C (3xD Prízrak | 50m | 3 oz Kov)</option><option value="C->B">C ➔ B (3xC Prízrak | 100m | 3 oz Bronz)</option><option value="B->A">B ➔ A (3xB Prízrak | 250m | 3 oz Striebro)</option></select><button class="btn-forge" style="background:#8b5cf6;" onclick="vylepsiKartuVoForge(\'Prízrak\', document.getElementById(\'step-select-Prizrak\').value, \'none\')">🔨 Vykovat Prízraka</button>';
+    
+    // OPRAVA GRAMATIKY "Vykuť Prízrak"
+    prizrakActions.innerHTML = '<div style="font-size:0.75em; margin:6px 0; color:#a855f7; text-align:center;">Prízrak Zásoby: <strong>' + prizrakCountsText + '</strong></div><select id="step-select-Prizrak" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="F->E">F ➔ E (3xF | 10m | 3 oz Koža)</option><option value="E->D">E ➔ D (3xE | 25m | 3 oz Drevo)</option><option value="D->C">D ➔ C (3xD | 50m | 3 oz Kov)</option><option value="C->B">C ➔ B (3xC | 100m | 3 oz Bronz)</option><option value="B->A">B ➔ A (3xB | 250m | 3 oz Striebro)</option></select><button class="btn-forge" style="background:#8b5cf6;" onclick="vylepsiKartuVoForge(\'Prízrak\', document.getElementById(\'step-select-Prizrak\').value, \'none\')">🔨 Vykuť Prízrak</button>';
     prizrakWrapper.appendChild(prizrakActions); e.appendChild(prizrakWrapper);
 
     Object.keys(MASTER_REGISTRY).forEach(function(t) {
         var reg = MASTER_REGISTRY[t]; if (reg.isPlatinum || reg.isSpell || reg.isPrizrak) return;
         if (!inventar.karty[t]) inventar.karty[t] = { repliky: { "F": 1 }, aktivnaTrieda: "F" }; var cardData = inventar.karty[t];
-        if (typeof cardData.repliky !== "object") { var val = cardData.repliky || 0; cardData.repliky = { "F": val }; }
+        
+        // Zistenie najvyššej vlastnenej triedy pre náhľad
+        var topClass = "F";
+        ["S", "A", "B", "C", "D", "E"].forEach(function(c) { if (cardData.repliky[c] > 0) topClass = c; });
+
         var wrapper = document.createElement("div"); wrapper.className = "karta-karta-wrapper";
-        var cardDiv = document.createElement("div"); cardDiv.className = "karta cls-" + cardData.aktivnaTrieda;
-        var realPwr = getRealPower({ n: t, cls: cardData.aktivnaTrieda }); cardDiv.innerHTML = vytvorHTMLKarty(t, realPwr, cardData.aktivnaTrieda, reg.row, reg.p);
-        var countsText = reg.isTournamentUnique ? '👑 Turnajový Unikát (Kovanie: 1x Šampión + 2x Prízrak)' : 'F:' + (cardData.repliky["F"] || 0) + ' | E:' + (cardData.repliky["E"] || 0) + ' | D:' + (cardData.repliky["D"] || 0) + ' | C:' + (cardData.repliky["C"] || 0) + ' | B:' + (cardData.repliky["B"] || 0) + ' | A:' + (cardData.repliky["A"] || 0);
-        var actions = '<div style="font-size:0.75em; margin:6px 0; color:#ffcc00; text-align:center;">' + countsText + '</div><label style="font-size:0.75em; color:#aaa;">Krok kovania:</label><select id="step-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="F->E">F ➔ E (3xF | 10m | 3 oz Koža)</option><option value="E->D">E ➔ D (3xE | 25m | 3 oz Drevo)</option><option value="D->C">D ➔ C (3xD | 50m | 3 oz Kov)</option><option value="C->B">C ➔ B (3xC | 100m | 3 oz Bronz)</option><option value="B->A">B ➔ A (3xB | 250m | 3 oz Striebro)</option><option value="A->S">A ➔ S (3xA | 500m | 3 oz Zlato)</option></select><label style="font-size:0.75em; color:#aaa;">Zvitok ochrany:</label><select id="pergamen-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:6px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="none">Bez Zvitku (0 oz Zlata / Risk)</option><option value="basic">Základný Zvitok (100 oz Zlata / +10%)</option><option value="advanced">Pokročilý Zvitok (500 oz Zlata / +25%)</option><option value="legendary">Legendárny Zvitok (1000 oz Zlata / +55%)</option></select><button class="btn-forge" onclick="vylepsiKartuVoForge(\'' + t.replace(/'/g, "\\'") + '\', document.getElementById(\'step-select-' + t.replace(/\s+/g, '') + '\').value, document.getElementById(\'pergamen-select-' + t.replace(/\s+/g, '') + '\').value)">🔨 Forge</button>';
+        var cardDiv = document.createElement("div"); cardDiv.className = "karta cls-" + topClass;
+        var realPwr = getRealPower({ n: t, cls: topClass }); cardDiv.innerHTML = vytvorHTMLKarty(t, realPwr, topClass, reg.row, reg.p);
+        
+        var actions = '';
+        if (reg.isTournamentUnique) {
+            var c = topClass;
+            if (c === "S") { actions = '<div style="font-size:0.75em; margin:6px 0; color:#10b981; text-align:center; font-weight:bold;">MAXIMÁLNA ÚROVEŇ (S-Class)</div>'; } 
+            else {
+                var nC = (c === "F") ? "E" : ((c === "E") ? "D" : ((c === "D") ? "C" : ((c === "C") ? "B" : "A")));
+                var trKey = c + "->" + nC;
+                actions = '<div style="font-size:0.75em; margin:6px 0; color:#ffcc00; text-align:center;">👑 Unikát: Potrebuješ 2x Prízrak ('+c+'-Class)</div><label style="font-size:0.75em; color:#aaa;">Zvitok ochrany:</label><select id="pergamen-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:6px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="none">Bez Zvitku</option><option value="legendary">Legendárny Zvitok</option></select><button class="btn-forge" style="background:#10b981;" onclick="vylepsiKartuVoForge(\'' + t.replace(/'/g, "\\'") + '\', \'' + trKey + '\', document.getElementById(\'pergamen-select-' + t.replace(/\s+/g, '') + '\').value)">🔨 Povýšiť na ' + nC + '</button>';
+            }
+        } else {
+            var countsText = 'F:' + (cardData.repliky["F"] || 0) + ' | E:' + (cardData.repliky["E"] || 0) + ' | D:' + (cardData.repliky["D"] || 0) + ' | C:' + (cardData.repliky["C"] || 0) + ' | B:' + (cardData.repliky["B"] || 0) + ' | A:' + (cardData.repliky["A"] || 0) + ' | S:' + (cardData.repliky["S"] || 0);
+            actions = '<div style="font-size:0.75em; margin:6px 0; color:#ffcc00; text-align:center;">' + countsText + '</div><select id="step-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="F->E">F ➔ E (3xF | 10m | 3 oz Koža)</option><option value="E->D">E ➔ D (3xE | 25m | 3 oz Drevo)</option><option value="D->C">D ➔ C (3xD | 50m | 3 oz Kov)</option><option value="C->B">C ➔ B (3xC | 100m | 3 oz Bronz)</option><option value="B->A">B ➔ A (3xB | 250m | 3 oz Striebro)</option><option value="A->S">A ➔ S (3xA | 500m | 3 oz Zlato)</option></select><select id="pergamen-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:6px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="none">Bez Zvitku</option><option value="basic">Základný Zvitok</option><option value="advanced">Pokročilý Zvitok</option><option value="legendary">Legendárny Zvitok</option></select><button class="btn-forge" onclick="vylepsiKartuVoForge(\'' + t.replace(/'/g, "\\'") + '\', document.getElementById(\'step-select-' + t.replace(/\s+/g, '') + '\').value, document.getElementById(\'pergamen-select-' + t.replace(/\s+/g, '') + '\').value)">🔨 Forge</button>';
+        }
+
         wrapper.appendChild(cardDiv); var actDiv = document.createElement("div"); actDiv.style.width = "100%"; actDiv.innerHTML = actions; wrapper.appendChild(actDiv); e.appendChild(wrapper);
     });
-    aktualizujVsetkyStickyWallety();
 }
 
 function devPridatSurovinyACheaty() {
@@ -430,9 +453,21 @@ function vygenerujSimulaciuTrhu() {
     var e = document.getElementById("obchod-regaly-zoznam"); if (!e) return; e.innerHTML = ""; aktualizujVsetkyStickyWallety();
 
     if (aktualnaZalozkaTrhu === "trh") {
-        var reg = MASTER_REGISTRY["Neviditeľný Mário"]; var realPwr = getRealPower({ n: "Neviditeľný Mário", cls: "E" });
+        // TOTO SME PRIDALI: Aby aukcia náhodne menila položky pre lepšiu simuláciu
+        var aukcnaKarta = (Math.random() > 0.5) ? "Neviditeľný Mário" : "Kráľovský Šampión";
+        var aukcnaTrieda = (aukcnaKarta === "Kráľovský Šampión") ? "A" : "E";
+        var reg = getRegistryCard(aukcnaKarta) || MASTER_REGISTRY["Neviditeľný Mário"]; 
+        var realPwr = getRealPower({ n: aukcnaKarta, cls: aukcnaTrieda });
+        
+        // VÝPOČET TRHOVEJ HODNOTY (Tu sme zapracovali ten 10x násobok pre Unikát!)
+        trhovaPriemernaCenaEMA = 210; // Základ pre E-class karty
+        if (aukcnaTrieda === "A") trhovaPriemernaCenaEMA = 850;
+        if (reg.isTournamentUnique) { trhovaPriemernaCenaEMA = trhovaPriemernaCenaEMA * 10; } // Unikát = x10
+        aktualnyAnonymnyStrop = Math.floor(trhovaPriemernaCenaEMA * 1.2); // Strop je vždy o 20% vyšší ako EMA
+
         var emaTypLabel = (pocetRealnychPredajovEMA >= 3) ? '<span style="color:#10b981; font-size:0.8em;">(🛒 Reálna trhová cena)</span>' : '<span style="color:#f59e0b; font-size:0.8em;">(⚙️ Vypočítaná obstarávacia cena)</span>';
-        e.innerHTML = '<div style="background:rgba(30,20,10,0.85); border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:20px;"><h3 style="color:#d4af37; margin-top:0;">👑 ANONYMNÉ AUKČNÉ TRHOVISKO</h3><p style="font-size:0.9em; color:#ccc;">Súťaž o vzácne položky od iných hráčov na serveri!</p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;"><button onclick="testSimulaciaPrihodeniaBota()" class="btn-dev-action">🤖 Simulovať prihodenie Bota</button><button onclick="testSimulaciaRychlychPredajov()" class="btn-dev-action">📊 Simulovať reálny predaj (Prepnúť EMA)</button></div></div><div class="auction-card-box"><div class="karta cls-E">' + vytvorHTMLKarty("Neviditeľný Mário", realPwr, "E", reg.row, reg.p) + '</div><div style="flex-grow:1;"><h3 style="color:#ffcc00; margin:0 0 5px 0;">Neviditeľný Mário (E-Class) - 10x Balíček</h3><p style="margin:2px 0; color:#aaa; font-size:0.9em;">Predajca: <strong>Mníchov_Master</strong></p><div style="background:rgba(0,0,0,0.6); border:1px solid #5a4d3e; padding:12px; border-radius:6px; margin:10px 0; max-width:480px;"><div>⏱️ Čas aukcie: <span id="auction-timer" style="color:#ffcc00; font-weight:bold;">00:59:59</span> <small style="color:#888;">(Anti-Snipe: +3m)</small></div><div style="margin-top:4px;">👑 Aktuálne najvyššia ponuka (Vedie): <strong style="color:#ffcc00;" id="auction-leader">' + aktualnyVeduciHrac + '</strong></div><div style="margin-top:4px;">📊 Indikátor Ceny (EMA): <strong style="color:#3b82f6;">' + trhovaPriemernaCenaEMA + ' m</strong> ' + emaTypLabel + '</div><div style="margin-top:4px;">💰 Okamžitý Výkup (Strop): <strong style="color:#10b981;">' + aktualnyAnonymnyStrop + ' m</strong></div></div><div style="display:flex; gap:10px;"><button onclick="anonymnePrihoditSumu(' + aktualnyAnonymnyStrop + ')" style="background:linear-gradient(180deg, #3b2d1d 0%, #21180e 100%); color:#ffcc00; border:1px solid #d4af37; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">🕵️ Anonymne Prihodiť</button><button onclick="okamziteOdkupitKartu(' + aktualnyAnonymnyStrop + ', \'Balíček 10x E-Mário\')" style="background:#10b981; color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">⚡ Kúpiť Ihneď za ' + aktualnyAnonymnyStrop + 'm</button></div></div></div>';
+        
+        e.innerHTML = '<div style="background:rgba(30,20,10,0.85); border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:20px;"><h3 style="color:#d4af37; margin-top:0;">👑 ANONYMNÉ AUKČNÉ TRHOVISKO</h3><p style="font-size:0.9em; color:#ccc;">Súťaž o vzácne položky od iných hráčov na serveri!</p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;"><button onclick="testSimulaciaPrihodeniaBota()" class="btn-dev-action">🤖 Simulovať prihodenie Bota</button><button onclick="testSimulaciaRychlychPredajov()" class="btn-dev-action">📊 Simulovať reálny predaj (Prepnúť EMA)</button></div></div><div class="auction-card-box"><div class="karta cls-' + aukcnaTrieda + '">' + vytvorHTMLKarty(aukcnaKarta, realPwr, aukcnaTrieda, reg.row, reg.p) + '</div><div style="flex-grow:1;"><h3 style="color:#ffcc00; margin:0 0 5px 0;">' + aukcnaKarta + ' (' + aukcnaTrieda + '-Class) - 10x Balíček</h3><p style="margin:2px 0; color:#aaa; font-size:0.9em;">Predajca: <strong>Mníchov_Master</strong></p><div style="background:rgba(0,0,0,0.6); border:1px solid #5a4d3e; padding:12px; border-radius:6px; margin:10px 0; max-width:480px;"><div>⏱️ Čas aukcie: <span id="auction-timer" style="color:#ffcc00; font-weight:bold;">00:59:59</span> <small style="color:#888;">(Anti-Snipe: +3m)</small></div><div style="margin-top:4px;">👑 Aktuálne najvyššia ponuka (Vedie): <strong style="color:#ffcc00;" id="auction-leader">' + aktualnyVeduciHrac + '</strong></div><div style="margin-top:4px;">📊 Indikátor Ceny (EMA): <strong style="color:#3b82f6;">' + trhovaPriemernaCenaEMA + ' m</strong> ' + emaTypLabel + '</div><div style="margin-top:4px;">💰 Okamžitý Výkup (Strop): <strong style="color:#10b981;">' + aktualnyAnonymnyStrop + ' m</strong></div></div><div style="display:flex; gap:10px;"><button onclick="anonymnePrihoditSumu(' + aktualnyAnonymnyStrop + ')" style="background:linear-gradient(180deg, #3b2d1d 0%, #21180e 100%); color:#ffcc00; border:1px solid #d4af37; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">🕵️ Anonymne Prihodiť</button><button onclick="okamziteOdkupitKartu(' + aktualnyAnonymnyStrop + ', \'Balíček 10x ' + aukcnaTrieda + '-' + aukcnaKarta + '\')" style="background:#10b981; color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">⚡ Kúpiť Ihneď za ' + aktualnyAnonymnyStrop + 'm</button></div></div></div>';
         spustitOdpocitavanieAukcie();
     } else if (aktualnaZalozkaTrhu === "sklad") {
         var skladHtml = '<div style="background:rgba(30,20,10,0.85); border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:15px;"><h3 style="color:#d4af37; margin-top:0;">🏛️ KRÁĽOVSKÝ ŠTÁTNY SKLAD (NÚDZOVÉ ZÁSOBY)</h3><p style="font-size:0.9em; color:#ccc;">Ak na trhu chýbajú suroviny, štát ti ich garantovane predá za mince.</p></div><div class="market-store-grid">';
@@ -1058,3 +1093,31 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 window.spustitZapasLokálnePVP = spustitZapasLokálnePVP; window.zobraziťMenuAI = zobraziťMenuAI; window.spustitZapasProtiAI = spustitZapasProtiAI; window.otvoriťObchod = otvoriťObchod; window.otvoriťDielňu = otvoriťDielňu; window.otvoriťDeckbuilder = otvoriťDeckbuilder; window.otvoriťStatistiky = otvoriťStatistiky; window.otvoriťNavodHry = otvoriťNavodHry; window.posunStraneKnihy = posunStraneKnihy; window.vylepsiKartuVoForge = vylepsiKartuVoForge; window.devPridatSurovinyACheaty = devPridatSurovinyACheaty; window.zatvoritTruhluAOpustit = zatvoritTruhluAOpustit; window.hracPassuje = hracPassuje; window.vylozitKartuZRuky = vylozitKartuZRuky; window.zobraziťObrazovku = zobraziťObrazovku; window.prepniZvuk = prepniZvuk; window.upravHlasitost = upravHlasitost; window.otvorTruhluVitaza = otvorTruhluVitaza; window.otvorTruhluUcastnika = otvorTruhluUcastnika; window.spustitHudbuPoPrvomKliknuti = spustitHudbuPoPrvomKliknuti; window.otvorDetailKarty = otvorDetailKarty; window.ukazOznamenie = ukazOznamenie; window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu; window.anonymnePrihoditSumu = anonymnePrihoditSumu; window.okamziteOdkupitKartu = okamziteOdkupitKartu; window.testSimulaciaPrihodeniaBota = testSimulaciaPrihodeniaBota; window.testSimulaciaRychlychPredajov = testSimulaciaRychlychPredajov; window.testSimulaciaInaktivity = testSimulaciaInaktivity; window.testSimulaciaPridatBota = testSimulaciaPridatBota; window.testSimulaciaGlobalnyOznam = testSimulaciaGlobalnyOznam; window.vykresliGridStatistik = vykresliGridStatistik; window.aktualizujPanelDielne = aktualizujPanelDielne; window.automatickyDoplnitDefaultZostavu = automatickyDoplnitDefaultZostavu; window.prepniKartuVZostave = prepniKartuVZostave; window.prepniVyberMulliganKarty = prepniVyberMulliganKarty; window.potvrditMulliganAkciu = potvrditMulliganAkciu; window.prepniZalozkuTrhu = prepniZalozkuTrhu; window.kupitSurovinuZoStatnehoSkladu = kupitSurovinuZoStatnehoSkladu; window.aktualizujDostupneTriedyPrePredaj = aktualizujDostupneTriedyPrePredaj; window.aktualizujMaxKusovPrePredaj = aktualizujMaxKusovPrePredaj; window.odoslatPredajnyFormular = odoslatPredajnyFormular;
+function otvorDetailKarty(n) {
+    var reg = getRegistryCard(n); if (!reg) return;
+    var modal = document.getElementById("card-detail-modal");
+    if (!modal) return;
+
+    // 1. Zistíme najlepšiu triedu karty, ktorú vlastníš, aby sa v náhľade ukázala tá najkrajšia
+    var topClass = "F";
+    if (inventar && inventar.karty && inventar.karty[n]) {
+        ["S", "A", "B", "C", "D", "E"].forEach(function(c) { if (inventar.karty[n].repliky[c] > 0) topClass = c; });
+    } else if (reg.isPlatinum) { topClass = "PLATINUM"; } else if (reg.isPrizrak) { topClass = "F"; }
+
+    // 2. Kompletne prebudujeme vnútro okna, aby sme mali istotu, že sa texty zobrazia správne
+    var realPwr = getRealPower({ n: n, cls: topClass });
+    var htmlKarty = '<div class="karta cls-' + topClass + '" style="transform: scale(1.1); margin: 20px auto; position:relative; pointer-events:none;">' + vytvorHTMLKarty(n, realPwr, topClass, reg.row, reg.p) + '</div>';
+    
+    var textPribehu = reg.desc ? '<div style="font-style:italic; color:#ddd; margin-bottom:15px; font-size:1.1em; line-height:1.4;">"' + reg.desc + '"</div>' : '';
+    var textSchopnosti = reg.abilityDesc ? '<div style="color:#ffcc00; margin-bottom:15px; font-size:1em; padding:10px; background:rgba(0,0,0,0.6); border:1px solid #d4af37; border-radius:6px;">' + reg.abilityDesc + '</div>' : '';
+    var textStats = '<div style="color:#aaa; font-size:0.9em; border-top: 1px solid #444; padding-top: 10px;"><strong>Základná Sila:</strong> ' + reg.p + ' | <strong>Rad:</strong> ' + reg.row + '</div>';
+
+    modal.innerHTML = '<div class="modal-content modal-bg-dedina" style="max-width: 450px; text-align: center; position: relative;">' +
+                      '<span class="card-modal-close" onclick="document.getElementById(\'card-detail-modal\').style.display=\'none\'">&times;</span>' +
+                      '<h2 style="color: #d4af37; margin-bottom: 10px;">👑 KRÁĽOVSKÝ NÁHĽAD</h2>' +
+                      htmlKarty +
+                      '<div style="padding: 10px;">' + textPribehu + textSchopnosti + textStats + '</div>' +
+                      '</div>';
+
+    modal.style.display = "flex";
+}
