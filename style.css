@@ -266,7 +266,7 @@ body {
 .leaderboard-item.rank-3 { background: rgba(205, 127, 50, 0.2); border: 1.5px solid #cd7f32; color: #e6a880; }
 .plat-badge { font-size: 0.75em; background: #e0e7ff; color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
 /* =========================================================================
-   ÚPRAVA PRE JEDNU OBRAZOVKU - DOKONALÉ ŠKÁLOVANIE (100VH)
+   ÚPRAVA PRE JEDNU OBRAZOVKU - DOKONALÉ ŠKÁLOVANIE (100VH) + SCROLL
    ========================================================================= */
 .board-container {
     height: 100vh;
@@ -275,33 +275,52 @@ body {
     padding: 5px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center; 
+    gap: 3px; 
 }
 
-.board-half {
-    gap: 4px !important; /* Menšie medzery medzi radmi pre ušetrenie miesta */
+.row-label {
+    position: absolute !important;
+    left: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 10 !important;
+    font-size: clamp(0.7em, 1.5vh, 1.2em) !important; 
+    color: #ffcc00 !important;
 }
 
-/* Zmenšili sme výšku na 10vh, aby sa všetko s rezervou zmestilo na 1 monitor */
 .board-row, .card-hand {
     min-height: 0 !important; 
-    height: 10vh !important; 
+    height: 11vh !important; 
     padding: 2px 5px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    max-width: 100vw !important;
+    position: relative !important; 
 }
+
+.board-row::-webkit-scrollbar, .card-hand::-webkit-scrollbar { height: 6px; }
+.board-row::-webkit-scrollbar-track, .card-hand::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); border-radius: 4px; }
+.board-row::-webkit-scrollbar-thumb, .card-hand::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
+
 .row-neutral {
-    height: 10vh !important; /* ROVNAKÁ VÝŠKA AKO OSTATNÉ RADY */
+    height: 4vh !important; 
     min-height: 0 !important;
     padding: 2px 5px !important;
 }
 
-/* Jemné prispôsobenie kariet, aby to teraz nevybuchlo cez okraj */
 .board-container .karta {
-    height: 8.8vh !important; 
-    width: calc(8.8vh * 0.636) !important; 
-    min-width: calc(8.8vh * 0.636) !important;
-    flex-shrink: 0;
+    height: 10.5vh !important; 
+    width: calc(10.5vh * 0.636) !important; 
+    min-width: calc(10.5vh * 0.636) !important;
+    flex-shrink: 0 !important;
+    margin: 0 4px !important; 
 }
-/* Dynamické škálovanie krúžkov, aby neprekryli obrázok */
+
 .board-container .karta-kruh {
     width: 26% !important; 
     height: auto !important; 
@@ -313,7 +332,6 @@ body {
 .board-container .karta-kruh-pwr { left: 4% !important; }
 .board-container .karta-kruh-cls { right: 4% !important; }
 
-/* Dynamický štítok s menom na spodku */
 .board-container .karta-stitok-spodok {
     padding: 1px 0 !important;
     border-top-width: 1px !important;
@@ -322,7 +340,6 @@ body {
     font-size: clamp(0.4em, 1vh, 0.8em) !important;
 }
 
-/* Zmenšená lupa */
 .board-container .karta-btn-inspect {
     bottom: 20% !important;
     right: 4% !important;
@@ -330,6 +347,7 @@ body {
     font-size: clamp(0.4em, 1vh, 0.8em) !important;
     border-width: 1px !important;
 }
+
 /* =========================================================================
    ZÚŽENIE GRAFICKÝCH RÁMOV (A-Class a S-Class)
    ========================================================================= */
