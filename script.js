@@ -1057,7 +1057,13 @@ function ukazOznamenie(titulok, sprava, callback) {
 }
 function zobraziťObrazovku(idObrazovky) {
     var obrazovky = ["hlavne-menu", "hracia-plocha", "dielna-modal", "obchod-modal", "navod-modal", "deckbuilder-modal", "stats-modal"];
-    obrazovky.forEach(function(id) { var el = document.getElementById(id); if (el) el.style.display = (id === idObrazovky) ? ((id.includes("modal")) ? "flex" : "block") : ((!id.includes("modal")) ? "none" : el.style.display); });
+    obrazovky.forEach(function(id) { 
+        var el = document.getElementById(id); 
+        if (el) {
+            // OPRAVA: hracia-plocha musí byť "flex", inak sa úplne rozbije dizajn!
+            el.style.display = (id === idObrazovky) ? ((id.includes("modal") || id === "hracia-plocha") ? "flex" : "block") : ((!id.includes("modal")) ? "none" : el.style.display);
+        }
+    });
 }
 
 function otvoriťDeckbuilder() { document.getElementById("deckbuilder-modal").style.display = "flex"; vygenerujDeckbuilder(); }
