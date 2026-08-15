@@ -860,9 +860,7 @@ function vylozitKartuZRuky(pNum, cardIndex) {
     vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
 }
 function pokracujPoVylozeni(pNum) {
-    if (pNum === 1) aktualnyHrac = 2; else aktualnyHrac = 1;
-    vykresliHraciuPlochu();
-    if (aktualnyHrac === 2 && jeSingleplayer && !p2Pass) { setTimeout(spravujAI, 800); }
+    prepniHracov();
 }
 function vykonajAutoSpalenie(pôvodcaMeno) {
     var vsetkyKartyStola = [];
