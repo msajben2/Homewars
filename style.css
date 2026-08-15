@@ -305,6 +305,17 @@ body {
     border-width: 1px !important;
 }
 /* =========================================================================
+   ZÚŽENIE GRAFICKÝCH RÁMOV (A-Class a S-Class)
+   ========================================================================= */
+.karta.cls-PLATINUM, .karta.cls-S {
+    border-width: 10px !important; /* Zmenšené o cca 50% */
+    border-image-width: 10px !important;
+}
+.karta.cls-A {
+    border-width: 14px !important; /* Zmenšené o cca 25% */
+    border-image-width: 14px !important;
+}
+/* =========================================================================
    [SEKCIA 8 - CSS] ADAPTÍVNE MEDIA QUERIES (TABLETY A MOBILY)
    ========================================================================= */
 @media (max-width: 1024px) {
