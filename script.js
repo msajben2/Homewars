@@ -75,7 +75,20 @@ var MASTER_REGISTRY = {
     "Šicko v porádku": { row: 0, p: 0, isSpell: true, img: "Img/sicko-v-poradku.webp", desc: "Úsmev, ktorý vyrieši každú napätú situáciu.", abilityDesc: "⚡ <strong>Kúzlo:</strong> Okamžite vyčistí neutrálny rad od všetkých negatívnych kúziel stola!" }
 };
 
-var CLASS_CONFIG = { "F": { bonusPwr: 0, matName: "Koža", itemBonus: 1, coinFee: 10 }, "E": { bonusPwr: 1, matName: "Drevo", itemBonus: 2, coinFee: 25 }, "D": { bonusPwr: 1, matName: "Kov", itemBonus: 3, coinFee: 50 }, "C": { bonusPwr: 2, matName: "Bronz", itemBonus: 4, coinFee: 100 }, "B": { bonusPwr: 2, matName: "Striebro", itemBonus: 5, coinFee: 250 }, "A": { bonusPwr: 2, matName: "Zlato", itemBonus: 6, coinFee: 500 }, "S": { bonusPwr: 3, matName: "Mince", itemBonus: 7, coinFee: 0 } };
+var CLASS_CONFIG = { 
+    "F": { bonusPwr: 0, matName: "Koža", itemBonus: 1, itemDrop: {m: 0, g: 0, p: 0}, coinFee: 10 }, 
+    "E": { bonusPwr: 1, matName: "Drevo", itemBonus: 1, itemDrop: {m: 25, g: 0, p: 0}, coinFee: 25 }, 
+    "D": { bonusPwr: 2, matName: "Kov", itemBonus: 1, itemDrop: {m: 50, g: 0, p: 0}, coinFee: 50 }, 
+    "C": { bonusPwr: 3, matName: "Bronz", itemBonus: 1, itemDrop: {m: 100, g: 0, p: 0}, coinFee: 100 }, 
+    "B": { bonusPwr: 5, matName: "Striebro", itemBonus: 2, itemDrop: {m: 150, g: 1, p: 0}, coinFee: 250 }, 
+    "A": { bonusPwr: 7, matName: "Zlato", itemBonus: 3, itemDrop: {m: 250, g: 2, p: 0}, coinFee: 500 }, 
+    "S": { bonusPwr: 10, matName: "Mince", itemBonus: 4, itemDrop: {m: 500, g: 3, p: 1}, coinFee: 0 } 
+};
+
+var p1_pouzite_predmety = [];
+
+var FORGE_RATES = { "F->E": { rate: 1.00, from: "F", nextClass: "E", reqMat: "Koža", reqMatCount: 3, coinFee: 10 }, 
+// ... a tu pokračuje tvoj pôvodný kód ...
 var FORGE_RATES = { "F->E": { rate: 1.00, from: "F", nextClass: "E", reqMat: "Koža", reqMatCount: 3, coinFee: 10 }, "E->D": { rate: 0.90, from: "E", nextClass: "D", reqMat: "Drevo", reqMatCount: 3, coinFee: 25 }, "D->C": { rate: 0.80, from: "D", nextClass: "C", reqMat: "Kov", reqMatCount: 3, coinFee: 50 }, "C->B": { rate: 0.70, from: "C", nextClass: "B", reqMat: "Bronz", reqMatCount: 3, coinFee: 100 }, "B->A": { rate: 0.55, from: "B", nextClass: "A", reqMat: "Striebro", reqMatCount: 3, coinFee: 250 }, "A->S": { rate: 0.40, from: "A", nextClass: "S", reqMat: "Zlato", reqMatCount: 3, coinFee: 500 } };
 var STATNY_SKLAD_CENNIK = { "Koža": { price: 8, img: "Img/koza.webp" }, "Drevo": { price: 18, img: "Img/drevo.webp" }, "Kov": { price: 38, img: "Img/zelezo.webp" }, "Bronz": { price: 75, img: "Img/bronz.webp" }, "Striebro": { price: 180, img: "Img/striebro.webp" }, "Zlato": { price: 80, img: "Img/zlato.webp" } };
 var PERGAMENY_CONFIG = { "none": { name: "Bez Zvitku", goldCost: 0, rateBonus: 0.00, saveCard: false }, "basic": { name: "Základný Zvitok", goldCost: 100, rateBonus: 0.10, saveCard: true }, "advanced": { name: "Pokročilý Zvitok", goldCost: 500, rateBonus: 0.25, saveCard: true }, "legendary": { name: "Legendárny Zvitok", goldCost: 1000, rateBonus: 0.55, saveCard: true } };
@@ -284,12 +297,33 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
         });
         extraLowPwrCoins = Math.min(125, extraLowPwrCoins);
     }
-
+    // ⚡ VÝPOČET FARMÁRSKYCH BONUSOV Z PREDMETOV
+    var itemBonusCoins = 0;
+    if (typ === "vitaz") {
+        p1_pouzite_predmety.forEach(function(cls) {
+            var drop = CLASS_CONFIG[cls].itemDrop;
+            if (drop) {
+                itemBonusCoins += drop.m;
+                goldEarned += drop.g;
+                prizrakCount += drop.p;
+            }
+        });
+        coinsEarned += itemBonusCoins;
+    }
     coinsEarned += extraLowPwrCoins; ziskaneSuroviny["Koža"] = (ziskaneSuroviny["Koža"] || 0) + 1;
     inventar.mince += coinsEarned; inventar.suroviny["Zlato"] = (inventar.suroviny["Zlato"] || 0) + goldEarned; inventar.prizraky["F"] = (inventar.prizraky["F"] || 0) + prizrakCount;
     Object.keys(ziskaneSuroviny).forEach(function(mat) { inventar.suroviny[mat] = (inventar.suroviny[mat] || 0) + ziskaneSuroviny[mat]; });
 
-    var odmenyHtml = '<div class="karta-surovina"><div class="surovina-badge">+' + coinsEarned + '</div><div class="surovina-foto" style="background-image: url(\'Img/mince.webp\');"></div><div class="surovina-stitok"><div class="surovina-nazov">Kopa Mincí' + (extraLowPwrCoins > 0 ? ' (+' + extraLowPwrCoins + ' bonus)' : '') + '</div></div></div>';
+    var mincovyText = 'Kopa Mincí';
+    if (extraLowPwrCoins > 0 || itemBonusCoins > 0) {
+        mincovyText += '<br><small style="color:#aaa;">(';
+        if (extraLowPwrCoins > 0) mincovyText += '+' + extraLowPwrCoins + ' za F-Karty';
+        if (extraLowPwrCoins > 0 && itemBonusCoins > 0) mincovyText += ', ';
+        if (itemBonusCoins > 0) mincovyText += '<span style="color:#10b981;">+' + itemBonusCoins + ' z Predmetov</span>';
+        mincovyText += ')</small>';
+    }
+    
+    var odmenyHtml = '<div class="karta-surovina"><div class="surovina-badge">+' + coinsEarned + '</div><div class="surovina-foto" style="background-image: url(\'Img/mince.webp\');"></div><div class="surovina-stitok"><div class="surovina-nazov">' + mincovyText + '</div></div></div>';
     if (goldEarned > 0) odmenyHtml += '<div class="karta-surovina"><div class="surovina-badge">+' + goldEarned + ' oz</div><div class="surovina-foto" style="background-image: url(\'Img/zlato.webp\');"></div><div class="surovina-stitok"><div class="surovina-nazov">Hruda Zlata</div></div></div>';
     if (prizrakCount > 0) odmenyHtml += '<div class="karta cls-PRIZRAK-F"><div class="karta-kruh karta-kruh-cls cls-PRIZRAK-F">F</div><div class="karta-foto" style="background-image: url(\'Img/prizrak.webp\');"></div><div class="karta-stitok-spodok"><div class="karta-nazov">Prízrak (+' + prizrakCount + 'x)</div></div></div>';
 
@@ -730,6 +764,7 @@ function spustitZapasProtiAI() {
 var cisloKola = 1; // NOVA PREMENNA
 
 function inicializujNovyZapas() {
+    p1_pouzite_predmety = [];
     p1_played_cards = []; p2_played_cards = []; p1_spalene = []; p2_spalene = []; odhodene_karty_kola = [];
     neutralne_vplyvy = []; p1_erik_buff_row = null; p2_erik_buff_row = null;
     r1 = 0; r2 = 0; sc1 = 0; sc2 = 0; p1Pass = false; p2Pass = false;
@@ -851,12 +886,9 @@ function vylozitKartuZRuky(pNum, cardIndex) {
         else { neutralne_vplyvy.push(card.n); }
         vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); return;
     } else {
-        myPlayed.push(card);
-        if (card.n === "Zatúlaný tatranský medveď" || card.n === "Jakub") { vykonajAutoSpalenie(card.n); vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); return; }
-        if (card.n === "Marek") { vykonajCieleneSpalenieMarekom(pNum); }
-        if (card.n === "Doktor" || card.n === "Sestrička" || card.n === "Kornélia") { vykonajOzivenieZArchivu(pNum); return; }
-        if (card.n === "Erik") { otvorErikBuffDialog(pNum, function() { vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); }); return; }
-    }
+      myPlayed.push(card);
+        // SLEDOVAČ PREDMETOV PRE EKONOMICKÉ BONUSY:
+        if (reg.isItem && pNum === 1) { p1_pouzite_predmety.push(card.cls || "F"); }
     vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
 }
 function pokracujPoVylozeni(pNum) {
