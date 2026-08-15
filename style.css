@@ -154,9 +154,10 @@ body {
 .karta.cls-E::after, .karta.cls-PRIZRAK-E::after { background-image: url('Img/eclassram.webp'); opacity: 0.95; }
 .karta.cls-D::after, .karta.cls-PRIZRAK-D::after { background-image: url('Img/dclassram.webp'); opacity: 0.95; }
 .karta.cls-C::after, .karta.cls-PRIZRAK-C::after { background-image: url('Img/cclassram.webp'); opacity: 0.95; }
-.karta.cls-B::after, .karta.cls-PRIZRAK-B::after { background-image: url('Img/bclassram.webp'); transform: scale(0.96); transform-origin: center; }
-.karta.cls-A::after, .karta.cls-PRIZRAK-A::after { background-image: url('Img/aclassram.webp'); transform: scale(0.96); transform-origin: center; }
-.karta.cls-S::after { background-image: url('Img/sclassram.webp'); transform: scale(0.93); transform-origin: center; }
+/* OPRAVA: Odstránené 'scale', rámy sa teraz roztiahnu úplne na doraz */
+.karta.cls-B::after, .karta.cls-PRIZRAK-B::after { background-image: url('Img/bclassram.webp'); transform: none !important; }
+.karta.cls-A::after, .karta.cls-PRIZRAK-A::after { background-image: url('Img/aclassram.webp'); transform: none !important; }
+.karta.cls-S::after { background-image: url('Img/sclassram.webp'); transform: none !important; }
 .karta.cls-S { box-shadow: 0 0 16px rgba(255, 204, 0, 0.65) !important; }
 .karta.cls-PRIZRAK-F { border: 2.5px solid #8b5a2b !important; }
 .karta.cls-PRIZRAK-F::after { display: none; }
