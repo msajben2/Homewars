@@ -90,11 +90,37 @@ body {
 .graveyard-pile { background: rgba(139, 0, 0, 0.7); border: 1px solid #ff4d4d; color: #fff; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 10px rgba(255, 77, 77, 0.4); transition: all 0.2s ease; margin: 0 10px; }
 .graveyard-pile:hover { background: rgba(255, 77, 77, 0.8); transform: scale(1.05); }
 .board-half { display: flex; flex-direction: column; gap: 8px; }
-
-.board-row {
-    background: rgba(0, 0, 0, 0.45); border: 1px dashed #4a3d2e; min-height: 290px; border-radius: 8px;
-    display: flex; align-items: center; padding: 10px 15px; gap: 14px; position: relative; overflow-x: auto; backdrop-filter: blur(2px);
+/* Inteligentný rad s horizontálnym scrollovaním pre extrémne prípady */
+.board-row, .card-hand {
+    display: flex;
+    justify-content: center; /* Drží karty krásne v strede */
+    flex-wrap: nowrap !important; /* Zakáže kartám skočiť do nového riadku */
+    overflow-x: auto; /* Zapne scrollovanie do boku, ak je kariet veľa */
+    overflow-y: hidden;
+    padding-bottom: 5px !important; /* Priestor pre scrollbar */
+    max-width: 100vw; /* Rad nikdy nepresiahne šírku monitora */
 }
+
+/* Aby karty nemenili veľkosť, keď sa ich tam natlačí veľa */
+.board-row .karta, .card-hand .karta {
+    flex-shrink: 0 !important; 
+    margin: 0 4px !important; /* Jemná 4px medzera medzi kartami */
+}
+
+/* Dizajn samotného scrollbaru (aby nevyzeral ako základný z Windowsu) */
+.board-row::-webkit-scrollbar, .card-hand::-webkit-scrollbar {
+    height: 6px; /* Tenký a elegantný posuvník */
+}
+.board-row::-webkit-scrollbar-track, .card-hand::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3); 
+    border-radius: 4px;
+}
+.board-row::-webkit-scrollbar-thumb, .card-hand::-webkit-scrollbar-thumb {
+    background: #d4af37; /* Zlatá farba posuvníka */
+    border-radius: 4px;
+}
+
+
 .row-label, .row-label-neutral { position: absolute; right: 12px; bottom: 6px; font-size: 0.85em; color: rgba(212, 175, 55, 0.4); pointer-events: none; font-weight: bold; text-transform: uppercase; }
 .row-neutral { background: rgba(30, 20, 10, 0.7); border: 1.5px solid #d4af37; min-height: 290px; justify-content: center; }
 .card-hand { display: flex; justify-content: center; gap: 12px; min-height: 290px; padding: 8px; overflow-x: auto; background: rgba(0, 0, 0, 0.45); border-radius: 8px; align-items: center; }
