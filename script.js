@@ -990,11 +990,14 @@ function otvorDetailKarty(meno, inicialnaTrieda) {
 
 function ukazOznamenie(titulok, sprava, callback) {
     var overlay = document.createElement("div"); overlay.className = "custom-notify-overlay";
-    overlay.innerHTML = '<div class="custom-notify-box"><h3 class="custom-notify-title">' + titulok + '</h3><div class="custom-notify-msg">' + sprava + '</div><button class="custom-notify-btn" id="notify-confirm-btn">Rozumiem</button></div>';
+    // Odstránili sme id="notify-confirm-btn", už ho nebudeme potrebovať
+    overlay.innerHTML = '<div class="custom-notify-box"><h3 class="custom-notify-title">' + titulok + '</h3><div class="custom-notify-msg">' + sprava + '</div><button class="custom-notify-btn">Rozumiem</button></div>';
     document.body.appendChild(overlay);
-    document.getElementById("notify-confirm-btn").onclick = function() { overlay.remove(); if (typeof callback === "function") callback(); };
+    
+    // Tlačidlo nájdeme presne vo vnútri aktuálneho okna
+    var btn = overlay.querySelector(".custom-notify-btn");
+    btn.onclick = function() { overlay.remove(); if (typeof callback === "function") callback(); };
 }
-
 function zobraziťObrazovku(idObrazovky) {
     var obrazovky = ["hlavne-menu", "hracia-plocha", "dielna-modal", "obchod-modal", "navod-modal", "deckbuilder-modal", "stats-modal"];
     obrazovky.forEach(function(id) { var el = document.getElementById(id); if (el) el.style.display = (id === idObrazovky) ? ((id.includes("modal")) ? "flex" : "block") : ((!id.includes("modal")) ? "none" : el.style.display); });
