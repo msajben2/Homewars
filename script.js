@@ -764,64 +764,66 @@ function aktualizujKolaUI() {
 
 function vylozitKartuZRuky(pNum, cardIndex) {
     if (blokujVykladanie || pNum !== aktualnyHrac) return;
-    var hand = (pNum === 1) ? p1_draft_hand : p2_draft_hand; var myPlayed = (pNum === 1) ? p1_played_cards : p2_played_cards; var oppPlayed = (pNum === 1) ? p2_played_cards : p1_played_cards;
+    var hand = (pNum === 1) ? p1_draft_hand : p2_draft_hand; 
+    var myPlayed = (pNum === 1) ? p1_played_cards : p2_played_cards; 
+    var oppPlayed = (pNum === 1) ? p2_played_cards : p1_played_cards;
+    
     if (!hand || cardIndex < 0 || cardIndex >= hand.length) return;
     var card = hand.splice(cardIndex, 1)[0]; if (!card) return; var reg = getRegistryCard(card.n);
 
     if (reg.isPrizrak) { ukazOznamenie("⚠️ PRÍZRAK", "S Prízrakom sa nedá hrať v zápase!"); hand.splice(cardIndex, 0, card); return; }
     
     if (reg.isSpy) {
-        oppPlayed.push(card); tahatNoveKartyZBalicka(pNum, 2);
-        ukazOznamenie("🕵️ ŠPIÓN VYLOŽENÝ", "Karta <strong>" + card.n + "</strong> potiahla 2 nové karty!", function() { vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); }); return;
+        oppPlayed.push(card); 
+        tahatNoveKartyZBalicka(pNum, 2);
+        // Zmazané oznámenie
+        vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); return;
     } else if (reg.isSpell) {
-        if (card.n === "Šicko v porádku") {
-            neutralne_vplyvy = []; odhodene_karty_kola.push(card);
-            ukazOznamenie("⚡ ŠICKO V PORÁDKU", "Všetky neutrálne kúzla vyčistené!", function() { vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); }); return;
-        } else {
-            neutralne_vplyvy.push(card.n);
-            ukazOznamenie("⚡ KÚZLO", "Bolo aktivované kúzlo <strong>" + card.n + "</strong>!", function() { vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); }); return;
-        }
+        if (card.n === "Šicko v porádku") { neutralne_vplyvy = []; odhodene_karty_kola.push(card); } 
+        else { neutralne_vplyvy.push(card.n); }
+        vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); return;
     } else {
         myPlayed.push(card);
-        if (card.n === "Zatúlaný tatranský medveď" || card.n === "Jakub") { vykonajAutoSpalenie(card.n, function() { vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); }); return; }
-        if (card.n === "Marek") vykonajCieleneSpalenieMarekom(pNum);
-        
-        // TU JE ZMENA PRE OŽIVOVANIE (pridané return)
+        if (card.n === "Zatúlaný tatranský medveď" || card.n === "Jakub") { vykonajAutoSpalenie(card.n); vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); return; }
+        if (card.n === "Marek") { vykonajCieleneSpalenieMarekom(pNum); }
         if (card.n === "Doktor" || card.n === "Sestrička" || card.n === "Kornélia") { vykonajOzivenieZArchivu(pNum); return; }
-        
         if (card.n === "Erik") { otvorErikBuffDialog(pNum, function() { vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); }); return; }
     }
     vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
-}    
-
-function pokracujPoVylozeni(pNum) { if ((pNum === 1 && !p2Pass) || (pNum === 2 && !p1Pass)) prepniHracov(); else spravujAI(); }
-
-function tahatNoveKartyZBalicka(pNum, count) {
-    var hand = (pNum === 1) ? p1_draft_hand : p2_draft_hand; var deck = (pNum === 1) ? p1_active_deck : p2_active_deck;
-    for (var i = 0; i < count; i++) { if (deck.length > 0) { var cName = deck.pop(); var cCls = (pNum === 1 && inventar.karty[cName] && inventar.karty[cName].aktivnaTrieda) ? inventar.karty[cName].aktivnaTrieda : "F"; hand.push({ n: cName, cls: cCls }); } }
 }
 
-function vykonajAutoSpalenie(pôvodcaMeno, callback) {
+function vykonajAutoSpalenie(pôvodcaMeno) {
     var vsetkyKartyStola = [];
     p1_played_cards.forEach(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli") vsetkyKartyStola.push(c); });
     p2_played_cards.forEach(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli") vsetkyKartyStola.push(c); });
-    if (vsetkyKartyStola.length === 0) { if (typeof callback === "function") callback(); return; }
+    if (vsetkyKartyStola.length === 0) return;
     var maxPwr = -1; vsetkyKartyStola.forEach(function(c) { var p = getRealPower(c); if (p > maxPwr) maxPwr = p; });
-    if (maxPwr <= 0) { if (typeof callback === "function") callback(); return; }
+    if (maxPwr <= 0) return;
 
-    var spalenychKariet = 0;
-    p1_played_cards = p1_played_cards.filter(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli" && getRealPower(c) === maxPwr) { p1_spalene.push(c); spalenychKariet++; return false; } return true; });
-    p2_played_cards = p2_played_cards.filter(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli" && getRealPower(c) === maxPwr) { p2_spalene.push(c); spalenychKariet++; return false; } return true; });
-
-    if (spalenychKariet > 0) ukazOznamenie("🔥 PLOŠNÉ SPÁLENIE!", "Zhorel(i) <strong>" + spalenychKariet + "</strong> najsilnejšie karty na stole (sila " + maxPwr + "b)!", function() { if (typeof callback === "function") callback(); });
-    else { if (typeof callback === "function") callback(); }
+    p1_played_cards = p1_played_cards.filter(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli" && getRealPower(c) === maxPwr) { p1_spalene.push(c); return false; } return true; });
+    p2_played_cards = p2_played_cards.filter(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli" && getRealPower(c) === maxPwr) { p2_spalene.push(c); return false; } return true; });
 }
 
 function vykonajCieleneSpalenieMarekom(pNum) {
     var oppCards = (pNum === 1) ? p2_played_cards : p1_played_cards; var oppSpalene = (pNum === 1) ? p2_spalene : p1_spalene;
     var targetable = oppCards.filter(function(c) { return c.n !== "Oli"; }); if (targetable.length === 0) return;
     var victim = targetable[Math.floor(Math.random() * targetable.length)]; var vIdx = oppCards.indexOf(victim);
-    if (vIdx !== -1) { oppCards.splice(vIdx, 1); oppSpalene.push(victim); ukazOznamenie("🧹 MAREK FILOZOF", "Marek zmanipuloval a poslal do ohňa súperovu kartu <strong>" + victim.n + "</strong>!"); }
+    if (vIdx !== -1) { oppCards.splice(vIdx, 1); oppSpalene.push(victim); }
+}
+
+function potvrdOzivenieKarty(pNum, index) {
+    var arch = (pNum === 1) ? p1_spalene : p2_spalene;
+    var myPlayed = (pNum === 1) ? p1_played_cards : p2_played_cards;
+    var oppPlayed = (pNum === 1) ? p2_played_cards : p1_played_cards;
+    var oživenaKarta = arch.splice(index, 1)[0];
+    
+    if (oživenaKarta) {
+        var reg = getRegistryCard(oživenaKarta.n);
+        // Ak oživí Špióna, ide na súperovu stranu a oživovateľ si potiahne 2 karty!
+        if (reg.isSpy) { oppPlayed.push(oživenaKarta); tahatNoveKartyZBalicka(pNum, 2); } 
+        else { myPlayed.push(oživenaKarta); }
+    }
+    vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
 }
 
 function otvorSpalenisko(pNum, isReviving) {
@@ -919,10 +921,17 @@ function vykonajTachAI() {
 
 function skontrolujKoniecKola() {
     prepočitajSkoreStola(); blokujVykladanie = true;
-    if (sc1 > sc2) r1++; else if (sc2 > sc1) r2++; else { r1++; r2++; }
+    var textVysledku = "";
+    if (sc1 > sc2) { r1++; textVysledku = "Tvoja výhra (" + sc1 + " : " + sc2 + ")"; } 
+    else if (sc2 > sc1) { r2++; textVysledku = "Súper vyhral (" + sc2 + " : " + sc1 + ")"; } 
+    else { r1++; r2++; textVysledku = "Remíza, obaja majú korunku (" + sc1 + " : " + sc2 + ")"; }
+    
     p1MulliganRound1Bonus = 0; p2MulliganRound1Bonus = 0;
     aktualizujKolaUI();
-    if (r1 >= 2 || r2 >= 2) vyhodnotKoniecZapasu(); else pripravNoveKolo();
+    
+    ukazOznamenie("🏁 KONIEC KOLA", textVysledku, function() {
+        if (r1 >= 2 || r2 >= 2) vyhodnotKoniecZapasu(); else pripravNoveKolo();
+    });
 }
 
 function pripravNoveKolo() {
