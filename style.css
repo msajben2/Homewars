@@ -164,8 +164,22 @@ body {
 .karta-stitok-spodok { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(12, 8, 5, 0.92); border-top: 1px solid #d4af37; padding: 5px 4px; text-align: center; z-index: 11; backdrop-filter: blur(2px); border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
 .karta-nazov { font-size: 0.88em; font-weight: bold; color: #ffcc00; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+/* OPRAVA VEĽKOSTI KARIET SUROVÍN V TRUHLE (Aby nevyskakovali z radu) */
 .karta-surovina {
-    width: 175px; height: 275px; background: #100c08; border: 3px solid #d4af37; border-radius: 8px; position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 6px; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); flex-shrink: 0; overflow: hidden;
+    width: 175px !important; 
+    height: 275px !important; 
+    box-sizing: border-box !important;
+    background: #100c08; 
+    border: 3px solid #d4af37; 
+    border-radius: 8px; 
+    position: relative; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
+    padding: 6px; 
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); 
+    flex-shrink: 0; 
+    overflow: hidden;
 }
 .karta-surovina .surovina-foto { width: 100%; height: 180px; background-size: cover; background-position: center; border-radius: 4px; margin-top: 20px; }
 .karta-surovina .surovina-badge { position: absolute; top: 6px; right: 6px; background: #ffcc00; color: #000; font-weight: bold; font-size: 0.95em; padding: 3px 9px; border-radius: 12px; border: 1px solid #000; }
@@ -248,20 +262,19 @@ body {
     height: 10vh !important; 
     padding: 2px 5px !important;
 }
-
 .row-neutral {
-    height: 3.5vh !important; 
+    height: 10vh !important; /* ROVNAKÁ VÝŠKA AKO OSTATNÉ RADY */
     min-height: 0 !important;
+    padding: 2px 5px !important;
 }
 
-/* Karta sa prispôsobí novému radu */
+/* Jemné prispôsobenie kariet, aby to teraz nevybuchlo cez okraj */
 .board-container .karta {
-    height: 9.2vh !important; 
-    width: calc(9.2vh * 0.636) !important; 
-    min-width: calc(9.2vh * 0.636) !important;
+    height: 8.8vh !important; 
+    width: calc(8.8vh * 0.636) !important; 
+    min-width: calc(8.8vh * 0.636) !important;
     flex-shrink: 0;
 }
-
 /* Dynamické škálovanie krúžkov, aby neprekryli obrázok */
 .board-container .karta-kruh {
     width: 26% !important; 
