@@ -1127,3 +1127,32 @@ function otvorDetailKarty(n) {
 
     modal.style.display = "flex";
 }
+// =====================================================================
+// FUNKCIA NA ŤAHANIE KARIET POČAS ZÁPASU (Napríklad pre Špiónov)
+// =====================================================================
+function tahatNoveKartyZBalicka(pNum, pocetKariet) {
+    var deck = (pNum === 1) ? p1_active_deck : p2_active_deck;
+    var hand = (pNum === 1) ? p1_draft_hand : p2_draft_hand;
+    var potiahnute = 0;
+
+    for (var i = 0; i < pocetKariet; i++) {
+        // Skontrolujeme, či ešte vôbec máme v balíčku nejaké karty
+        if (deck.length > 0) {
+            var cardName = deck.pop();
+            var cardCls = "F"; // Predvolená trieda
+            
+            // Ak ťaháš ty (Hráč 1), zistíme, akú máš na túto kartu najlepšiu aktívnu triedu v inventári
+            if (pNum === 1 && inventar.karty[cardName] && inventar.karty[cardName].aktivnaTrieda) {
+                cardCls = inventar.karty[cardName].aktivnaTrieda;
+            }
+            
+            hand.push({ n: cardName, cls: cardCls });
+            potiahnute++;
+        }
+    }
+
+    // Ak si ťahal ty, ukážeme ti o tom pekné oznámenie
+    if (pNum === 1 && potiahnute > 0) {
+        ukazOznamenie("🃏 ŤAHANIE KARIET", "Vďaka Špiónovi si si potiahol " + potiahnute + " nové karty z balíčka!");
+    }
+}
