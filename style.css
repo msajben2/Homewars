@@ -266,119 +266,105 @@ body {
 .leaderboard-item.rank-3 { background: rgba(205, 127, 50, 0.2); border: 1.5px solid #cd7f32; color: #e6a880; }
 .plat-badge { font-size: 0.75em; background: #e0e7ff; color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
 /* =========================================================================
-   ÚPRAVA PRE JEDNU OBRAZOVKU - DOKONALÉ ŠKÁLOVANIE (100VH) + SCROLL
+   NOVÝ, FLUIDNÝ LAYOUT HRACEJ PLOCHY (BEZ NÁSILNÉHO ŠKRTENIA)
    ========================================================================= */
 .board-container {
-    height: 100vh;
-    max-height: 100vh;
-    overflow: hidden;
-    padding: 10px; /* Trochu viac miesta po okrajoch */
+    min-height: 100vh; /* Roztiahne sa na celú obrazovku, ale dovolí scrollovať, ak treba */
+    padding: 15px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Roztiahne to pekne hore a dole */
+    gap: 15px; /* Necháme hraciu plochu dýchať */
 }
 
-/* TOTO BOLO TO STRATENÉ PRAVIDLO! */
 .board-half {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    flex: 1 !important; /* Prikáže policiam, aby rovnomerne vyplnili obrazovku */
-    gap: 8px !important; /* Medzera medzi radmi 1, 2 a 3 */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-/* Opravená pozícia textov radov */
-.row-label {
-    position: absolute !important;
-    left: 10px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    z-index: 10 !important;
-    font-size: clamp(0.7em, 1.5vh, 1.2em) !important; 
-    color: #ffcc00 !important;
-    pointer-events: none;
-    font-weight: bold;
-    text-transform: uppercase;
+/* 1. Flexibilná, ale stále hrdá veľkosť kariet na ploche */
+.board-container .karta {
+    width: clamp(100px, 12vw, 150px) !important; 
+    height: clamp(157px, 18.8vw, 235px) !important; 
+    flex-shrink: 0 !important;
+    margin: 0 4px !important;
 }
 
+/* 2. Herné rady a Ruka - prispôsobia sa veľkosti kariet */
 .board-row, .card-hand {
-    min-height: 0 !important; 
-    height: 11.5vh !important; /* Ešte o kúsok väčšie rady */
-    padding: 2px 5px !important;
+    min-height: clamp(170px, 20vw, 255px) !important; /* Vždy o kúsok vyššie ako samotná karta */
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
     overflow-y: hidden !important;
-    max-width: 100vw !important;
-    position: relative !important; 
-    background: rgba(0,0,0,0.3) !important; /* Jemné podfarbenie radu pre lepší vizuál */
+    padding: 10px 40px 10px 10px !important; /* Miesto napravo, aby karty neprekrývali text */
+    background: rgba(0, 0, 0, 0.4) !important;
     border-radius: 8px !important;
+    border: 1px solid rgba(212, 175, 55, 0.15) !important;
+    position: relative !important; 
 }
 
-.board-row::-webkit-scrollbar, .card-hand::-webkit-scrollbar { height: 6px; }
+/* Jemné scrollovanie, ak by sa do radu natlačilo 17 kariet */
+.board-row::-webkit-scrollbar, .card-hand::-webkit-scrollbar { height: 8px; }
 .board-row::-webkit-scrollbar-track, .card-hand::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); border-radius: 4px; }
 .board-row::-webkit-scrollbar-thumb, .card-hand::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
 
+/* 3. Neutrálny rad (Kúzla stola) - tenší a výraznejší */
 .row-neutral {
-    height: 4vh !important; 
-    min-height: 0 !important;
-    padding: 2px 5px !important;
-    background: rgba(30, 20, 10, 0.7) !important;
-    border: 1.5px solid #d4af37 !important;
-    justify-content: center !important;
+    min-height: 80px !important;
+    background: rgba(30, 20, 10, 0.8) !important;
+    border: 2px dashed #d4af37 !important;
 }
 
-/* Karty vyplnia takmer celú výšku radu */
-.board-container .karta {
-    height: 10.5vh !important; 
-    width: calc(10.5vh * 0.636) !important; 
-    min-width: calc(10.5vh * 0.636) !important;
-    flex-shrink: 0 !important;
-    margin: 0 4px !important; 
-}
-
-/* Dynamické škálovanie krúžkov a textov v karte */
-.board-container .karta-kruh {
-    width: 26% !important; 
-    height: auto !important; 
-    aspect-ratio: 1 / 1; 
-    font-size: clamp(0.5em, 1.2vh, 0.9em) !important;
-    top: 4% !important;
-    border-width: 1px !important;
-}
-.board-container .karta-kruh-pwr { left: 4% !important; }
-.board-container .karta-kruh-cls { right: 4% !important; }
-
-.board-container .karta-stitok-spodok {
-    padding: 1px 0 !important;
-    border-top-width: 1px !important;
-}
-.board-container .karta-nazov {
-    font-size: clamp(0.4em, 1vh, 0.8em) !important;
-}
-
-.board-container .karta-btn-inspect {
-    bottom: 20% !important;
-    right: 4% !important;
-    padding: 1px 4px !important;
-    font-size: clamp(0.4em, 1vh, 0.8em) !important;
-    border-width: 1px !important;
-}
-
-/* OPRAVA: Plávajúce tlačidlo "Opustiť Zápas" pre hráča 1 */
-.btn-exit {
+/* 4. Texty radov pevne usadené na ľavej strane */
+.row-label {
     position: absolute !important;
-    bottom: 20px !important;
-    right: 20px !important;
+    left: 15px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #ffcc00 !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    font-size: clamp(0.8em, 1.2vw, 1.1em) !important;
+    z-index: 10 !important;
+    pointer-events: none !important;
+    text-shadow: 1px 1px 3px #000 !important;
+}
+.row-label-neutral {
+    color: #ff4d4d !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+}
+
+/* 5. Vrátenie detailov kariet (krúžky) do pôvodnej krásy */
+.board-container .karta-kruh {
+    width: 32px !important; 
+    height: 32px !important; 
+    font-size: 1em !important;
+    top: 6px !important;
+}
+.board-container .karta-kruh-pwr { left: 6px !important; }
+.board-container .karta-kruh-cls { right: 6px !important; }
+.board-container .karta-nazov { font-size: 0.85em !important; }
+.board-container .karta-btn-inspect { bottom: 35px !important; right: 8px !important; }
+
+/* 6. Oprava plávajúceho tlačidla "Opustiť Zápas" */
+.btn-exit {
+    position: fixed !important;
+    bottom: 25px !important;
+    right: 25px !important;
     z-index: 9999 !important;
     background: #3b2d1d !important;
     color: #ffcc00 !important;
     border: 2px solid #d4af37 !important;
-    padding: 10px 20px !important;
+    padding: 12px 24px !important;
     font-size: 1.1em !important;
-    box-shadow: 0 0 15px rgba(0,0,0,0.8) !important;
+    font-weight: bold !important;
+    border-radius: 8px !important;
+    box-shadow: 0 0 20px rgba(0,0,0,0.9) !important;
+    cursor: pointer !important;
 }
 
 /* =========================================================================
