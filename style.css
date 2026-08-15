@@ -250,12 +250,11 @@ body {
     height: 4vh !important; 
     min-height: 0 !important;
 }
-
-/* Kúzlo prispôsobenia karty */
-.karta {
-    height: 100% !important; /* Karta vždy vyplní dostupnú výšku radu (napr. tých 12vh) */
+/* Kúzlo prispôsobenia karty iba na ploche */
+.board-container .karta {
+    height: 100% !important;
     width: auto !important; 
-    aspect-ratio: 175 / 275 !important; /* Magická vlastnosť: Karta sa zmenší, ale vždy zachová dokonalý obdĺžnikový tvar! */
+    aspect-ratio: 175 / 275 !important;
     flex-shrink: 0;
 }
 /* =========================================================================
