@@ -37,7 +37,7 @@ var MASTER_REGISTRY = {
     "Doktor": { row: 1, p: 5, isPlatinum: true, img: "Img/doktor.webp", desc: "Skúsený lekár s dlhoročnou praxou.", abilityDesc: "🏥 <strong>Oživenie:</strong> Vráti do hry tebou vybranú spálenú kartu z archívu ohňa." },
     "Michal": { row: 1, p: 5, isPlatinum: true, img: "Img/michal.webp", desc: "Prefíkaný obchodník z ďalekých krajov.", abilityDesc: "📢 <strong>Obchodník:</strong> Ak nie je na stole Nela, dáva sám sebe buff +100 % k vlastnej sile." },
     "Kornélia": { row: 2, p: 3, isPlatinum: true, img: "Img/kornelia.webp", desc: "Tichá bylinkárka z okraja lesa.", abilityDesc: "🏥 <strong>Oživenie:</strong> Vráti do hry tebou vybranú spálenú kartu z archívu ohňa." },
-    "Katy": { row: 1, p: 6, isPlatinum: true, img: "Img/katy.webp", desc: "Kráľovná výhier, ktorá prináša na stôl rovnováhu.", abilityDesc: "💖 <strong>Pomoc:</strong> Pridáva +2 body tvojim kartám a uberá -2 body všetkým súperovým kartám." },
+    "Katy": { row: 2, p: 6, isPlatinum: true, img: "Img/katy.webp", desc: "Kráľovná výhier, ktorá prináša na stôl rovnováhu.", abilityDesc: "💖 <strong>Pomoc:</strong> Pridáva +2 body tvojim kartám a uberá -2 body všetkým súperovým kartám." },
     "Krčmár Boris": { row: 1, p: 4, isPlatinum: true, isSpy: true, img: "Img/krcmar-boris.webp", desc: "Hostinský, u ktorého sa zbiehajú všetky klebety.", abilityDesc: "🕵️ <strong>Špión:</strong> Vykladá sa súperovi do 1. radu a potiahne ti 2 nové karty." },
     "Marek": { row: 1, p: 4, isPlatinum: true, img: "Img/marek.webp", desc: "Zádumčivý filozof analyzujúci súperove ťahy.", abilityDesc: "🔥 <strong>Filozof:</strong> Automaticky spáli najsilnejšiu kartu (alebo karty pri zhode) na celom stole (okrem seba a Oli)." },
     "Kráľovský Šampión": { row: 1, p: 8, isTournamentUnique: true, img: "Img/neviditelny-mario.webp", desc: "Extrémne vzácna turnajová trofej. V kráľovstve existuje len jeden kus.", abilityDesc: "👑 <strong>Turnajový Unikát:</strong> Ková sa výhradne s Prízrakmi. Má obrovskú základnú silu a nepadá z bežných truhlíc." },
@@ -273,10 +273,13 @@ function vytiahniRukuZRozdanehoBalicka(pNum) {
     for (var i = 0; i < 10; i++) { 
         if (deck.length > 0) { 
             var item = deck.pop();
-            // Ak je to už objekt (čo je prípad nového AI balíčka), vložíme ho priamo
             if (typeof item === "object") { hand.push(item); } 
             else {
-                var cardCls = (pNum === 1 && inventar.karty[item] && inventar.karty[item].aktivnaTrieda) ? inventar.karty[item].aktivnaTrieda : "F"; 
+                var cardCls = "F"; 
+                if (pNum === 1 && inventar.karty[item] && inventar.karty[item].repliky) {
+                    var rep = inventar.karty[item].repliky;
+                    if (rep["S"] > 0) cardCls = "S"; else if (rep["A"] > 0) cardCls = "A"; else if (rep["B"] > 0) cardCls = "B"; else if (rep["C"] > 0) cardCls = "C"; else if (rep["D"] > 0) cardCls = "D"; else if (rep["E"] > 0) cardCls = "E";
+                }
                 hand.push({ n: item, cls: cardCls }); 
             }
         } 
@@ -401,7 +404,12 @@ function aktualizujPanelDielne() {
         if (!inventar.karty[t]) inventar.karty[t] = { repliky: { "F": 1 }, aktivnaTrieda: "F" }; var cardData = inventar.karty[t];
         
         var topClass = "F";
-        ["S", "A", "B", "C", "D", "E"].forEach(function(c) { if (cardData.repliky[c] > 0) topClass = c; });
+        if (cardData.repliky["S"] > 0) topClass = "S";
+        else if (cardData.repliky["A"] > 0) topClass = "A";
+        else if (cardData.repliky["B"] > 0) topClass = "B";
+        else if (cardData.repliky["C"] > 0) topClass = "C";
+        else if (cardData.repliky["D"] > 0) topClass = "D";
+        else if (cardData.repliky["E"] > 0) topClass = "E";
 
         var wrapper = document.createElement("div"); wrapper.className = "karta-karta-wrapper";
         var cardDiv = document.createElement("div"); cardDiv.className = "karta cls-" + topClass;
@@ -1072,24 +1080,29 @@ function spravujAI() { if (jeSingleplayer && aktualnyHrac === 2 && !p2Pass && !b
 function vykonajTachAI() {
     if (p2Pass || blokujVykladanie) return;
     
-    if (p1Pass && sc2 > sc1) { hracPassuje(2); return; }
-    if (sc2 > (sc1 + 20) && p2_draft_hand.length < 10) { hracPassuje(2); return; }
-    if (!p2_draft_hand || p2_draft_hand.length === 0) { hracPassuje(2); return; }
+    if (p1Pass && sc2 > sc1) { hracPassuje(2); return; } 
+    if (sc2 > (sc1 + 20) && p2_draft_hand.length < 10) { hracPassuje(2); return; } 
+    if (!p2_draft_hand || p2_draft_hand.length === 0) { hracPassuje(2); return; } 
     
-    // --- NOVÉ: INTELIGENTNÝ VÝBER KARTY (BOT) ---
+    // --- NOVÉ: TAKTICKÝ ÚSTUP AI ---
+    // Ak AI prehráva o viac ako 25 bodov a ty ešte nemáš vyhraté kolo (r1 === 0), 
+    // radšej passne a ušetrí si karty na ďalšie kolá.
+    if (sc1 > (sc2 + 25) && r1 === 0) {
+        hracPassuje(2); 
+        return;
+    }
+    
+    // --- INTELIGENTNÝ VÝBER KARTY ---
     var chosenIndex = -1;
     var safeIndices = [];
     
-    // Zistíme, ktoré karty v ruke NIE SÚ nebezpeční spaľovači
     p2_draft_hand.forEach(function(c, i) {
         if (c.n !== "Marek" && c.n !== "Jakub" && c.n !== "Zatúlaný tatranský medveď") safeIndices.push(i);
     });
     
-    // Ak je súper na 0 bodoch (začiatok kola), bot zahraje radšej bezpečnú kartu a šetrí si Mareka
     if (sc1 === 0 && safeIndices.length > 0) {
         chosenIndex = safeIndices[Math.floor(Math.random() * safeIndices.length)];
     } else {
-        // Inak vyberie náhodne čokoľvek z ruky
         chosenIndex = Math.floor(Math.random() * p2_draft_hand.length);
     }
     
@@ -1293,7 +1306,10 @@ function tahatNoveKartyZBalicka(pNum, pocetKariet) {
             if (typeof item === "object") { hand.push(item); } 
             else {
                 var cardCls = "F"; 
-                if (pNum === 1 && inventar.karty[item] && inventar.karty[item].aktivnaTrieda) cardCls = inventar.karty[item].aktivnaTrieda;
+                if (pNum === 1 && inventar.karty[item] && inventar.karty[item].repliky) {
+                    var rep = inventar.karty[item].repliky;
+                    if (rep["S"] > 0) cardCls = "S"; else if (rep["A"] > 0) cardCls = "A"; else if (rep["B"] > 0) cardCls = "B"; else if (rep["C"] > 0) cardCls = "C"; else if (rep["D"] > 0) cardCls = "D"; else if (rep["E"] > 0) cardCls = "E";
+                }
                 hand.push({ n: item, cls: cardCls });
             }
             potiahnute++;
