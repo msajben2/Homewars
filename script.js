@@ -234,14 +234,31 @@ function vygenerujDeckbuilder() {
 }
 
 function pripravBalicekPreZapas(pNum) {
-    // Ak ide o Bota v singleplayeri, vygenerujeme mu vlastný dynamický balík
     if (pNum === 2 && jeSingleplayer) { return vygenerujUmeluInteligenciu(); }
     
-    // Pre teba sa načíta normálna tvoja Zostava
-    var pool = inventar.zostava.slice();
-    for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; }
+    var pool = [];
+    // BEZPEČNOSTNÁ KONTROLA: Overíme, či má hráč karty z Deckbuildera reálne v batohu
+    inventar.zostava.forEach(function(kartaName) {
+        if (inventar.karty[kartaName]) {
+            pool.push(kartaName);
+        }
+    });
+
+    // Ak hráč podvádzal (alebo sa mu zmazal save) a nemá aspoň 25 kariet, doplníme mu základné
+    if (pool.length < 25) {
+        console.warn("Detekovaný pokus o podvod alebo poškodený balíček. Dopĺňam zálohu.");
+        var fallbackPool = Object.keys(MASTER_REGISTRY).filter(function(k) { return !MASTER_REGISTRY[k].isPrizrak && !MASTER_REGISTRY[k].isPlatinum; });
+        while(pool.length < 25) { 
+            pool.push(fallbackPool[Math.floor(Math.random() * fallbackPool.length)]); 
+        }
+    }
+
+    for (var i = pool.length - 1; i > 0; i--) { 
+        var j = Math.floor(Math.random() * (i + 1)); 
+        var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; 
+    }
     return pool;
-} // koniec funkcie pripravBalicekPreZapas
+}
 
 // POMOCNÁ FUNKCIA: Presné škálovanie AI balíčka
 function vygenerujUmeluInteligenciu() {
@@ -342,12 +359,14 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
     var extraLowPwrCoins = 0;
     var extraLowPwrGold = 0;
 
+    // Počítame každú jednu vyloženú farmársku kartu
     if (typ === "vitaz" && r1 >= 2) {
         p1_played_cards.forEach(function(c) {
             var reg = getRegistryCard(c.n);
             if (!reg.isSpell && !reg.isItem && !reg.isPrizrak && !reg.isPlatinum) {
                 var cls = c.cls || "F";
                 var bPwr = reg.p;
+                
                 if (bPwr === 1) {
                     if (cls === "F") extraLowPwrCoins += 5; else if (cls === "E") extraLowPwrCoins += 10;
                     else if (cls === "D") extraLowPwrCoins += 20; else if (cls === "C") extraLowPwrCoins += 40;
@@ -501,6 +520,13 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenType, mixValue) {
         var reqReal = 3, reqPrizrak = 0;
         if (mixValue) { var pts = mixValue.split(","); reqReal = parseInt(pts[0]); reqPrizrak = parseInt(pts[1]); }
         
+        // --- OCHRANA PRED INSPECT ELEMENT PODVODOM ---
+        if (reqReal + reqPrizrak !== 3 || reqReal < 0 || reqPrizrak < 0) {
+            ukazOznamenie("⛔ POKUS O PODVOD", "Zachytená manipulácia s HTML kódom. Receptúra musí obsahovať presne 3 karty alebo prízraky!");
+            return;
+        }
+        // ----------------------------------------------
+
         if (countCurrent < reqReal) { ukazOznamenie("⚠️ NEDOSTATOK KARIET", "Pre túto receptúru potrebuješ <strong>" + reqReal + "x Reálnu kartu</strong> (máš len " + countCurrent + ")."); return; }
         if (countPrizrak < reqPrizrak) { ukazOznamenie("⚠️ NEDOSTATOK PRÍZRAKOV", "Pre túto receptúru potrebuješ <strong>" + reqPrizrak + "x Prízrak</strong> (máš len " + countPrizrak + ")."); return; }
     }
