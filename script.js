@@ -447,9 +447,7 @@ function aktualizujPanelDielne() {
     });
 } // koniec funkcie aktualizujPanelDielne
 
-        wrapper.appendChild(cardDiv); var actDiv = document.createElement("div"); actDiv.style.width = "100%"; actDiv.innerHTML = actions; wrapper.appendChild(actDiv); e.appendChild(wrapper);
-    });
-}
+        
 
 function devPridatSurovinyACheaty() {
     inventar.mince += 100000; inventar.suroviny["Koža"] = (inventar.suroviny["Koža"] || 0) + 100; inventar.suroviny["Drevo"] = (inventar.suroviny["Drevo"] || 0) + 100; inventar.suroviny["Kov"] = (inventar.suroviny["Kov"] || 0) + 100; inventar.suroviny["Bronz"] = (inventar.suroviny["Bronz"] || 0) + 100; inventar.suroviny["Striebro"] = (inventar.suroviny["Striebro"] || 0) + 100; inventar.suroviny["Zlato"] = (inventar.suroviny["Zlato"] || 0) + 5000;
