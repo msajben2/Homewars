@@ -415,14 +415,15 @@ function aktualizujPanelDielne() {
         var cardDiv = document.createElement("div"); cardDiv.className = "karta cls-" + topClass;
         var realPwr = getRealPower({ n: t, cls: topClass }); cardDiv.innerHTML = vytvorHTMLKarty(t, realPwr, topClass, reg.row, reg.p);
         
-        var actions = '';
+       var actions = '';
         if (reg.isTournamentUnique) {
             var c = topClass;
-            if (c === "S") { actions = '<div style="font-size:0.75em; margin:6px 0; color:#10b981; text-align:center; font-weight:bold;">MAXIMÁLNA ÚROVEŇ (S-Class)</div>'; } 
-            else {
+            if (c === "S") { 
+                actions = '<div style="font-size:0.75em; margin:6px 0; color:#10b981; text-align:center; font-weight:bold;">MAXIMÁLNA ÚROVEŇ (S-Class)</div>'; 
+            } else {
                 var nC = (c === "F") ? "E" : ((c === "E") ? "D" : ((c === "D") ? "C" : ((c === "C") ? "B" : "A")));
                 var trKey = c + "->" + nC;
-                actions = '<div style="font-size:0.75em; margin:6px 0; color:#ffcc00; text-align:center;">👑 Unikát: Potrebuješ 2x Prízrak ('+c+'-Class)</div><label style="font-size:0.75em; color:#aaa;">Zvitok ochrany:</label><select id="pergamen-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:6px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="none">Bez Zvitku</option><option value="legendary">Legendárny Zvitok</option></select><button class="btn-forge" style="background:#10b981;" onclick="vylepsiKartuVoForge(\'' + t.replace(/'/g, "\\'") + '\', \'' + trKey + '\', document.getElementById(\'pergamen-select-' + t.replace(/\s+/g, '') + '\').value)">🔨 Povýšiť na ' + nC + '</button>';
+                actions = '<div style="font-size:0.75em; margin:6px 0; color:#ffcc00; text-align:center;">👑 Unikát: Potrebuješ 2x Prízrak ('+c+'-Class)</div><label style="font-size:0.75em; color:#aaa;">Zvitok ochrany:</label><select id="pergamen-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:6px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="none">Bez Zvitku</option><option value="basic">Základný Zvitok</option><option value="advanced">Pokročilý Zvitok</option><option value="legendary">Legendárny Zvitok</option></select><button class="btn-forge" style="background:#10b981;" onclick="vylepsiKartuVoForge(\'' + t.replace(/'/g, "\\'") + '\', \'' + trKey + '\', document.getElementById(\'pergamen-select-' + t.replace(/\s+/g, '') + '\').value)">🔨 Povýšiť na ' + nC + '</button>';
             }
         } else {
             var countsText = 'F:' + (cardData.repliky["F"] || 0) + ' | E:' + (cardData.repliky["E"] || 0) + ' | D:' + (cardData.repliky["D"] || 0) + ' | C:' + (cardData.repliky["C"] || 0) + ' | B:' + (cardData.repliky["B"] || 0) + ' | A:' + (cardData.repliky["A"] || 0) + ' | S:' + (cardData.repliky["S"] || 0);
@@ -513,8 +514,13 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
                 ukazOznamenie("👑 KRÁĽOVSKÝ ŠAMPIÓN POVÝŠENÝ!", "Turnajová trofej <strong>Kráľovský Šampión</strong> bola povýšená na <strong>" + nextCls + "-Class</strong>!");
                 if (nextCls === "S") vyhlasGlobalnySClassOznam("Hráč 1 (Ty)", meno);
             } else {
-                inventar.prizraky[oldCls] = Math.max(0, (inventar.prizraky[oldCls] || 0) - 1);
-                ukazOznamenie("🛡️ ŠAMPIÓN OCHRÁNENÝ!", "Kovanie zlyhalo a 1x Prízrak zhorel v ohni, no <strong>Kráľovský Šampión je nezničiteľný unikát</strong> a zostal zachovaný!");
+                // NOVÉ: Kontrola zvitku - ak nebol chránený, Prízrak zhorí. Ak bol, zachráni sa!
+                if (!wasProtected) {
+                    inventar.prizraky[oldCls] = Math.max(0, (inventar.prizraky[oldCls] || 0) - 1);
+                    ukazOznamenie("💥 KOVANIE ZLYHALO!", "Kovanie zlyhalo a 1x Prízrak zhorel v ohni. <strong>Kráľovský Šampión</strong> je však nezničiteľný unikát a zostal zachovaný.");
+                } else {
+                    ukazOznamenie("🛡️ PRÍZRAK OCHRÁNENÝ!", "Kovanie zlyhalo, ale Zvitok ochrany úspešne zachránil tvojho Prízraka pred spálením!");
+                }
             }
         } else {
             var t = inventar.karty[meno]; if (!t) { inventar.karty[meno] = { repliky: {}, aktivnaTrieda: "F" }; t = inventar.karty[meno]; }
