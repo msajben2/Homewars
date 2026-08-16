@@ -340,16 +340,36 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
     }
 
     var extraLowPwrCoins = 0;
-    if (r1 >= 2) {
+    var extraLowPwrGold = 0;
+
+    if (typ === "vitaz" && r1 >= 2) {
         p1_played_cards.forEach(function(c) {
             var reg = getRegistryCard(c.n);
             if (!reg.isSpell && !reg.isItem && !reg.isPrizrak && !reg.isPlatinum) {
-                if (reg.p === 1) extraLowPwrCoins += 25; else if (reg.p === 2) extraLowPwrCoins += 15; else if (reg.p === 3) extraLowPwrCoins += 10; else if (reg.p === 4) extraLowPwrCoins += 5;
+                var cls = c.cls || "F";
+                var bPwr = reg.p;
+                if (bPwr === 1) {
+                    if (cls === "F") extraLowPwrCoins += 5; else if (cls === "E") extraLowPwrCoins += 10;
+                    else if (cls === "D") extraLowPwrCoins += 20; else if (cls === "C") extraLowPwrCoins += 40;
+                    else if (cls === "B") extraLowPwrCoins += 80; else if (cls === "A") extraLowPwrCoins += 150;
+                    else if (cls === "S") { extraLowPwrCoins += 250; extraLowPwrGold += 1; }
+                } else if (bPwr === 2) {
+                    if (cls === "F") extraLowPwrCoins += 3; else if (cls === "E") extraLowPwrCoins += 5;
+                    else if (cls === "D") extraLowPwrCoins += 10; else if (cls === "C") extraLowPwrCoins += 20;
+                    else if (cls === "B") extraLowPwrCoins += 40; else if (cls === "A") extraLowPwrCoins += 80;
+                    else if (cls === "S") extraLowPwrCoins += 150;
+                } else if (bPwr === 3) {
+                    if (cls === "F") extraLowPwrCoins += 1; else if (cls === "E") extraLowPwrCoins += 2;
+                    else if (cls === "D") extraLowPwrCoins += 5; else if (cls === "C") extraLowPwrCoins += 10;
+                    else if (cls === "B") extraLowPwrCoins += 20; else if (cls === "A") extraLowPwrCoins += 40;
+                    else if (cls === "S") extraLowPwrCoins += 80;
+                }
             }
         });
-        extraLowPwrCoins = Math.min(125, extraLowPwrCoins);
     }
-    
+
+    goldEarned += extraLowPwrGold;
+
     var itemBonusCoins = 0;
     if (typ === "vitaz") {
         p1_pouzite_predmety.forEach(function(cls) {
@@ -365,7 +385,7 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
     var mincovyText = 'Kopa Mincí';
     if (extraLowPwrCoins > 0 || itemBonusCoins > 0) {
         mincovyText += '<br><small style="color:#aaa;">(';
-        if (extraLowPwrCoins > 0) mincovyText += '+' + extraLowPwrCoins + ' za F-Karty';
+        if (extraLowPwrCoins > 0) mincovyText += '+' + extraLowPwrCoins + ' za Farmu';
         if (extraLowPwrCoins > 0 && itemBonusCoins > 0) mincovyText += ', ';
         if (itemBonusCoins > 0) mincovyText += '<span style="color:#10b981;">+' + itemBonusCoins + ' z Predmetov</span>';
         mincovyText += ')</small>';
@@ -767,12 +787,13 @@ function vypocitajDynamickuSiluJednejKarty(card, pNum) {
 
     var itemBonus = 0;
     myCards.forEach(function(c) { var r = getRegistryCard(c.n); if (r.isItem && r.row === reg.row) itemBonus += CLASS_CONFIG[c.cls || "F"].itemBonus; });
-    var rowSetBonus = vypocitajSetBonusRadu(reg.row, myCards); var basePwr = getRealPower(card);
+    var rowSetBonus = vypocitajSetBonusRadu(reg.row, myCards, pNum); 
+    var basePwr = getRealPower(card);
 
     if (card.n !== "Oli") {
-        if (reg.row === 1 && neutralne_vplyvy.indexOf("Musíme sa porozprávať") !== -1) basePwr = 1;
-        if (reg.row === 2 && neutralne_vplyvy.indexOf("Upokoj sa") !== -1) basePwr = 1;
-        if (reg.row === 3 && neutralne_vplyvy.indexOf("Ohnostroj") !== -1) basePwr = 1;
+        if (reg.row === 1 && neutralne_vplyvy.some(function(s){return s.n === "Musíme sa porozprávať";})) basePwr = 1;
+        if (reg.row === 2 && neutralne_vplyvy.some(function(s){return s.n === "Upokoj sa";})) basePwr = 1;
+        if (reg.row === 3 && neutralne_vplyvy.some(function(s){return s.n === "Ohnostroj";})) basePwr = 1;
     }
 
     basePwr += itemBonus + rowSetBonus;
@@ -809,7 +830,7 @@ function vypocitajSiluHracovychKariet(pNum, myCards, oppCards, isNela, myKaty, o
     var total = 0; myCards.forEach(function(c) { var dynPwr = vypocitajDynamickuSiluJednejKarty(c, pNum); if (dynPwr !== "none") total += dynPwr; }); return total;
 }
 
-function vypocitajSetBonusRadu(targetRow, cardList) {
+function vypocitajSetBonusRadu(targetRow, cardList, pNum) {
     var cardsInRow = cardList.filter(function(c) { return getRegistryCard(c.n).row === targetRow; });
     var countE = 0, countD = 0, countC = 0, countB = 0, countA = 0, countS = 0;
     
@@ -818,6 +839,27 @@ function vypocitajSetBonusRadu(targetRow, cardList) {
         if (cls === "E") countE++; if (cls === "D") countD++; if (cls === "C") countC++; if (cls === "B") countB++; if (cls === "A") countA++; if (cls === "S") countS++;
     });
     
+    var spellWeight = 0;
+    var weights = { "F": 1, "E": 2, "D": 3, "C": 4, "B": 5, "A": 6, "S": 7 };
+    
+    neutralne_vplyvy.forEach(function(spell) {
+        if (spell.owner !== pNum) { 
+            if ((targetRow === 1 && spell.n === "Musíme sa porozprávať") ||
+                (targetRow === 2 && spell.n === "Upokoj sa") ||
+                (targetRow === 3 && spell.n === "Ohnostroj")) {
+                var w = weights[spell.cls || "F"] || 1;
+                if (w > spellWeight) spellWeight = w;
+            }
+        }
+    });
+
+    if (spellWeight >= 2) countE = 0;
+    if (spellWeight >= 3) countD = 0;
+    if (spellWeight >= 4) countC = 0;
+    if (spellWeight >= 5) countB = 0;
+    if (spellWeight >= 6) countA = 0;
+    if (spellWeight >= 7) countS = 0;
+
     var bonusTotal = 0;
     if (countS >= 1) bonusTotal += 1; 
     if (countA >= 2) bonusTotal += 1; 
@@ -827,7 +869,7 @@ function vypocitajSetBonusRadu(targetRow, cardList) {
     if (countE >= 6) bonusTotal += 1;
     
     return bonusTotal;
-} // koniec funkcie vypocitajSetBonusRadu
+}
 
 function otvorErikBuffDialog(pNum, callback) {
     if (pNum === 2 && jeSingleplayer) {
@@ -957,7 +999,12 @@ function vykresliStol() {
     var neutralEl = document.getElementById("neutral-row");
     if (neutralEl) {
         neutralEl.innerHTML = '<span class="row-label-neutral">⚡ Neutrálne Kúzla Stola ⚡</span>';
-        neutralne_vplyvy.forEach(function(spellName) { var div = document.createElement("div"); div.className = "karta cls-F"; div.innerHTML = vytvorHTMLKarty(spellName, "none", "F", 0, 0, false); neutralEl.appendChild(div); });
+        neutralne_vplyvy.forEach(function(spellObj) { 
+            var div = document.createElement("div"); 
+            div.className = "karta cls-" + (spellObj.cls || "F"); 
+            div.innerHTML = vytvorHTMLKarty(spellObj.n, "none", spellObj.cls || "F", 0, 0, false); 
+            neutralEl.appendChild(div); 
+        });
     }
     p1_played_cards.forEach(function(c) {
         var reg = getRegistryCard(c.n); var tRow = document.getElementById("p1-row" + reg.row);
@@ -1007,27 +1054,26 @@ function vylozitKartuZRuky(pNum, cardIndex) {
         tahatNoveKartyZBalicka(pNum, 2);
     } else if (reg.isSpell) {
         if (card.n === "Šicko v porádku") { neutralne_vplyvy = []; odhodene_karty_kola.push(card); } 
-        else { neutralne_vplyvy.push(card.n); }
+        else { neutralne_vplyvy.push({ n: card.n, cls: card.cls || "F", owner: pNum }); }
     } else {
         myPlayed.push(card);
         if (reg.isItem && pNum === 1) { p1_pouzite_predmety.push(card.cls || "F"); }
     }
-
-    // --- NOVÉ: AKTIVÁCIA ŠPECIÁLNYCH SCHOPNOSTÍ ---
+    
     if (card.n === "Erik") {
         otvorErikBuffDialog(pNum, function() { vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); });
-        return; // Zastavíme ťah a čakáme na tvoj výber radu
+        return; 
     }
     if (card.n === "Zatúlaný tatranský medveď" || card.n === "Jakub" || card.n === "Marek") {
-        vykonajAutoSpalenie(card.n); // Spáli najsilnejšiu kartu
+        vykonajAutoSpalenie(card.n); 
     }
     if (card.n === "Sestrička" || card.n === "Doktor" || card.n === "Kornélia") {
         vykonajOzivenieZArchivu(pNum);
-        return; // Zastavíme ťah a čakáme, kým vyberieš kartu z ohňa
+        return; 
     }
 
     vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
-} // koniec funkcie vylozitKartuZRuky
+}
 
 function pokracujPoVylozeni(pNum) {
     prepniHracov();
