@@ -494,20 +494,27 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenType, mixValue) {
     spustitVideoAnimationKovania(meno, fromCls, nextCls, isSuccess, pCfg.saveCard, mixValue);
 }
 
-function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected,mixValue) {
+function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected, mixValue) {
     pozastavitHudbuPreVideo();
     var overlay = document.createElement("div"); overlay.id = "forge-video-overlay";
     var reg = getRegistryCard(meno); var oldPwr = getRealPower({ n: meno, cls: oldCls }); var nextPwr = getRealPower({ n: meno, cls: nextCls });
     var slot1Html = "", slot2Html = "", slot3Html = "";
+
+   var reqReal = 3, reqPrizrak = 0;
+    if (mixValue) { var pts = mixValue.split(","); reqReal = parseInt(pts[0]); reqPrizrak = parseInt(pts[1]); }
 
     if (reg.isTournamentUnique) {
         slot1Html = '<div id="forge-card-1" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty("Kráľovský Šampión", oldPwr, oldCls, 1, reg.p) + '</div>';
         slot2Html = '<div id="forge-card-2" class="karta cls-PRIZRAK-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty("Prízrak", "none", oldCls, 0, 0) + '</div>';
         slot3Html = '<div id="forge-card-3" class="karta cls-PRIZRAK-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty("Prízrak", "none", oldCls, 0, 0) + '</div>';
     } else {
-        slot1Html = '<div id="forge-card-1" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div>';
-        slot2Html = '<div id="forge-card-2" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div>';
-        slot3Html = '<div id="forge-card-3" class="karta cls-' + oldCls + ' forge-slot-card">' + vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p) + '</div>';
+        var s1Prizrak = (reqPrizrak >= 3);
+        var s2Prizrak = (reqPrizrak >= 2);
+        var s3Prizrak = (reqPrizrak >= 1);
+        
+        slot1Html = '<div id="forge-card-1" class="karta cls-' + (s1Prizrak ? 'PRIZRAK-' : '') + oldCls + ' forge-slot-card">' + (s1Prizrak ? vytvorHTMLKarty("Prízrak", "none", oldCls, 0, 0) : vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)) + '</div>';
+        slot2Html = '<div id="forge-card-2" class="karta cls-' + (s2Prizrak ? 'PRIZRAK-' : '') + oldCls + ' forge-slot-card">' + (s2Prizrak ? vytvorHTMLKarty("Prízrak", "none", oldCls, 0, 0) : vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)) + '</div>';
+        slot3Html = '<div id="forge-card-3" class="karta cls-' + (s3Prizrak ? 'PRIZRAK-' : '') + oldCls + ' forge-slot-card">' + (s3Prizrak ? vytvorHTMLKarty("Prízrak", "none", oldCls, 0, 0) : vytvorHTMLKarty(meno, oldPwr, oldCls, reg.row, reg.p)) + '</div>';
     }
 
     var fourthCardHtml = isSuccess ? '<div id="forge-card-4" class="karta cls-' + nextCls + ' forge-slot-card" style="opacity:0;">' + vytvorHTMLKarty(meno, nextPwr, nextCls, reg.row, reg.p) + '</div>' : '';
