@@ -233,16 +233,56 @@ function vygenerujDeckbuilder() {
 }
 
 function pripravBalicekPreZapas(pNum) {
+    // Ak ide o Bota v singleplayeri, vygenerujeme mu vlastný dynamický balík
+    if (pNum === 2 && jeSingleplayer) { return vygenerujUmeluInteligenciu(); }
+    
+    // Pre teba sa načíta normálna tvoja Zostava
     var pool = inventar.zostava.slice();
     for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; }
     return pool;
-}
+} // koniec funkcie pripravBalicekPreZapas
+
+// POMOCNÁ FUNKCIA: Presné škálovanie AI balíčka
+function vygenerujUmeluInteligenciu() {
+    var dostupneKarty = Object.keys(MASTER_REGISTRY).filter(function(k) {
+        var r = MASTER_REGISTRY[k]; return !r.isPlatinum && !r.isSpell && !r.isPrizrak && !r.isTournamentUnique && !r.isItem;
+    });
+    var pool = [];
+    
+    function pridajDoBalika(trieda, pocet) {
+        for(var i=0; i<pocet; i++) {
+            var randMeno = dostupneKarty[Math.floor(Math.random() * dostupneKarty.length)];
+            pool.push({ n: randMeno, cls: trieda }); // Bot má hneď priradenú triedu!
+        }
+    }
+    
+    if (obtiaznostAI === "A") { // ĽAHKÁ (A)
+        pridajDoBalika("F", 10); pridajDoBalika("E", 10); pridajDoBalika("D", 5);
+    } else if (obtiaznostAI === "B") { // STREDNÁ (B)
+        pridajDoBalika("F", 5); pridajDoBalika("E", 5); pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 5);
+    } else { // ŤAŽKÁ (C)
+        pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 8); pridajDoBalika("A", 5); pridajDoBalika("S", 2);
+    }
+    
+    for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; }
+    return pool;
+} // koniec funkcie vygenerujUmeluInteligenciu
 
 function vytiahniRukuZRozdanehoBalicka(pNum) {
     var deck = (pNum === 1) ? p1_active_deck : p2_active_deck; var hand = [];
-    for (var i = 0; i < 10; i++) { if (deck.length > 0) { var cardName = deck.pop(); var cardCls = (pNum === 1 && inventar.karty[cardName] && inventar.karty[cardName].aktivnaTrieda) ? inventar.karty[cardName].aktivnaTrieda : "F"; hand.push({ n: cardName, cls: cardCls }); } }
+    for (var i = 0; i < 10; i++) { 
+        if (deck.length > 0) { 
+            var item = deck.pop();
+            // Ak je to už objekt (čo je prípad nového AI balíčka), vložíme ho priamo
+            if (typeof item === "object") { hand.push(item); } 
+            else {
+                var cardCls = (pNum === 1 && inventar.karty[item] && inventar.karty[item].aktivnaTrieda) ? inventar.karty[item].aktivnaTrieda : "F"; 
+                hand.push({ n: item, cls: cardCls }); 
+            }
+        } 
+    }
     return hand;
-}
+} // koniec funkcie vytiahniRukuZRozdanehoBalicka
 
 function vykresliRukuHraca(pNum) {
     var handContainer = document.getElementById("p" + pNum + "-hand"); if (!handContainer) return;
@@ -894,8 +934,22 @@ function vylozitKartuZRuky(pNum, cardIndex) {
         myPlayed.push(card);
         if (reg.isItem && pNum === 1) { p1_pouzite_predmety.push(card.cls || "F"); }
     }
+
+    // --- NOVÉ: AKTIVÁCIA ŠPECIÁLNYCH SCHOPNOSTÍ ---
+    if (card.n === "Erik") {
+        otvorErikBuffDialog(pNum, function() { vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); });
+        return; // Zastavíme ťah a čakáme na tvoj výber radu
+    }
+    if (card.n === "Zatúlaný tatranský medveď" || card.n === "Jakub" || card.n === "Marek") {
+        vykonajAutoSpalenie(card.n); // Spáli najsilnejšiu kartu
+    }
+    if (card.n === "Sestrička" || card.n === "Doktor" || card.n === "Kornélia") {
+        vykonajOzivenieZArchivu(pNum);
+        return; // Zastavíme ťah a čakáme, kým vyberieš kartu z ohňa
+    }
+
     vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
-}
+} // koniec funkcie vylozitKartuZRuky
 
 function pokracujPoVylozeni(pNum) {
     prepniHracov();
@@ -1015,9 +1069,25 @@ function vykonajTachAI() {
     if (sc2 > (sc1 + 20) && p2_draft_hand.length < 10) { hracPassuje(2); return; }
     if (!p2_draft_hand || p2_draft_hand.length === 0) { hracPassuje(2); return; }
     
-    var chosenIndex = Math.floor(Math.random() * p2_draft_hand.length); 
+    // --- NOVÉ: INTELIGENTNÝ VÝBER KARTY (BOT) ---
+    var chosenIndex = -1;
+    var safeIndices = [];
+    
+    // Zistíme, ktoré karty v ruke NIE SÚ nebezpeční spaľovači
+    p2_draft_hand.forEach(function(c, i) {
+        if (c.n !== "Marek" && c.n !== "Jakub" && c.n !== "Zatúlaný tatranský medveď") safeIndices.push(i);
+    });
+    
+    // Ak je súper na 0 bodoch (začiatok kola), bot zahraje radšej bezpečnú kartu a šetrí si Mareka
+    if (sc1 === 0 && safeIndices.length > 0) {
+        chosenIndex = safeIndices[Math.floor(Math.random() * safeIndices.length)];
+    } else {
+        // Inak vyberie náhodne čokoľvek z ruky
+        chosenIndex = Math.floor(Math.random() * p2_draft_hand.length);
+    }
+    
     vylozitKartuZRuky(2, chosenIndex);
-}
+} // koniec funkcie vykonajTachAI
 
 function skontrolujKoniecKola() {
     prepočitajSkoreStola(); blokujVykladanie = true;
@@ -1198,18 +1268,19 @@ function tahatNoveKartyZBalicka(pNum, pocetKariet) {
 
     for (var i = 0; i < pocetKariet; i++) {
         if (deck.length > 0) {
-            var cardName = deck.pop();
-            var cardCls = "F"; 
-            if (pNum === 1 && inventar.karty[cardName] && inventar.karty[cardName].aktivnaTrieda) {
-                cardCls = inventar.karty[cardName].aktivnaTrieda;
+            var item = deck.pop();
+            if (typeof item === "object") { hand.push(item); } 
+            else {
+                var cardCls = "F"; 
+                if (pNum === 1 && inventar.karty[item] && inventar.karty[item].aktivnaTrieda) cardCls = inventar.karty[item].aktivnaTrieda;
+                hand.push({ n: item, cls: cardCls });
             }
-            hand.push({ n: cardName, cls: cardCls });
             potiahnute++;
         }
     }
     if (pNum === 1 && potiahnute > 0) {
         ukazOznamenie("🃏 ŤAHANIE KARIET", "Potiahol si si " + potiahnute + " nové karty z balíčka!");
     }
-}
+} // koniec funkcie tahatNoveKartyZBalicka
 
 window.spustitZapasLokálnePVP = spustitZapasLokálnePVP; window.zobraziťMenuAI = zobraziťMenuAI; window.spustitZapasProtiAI = spustitZapasProtiAI; window.otvoriťObchod = otvoriťObchod; window.otvoriťDielňu = otvoriťDielňu; window.otvoriťDeckbuilder = otvoriťDeckbuilder; window.otvoriťStatistiky = otvoriťStatistiky; window.otvoriťNavodHry = otvoriťNavodHry; window.posunStraneKnihy = posunStraneKnihy; window.vylepsiKartuVoForge = vylepsiKartuVoForge; window.devPridatSurovinyACheaty = devPridatSurovinyACheaty; window.zatvoritTruhluAOpustit = zatvoritTruhluAOpustit; window.hracPassuje = hracPassuje; window.vylozitKartuZRuky = vylozitKartuZRuky; window.zobraziťObrazovku = zobraziťObrazovku; window.prepniZvuk = prepniZvuk; window.upravHlasitost = upravHlasitost; window.otvorTruhluVitaza = otvorTruhluVitaza; window.otvorTruhluUcastnika = otvorTruhluUcastnika; window.spustitHudbuPoPrvomKliknuti = spustitHudbuPoPrvomKliknuti; window.otvorDetailKarty = otvorDetailKarty; window.ukazOznamenie = ukazOznamenie; window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu; window.anonymnePrihoditSumu = anonymnePrihoditSumu; window.okamziteOdkupitKartu = okamziteOdkupitKartu; window.testSimulaciaPrihodeniaBota = testSimulaciaPrihodeniaBota; window.testSimulaciaRychlychPredajov = testSimulaciaRychlychPredajov; window.testSimulaciaInaktivity = testSimulaciaInaktivity; window.testSimulaciaPridatBota = testSimulaciaPridatBota; window.testSimulaciaGlobalnyOznam = testSimulaciaGlobalnyOznam; window.vykresliGridStatistik = vykresliGridStatistik; window.aktualizujPanelDielne = aktualizujPanelDielne; window.automatickyDoplnitDefaultZostavu = automatickyDoplnitDefaultZostavu; window.prepniKartuVZostave = prepniKartuVZostave; window.prepniVyberMulliganKarty = prepniVyberMulliganKarty; window.potvrditMulliganAkciu = potvrditMulliganAkciu; window.prepniZalozkuTrhu = prepniZalozkuTrhu; window.kupitSurovinuZoStatnehoSkladu = kupitSurovinuZoStatnehoSkladu; window.aktualizujDostupneTriedyPrePredaj = aktualizujDostupneTriedyPrePredaj; window.aktualizujMaxKusovPrePredaj = aktualizujMaxKusovPrePredaj; window.odoslatPredajnyFormular = odoslatPredajnyFormular;
