@@ -142,8 +142,9 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
     var cisteMeno = meno.replace(/\s+\d+$/, "").trim();
     var html = "";
     if (livePwr !== "none" && !reg.isSpell && !reg.isItem && !reg.isPrizrak) html += "<div class='karta-kruh karta-kruh-pwr'>" + livePwr + "</div>";
-    var renderCls = reg.isPlatinum ? "PLATINUM" : (reg.isPrizrak ? "PRIZRAK-" + cls : cls);
-    html += "<div class='karta-kruh karta-kruh-cls cls-" + renderCls + "'>" + (reg.isPlatinum ? "P" : cls) + "</div>";
+    var safeCls = cls || "F";
+    var renderCls = reg.isPlatinum ? "PLATINUM" : (reg.isPrizrak ? "PRIZRAK-" + safeCls : safeCls);
+    html += "<div class='karta-kruh karta-kruh-cls cls-" + renderCls + "'>" + (reg.isPlatinum ? "P" : safeCls) + "</div>";
     html += "<button class='karta-btn-inspect' title='Zväčšiť kartu' onclick=\"event.stopPropagation(); otvorDetailKarty('" + meno.replace(/'/g, "\\'") + "');\">🔍</button>";
     html += "<div class='karta-foto' style=\"background-image: url('" + encodeURI(imgPath) + "');\"></div>";
     html += "<div class='karta-stitok-spodok'><div class='karta-nazov'>" + cisteMeno + "</div></div>";
@@ -409,7 +410,7 @@ function aktualizujPanelDielne() {
     prizrakWrapper.appendChild(prizrakActions); e.appendChild(prizrakWrapper);
 
     Object.keys(MASTER_REGISTRY).forEach(function(t) {
-        var reg = MASTER_REGISTRY[t]; if (reg.isPlatinum || reg.isSpell || reg.isPrizrak) return;
+        var reg = MASTER_REGISTRY[t]; if (reg.isPlatinum || reg.isPrizrak) return;
         if (!inventar.karty[t]) inventar.karty[t] = { repliky: { "F": 1 }, aktivnaTrieda: "F" }; var cardData = inventar.karty[t];
         
         var topClass = "F";

@@ -382,16 +382,15 @@ body {
     cursor: pointer !important;
 }
 
-/* =========================================================================
-   ZÚŽENIE GRAFICKÝCH RÁMOV (A-Class a S-Class)
-   ========================================================================= */
-.karta.cls-PLATINUM, .karta.cls-S {
-    border-width: 10px !important; /* Zmenšené o cca 50% */
-    border-image-width: 10px !important;
-}
+/* Zúženie extrémne hrubých rámov pre A-Class a S-Class */
 .karta.cls-A {
-    border-width: 14px !important; /* Zmenšené o cca 25% */
-    border-image-width: 14px !important;
+    border-width: 0.25em !important;
+}
+.karta.cls-S {
+    border-width: 0.35em !important;
+    /* Ak má S-Class ozdobný obrázkový rám, zúžime aj ten: */
+    border-image-width: 0.35em !important; 
+    border-image-outset: 0 !important;
 }
 /* =========================================================================
    [SEKCIA 8 - CSS] ADAPTÍVNE MEDIA QUERIES (TABLETY A MOBILY)
