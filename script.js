@@ -396,7 +396,7 @@ function aktualizujPanelDielne() {
     var prizrakCountsText = 'F:' + (inventar.prizraky["F"]||0) + ' | E:' + (inventar.prizraky["E"]||0) + ' | D:' + (inventar.prizraky["D"]||0) + ' | C:' + (inventar.prizraky["C"]||0) + ' | B:' + (inventar.prizraky["B"]||0) + ' | A:' + (inventar.prizraky["A"]||0);
     prizrakWrapper.appendChild(prizrakCardDiv); var prizrakActions = document.createElement("div"); prizrakActions.style.width = "100%";
     
-    prizrakActions.innerHTML = '<div style="font-size:0.75em; margin:6px 0; color:#a855f7; text-align:center;">Prízrak Zásoby: <strong>' + prizrakCountsText + '</strong></div><select id="step-select-Prizrak" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="F->E">F ➔ E (3xF | 10m | 3 oz Koža)</option><option value="E->D">E ➔ D (3xE | 25m | 3 oz Drevo)</option><option value="D->C">D ➔ C (3xD | 50m | 3 oz Kov)</option><option value="C->B">C ➔ B (3xC | 100m | 3 oz Bronz)</option><option value="B->A">B ➔ A (3xB | 250m | 3 oz Striebro)</option></select><button class="btn-forge" style="background:#8b5cf6;" onclick="vylepsiKartuVoForge(\'Prízrak\', document.getElementById(\'step-select-Prizrak\').value, \'none\')">🔨 Vykuť Prízrak</button>';
+    prizrakActions.innerHTML = '<div style="font-size:0.75em; margin:6px 0; color:#a855f7; text-align:center;">Prízrak Zásoby: <strong>' + prizrakCountsText + '</strong></div><select id="step-select-Prizrak" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="F->E">F ➔ E (3xF | 10m | 3 oz Koža)</option><option value="E->D">E ➔ D (3xE | 25m | 3 oz Drevo)</option><option value="D->C">D ➔ C (3xD | 50m | 3 oz Kov)</option><option value="C->B">C ➔ B (3xC | 100m | 3 oz Bronz)</option><option value="B->A">B ➔ A (3xB | 250m | 3 oz Striebro)</option></select><label style="font-size:0.75em; color:#aaa;">Zvitok ochrany:</label><select id="pergamen-select-Prizrak" style="width:100%; font-size:0.75em; margin-bottom:6px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="none">Bez Zvitku</option><option value="basic">Základný Zvitok</option><option value="advanced">Pokročilý Zvitok</option><option value="legendary">Legendárny Zvitok</option></select><button class="btn-forge" style="background:#8b5cf6;" onclick="vylepsiKartuVoForge(\'Prízrak\', document.getElementById(\'step-select-Prizrak\').value, document.getElementById(\'pergamen-select-Prizrak\').value)">🔨 Vykuť Prízrak</button>';
     prizrakWrapper.appendChild(prizrakActions); e.appendChild(prizrakWrapper);
 
     Object.keys(MASTER_REGISTRY).forEach(function(t) {
@@ -452,9 +452,19 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
         if (countPrizraky < 3) { ukazOznamenie("⚠️ NEDOSTATOK PRÍZRAKOV", "Potrebuješ 3x " + fromCls + "-Prízrakov na povýšenie!"); return; }
     } else if (reg.isTournamentUnique) {
         var t = inventar.karty[meno];
-        if (!t || t.aktivnaTrieda !== fromCls) { ukazOznamenie("⚠️ NESPRÁVNA TRIEDA", "Tvoj Kráľovský Šampión má triedu " + (t ? t.aktivnaTrieda : "F") + "!"); return; }
+        if (!t) { inventar.karty[meno] = { repliky: {}, aktivnaTrieda: "F" }; t = inventar.karty[meno]; }
+        var aktualnaTriedaSkutocna = t.aktivnaTrieda || "F";
+        
+        if (aktualnaTriedaSkutocna !== fromCls) { 
+            ukazOznamenie("⚠️ NESPRÁVNA TRIEDA", "Tvoj Kráľovský Šampión má aktuálne triedu <strong>" + aktualnaTriedaSkutocna + "-Class</strong> (snažíš sa použiť kovanie z " + fromCls + ")!"); 
+            return; 
+        }
         var countPrizraky = inventar.prizraky[fromCls] || 0;
-        if (countPrizraky < 2) { ukazOznamenie("⚠️ CHÝBAJÚ PRÍZRAKY", "Na povýšenie Kráľovského Šampióna potrebuješ 2x **Prízrak (" + fromCls + "-Class)**!"); return; }
+        if (countPrizraky < 2) { 
+            ukazOznamenie("⚠️ CHÝBAJÚ PRÍZRAKY", "Na povýšenie Kráľovského Šampióna z " + fromCls + " na " + nextCls + " potrebuješ 2x <strong>Prízrak (" + fromCls + "-Class)</strong>! (Máš ich: " + countPrizraky + "x)"); 
+            return; 
+        }
+    }
     } else {
         var t = inventar.karty[meno]; if (!t) return;
         var countCurrent = (typeof t.repliky === "object") ? (t.repliky[fromCls] || 0) : t.repliky;
