@@ -276,9 +276,14 @@ function vytiahniRukuZRozdanehoBalicka(pNum) {
             if (typeof item === "object") { hand.push(item); } 
             else {
                 var cardCls = "F"; 
-                if (pNum === 1 && inventar.karty[item] && inventar.karty[item].repliky) {
-                    var rep = inventar.karty[item].repliky;
-                    if (rep["S"] > 0) cardCls = "S"; else if (rep["A"] > 0) cardCls = "A"; else if (rep["B"] > 0) cardCls = "B"; else if (rep["C"] > 0) cardCls = "C"; else if (rep["D"] > 0) cardCls = "D"; else if (rep["E"] > 0) cardCls = "E";
+                if (pNum === 1 && inventar.karty[item]) {
+                    var regItem = getRegistryCard(item);
+                    if (regItem.isTournamentUnique) {
+                        cardCls = inventar.karty[item].aktivnaTrieda || "F";
+                    } else if (inventar.karty[item].repliky) {
+                        var rep = inventar.karty[item].repliky;
+                        if (rep["S"] > 0) cardCls = "S"; else if (rep["A"] > 0) cardCls = "A"; else if (rep["B"] > 0) cardCls = "B"; else if (rep["C"] > 0) cardCls = "C"; else if (rep["D"] > 0) cardCls = "D"; else if (rep["E"] > 0) cardCls = "E";
+                    }
                 }
                 hand.push({ n: item, cls: cardCls }); 
             }
@@ -404,12 +409,16 @@ function aktualizujPanelDielne() {
         if (!inventar.karty[t]) inventar.karty[t] = { repliky: { "F": 1 }, aktivnaTrieda: "F" }; var cardData = inventar.karty[t];
         
         var topClass = "F";
-        if (cardData.repliky["S"] > 0) topClass = "S";
-        else if (cardData.repliky["A"] > 0) topClass = "A";
-        else if (cardData.repliky["B"] > 0) topClass = "B";
-        else if (cardData.repliky["C"] > 0) topClass = "C";
-        else if (cardData.repliky["D"] > 0) topClass = "D";
-        else if (cardData.repliky["E"] > 0) topClass = "E";
+        if (reg.isTournamentUnique) {
+            topClass = cardData.aktivnaTrieda || "F";
+        } else if (cardData.repliky && typeof cardData.repliky === "object") {
+            if (cardData.repliky["S"] > 0) topClass = "S";
+            else if (cardData.repliky["A"] > 0) topClass = "A";
+            else if (cardData.repliky["B"] > 0) topClass = "B";
+            else if (cardData.repliky["C"] > 0) topClass = "C";
+            else if (cardData.repliky["D"] > 0) topClass = "D";
+            else if (cardData.repliky["E"] > 0) topClass = "E";
+        }
 
         var wrapper = document.createElement("div"); wrapper.className = "karta-karta-wrapper";
         var cardDiv = document.createElement("div"); cardDiv.className = "karta cls-" + topClass;
@@ -1322,9 +1331,14 @@ function tahatNoveKartyZBalicka(pNum, pocetKariet) {
             if (typeof item === "object") { hand.push(item); } 
             else {
                 var cardCls = "F"; 
-                if (pNum === 1 && inventar.karty[item] && inventar.karty[item].repliky) {
-                    var rep = inventar.karty[item].repliky;
-                    if (rep["S"] > 0) cardCls = "S"; else if (rep["A"] > 0) cardCls = "A"; else if (rep["B"] > 0) cardCls = "B"; else if (rep["C"] > 0) cardCls = "C"; else if (rep["D"] > 0) cardCls = "D"; else if (rep["E"] > 0) cardCls = "E";
+                if (pNum === 1 && inventar.karty[item]) {
+                    var regItem = getRegistryCard(item);
+                    if (regItem.isTournamentUnique) {
+                        cardCls = inventar.karty[item].aktivnaTrieda || "F";
+                    } else if (inventar.karty[item].repliky) {
+                        var rep = inventar.karty[item].repliky;
+                        if (rep["S"] > 0) cardCls = "S"; else if (rep["A"] > 0) cardCls = "A"; else if (rep["B"] > 0) cardCls = "B"; else if (rep["C"] > 0) cardCls = "C"; else if (rep["D"] > 0) cardCls = "D"; else if (rep["E"] > 0) cardCls = "E";
+                    }
                 }
                 hand.push({ n: item, cls: cardCls });
             }
