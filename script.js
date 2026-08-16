@@ -40,7 +40,7 @@ var MASTER_REGISTRY = {
     "Katy": { row: 1, p: 6, isPlatinum: true, img: "Img/katy.webp", desc: "Kráľovná výhier, ktorá prináša na stôl rovnováhu.", abilityDesc: "💖 <strong>Pomoc:</strong> Pridáva +2 body tvojim kartám a uberá -2 body všetkým súperovým kartám." },
     "Krčmár Boris": { row: 1, p: 4, isPlatinum: true, isSpy: true, img: "Img/krcmar-boris.webp", desc: "Hostinský, u ktorého sa zbiehajú všetky klebety.", abilityDesc: "🕵️ <strong>Špión:</strong> Vykladá sa súperovi do 1. radu a potiahne ti 2 nové karty." },
     "Marek": { row: 1, p: 4, isPlatinum: true, img: "Img/marek.webp", desc: "Zádumčivý filozof analyzujúci súperove ťahy.", abilityDesc: "🔥 <strong>Filozof:</strong> Automaticky spáli najsilnejšiu kartu (alebo karty pri zhode) na celom stole (okrem seba a Oli)." },
-    "Kráľovský Šampión": { row: 1, p: 8, isTournamentUnique: true, img: "Img/neviditelny-mario.webp", desc: "Extrémne vzácna turnajová trofej. V kráľovstve existuje len jeden kus.", abilityDesc: "👑 <strong>Turnajový Unikát:</strong> V Dielni sa nedá zničiť, ková sa výhradne s Prízrakmi a v rade sám aktivuje plný setový bonus +6b!" },
+    "Kráľovský Šampión": { row: 1, p: 8, isTournamentUnique: true, img: "Img/neviditelny-mario.webp", desc: "Extrémne vzácna turnajová trofej. V kráľovstve existuje len jeden kus.", abilityDesc: "👑 <strong>Turnajový Unikát:</strong> Ková sa výhradne s Prízrakmi. Má obrovskú základnú silu a nepadá z bežných truhlíc." },
     "Prízrak": { row: 0, p: 0, isPrizrak: true, img: "Img/prizrak.webp", desc: "Tajuplná esencia z pradávnych čias.", abilityDesc: "👻 <strong>Kováčsky Prízrak:</strong> Neslúži na boj. V Dielni nahrádza akúkoľvek kartu pri kovaní (od F po A)." },
     
     // 🔨 OBYČAJNÉ KARTY
@@ -759,16 +759,23 @@ function vypocitajSiluHracovychKariet(pNum, myCards, oppCards, isNela, myKaty, o
 
 function vypocitajSetBonusRadu(targetRow, cardList) {
     var cardsInRow = cardList.filter(function(c) { return getRegistryCard(c.n).row === targetRow; });
-    var countE = 0, countD = 0, countC = 0, countB = 0, countA = 0, countS = 0; var isTourUnique = false;
+    var countE = 0, countD = 0, countC = 0, countB = 0, countA = 0, countS = 0;
+    
     cardsInRow.forEach(function(c) {
-        var cls = c.cls || "F"; if (getRegistryCard(c.n).isTournamentUnique) isTourUnique = true;
+        var cls = c.cls || "F";
         if (cls === "E") countE++; if (cls === "D") countD++; if (cls === "C") countC++; if (cls === "B") countB++; if (cls === "A") countA++; if (cls === "S") countS++;
     });
-    if (isTourUnique) return 6;
+    
     var bonusTotal = 0;
-    if (countS >= 1) bonusTotal += 1; if (countA >= 2) bonusTotal += 1; if (countB >= 3) bonusTotal += 1; if (countC >= 4) bonusTotal += 1; if (countD >= 5) bonusTotal += 1; if (countE >= 6) bonusTotal += 1;
+    if (countS >= 1) bonusTotal += 1; 
+    if (countA >= 2) bonusTotal += 1; 
+    if (countB >= 3) bonusTotal += 1; 
+    if (countC >= 4) bonusTotal += 1; 
+    if (countD >= 5) bonusTotal += 1; 
+    if (countE >= 6) bonusTotal += 1;
+    
     return bonusTotal;
-}
+} // koniec funkcie vypocitajSetBonusRadu
 
 function otvorErikBuffDialog(pNum, callback) {
     if (pNum === 2 && jeSingleplayer) {
@@ -1143,10 +1150,21 @@ function upravHlasitost(val) { var audio = document.getElementById("bg-music"); 
 function otvoriťNavodHry() {
     var modal = document.getElementById("navod-modal");
     if (!modal) { modal = document.createElement("div"); modal.id = "navod-modal"; modal.className = "card-modal"; modal.onclick = function() { modal.style.display = "none"; }; document.body.appendChild(modal); }
-    modal.innerHTML = '<div class="modal-content modal-bg-duha" style="max-width:1150px; height:90vh; display:flex; flex-direction:column; position:relative;" onclick="event.stopPropagation()"><span class="card-modal-close" onclick="document.getElementById(\'navod-modal\').style.display=\'none\'">&times;</span><div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #5a4d3e; padding-bottom:10px; margin-bottom:15px;"><h2 style="color:#d4af37; margin:0; font-size:1.6em; font-family:serif;">📖 KRONIKA A NÁVOD KRÁĽOVSTVA (Strana <span id=\'book-page-num\'>1</span> / 5)</h2><div><button onclick="posunStraneKnihy(-1)" style="background:#3b2d1d; color:#ffcc00; border:1px solid #d4af37; padding:6px 14px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:5px;">◀ Predošlá</button><button onclick="posunStraneKnihy(1)" style="background:#3b2d1d; color:#ffcc00; border:1px solid #d4af37; padding:6px 14px; border-radius:4px; cursor:pointer; font-weight:bold;">Ďalšia ▶</button></div></div><div id="book-content-container" style="flex-grow:1; overflow-y:auto; padding-right:10px;"></div></div>';
+    
+    // ZMENA: Návod má teraz 6 strán (namiesto 5)
+    modal.innerHTML = '<div class="modal-content modal-bg-duha" style="max-width:1150px; height:90vh; display:flex; flex-direction:column; position:relative;" onclick="event.stopPropagation()"><span class="card-modal-close" onclick="document.getElementById(\'navod-modal\').style.display=\'none\'">&times;</span><div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #5a4d3e; padding-bottom:10px; margin-bottom:15px;"><h2 style="color:#d4af37; margin:0; font-size:1.6em; font-family:serif;">📖 KRONIKA A NÁVOD KRÁĽOVSTVA (Strana <span id=\'book-page-num\'>1</span> / 6)</h2><div><button onclick="posunStraneKnihy(-1)" style="background:#3b2d1d; color:#ffcc00; border:1px solid #d4af37; padding:6px 14px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:5px;">◀ Predošlá</button><button onclick="posunStraneKnihy(1)" style="background:#3b2d1d; color:#ffcc00; border:1px solid #d4af37; padding:6px 14px; border-radius:4px; cursor:pointer; font-weight:bold;">Ďalšia ▶</button></div></div><div id="book-content-container" style="flex-grow:1; overflow-y:auto; padding-right:10px;"></div></div>';
+    
     modal.style.display = "flex"; aktualnaStranaKnihy = 1; vykresliStraneKnihy();
-}
-function posunStraneKnihy(delta) { aktualnaStranaKnihy += delta; if (aktualnaStranaKnihy < 1) aktualnaStranaKnihy = 1; if (aktualnaStranaKnihy > 5) aktualnaStranaKnihy = 5; vykresliStraneKnihy(); }
+} // koniec funkcie otvoriťNavodHry
+
+function posunStraneKnihy(delta) { 
+    aktualnaStranaKnihy += delta; 
+    if (aktualnaStranaKnihy < 1) aktualnaStranaKnihy = 1; 
+    // ZMENA: Limit strán posunutý na 6
+    if (aktualnaStranaKnihy > 6) aktualnaStranaKnihy = 6; 
+    vykresliStraneKnihy(); 
+} // koniec funkcie posunStraneKnihy
+
 function vykresliStraneKnihy() {
     var pNum = document.getElementById("book-page-num"); var container = document.getElementById("book-content-container"); if (!pNum || !container) return;
     pNum.innerText = aktualnaStranaKnihy;
@@ -1161,8 +1179,11 @@ function vykresliStraneKnihy() {
         container.innerHTML = '<h3 style="color:#ffcc00;">📦 KAPITOLA IV: TRUHLICE A DROP RATE</h3><p>Suroviny a nové karty získavaš otváraním truhlíc po každom zápase.</p><div style="display:flex; gap:15px; margin-top:10px;"><div style="background:rgba(0,0,0,0.5); padding:10px; border-radius:6px; flex:1;"><strong>Truhla Účastníka (Prehra/Remíza)</strong><br>- 50 až 100 mincí<br>- 1x až 3x F-karta<br>- 1 oz Kože (Garantované)<br>- 20 % šanca na Prízrak<br>- 10 % šanca na 1 oz Zlata</div><div style="background:rgba(0,0,0,0.5); padding:10px; border-radius:6px; flex:1; border:1px solid #d4af37;"><strong>Truhla Víťaza (Výhra)</strong><br>- 150 až 300 mincí<br>- 3x až 6x F-karta<br>- Garantované 2 oz až 5 oz Zlata<br>- 60 % šanca na 1x Prízrak<br>- 15 % šanca na 2x Prízrak</div></div>';
     } else if (aktualnaStranaKnihy === 5) {
         container.innerHTML = '<h3 style="color:#ffcc00;">🛒 KAPITOLA V: TRHOVISKO A SIEŇ SLÁVY</h3><p>Ekonomika kráľovstva stojí a padá na hráčoch.</p><ul style="line-height:1.6;"><li><strong>Trhovisko (Aukcie):</strong> Môžeš tu anonymne vyvesiť akýkoľvek balíček svojich kariet na predaj. Súťažíš s ostatnými, kto prihodí viac mincí. Ak nemáš trpezlivosť čakať, môžeš využiť tlačidlo na okamžitý výkup (Strop).</li><li><strong>Kráľovský Sklad:</strong> Ak ti pred kovaním chýbajú špecifické materiály (Koža, Drevo, Kov...), kráľovstvo ti ich garantovane kedykoľvek predá z núdzových zásob, no ceny môžu byť vysoké.</li><li><strong>Sieň Slávy (Platinové Karty):</strong> V hre existuje 20 vzácnych Platinových kariet. Nemôžeš ich získať bežným kovaním – získa ich len aktuálny líder v jednej z 20 herných štatistík! Ak líder prestane hrať na 7 dní, o svoju exkluzívnu kartu dočasne prichádza a získa ju druhý v poradí.</li></ul>';
+    } else if (aktualnaStranaKnihy === 6) {
+        // NOVÁ KAPITOLA O TRIEDACH
+        container.innerHTML = '<h3 style="color:#ffcc00;">🌟 KAPITOLA VI: BONUSY TRIEDY (F až S)</h3><p>Povýšenie triedy karty (vzácnosti) mení 4 dôležité mechaniky:</p><div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;"><div style="background:rgba(0,0,0,0.5); padding:10px; border-radius:6px; flex:1; min-width:250px;"><strong>1. Hrubá sila (Bojové jednotky)</strong><br>Priamy bonus k základnej sile:<br>• <strong>E:</strong> +1b<br>• <strong>D:</strong> +2b<br>• <strong>C:</strong> +3b<br>• <strong>B:</strong> +5b<br>• <strong>A:</strong> +7b<br>• <strong>S:</strong> +10b</div><div style="background:rgba(0,0,0,0.5); padding:10px; border-radius:6px; flex:1; min-width:250px;"><strong>2. Predmety a Loot (Pasívny príjem)</strong><br>Výhra s predmetmi generuje extra odmeny:<br>• <strong>E:</strong> +25 mincí<br>• <strong>D:</strong> +50 mincí<br>• <strong>C:</strong> +100 mincí<br>• <strong>B:</strong> +150 mincí, 1 oz Zlata<br>• <strong>A:</strong> +250 mincí, 2 oz Zlata<br>• <strong>S:</strong> +500 mincí, 3 oz Zlata, 1x Prízrak</div><div style="background:rgba(0,0,0,0.5); padding:10px; border-radius:6px; flex:1; min-width:250px;"><strong>3. Setové bonusy radu</strong><br>Pridajú +1b celému radu za splnenie podmienky:<br>• <strong>6x</strong> E-karta<br>• <strong>5x</strong> D-karta<br>• <strong>4x</strong> C-karta<br>• <strong>3x</strong> B-karta<br>• <strong>2x</strong> A-karta<br>• <strong>1x</strong> S-karta</div><div style="background:rgba(0,0,0,0.5); padding:10px; border-radius:6px; flex:1; min-width:250px;"><strong>4. Cena a materiál (Kovanie)</strong><br>Na vylepšenie triedy potrebuješ 3 rovnaké karty, mince a materiál:<br>• <strong>F➔E:</strong> 10m + 3 oz Koža<br>• <strong>E➔D:</strong> 25m + 3 oz Drevo<br>• <strong>D➔C:</strong> 50m + 3 oz Kov<br>• <strong>C➔B:</strong> 100m + 3 oz Bronz<br>• <strong>B➔A:</strong> 250m + 3 oz Striebro<br>• <strong>A➔S:</strong> 500m + 3 oz Zlato</div></div>';
     }
-}
+} // koniec funkcie vykresliStraneKnihy
 
 function prepniRozbalovanieBatohu() { var el = document.getElementById("inventory-dropdown-content"); if (!el) return; if (el.style.display === "none" || el.style.display === "") { vykresliRozbalovaciBatoh(); el.style.display = "flex"; } else { el.style.display = "none"; } }
 function vykresliRozbalovaciBatoh() {

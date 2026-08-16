@@ -85,8 +85,10 @@
             </div>
             <div id="p1-score" class="score-badge">0</div>
             <div id="p1-graveyard" class="graveyard-pile" onclick="otvorSpalenisko(1)">🔥 <span id="p1-grave-count">0</span></div>
-            <button class="btn-pass" onclick="hracPassuje(1)">🏳️ Pass (P1)</button>
-            <button class="btn-exit" onclick="zobraziťObrazovku('hlavne-menu')">🚪 Opustiť Zápas</button>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn-pass" onclick="hracPassuje(1)">🏳️ Pass (P1)</button>
+              <button class="btn-exit" onclick="zobraziťObrazovku('hlavne-menu')" style="position: relative !important; bottom: auto !important; right: auto !important; margin: 0 !important;">🚪 Opustiť Zápas</button>
+            </div>
         </div>
 
     </div>
