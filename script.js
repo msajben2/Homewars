@@ -251,8 +251,12 @@ function vygenerujUmeluInteligenciu() {
     
     function pridajDoBalika(trieda, pocet) {
         for(var i=0; i<pocet; i++) {
-            var randMeno = dostupneKarty[Math.floor(Math.random() * dostupneKarty.length)];
-            pool.push({ n: randMeno, cls: trieda }); // Bot má hneď priradenú triedu!
+            if (dostupneKarty.length === 0) break; // Poistka, aby neťahal viac než existuje
+            var randIndex = Math.floor(Math.random() * dostupneKarty.length);
+            var randMeno = dostupneKarty[randIndex];
+            // NOVÉ: Kartu odstránime zo zoznamu, takže ju AI dostane len raz
+            dostupneKarty.splice(randIndex, 1); 
+            pool.push({ n: randMeno, cls: trieda });
         }
     }
     
@@ -436,8 +440,12 @@ function aktualizujPanelDielne() {
             }
         } else {
             var countsText = 'F:' + (cardData.repliky["F"] || 0) + ' | E:' + (cardData.repliky["E"] || 0) + ' | D:' + (cardData.repliky["D"] || 0) + ' | C:' + (cardData.repliky["C"] || 0) + ' | B:' + (cardData.repliky["B"] || 0) + ' | A:' + (cardData.repliky["A"] || 0) + ' | S:' + (cardData.repliky["S"] || 0);
-            actions = '<div style="font-size:0.75em; margin:6px 0; color:#ffcc00; text-align:center;">' + countsText + '</div><select id="step-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="F->E">F ➔ E (3xF | 10m | 3 oz Koža)</option><option value="E->D">E ➔ D (3xE | 25m | 3 oz Drevo)</option><option value="D->C">D ➔ C (3xD | 50m | 3 oz Kov)</option><option value="C->B">C ➔ B (3xC | 100m | 3 oz Bronz)</option><option value="B->A">B ➔ A (3xB | 250m | 3 oz Striebro)</option><option value="A->S">A ➔ S (3xA | 500m | 3 oz Zlato)</option></select><select id="pergamen-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:6px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="none">Bez Zvitku</option><option value="basic">Základný Zvitok</option><option value="advanced">Pokročilý Zvitok</option><option value="legendary">Legendárny Zvitok</option></select><button class="btn-forge" onclick="vylepsiKartuVoForge(\'' + t.replace(/'/g, "\\'") + '\', document.getElementById(\'step-select-' + t.replace(/\s+/g, '') + '\').value, document.getElementById(\'pergamen-select-' + t.replace(/\s+/g, '') + '\').value)">🔨 Forge</button>';
+            actions = '<div style="font-size:0.75em; margin:6px 0; color:#ffcc00; text-align:center;">' + countsText + '</div><select id="step-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="F->E">F ➔ E (3xF | 10m | 3 oz Koža)</option><option value="E->D">E ➔ D (3xE | 25m | 3 oz Drevo)</option><option value="D->C">D ➔ C (3xD | 50m | 3 oz Kov)</option><option value="C->B">C ➔ B (3xC | 100m | 3 oz Bronz)</option><option value="B->A">B ➔ A (3xB | 250m | 3 oz Striebro)</option><option value="A->S">A ➔ S (3xA | 500m | 3 oz Zlato)</option></select><select id="pergamen-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:4px; background:#110e0c; color:#ffcc00; border:1px solid #5a4d3e; padding:3px;"><option value="none">Bez Zvitku</option><option value="basic">Základný Zvitok</option><option value="advanced">Pokročilý Zvitok</option><option value="legendary">Legendárny Zvitok</option></select><label style="font-size:0.75em; color:#a855f7;">Receptúra (Suroviny):</label><select id="mix-select-' + t.replace(/\s+/g, '') + '" style="width:100%; font-size:0.75em; margin-bottom:6px; background:#110e0c; color:#a855f7; border:1px solid #a855f7; padding:3px;"><option value="3,0">3x Reálna Karta</option><option value="2,1">2x Karta + 1x Prízrak</option><option value="1,2">1x Karta + 2x Prízrak</option><option value="0,3">3x Prízrak</option></select><button class="btn-forge" onclick="vylepsiKartuVoForge(\'' + t.replace(/'/g, "\\'") + '\', document.getElementById(\'step-select-' + t.replace(/\s+/g, '') + '\').value, document.getElementById(\'pergamen-select-' + t.replace(/\s+/g, '') + '\').value, document.getElementById(\'mix-select-' + t.replace(/\s+/g, '') + '\').value)">🔨 Forge</button>';
         }
+
+        wrapper.appendChild(cardDiv); var actDiv = document.createElement("div"); actDiv.style.width = "100%"; actDiv.innerHTML = actions; wrapper.appendChild(actDiv); e.appendChild(wrapper);
+    });
+} // koniec funkcie aktualizujPanelDielne
 
         wrapper.appendChild(cardDiv); var actDiv = document.createElement("div"); actDiv.style.width = "100%"; actDiv.innerHTML = actions; wrapper.appendChild(actDiv); e.appendChild(wrapper);
     });
@@ -452,7 +460,7 @@ function devPridatSurovinyACheaty() {
     aktualizujPanelDielne(); aktualizujVsetkyStickyWallety();
 }
 
-function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
+function vylepsiKartuVoForge(meno, transitionKey, pergamenType, mixValue) {
     var cfg = FORGE_RATES[transitionKey]; if (!cfg) return;
     var fromCls = cfg.from; var nextCls = cfg.nextClass; var reg = getRegistryCard(meno);
 
@@ -463,22 +471,19 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
         var t = inventar.karty[meno];
         if (!t) { inventar.karty[meno] = { repliky: {}, aktivnaTrieda: "F" }; t = inventar.karty[meno]; }
         var aktualnaTriedaSkutocna = t.aktivnaTrieda || "F";
-        
-        if (aktualnaTriedaSkutocna !== fromCls) { 
-            ukazOznamenie("⚠️ NESPRÁVNA TRIEDA", "Tvoj Kráľovský Šampión má aktuálne triedu <strong>" + aktualnaTriedaSkutocna + "-Class</strong> (snažíš sa použiť kovanie z " + fromCls + ")!"); 
-            return; 
-        }
+        if (aktualnaTriedaSkutocna !== fromCls) { ukazOznamenie("⚠️ NESPRÁVNA TRIEDA", "Tvoj Kráľovský Šampión má aktuálne triedu <strong>" + aktualnaTriedaSkutocna + "-Class</strong>!"); return; }
         var countPrizraky = inventar.prizraky[fromCls] || 0;
-        if (countPrizraky < 2) { 
-            ukazOznamenie("⚠️ CHÝBAJÚ PRÍZRAKY", "Na povýšenie Kráľovského Šampióna z " + fromCls + " na " + nextCls + " potrebuješ 2x <strong>Prízrak (" + fromCls + "-Class)</strong>! (Máš ich: " + countPrizraky + "x)"); 
-            return; 
-        }
-    
+        if (countPrizraky < 2) { ukazOznamenie("⚠️ CHÝBAJÚ PRÍZRAKY", "Na povýšenie Kráľovského Šampióna potrebuješ 2x <strong>Prízrak (" + fromCls + "-Class)</strong>!"); return; }
     } else {
         var t = inventar.karty[meno]; if (!t) return;
         var countCurrent = (typeof t.repliky === "object") ? (t.repliky[fromCls] || 0) : t.repliky;
         var countPrizrak = inventar.prizraky[fromCls] || 0;
-        if ((countCurrent + countPrizrak) < 3) { ukazOznamenie("⚠️ NEDOSTATOK KARIET", "Potrebuješ 3x rovnocenné karty (alebo Prízrakov)!"); return; }
+        
+        var reqReal = 3, reqPrizrak = 0;
+        if (mixValue) { var pts = mixValue.split(","); reqReal = parseInt(pts[0]); reqPrizrak = parseInt(pts[1]); }
+        
+        if (countCurrent < reqReal) { ukazOznamenie("⚠️ NEDOSTATOK KARIET", "Pre túto receptúru potrebuješ <strong>" + reqReal + "x Reálnu kartu</strong> (máš len " + countCurrent + ")."); return; }
+        if (countPrizrak < reqPrizrak) { ukazOznamenie("⚠️ NEDOSTATOK PRÍZRAKOV", "Pre túto receptúru potrebuješ <strong>" + reqPrizrak + "x Prízrak</strong> (máš len " + countPrizrak + ")."); return; }
     }
 
     var reqMat = cfg.reqMat;
@@ -488,10 +493,10 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
     var pCfg = PERGAMENY_CONFIG[pergamenType || "none"];
     inventar.mince -= cfg.coinFee; inventar.suroviny[reqMat] -= cfg.reqMatCount;
     var finalRate = Math.min(0.95, cfg.rate + pCfg.rateBonus); var roll = Math.random(); var isSuccess = (roll <= finalRate);
-    spustitVideoAnimationKovania(meno, fromCls, nextCls, isSuccess, pCfg.saveCard);
+    spustitVideoAnimationKovania(meno, fromCls, nextCls, isSuccess, pCfg.saveCard, mixValue);
 }
 
-function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected) {
+function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProtected,mixValue) {
     pozastavitHudbuPreVideo();
     var overlay = document.createElement("div"); overlay.id = "forge-video-overlay";
     var reg = getRegistryCard(meno); var oldPwr = getRealPower({ n: meno, cls: oldCls }); var nextPwr = getRealPower({ n: meno, cls: nextCls });
@@ -541,23 +546,31 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
                     ukazOznamenie("🛡️ PRÍZRAK OCHRÁNENÝ!", "Kovanie zlyhalo, ale Zvitok ochrany úspešne zachránil tvojho Prízraka pred spálením!");
                 }
             }
-        } else {
-            var t = inventar.karty[meno]; if (!t) { inventar.karty[meno] = { repliky: {}, aktivnaTrieda: "F" }; t = inventar.karty[meno]; }
-            if (typeof t.repliky !== "object") t.repliky = {};
-            var availableReal = t.repliky[oldCls] || 0; var realToDeduct = Math.min(3, availableReal); var prizrakyToDeduct = 3 - realToDeduct;
+       } else {
+            var t = inventar.karty[meno];
+            var availableReal = t.repliky[oldCls] || 0; 
+            var availablePrizrak = inventar.prizraky[oldCls] || 0;
+            
+            var reqReal = 3, reqPrizrak = 0;
+            if (mixValue) { var pts = mixValue.split(","); reqReal = parseInt(pts[0]); reqPrizrak = parseInt(pts[1]); }
 
             if (isSuccess) {
-                t.repliky[oldCls] = Math.max(0, availableReal - realToDeduct);
-                if (prizrakyToDeduct > 0) inventar.prizraky[oldCls] = Math.max(0, (inventar.prizraky[oldCls] || 0) - prizrakyToDeduct);
+                t.repliky[oldCls] = Math.max(0, availableReal - reqReal);
+                if (reqPrizrak > 0) inventar.prizraky[oldCls] = Math.max(0, availablePrizrak - reqPrizrak);
                 t.aktivnaTrieda = nextCls; if (nextCls !== "S") t.repliky[nextCls] = (t.repliky[nextCls] || 0) + 1;
-                ukazOznamenie("🎉 KOVANIE ÚSPEŠNE!", "Karta <strong>" + meno + "</strong> bola povýšená na <strong>" + nextCls + "-Class</strong>!");
+                ukazOznamenie("🎉 KOVANIE ÚSPEŠNÉ!", "Karta <strong>" + meno + "</strong> povýšená na <strong>" + nextCls + "-Class</strong>!<br>(Použité: " + reqReal + "x Karta, " + reqPrizrak + "x Prízrak)");
                 if (nextCls === "S") vyhlasGlobalnySClassOznam("Hráč 1 (Ty)", meno);
             } else {
                 if (!wasProtected) {
-                    if (availableReal > 0) t.repliky[oldCls] = Math.max(0, availableReal - 1); else inventar.prizraky[oldCls] = Math.max(0, (inventar.prizraky[oldCls] || 0) - 1);
-                    ukazOznamenie("💥 KOVANIE ZLYHALO!", "Suroviny zhoreli v plameňoch a prišiel si o 1 kartu!");
+                    if (reqReal > 0 && availableReal > 0) {
+                        t.repliky[oldCls] = Math.max(0, availableReal - 1);
+                        ukazOznamenie("💥 KOVANIE ZLYHALO!", "Suroviny zhoreli a prišiel si o 1x Reálnu kartu!");
+                    } else if (reqPrizrak > 0 && availablePrizrak > 0) {
+                        inventar.prizraky[oldCls] = Math.max(0, availablePrizrak - 1);
+                        ukazOznamenie("💥 KOVANIE ZLYHALO!", "Suroviny zhoreli a prišiel si o 1x Prízrak!");
+                    }
                 } else {
-                    ukazOznamenie("🛡️ KARTA OCHRÁNENÁ!", "Kovanie zlyhalo, ale Zvitok ochrany zachránil tvoju kartu!");
+                    ukazOznamenie("🛡️ KARTA OCHRÁNENÁ!", "Kovanie zlyhalo, ale Zvitok ochrany materiál zachránil!");
                 }
             }
         }
@@ -888,9 +901,28 @@ function potvrditMulliganAkciu(chceVymenu) {
     if (chceVymenu && mulliganSelectedIndices.length > 0) {
         mulliganSelectedIndices.sort(function(a, b) { return b - a; }); var pocetVymen = mulliganSelectedIndices.length;
         mulliganSelectedIndices.forEach(function(idx) { p1_draft_hand.splice(idx, 1); });
-        for (var i = 0; i < pocetVymen; i++) { if (p1_active_deck.length > 0) { var nK = p1_active_deck.pop(); p1_draft_hand.push({ n: nK, cls: (inventar.karty[nK] ? inventar.karty[nK].aktivnaTrieda : "F") }); } }
-        p2MulliganRound1Bonus = 5; ukazOznamenie("🎲 MULLIGAN DOKONČENÝ", "Vymenil si " + pocetVymen + " kariet! Súper získal +5b náskok v 1. kole.");
-    } else { ukazOznamenie("✅ RUKA POTVRDENÁ", "Ponechal si si pôvodnú ruku."); }
+        for (var i = 0; i < pocetVymen; i++) { 
+            if (p1_active_deck.length > 0) { 
+                var nK = p1_active_deck.pop(); 
+                var cardCls = "F";
+                if (inventar.karty[nK]) {
+                    var regItem = getRegistryCard(nK);
+                    if (regItem.isTournamentUnique) {
+                        cardCls = inventar.karty[nK].aktivnaTrieda || "F";
+                    } else if (inventar.karty[nK].repliky) {
+                        var rep = inventar.karty[nK].repliky;
+                        if (rep["S"] > 0) cardCls = "S"; else if (rep["A"] > 0) cardCls = "A"; else if (rep["B"] > 0) cardCls = "B"; else if (rep["C"] > 0) cardCls = "C"; else if (rep["D"] > 0) cardCls = "D"; else if (rep["E"] > 0) cardCls = "E";
+                    }
+                }
+                p1_draft_hand.push({ n: nK, cls: cardCls }); 
+            } 
+        }
+        // NOVÉ: Presný výpočet bodov (1 karta = 2b, 2 karty = 5b)
+        p2MulliganRound1Bonus = (pocetVymen === 1) ? 2 : 5; 
+        ukazOznamenie("🎲 MULLIGAN DOKONČENÝ", "Vymenil si " + pocetVymen + " kariet! Súper získal +" + p2MulliganRound1Bonus + "b náskok v 1. kole.");
+    } else { 
+        ukazOznamenie("✅ RUKA POTVRDENÁ", "Ponechal si si pôvodnú ruku."); 
+    }
 
     if (jeSingleplayer) {
         setTimeout(function() {
@@ -901,7 +933,7 @@ function potvrditMulliganAkciu(chceVymenu) {
     } else {
         vykresliHraciuPlochu();
     }
-}
+} // koniec funkcie potvrditMulliganAkciu
 
 function vyhodnotAIMulligan() {
     var weakIndices = [];
