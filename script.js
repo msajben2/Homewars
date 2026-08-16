@@ -572,7 +572,12 @@ function odoslatPredajnyFormular() {
     var kName = document.getElementById("sell-card-select").value; var cls = document.getElementById("sell-class-select").value;
     var count = parseInt(document.getElementById("sell-count-range").value); var price = parseInt(document.getElementById("sell-price-input").value);
     if (isNaN(price) || price <= 0) { ukazOznamenie("⚠️ CHYBA", "Zadaj platnú cenu!"); return; }
-    if (inventar.zostava.indexOf(kName) !== -1) { if (!confirm("⚠️ KARTA JE V BALÍČKU!\nNaozaj ju chceš vyvesiť na trh?")) return; }
+    
+    // NOVÉ: Tvrdý blok predaja, ak je karta v zostave!
+    if (inventar.zostava.indexOf(kName) !== -1) { 
+        ukazOznamenie("⛔ ZAMIETNUTÉ", "Karta <strong>" + kName + "</strong> je v tvojej bojovej zostave!<br>Ak ju chceš predať, musíš ju najprv vybrať z balíčka v Deckbuilderi."); 
+        return; 
+    }
 
     inventar.karty[kName].repliky[cls] -= count;
     var hasRemaining = false; Object.keys(inventar.karty[kName].repliky).forEach(function(cKey) { if (inventar.karty[kName].repliky[cKey] > 0) hasRemaining = true; });
@@ -580,7 +585,7 @@ function odoslatPredajnyFormular() {
 
     ukazOznamenie("🎉 POLOŽKA ZALISTOVANÁ", "Balík **" + count + "x " + kName + " (" + cls + "-Class)** bol vyvesený na trh za " + price + " mincí!");
     vygenerujSimulaciuTrhu(); aktualizujVsetkyStickyWallety(); vygenerujDeckbuilder();
-}
+} // koniec funkcie odoslatPredajnyFormular
 
 function kupitSurovinuZoStatnehoSkladu(mat, pocetOz) {
     var item = STATNY_SKLAD_CENNIK[mat]; if (!item) return;
@@ -607,9 +612,27 @@ function anonymnePrihoditSumu(stropVal) {
 
 function okamziteOdkupitKartu(stropVal, nazov) {
     if (inventar.mince < stropVal) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Potrebuješ " + stropVal + "m!"); return; }
+    
+    // Zistenie, čo vlastne kupujeme z 'nazov' (napr. "Balíček 10x E-Neviditeľný Mário")
+    var pocet = nazov.includes("10x") ? 10 : 1;
+    var triedaKarty = nazov.includes("-") ? nazov.split("-")[0].slice(-1) : "F";
+    var menoKarty = nazov.includes("-") ? nazov.substring(nazov.indexOf("-") + 1) : "Prízrak";
+
+    // Pridanie nakúpenej karty do inventára hráča
+    if (!inventar.karty[menoKarty]) inventar.karty[menoKarty] = { repliky: { "F": 0 }, aktivnaTrieda: "F" };
+    if (typeof inventar.karty[menoKarty].repliky !== "object") inventar.karty[menoKarty].repliky = { "F": 0 };
+    inventar.karty[menoKarty].repliky[triedaKarty] = (inventar.karty[menoKarty].repliky[triedaKarty] || 0) + pocet;
+    
+    // Odpočítanie mincí a vyčistenie ponuky
     inventar.mince -= stropVal; hracovaAktivnaPonukaNaTrhu = 0; pocetRealnychPredajovEMA++;
-    ukazOznamenie("🎉 KÚPENÉ IHNEĎ!", "Zaplatil si " + stropVal + "m. Položka je tvoja!"); aktualizujVsetkyStickyWallety();
-}
+    
+    // Krásne oznámenie o úspechu
+    ukazOznamenie("🎉 KÚPENÉ IHNEĎ!", "Zaplatil si " + stropVal + "m. Tvoj batoh sa rozšíril o:<br><br><strong style='color:#10b981; font-size:1.1em;'>" + pocet + "x " + menoKarty + " (" + triedaKarty + "-Class)</strong>"); 
+    
+    // Obnova UI
+    vygenerujSimulaciuTrhu(); 
+    aktualizujVsetkyStickyWallety();
+} // koniec funkcie okamziteOdkupitKartu
 
 function testSimulaciaPrihodeniaBota() {
     aktualnyVeduciHrac = "Bot_Tester_" + Math.floor(Math.random() * 100);
