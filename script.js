@@ -464,7 +464,7 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenType) {
             ukazOznamenie("⚠️ CHÝBAJÚ PRÍZRAKY", "Na povýšenie Kráľovského Šampióna z " + fromCls + " na " + nextCls + " potrebuješ 2x <strong>Prízrak (" + fromCls + "-Class)</strong>! (Máš ich: " + countPrizraky + "x)"); 
             return; 
         }
-    }
+    
     } else {
         var t = inventar.karty[meno]; if (!t) return;
         var countCurrent = (typeof t.repliky === "object") ? (t.repliky[fromCls] || 0) : t.repliky;
