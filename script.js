@@ -72,8 +72,8 @@ var MASTER_REGISTRY = {
     "Musíme sa porozprávať": { row: 0, p: 0, isSpell: true, img: "Img/musime-sa-porozpravat.webp", desc: "Slová, z ktorých tuhne krv v žilách každému mužovi.", abilityDesc: "⚡ <strong>Kúzlo:</strong> Okamžite zníži základnú silu všetkých mužov (1. rad) oboch hráčov na 1b." },
     "Upokoj sa": { row: 0, p: 0, isSpell: true, img: "Img/upokoj-sa.webp", desc: "Najhoršia možná rada, ktorá vyvoláva nekontrolovateľný hnev.", abilityDesc: "⚡ <strong>Kúzlo:</strong> Okamžite zníži základnú silu všetkých žien (2. rad) oboch hráčov na 1b." },
     "Ohnostroj": { row: 0, p: 0, isSpell: true, img: "Img/ohnostroj.webp", desc: "Ohlušujúci rachot plašiaci zver široko-ďaleko.", abilityDesc: "⚡ <strong>Kúzlo:</strong> Okamžite zníži základnú silu všetkých zvierat (3. rad) oboch hráčov na 1b." },
-    "Šicko v porádku": { row: 0, p: 0, isSpell: true, img: "Img/sicko-v-poradku.webp", desc: "Úsmev, ktorý vyrieši každú napätú situáciu.", abilityDesc: "⚡ <strong>Kúzlo:</strong> Okamžite vyčistí neutrálny rad od všetkých negatívnych kúziel stola!" }
-    "Zvitok": { row: 0, p: 0, isZvitok: true, img: "Img/pergamen.webp", desc: "Zvyšuje šancu pri kovaní. Od D-Class chráni kartu pred spálením. Pri kovaní zvitkov sa nesmú používať iné zvitky!" }
+    "Šicko v porádku": { row: 0, p: 0, isSpell: true, img: "Img/sicko-v-poradku.webp", desc: "Úsmev, ktorý vyrieši každú napätú situáciu.", abilityDesc: "⚡ <strong>Kúzlo:</strong> Okamžite vyčistí neutrálny rad od všetkých negatívnych kúziel stola!" },
+    "Zvitok": { row: 0, p: 0, isZvitok: true, img: "Img/pergamen.webp", desc: "Zvyšuje šancu pri kovaní. Od D-Class chráni kartu pred spálením. Pri kovaní zvitkov sa nesmú používať iné zvitky!" },
 };
 
 var CLASS_CONFIG = { 
