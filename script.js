@@ -204,12 +204,18 @@ function prepniKartuVZostave(kartaMeno) {
 function vygenerujDeckbuilder() {
     var e = document.getElementById("deckbuilder-zoznam"); var countEl = document.getElementById("deckbuilder-count"); var msgEl = document.getElementById("deckbuilder-msg");
     if (!e) return; e.innerHTML = "";
+    // Očista balíčka od nebojových predmetov, ktoré tam uviazli
+    inventar.zostava = inventar.zostava.filter(function(karta) {
+        var reg = MASTER_REGISTRY[karta];
+        return reg && !reg.isPrizrak && !reg.isZvitok && !reg.isSpell && !reg.isItem;
+    });
     var count = inventar.zostava.length;
     if (countEl) countEl.innerText = count;
     if (msgEl) msgEl.innerHTML = (count >= 25) ? "<span style='color:#10b981;'>✅ Zostava je pripravená na boj!</span>" : "<span style='color:#ff4d4d;'>⚠️ Potrebuješ ešte pridať " + (25 - count) + " kariet!</span>";
 
     Object.keys(MASTER_REGISTRY).forEach(function(t) {
-        var reg = MASTER_REGISTRY[t]; if (reg.isPrizrak) return;
+       var reg = MASTER_REGISTRY[t]; 
+        if (reg.isPrizrak || reg.isZvitok || reg.isSpell || reg.isItem) return;
         var isVBaliku = (inventar.zostava.indexOf(t) !== -1);
         
         var cData = inventar.karty[t];
