@@ -1129,38 +1129,7 @@ function okamziteOdkupitKartu(aukciaId) {
     var nazovZobrazenie = (aukcia.typ === "karta") ? (aukcia.predmet + " (" + aukcia.trieda + "-Class)") : (aukcia.predmet + " (Surovina)");
     ukazOznamenie("🎉 KÚPENÉ IHNEĎ!", "Zaplatil si " + aukcia.vykupnaCena + "m. Tvoj batoh sa rozšíril o:<br><br><strong style='color:#10b981; font-size:1.1em;'>" + aukcia.pocet + "x " + nazovZobrazenie + "</strong>"); 
     vygenerujSimulaciuTrhu(); aktualizujVsetkyStickyWallety();
-}
-
-    var e = document.getElementById("obchod-regaly-zoznam"); if (!e) return;
-    
-    var typPredajaHtml = '<select class="sell-form-select" onchange="aktualnyTypPredaja = this.value; vykresliZalozkuPredaja();"><option value="karta" ' + (aktualnyTypPredaja==="karta"?"selected":"") + '>Karty z batohu</option><option value="surovina" ' + (aktualnyTypPredaja==="surovina"?"selected":"") + '>Suroviny (Koža, Kov...)</option></select>';
-    var optionsHtml = "";
-    
-    if (aktualnyTypPredaja === "karta") {
-        var dostupneKarty = Object.keys(inventar.karty).filter(function(k) { return typeof inventar.karty[k].repliky === "object"; });
-        dostupneKarty.forEach(function(k) { optionsHtml += '<option value="' + k + '">' + k + '</option>'; });
-    } else {
-        var dostupneSuroviny = Object.keys(inventar.suroviny).filter(function(s) { return inventar.suroviny[s] > 0; });
-        dostupneSuroviny.forEach(function(s) { optionsHtml += '<option value="' + s + '">' + s + ' (' + inventar.suroviny[s] + ' oz)</option>'; });
-    }
-
-    var formularPredaja = '<div class="sell-form-container"><h3 style="color:#ffcc00; margin-top:0; text-align:center; font-family:Georgia, serif;">📦 VYVESIŤ NOVÚ AUKCIU</h3>' +
-        '<div class="sell-form-row"><label>1. Typ položky:</label>' + typPredajaHtml + '</div>' +
-        '<div class="sell-form-row"><label>2. Vyber predmet:</label><select id="sell-item-select" class="sell-form-select" onchange="aktualizujDostupneTriedyPrePredaj()">' + optionsHtml + '</select></div>';
-        
-    if (aktualnyTypPredaja === "karta") {
-        formularPredaja += '<div class="sell-form-row"><label>Trieda karty:</label><select id="sell-class-select" class="sell-form-select" onchange="aktualizujMaxKusovPrePredaj()"></select></div>';
-    }
-    
-    formularPredaja += '<div class="sell-form-row"><label>3. Počet kusov v balíku: <strong id="sell-count-label" style="color:#ffcc00;">1x</strong></label><input type="range" id="sell-count-range" min="1" max="1" value="1" style="width:100%;" oninput="document.getElementById(\'sell-count-label\').innerText = this.value + \'x\';"></div>' +
-        '<div class="sell-form-row"><label>4. Vyvolávacia cena (Začiatočná ponuka v minciach):</label><input type="number" id="sell-start-price" class="sell-form-input" value="10" min="1"></div>' +
-        '<div class="sell-form-row"><label>5. Cena Okamžitého výkupu (Nepovinné, nechaj 0 pre čistú dražbu):</label><input type="number" id="sell-buyout-price" class="sell-form-input" value="" placeholder="napr. 250 (voliteľné)" min="0"></div>' +
-        '<div style="text-align:center; margin-top:15px;"><button onclick="odoslatPredajnyFormular()" style="background:#10b981; color:#fff; border:none; padding:12px 30px; border-radius:6px; font-weight:bold; font-size:1.05em; cursor:pointer; width:100%;">🚀 Potvrdiť a Vyvesiť na Trh</button></div></div>';
-        
-    e.innerHTML = formularPredaja; 
-    setTimeout(aktualizujDostupneTriedyPrePredaj, 50);
-
-
+};
 // =====================================================================
 // [SEKCIA 5 - JS] HERNÁ LOGIKA A VÝPOČTY SILY
 // =====================================================================
