@@ -204,23 +204,26 @@ function prepniKartuVZostave(kartaMeno) {
 function vygenerujDeckbuilder() {
     var e = document.getElementById("deckbuilder-zoznam"); var countEl = document.getElementById("deckbuilder-count"); var msgEl = document.getElementById("deckbuilder-msg");
     if (!e) return; e.innerHTML = "";
-    // Očista balíčka od nebojových predmetov, ktoré tam uviazli
+    
+    // OPRAVA 1: Zostavu čistíme LEN od Prízrakov a Zvitkov (Kúzla a Predmety sú povolené!)
     inventar.zostava = inventar.zostava.filter(function(karta) {
         var reg = MASTER_REGISTRY[karta];
-        return reg && !reg.isPrizrak && !reg.isZvitok && !reg.isSpell && !reg.isItem;
+        return reg && !reg.isPrizrak && !reg.isZvitok;
     });
+    
     var count = inventar.zostava.length;
     if (countEl) countEl.innerText = count;
     if (msgEl) msgEl.innerHTML = (count >= 25) ? "<span style='color:#10b981;'>✅ Zostava je pripravená na boj!</span>" : "<span style='color:#ff4d4d;'>⚠️ Potrebuješ ešte pridať " + (25 - count) + " kariet!</span>";
 
     Object.keys(MASTER_REGISTRY).forEach(function(t) {
-       var reg = MASTER_REGISTRY[t]; 
-        if (reg.isPrizrak || reg.isZvitok || reg.isSpell || reg.isItem) return;
-        var isVBaliku = (inventar.zostava.indexOf(t) !== -1);
+        var reg = MASTER_REGISTRY[t]; 
+        // OPRAVA 2: Skryjeme v UI len Prízraky a Zvitky (Aby si hráč mohol vybrať Kúzla a Predmety)
+        if (reg.isPrizrak || reg.isZvitok) return;
         
+        var isVBaliku = (inventar.zostava.indexOf(t) !== -1);
         var cData = inventar.karty[t];
         var vlastneneTriedy = [];
-        // Zistíme, aké všetky triedy z tejto karty hráč fyzicky vlastní
+        
         if (cData && typeof cData.repliky === "object") {
             ["F", "E", "D", "C", "B", "A", "S"].forEach(function(c) { if (cData.repliky[c] > 0) vlastneneTriedy.push(c); });
         }
@@ -230,15 +233,14 @@ function vygenerujDeckbuilder() {
             cardCls = (cData && cData.aktivnaTrieda) ? cData.aktivnaTrieda : "F";
         } else if (vlastneneTriedy.length > 0) {
             if (cData.zvolenaTrieda && vlastneneTriedy.indexOf(cData.zvolenaTrieda) !== -1) {
-                cardCls = cData.zvolenaTrieda; // Načítame tú, ktorú si hráč vybral
+                cardCls = cData.zvolenaTrieda;
             } else {
-                cardCls = vlastneneTriedy[vlastneneTriedy.length - 1]; // Inak dáme tú najvyššiu
+                cardCls = vlastneneTriedy[vlastneneTriedy.length - 1]; 
                 if (cData) cData.zvolenaTrieda = cardCls;
             }
         }
 
         var wrap = document.createElement("div"); wrap.className = "karta-karta-wrapper " + (isVBaliku ? "deck-active-card" : "deck-inactive-card");
-        
         var div = document.createElement("div"); div.className = "karta cls-" + (reg.isPlatinum ? "PLATINUM" : cardCls);
         div.innerHTML = vytvorHTMLKarty(t, getRealPower({n:t, cls:cardCls}), cardCls, reg.row, reg.p, false); 
         div.onclick = function() { prepniKartuVZostave(t); };
@@ -248,7 +250,6 @@ function vygenerujDeckbuilder() {
         badge.innerHTML = isVBaliku ? "<span style='color:#10b981; cursor:pointer;' onclick='prepniKartuVZostave(\"" + t + "\")'>✅ V Zostave</span>" : "<span style='color:#888; cursor:pointer;' onclick='prepniKartuVZostave(\"" + t + "\")'>+ Pridať do Zostavy</span>"; 
         wrap.appendChild(badge);
 
-        // Tlačidlo na cyklenie triedy (Iba ak má hráč viac verzií tejto karty)
         if (!reg.isTournamentUnique && !reg.isPlatinum && vlastneneTriedy.length > 1) {
             var btnZmena = document.createElement("button");
             btnZmena.innerHTML = "🔄 Zmeniť triedu";
@@ -277,22 +278,39 @@ function pripravBalicekPreZapas(pNum) {
     if (pNum === 2 && jeSingleplayer) { return vygenerujUmeluInteligenciu(); }
     
     var pool = [];
-    // BEZPEČNOSTNÁ KONTROLA: Overíme, či má hráč karty z Deckbuildera reálne v batohu
+    // BEZPEČNOSTNÁ KONTROLA: Overíme, či má hráč karty reálne v batohu a či v balíčku nie sú duplikáty
     inventar.zostava.forEach(function(kartaName) {
-        if (inventar.karty[kartaName]) {
+        if (inventar.karty[kartaName] && pool.indexOf(kartaName) === -1) {
             pool.push(kartaName);
         }
     });
 
-    // Ak hráč podvádzal (alebo sa mu zmazal save) a nemá aspoň 25 kariet, doplníme mu základné
+    // Ak hráč nemá aspoň 25 kariet, doplníme mu balíček (Striktne BEZ duplikátov!)
     if (pool.length < 25) {
-        console.warn("Detekovaný pokus o podvod alebo poškodený balíček. Dopĺňam zálohu.");
-        var fallbackPool = Object.keys(MASTER_REGISTRY).filter(function(k) { return !MASTER_REGISTRY[k].isPrizrak && !MASTER_REGISTRY[k].isPlatinum; });
-        while(pool.length < 25) { 
-            pool.push(fallbackPool[Math.floor(Math.random() * fallbackPool.length)]); 
+        console.warn("Dopĺňam balíček na 25 kariet (Highlander pravidlo).");
+        var fallbackPool = Object.keys(MASTER_REGISTRY).filter(function(k) { 
+            var r = MASTER_REGISTRY[k];
+            // Do zálohy neťaháme prízraky, zvitky ani platinovky
+            return !r.isPrizrak && !r.isPlatinum && !r.isZvitok; 
+        });
+        
+        // Náhodne zamiešame fallback karty
+        for (var i = fallbackPool.length - 1; i > 0; i--) { 
+            var j = Math.floor(Math.random() * (i + 1)); 
+            var temp = fallbackPool[i]; fallbackPool[i] = fallbackPool[j]; fallbackPool[j] = temp; 
+        }
+        
+        // Dopĺňame iba tie, ktoré ešte v balíčku nie sú
+        var fbIndex = 0;
+        while(pool.length < 25 && fbIndex < fallbackPool.length) { 
+            var kandidat = fallbackPool[fbIndex++];
+            if (pool.indexOf(kandidat) === -1) {
+                pool.push(kandidat); 
+            }
         }
     }
 
+    // Finálne zamiešanie balíčka pred zápasom
     for (var i = pool.length - 1; i > 0; i--) { 
         var j = Math.floor(Math.random() * (i + 1)); 
         var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; 
@@ -300,14 +318,39 @@ function pripravBalicekPreZapas(pNum) {
     return pool;
 }
 
-// POMOCNÁ FUNKCIA: Presné škálovanie AI balíčka
+
 function vygenerujUmeluInteligenciu() {
     var dostupneKarty = Object.keys(MASTER_REGISTRY).filter(function(k) {
         var r = MASTER_REGISTRY[k]; 
         // Bot NEsmie ťahať: Platinovky, Turnajové unikáty, Prízraky a Zvitky
-        // Kúzla (isSpell) a Predmety (isItem) má povolené.
+        // Kúzla (isSpell) a Predmety (isItem) má POUŽITÉ A POVOLENÉ.
         return !r.isPlatinum && !r.isTournamentUnique && !r.isPrizrak && !r.isZvitok;
-});
+    });
+    var pool = [];
+    
+    function pridajDoBalika(trieda, pocet) {
+        for(var i=0; i<pocet; i++) {
+            if (dostupneKarty.length === 0) break; // Poistka, aby neťahal viac než existuje
+            var randIndex = Math.floor(Math.random() * dostupneKarty.length);
+            var randMeno = dostupneKarty[randIndex];
+            
+            // TOTO ZABRÁNI DUPLIKÁTOM - Akonáhle kartu bot vytiahne, odstráni sa zo zoznamu dostupných!
+            dostupneKarty.splice(randIndex, 1); 
+            pool.push({ n: randMeno, cls: trieda });
+        }
+    }
+    
+    if (obtiaznostAI === "A") { // ĽAHKÁ (A)
+        pridajDoBalika("F", 10); pridajDoBalika("E", 10); pridajDoBalika("D", 5);
+    } else if (obtiaznostAI === "B") { // STREDNÁ (B)
+        pridajDoBalika("F", 5); pridajDoBalika("E", 5); pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 5);
+    } else { // ŤAŽKÁ (C)
+        pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 8); pridajDoBalika("A", 5); pridajDoBalika("S", 2);
+    }
+    
+    for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; }
+    return pool;
+}
     
     function pridajDoBalika(trieda, pocet) {
         for(var i=0; i<pocet; i++) {
