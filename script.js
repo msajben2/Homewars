@@ -979,6 +979,65 @@ function vypocitajSemaforAEMA(predmet, trieda) {
         predaneKusy: pocetPredanychKusov
     };
 }
+// --- INTELIGENTNÝ PORADCA CENY (ROC A EMA) ---
+function ziskajFérovuCenu(typ, predmet, trieda) {
+    if (typ === "surovina") {
+        var trh = vypocitajSemaforAEMA(predmet, null);
+        if (trh.semafor === "🟢") return { cena: trh.emaCena, zdroj: "EMA (Zelený trh - Aktívne obchody)", semafor: "🟢" };
+        var skladCena = STATNY_SKLAD_CENNIK[predmet] ? STATNY_SKLAD_CENNIK[predmet].price : 10;
+        return { cena: skladCena, zdroj: "Štátny Sklad (Nízka likvidita)", semafor: trh.semafor };
+    }
+
+    if (typ === "karta") {
+        var reg = getRegistryCard(predmet);
+        if (reg.isSpell || reg.isPlatinum || reg.isItem) {
+            // Predmety a Kúzla sa nekujú, dajú sa len vydropovať
+            var trhKuzla = vypocitajSemaforAEMA(predmet, trieda);
+            if (trhKuzla.semafor === "🟢") return { cena: trhKuzla.emaCena, zdroj: "EMA (Zelený trh)", semafor: "🟢" };
+            return { cena: 100, zdroj: "Základná odhadovaná hodnota", semafor: trhKuzla.semafor }; 
+        }
+
+        // Normálne bojové karty
+        var trhKarty = vypocitajSemaforAEMA(predmet, trieda);
+        if (trhKarty.semafor === "🟢") return { cena: trhKarty.emaCena, zdroj: "EMA (Zelený trh - Čistá trhová cena)", semafor: "🟢" };
+        if (trhKarty.semafor === "🟠") {
+            var dropCeny = { "F": 50, "E": 150, "D": 450, "C": 1350, "B": 4000, "A": 12000, "S": 36000 };
+            return { cena: dropCeny[trieda] || 50, zdroj: "Teoretická Drop Hodnota z truhlíc", semafor: "🟠" };
+        }
+
+        // 🔴 ČERVENÝ SEMAFOR (Mŕtvy trh) -> Tvrdý kaskádový výpočet ROC!
+        var roc = vypocitajKaskadoveROC(trieda);
+        return { cena: roc, zdroj: "Kaskádové ROC (Ochrana proti inflácii)", semafor: "🔴" };
+    }
+    return { cena: 10, zdroj: "Neznáme", semafor: "🔴" };
+}
+
+// 🧮 Kaskádový výpočet Reprodukčnej Obstarávacej Ceny
+function vypocitajKaskadoveROC(cielovaTrieda) {
+    var roc = 150; // Kotva: F-karta má fiktívnu hodnotu 150m (ochrana odspodu)
+    if (cielovaTrieda === "F") return roc;
+    
+    var postup = [
+        { t: "E", mat: "Koža", count: 3, fee: 10, rate: 0.90 },
+        { t: "D", mat: "Drevo", count: 3, fee: 25, rate: 0.80 },
+        { t: "C", mat: "Kov", count: 3, fee: 50, rate: 0.70 },
+        { t: "B", mat: "Bronz", count: 3, fee: 100, rate: 0.60 },
+        { t: "A", mat: "Striebro", count: 3, fee: 250, rate: 0.50 },
+        { t: "S", mat: "Zlato", count: 3, fee: 500, rate: 0.40 }
+    ];
+
+    for (var i = 0; i < postup.length; i++) {
+        var krok = postup[i];
+        // Surovinu naceníme podľa najdrahšieho zdroja (Štátny sklad)
+        var cenaSuroviny = STATNY_SKLAD_CENNIK[krok.mat] ? STATNY_SKLAD_CENNIK[krok.mat].price : 10;
+        
+        // Vzorec: ((3x nižšia karta) + (suroviny) + poplatok) / šanca na úspech
+        roc = ((3 * roc) + (krok.count * cenaSuroviny) + krok.fee) / krok.rate;
+        
+        if (krok.t === cielovaTrieda) return Math.round(roc);
+    }
+    return Math.round(roc);
+}
 
 var globalneAukcie = [];
 
@@ -1072,9 +1131,12 @@ function vykresliZalozkuPredaja() {
         formularPredaja += '<div class="sell-form-row"><label>Trieda karty:</label><select id="sell-class-select" class="sell-form-select" onchange="aktualizujMaxKusovPrePredaj()"></select></div>';
     }
     
-    formularPredaja += '<div class="sell-form-row"><label>3. Počet kusov v balíku: <strong id="sell-count-label" style="color:#ffcc00;">1x</strong></label><input type="range" id="sell-count-range" min="1" max="1" value="1" style="width:100%;" oninput="document.getElementById(\'sell-count-label\').innerText = this.value + \'x\';"></div>' +
-        '<div class="sell-form-row"><label>4. Vyvolávacia cena (Začiatočná ponuka v minciach):</label><input type="number" id="sell-start-price" class="sell-form-input" value="10" min="1"></div>' +
-        '<div class="sell-form-row"><label>5. Cena Okamžitého výkupu (Nepovinné, nechaj 0 pre čistú dražbu):</label><input type="number" id="sell-buyout-price" class="sell-form-input" value="" placeholder="napr. 250 (voliteľné)" min="0"></div>' +
+    // 💡 NOVÝ BOX PRE PORADCU CENY A SEMAFOR 
+    formularPredaja += '<div id="sell-advice-box" style="margin: 15px 0; padding: 12px; background: rgba(0,0,0,0.6); border: 1px dashed #d4af37; border-radius: 6px; text-align: center; color: #ccc; font-size: 0.95em;">Načítavam analýzu trhu...</div>';
+
+    formularPredaja += '<div class="sell-form-row"><label>3. Počet kusov v balíku: <strong id="sell-count-label" style="color:#ffcc00;">1x</strong></label><input type="range" id="sell-count-range" min="1" max="1" value="1" style="width:100%;" oninput="document.getElementById(\'sell-count-label\').innerText = this.value + \'x\'; aktualizujPoradcuCeny();"></div>' +
+        '<div class="sell-form-row"><label>4. Vyvolávacia cena celkom (Predvyplnená trhom):</label><input type="number" id="sell-start-price" class="sell-form-input" value="10" min="1"></div>' +
+        '<div class="sell-form-row"><label>5. Cena Okamžitého výkupu (Nepovinné, nechaj prázdne pre dražbu):</label><input type="number" id="sell-buyout-price" class="sell-form-input" value="" placeholder="napr. 250 (voliteľné)" min="0"></div>' +
         '<div style="text-align:center; margin-top:15px;"><button onclick="odoslatPredajnyFormular()" style="background:#10b981; color:#fff; border:none; padding:12px 30px; border-radius:6px; font-weight:bold; font-size:1.05em; cursor:pointer; width:100%;">🚀 Potvrdiť a Vyvesiť na Trh</button></div></div>';
         
     e.innerHTML = formularPredaja; 
@@ -1110,6 +1172,37 @@ function aktualizujMaxKusovPrePredaj() {
     var range = document.getElementById("sell-count-range"); var countLabel = document.getElementById("sell-count-label");
     if (range) { range.max = max; range.value = 1; }
     if (countLabel) countLabel.innerText = "1x (Max " + max + "x)";
+    
+    aktualizujPoradcuCeny(); // Zavoláme nášho radcu!
+}
+
+function aktualizujPoradcuCeny() {
+    var typ = aktualnyTypPredaja;
+    var itemEl = document.getElementById("sell-item-select");
+    var clsEl = document.getElementById("sell-class-select");
+    var countEl = document.getElementById("sell-count-range");
+    var adviceBox = document.getElementById("sell-advice-box");
+    var priceInput = document.getElementById("sell-start-price");
+
+    if (!itemEl || !countEl || !adviceBox) return;
+
+    var predmet = itemEl.value;
+    var trieda = (typ === "karta" && clsEl) ? clsEl.value : null;
+    var pocet = parseInt(countEl.value) || 1;
+
+    if (!predmet || (typ === "karta" && !trieda)) {
+        adviceBox.innerHTML = "Vyberte predmet pre zobrazenie trhovej analýzy."; return;
+    }
+
+    var analyza = ziskajFérovuCenu(typ, predmet, trieda);
+    var celkovaCena = analyza.cena * pocet;
+
+    adviceBox.innerHTML = '<strong style="font-size:1.1em;">Semafor Likvidity: ' + analyza.semafor + '</strong><br>' +
+                          '<span style="color:#ffcc00; font-weight:bold; font-size: 1.1em;">Odporúčaná cena: ' + analyza.cena + ' m / 1 ks</span> <br>' +
+                          '<small style="color:#aaa;">' + analyza.zdroj + '</small>';
+
+    // Automatické predvyplnenie vyvolávacej ceny (Suma za všetky kusy dokopy)
+    if (priceInput) priceInput.value = celkovaCena;
 }
 
 function odoslatPredajnyFormular() {
@@ -1117,22 +1210,35 @@ function odoslatPredajnyFormular() {
     var cls = (aktualnyTypPredaja === "karta") ? document.getElementById("sell-class-select").value : null;
     var count = parseInt(document.getElementById("sell-count-range").value); 
     var startPrice = parseInt(document.getElementById("sell-start-price").value);
-    var buyoutPrice = parseInt(document.getElementById("sell-buyout-price").value) || 0;
+    
+    // OPRAVA 1: Bezpečné načítanie voliteľnej sumy výkupu (ak je políčko prázdne, nastaví 0)
+    var rawBuyout = document.getElementById("sell-buyout-price").value.trim();
+    var buyoutPrice = (rawBuyout === "") ? 0 : parseInt(rawBuyout);
     
     if (isNaN(count) || count <= 0 || isNaN(startPrice) || startPrice <= 0) { 
         ukazOznamenie("⚠️ CHYBA", "Vyvolávacia cena aj počet kusov musia byť platné kladné čísla!"); return; 
     }
     if (buyoutPrice > 0 && buyoutPrice <= startPrice) {
-        ukazOznamenie("⚠️ CHYBA", "Cena okamžitého výkupu musí byť vyššia ako vyvolávacia cena (alebo ju nechaj prázdnu)!"); return;
-    }
-    
-    if (aktualnyTypPredaja === "karta" && inventar.zostava.indexOf(itemName) !== -1) { 
-        ukazOznamenie("⛔ ZAMIETNUTÉ", "Karta <strong>" + itemName + "</strong> je v tvojej bojovej zostave!<br>Musíš ju najprv vybrať z balíčka v Deckbuilderi."); return; 
+        ukazOznamenie("⚠️ CHYBA", "Cena okamžitého výkupu musí byť vyššia ako vyvolávacia cena (alebo ju nechaj prázdnu pre čistú dražbu)!"); return;
     }
 
     if (aktualnyTypPredaja === "karta") {
         var countInBag = (inventar.karty[itemName] && inventar.karty[itemName].repliky) ? (inventar.karty[itemName].repliky[cls] || 0) : 0;
         if (count > countInBag) { ukazOznamenie("⛔ PODVOD ZACHYTENÝ", "Nemáš dostatok kusov kariet na tento predaj!"); return; }
+        
+        // OPRAVA 2: Inteligentná kontrola Decku (Môžeš predať iné triedy, ak ti ostane aspoň 1 kópia pre Deck)
+        var celkovyPocetKarietTohtoMena = 0;
+        Object.keys(inventar.karty[itemName].repliky).forEach(function(cKey) { 
+            celkovyPocetKarietTohtoMena += inventar.karty[itemName].repliky[cKey]; 
+        });
+        
+        var zostanePoPredaji = celkovyPocetKarietTohtoMena - count;
+        
+        if (inventar.zostava.indexOf(itemName) !== -1 && zostanePoPredaji < 1) { 
+            ukazOznamenie("⛔ ZAMIETNUTÉ", "Karta <strong>" + itemName + "</strong> je v tvojej bojovej zostave a toto sú tvoje posledné kusy!<br>Ak ju chceš predať, musíš ju najprv vybrať z balíčka v Deckbuilderi."); 
+            return; 
+        }
+
         inventar.karty[itemName].repliky[cls] -= count;
     } else {
         var countInBagSuroviny = inventar.suroviny[itemName] || 0;
