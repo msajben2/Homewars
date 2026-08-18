@@ -303,9 +303,11 @@ function pripravBalicekPreZapas(pNum) {
 // POMOCNÁ FUNKCIA: Presné škálovanie AI balíčka
 function vygenerujUmeluInteligenciu() {
     var dostupneKarty = Object.keys(MASTER_REGISTRY).filter(function(k) {
-        var r = MASTER_REGISTRY[k]; return !r.isPlatinum && !r.isSpell && !r.isPrizrak && !r.isTournamentUnique && !r.isItem;
-    });
-    var pool = [];
+        var r = MASTER_REGISTRY[k]; 
+        // Bot NEsmie ťahať: Platinovky, Turnajové unikáty, Prízraky a Zvitky
+        // Kúzla (isSpell) a Predmety (isItem) má povolené.
+        return !r.isPlatinum && !r.isTournamentUnique && !r.isPrizrak && !r.isZvitok;
+});
     
     function pridajDoBalika(trieda, pocet) {
         for(var i=0; i<pocet; i++) {
