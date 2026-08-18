@@ -905,14 +905,35 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
     };
 }
 
-// =====================================================================
-// [SEKCIA 4 - JS] TRHOVISKO, PREDAJ A SKLAD
-// =====================================================================
+
 // =====================================================================
 // [SEKCIA 4 - JS] TRHOVISKO, PREDAJ A SKLAD
 // =====================================================================
 var aukcnyCasomeračInterval = null; 
 var aktualnaZalozkaTrhu = "trh";
+var aktualnyTypPredaja = "karta"; // Prepínač pre formulár
+
+// --- NOVÉ: PAMÄŤ TRHU A ZÁZNAM PREDAJOV ---
+var historiaPredajov = []; // Tu sa budú ukladať všetky zrealizované obchody
+
+function zaznamenajPredajNaTrhu(predmet, trieda, pocet, celkovaCena) {
+    var cenaZaKus = Math.round(celkovaCena / pocet);
+    historiaPredajov.push({
+        predmet: predmet,
+        trieda: trieda,
+        pocet: pocet,
+        cenaZaKus: cenaZaKus,
+        cas: Date.now() // Presný čas (timestamp) kedy sa obchod udial
+    });
+    
+    // Očista: Vymažeme z pamäte obchody staršie ako 24 hodín (86 400 000 milisekúnd)
+    // Aby sme nepočítali EMA z prastarých dát a nepreťažili pamäť
+    var pred24Hod = Date.now() - 86400000;
+    historiaPredajov = historiaPredajov.filter(function(zaznam) {
+        return zaznam.cas >= pred24Hod;
+    });
+}
+// ------------------------------------------
 
 // Globálna databáza aukcií (Pripravené na presun do Cloudu/Servera)
 var globalneAukcie = [
