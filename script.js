@@ -273,6 +273,7 @@ function cykliTrieduKarty(kartaName, vlastneneTriedy) {
     ulozitZostavuDoStorage();
     vygenerujDeckbuilder(); // Prekreslí obrazovku
 }
+
 function pripravBalicekPreZapas(pNum) {
     if (pNum === 2 && jeSingleplayer) { return vygenerujUmeluInteligenciu(); }
     
@@ -314,6 +315,39 @@ function pripravBalicekPreZapas(pNum) {
         var j = Math.floor(Math.random() * (i + 1)); 
         var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; 
     }
+    return pool;
+}
+
+// POMOCNÁ FUNKCIA: Presné škálovanie AI balíčka
+function vygenerujUmeluInteligenciu() {
+    var dostupneKarty = Object.keys(MASTER_REGISTRY).filter(function(k) {
+        var r = MASTER_REGISTRY[k]; 
+        // Bot NEsmie ťahať: Platinovky, Turnajové unikáty, Prízraky a Zvitky
+        return !r.isPlatinum && !r.isTournamentUnique && !r.isPrizrak && !r.isZvitok;
+    });
+    
+    var pool = [];
+    
+    function pridajDoBalika(trieda, pocet) {
+        for(var i=0; i<pocet; i++) {
+            if (dostupneKarty.length === 0) break; // Poistka
+            var randIndex = Math.floor(Math.random() * dostupneKarty.length);
+            var randMeno = dostupneKarty[randIndex];
+            
+            dostupneKarty.splice(randIndex, 1); 
+            pool.push({ n: randMeno, cls: trieda });
+        }
+    }
+    
+    if (obtiaznostAI === "A") { // ĽAHKÁ (A)
+        pridajDoBalika("F", 10); pridajDoBalika("E", 10); pridajDoBalika("D", 5);
+    } else if (obtiaznostAI === "B") { // STREDNÁ (B)
+        pridajDoBalika("F", 5); pridajDoBalika("E", 5); pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 5);
+    } else { // ŤAŽKÁ (C)
+        pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 8); pridajDoBalika("A", 5); pridajDoBalika("S", 2);
+    }
+    
+    for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; }
     return pool;
 }
 
@@ -372,7 +406,9 @@ function vygenerujUmeluInteligenciu() {
     
     for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; }
     return pool;
-} // koniec funkcie vygenerujUmeluInteligenciu
+} 
+
+// koniec funkcie vygenerujUmeluInteligenciu
 
 function vytiahniRukuZRozdanehoBalicka(pNum) {
     var deck = (pNum === 1) ? p1_active_deck : p2_active_deck; var hand = [];
