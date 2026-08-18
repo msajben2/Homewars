@@ -914,7 +914,7 @@ var aktualnaZalozkaTrhu = "trh";
 var aktualnyTypPredaja = "karta"; // Prepínač pre formulár
 
 // --- NOVÉ: PAMÄŤ TRHU A ZÁZNAM PREDAJOV ---
-var historiaPredajov = []; // Tu sa budú ukladať všetky zrealizované obchody
+var historiaPredajov = []; 
 
 function zaznamenajPredajNaTrhu(predmet, trieda, pocet, celkovaCena) {
     var cenaZaKus = Math.round(celkovaCena / pocet);
@@ -923,20 +923,65 @@ function zaznamenajPredajNaTrhu(predmet, trieda, pocet, celkovaCena) {
         trieda: trieda,
         pocet: pocet,
         cenaZaKus: cenaZaKus,
-        cas: Date.now() // Presný čas (timestamp) kedy sa obchod udial
+        cas: Date.now() 
     });
     
-    // Očista: Vymažeme z pamäte obchody staršie ako 24 hodín (86 400 000 milisekúnd)
-    // Aby sme nepočítali EMA z prastarých dát a nepreťažili pamäť
     var pred24Hod = Date.now() - 86400000;
     historiaPredajov = historiaPredajov.filter(function(zaznam) {
         return zaznam.cas >= pred24Hod;
     });
 }
-// ------------------------------------------
+// --- VÝPOČET TRHOVEJ HODNOTY (EMA A SEMAFOR) ---
+var AKTIVNI_HRACI_SIMULACIA = 10; // Fiktívny počet hráčov pre výpočet Indexu Likvidity
 
-// Globálna databáza aukcií (Pripravené na presun do Cloudu/Servera)
+function vypocitajSemaforAEMA(predmet, trieda) {
+    // 1. Vyfiltrujeme históriu len pre tento konkrétny predmet a triedu
+    var relevantnePredaje = historiaPredajov.filter(function(z) {
+        return z.predmet === predmet && (z.trieda === trieda || (!z.trieda && !trieda));
+    });
+
+    // 2. Spočítame, koľko kusov sa celkovo predalo za posledných 24 hodín
+    var pocetPredanychKusov = 0;
+    relevantnePredaje.forEach(function(z) {
+        pocetPredanychKusov += z.pocet;
+    });
+
+    // 3. Výpočet Indexu Likvidity (IL)
+    var indexLikvidity = pocetPredanychKusov / AKTIVNI_HRACI_SIMULACIA;
+
+    // 4. Určenie farby Semaforu
+    var semafor = "🔴"; // Červená (Mŕtvy trh)
+    if (indexLikvidity > 1.0) {
+        semafor = "🟢"; // Zelená (Vysoká likvidita)
+    } else if (indexLikvidity >= 0.1) {
+        semafor = "🟠"; // Oranžová (Stredná likvidita)
+    }
+
+    // 5. Výpočet EMA (Exponenciálneho kĺzavého priemeru)
+    var emaCena = 0;
+    if (relevantnePredaje.length > 0) {
+        // Zotriedime predaje od najstaršieho po najnovší
+        relevantnePredaje.sort(function(a, b) { return a.cas - b.cas; });
+        
+        // Prvý predaj je naša štartovacia čiara
+        emaCena = relevantnePredaje[0].cenaZaKus;
+        var vahaNajnovsieho = 0.80; // 80% váha pre nové predaje (rýchla reakcia trhu)
+
+        for (var i = 1; i < relevantnePredaje.length; i++) {
+            emaCena = (relevantnePredaje[i].cenaZaKus * vahaNajnovsieho) + (emaCena * (1 - vahaNajnovsieho));
+        }
+    }
+
+    return {
+        semafor: semafor,
+        il: indexLikvidity.toFixed(2),
+        emaCena: Math.round(emaCena),
+        predaneKusy: pocetPredanychKusov
+    };
+}
+
 var globalneAukcie = [];
+
 
 
 function prepniZalozkuTrhu(tabName) {
@@ -958,18 +1003,35 @@ function vygenerujSimulaciuTrhu() {
             trhHtml += '<div style="text-align:center; color:#aaa; margin-top:30px;">Momentálne nie sú na trhu žiadne ponuky od iných hráčov. Vyves prvú aukciu ty!</div>';
         } else {
             globalneAukcie.forEach(function(aukcia) {
-                var reg = getRegistryCard(aukcia.kartaN) || MASTER_REGISTRY["Neviditeľný Mário"]; 
-                var realPwr = getRealPower({ n: aukcia.kartaN, cls: aukcia.kartaCls });
                 var jeMoja = (aukcia.predajca === "Hráč 1 (Ty)");
                 var tlacidlaHtml = "";
+                var buyoutText = aukcia.vykupnaCena > 0 ? '<strong style="color:#10b981;">' + aukcia.vykupnaCena + ' m</strong>' : '<strong style="color:#aaa;">Iba dražba (Bez výkupu)</strong>';
                 
                 if (jeMoja) {
                     tlacidlaHtml = '<div style="color:#10b981; font-weight:bold; margin-top:10px; padding:8px; border:1px solid #10b981; border-radius:6px; background:rgba(16, 185, 129, 0.1);">📦 Tvoja vlastná ponuka, čaká na kupcov.</div>';
                 } else {
-                    tlacidlaHtml = '<div style="display:flex; gap:10px;"><button onclick="anonymnePrihoditSumu(\'' + aukcia.id + '\')" style="background:linear-gradient(180deg, #3b2d1d 0%, #21180e 100%); color:#ffcc00; border:1px solid #d4af37; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">🕵️ Prihodiť (Viac ako ' + aukcia.aktualnaPonuka + 'm)</button><button onclick="okamziteOdkupitKartu(\'' + aukcia.id + '\')" style="background:#10b981; color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">⚡ Kúpiť Ihneď za ' + aukcia.vykupnaCena + 'm</button></div>';
+                    tlacidlaHtml = '<div style="display:flex; gap:10px;"><button onclick="anonymnePrihoditSumu(\'' + aukcia.id + '\')" style="background:linear-gradient(180deg, #3b2d1d 0%, #21180e 100%); color:#ffcc00; border:1px solid #d4af37; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">🕵️ Prihodiť (Viac ako ' + aukcia.aktualnaPonuka + 'm)</button>';
+                    if (aukcia.vykupnaCena > 0) {
+                        tlacidlaHtml += '<button onclick="okamziteOdkupitKartu(\'' + aukcia.id + '\')" style="background:#10b981; color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">⚡ Kúpiť Ihneď za ' + aukcia.vykupnaCena + 'm</button>';
+                    }
+                    tlacidlaHtml += '</div>';
                 }
 
-                trhHtml += '<div class="auction-card-box" style="margin-bottom:15px; border:1px solid #5a4d3e; padding:15px; border-radius:8px; display:flex; gap:15px; align-items:center; background:rgba(0,0,0,0.4);"><div class="karta cls-' + aukcia.kartaCls + '">' + vytvorHTMLKarty(aukcia.kartaN, realPwr, aukcia.kartaCls, reg.row, reg.p) + '</div><div style="flex-grow:1;"><h3 style="color:#ffcc00; margin:0 0 5px 0;">' + aukcia.kartaN + ' (' + aukcia.kartaCls + '-Class) - ' + aukcia.pocet + 'x Balíček</h3><p style="margin:2px 0; color:#aaa; font-size:0.9em;">Predajca: <strong>' + aukcia.predajca + '</strong></p><div style="background:rgba(0,0,0,0.6); border:1px solid #5a4d3e; padding:12px; border-radius:6px; margin:10px 0; max-width:480px;"><div>⏱️ Čas aukcie: <span id="timer-' + aukcia.id + '" style="color:#ffcc00; font-weight:bold;">Počítam...</span></div><div style="margin-top:4px;">👑 Aktuálne najvyššia ponuka: <strong style="color:#ffcc00;">' + aukcia.veduciHrac + ' (' + aukcia.aktualnaPonuka + ' m)</strong></div><div style="margin-top:4px;">💰 Okamžitý Výkup (Strop): <strong style="color:#10b981;">' + aukcia.vykupnaCena + ' m</strong></div></div>' + tlacidlaHtml + '</div></div>';
+                var vizualZobrazenie = "";
+                var titulokZobrazenie = "";
+                
+                if (aukcia.typ === "karta") {
+                    var reg = getRegistryCard(aukcia.predmet) || MASTER_REGISTRY["Neviditeľný Mário"]; 
+                    var realPwr = getRealPower({ n: aukcia.predmet, cls: aukcia.trieda });
+                    vizualZobrazenie = '<div class="karta cls-' + aukcia.trieda + '">' + vytvorHTMLKarty(aukcia.predmet, realPwr, aukcia.trieda, reg.row, reg.p) + '</div>';
+                    titulokZobrazenie = aukcia.predmet + ' (' + aukcia.trieda + '-Class)';
+                } else {
+                    var imgUrl = STATNY_SKLAD_CENNIK[aukcia.predmet] ? STATNY_SKLAD_CENNIK[aukcia.predmet].img : "Img/zlato.webp";
+                    vizualZobrazenie = '<div class="market-store-card" style="width:140px; height:200px; justify-content:center;"><img src="' + imgUrl + '" style="width:70px; height:70px; margin-bottom:10px;"><strong style="color:#ffcc00; font-size:1.2em;">' + aukcia.predmet + '</strong></div>';
+                    titulokZobrazenie = aukcia.predmet + ' (Surovina)';
+                }
+
+                trhHtml += '<div class="auction-card-box" style="margin-bottom:15px; border:1px solid #5a4d3e; padding:15px; border-radius:8px; display:flex; gap:15px; align-items:center; background:rgba(0,0,0,0.4);">' + vizualZobrazenie + '<div style="flex-grow:1;"><h3 style="color:#ffcc00; margin:0 0 5px 0;">' + titulokZobrazenie + ' - ' + aukcia.pocet + 'x Balíček</h3><p style="margin:2px 0; color:#aaa; font-size:0.9em;">Predajca: <strong>' + aukcia.predajca + '</strong></p><div style="background:rgba(0,0,0,0.6); border:1px solid #5a4d3e; padding:12px; border-radius:6px; margin:10px 0; max-width:480px;"><div>⏱️ Čas aukcie: <span id="timer-' + aukcia.id + '" style="color:#ffcc00; font-weight:bold;">Počítam...</span></div><div style="margin-top:4px;">👑 Aktuálna ponuka (Vedie): <strong style="color:#ffcc00;">' + aukcia.veduciHrac + ' (' + aukcia.aktualnaPonuka + ' m)</strong></div><div style="margin-top:4px;">💰 Okamžitý Výkup (Strop): ' + buyoutText + '</div></div>' + tlacidlaHtml + '</div></div>';
             });
         }
         e.innerHTML = trhHtml;
@@ -982,127 +1044,160 @@ function vygenerujSimulaciuTrhu() {
             skladHtml += '<div class="market-store-card"><img src="' + item.img + '" class="market-store-img"><strong style="color:#ffcc00; font-size:1em;">' + mat + '</strong><span style="color:#aaa; font-size:0.85em;">Cena: <strong style="color:#ffcc00;">' + item.price + ' m / 1 oz</strong></span><div style="display:flex; gap:6px; margin-top:6px;"><button onclick="kupitSurovinuZoStatnehoSkladu(\'' + mat + '\', 1)" style="background:#3b2d1d; color:#ffcc00; border:1px solid #d4af37; padding:5px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:0.8em;">+1 oz</button><button onclick="kupitSurovinuZoStatnehoSkladu(\'' + mat + '\', 5)" style="background:#10b981; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:0.8em;">+5 oz</button></div></div>';
         });
         skladHtml += '</div>'; e.innerHTML = skladHtml;
-    } else if (aktualnaZalozkaTrhu === "predaj") {
-        var dostupneKarty = Object.keys(inventar.karty).filter(function(k) { return typeof inventar.karty[k].repliky === "object"; });
-        var optionsHtml = ""; dostupneKarty.forEach(function(k) { optionsHtml += '<option value="' + k + '">' + k + '</option>'; });
-        var predajHtml = '<div class="sell-form-container"><h3 style="color:#ffcc00; margin-top:0; text-align:center; font-family:Georgia, serif;">📦 VYVESIŤ NOVÚ AUKCIU NA TRHOVISKO</h3><div class="sell-form-row"><label>1. Vyber kartu z batohu:</label><select id="sell-card-select" class="sell-form-select" onchange="aktualizujDostupneTriedyPrePredaj()">' + optionsHtml + '</select></div><div class="sell-form-row"><label>2. Vyber triedu karty:</label><select id="sell-class-select" class="sell-form-select" onchange="aktualizujMaxKusovPrePredaj()"><option value="F">F-Class</option><option value="E">E-Class</option><option value="D">D-Class</option><option value="C">C-Class</option><option value="B">B-Class</option><option value="A">A-Class</option></select></div><div class="sell-form-row"><label>3. Počet kusov v balíku: <strong id="sell-count-label" style="color:#ffcc00;">1x</strong> (Skladom: <span id="sell-max-stock">1</span>x)</label><input type="range" id="sell-count-range" min="1" max="1" value="1" style="width:100%;" oninput="document.getElementById(\'sell-count-label\').innerText = this.value + \'x\';"></div><div class="sell-form-row"><label>4. Cena Okamžitého výkupu (m):</label><input type="number" id="sell-price-input" class="sell-form-input" value="35" min="1"></div><div style="text-align:center; margin-top:15px;"><button onclick="odoslatPredajnyFormular()" style="background:#10b981; color:#fff; border:none; padding:12px 30px; border-radius:6px; font-weight:bold; font-size:1.05em; cursor:pointer; width:100%;">🚀 Potvrdiť a Vyvesiť na Trh</button></div></div>';
         
-        predajHtml += '<h4 style="color:#d4af37; text-align:center;">📋 PREHĽAD TVOJICH ZÁSOB V BATOHU</h4><div class="dielna-grid">';
-        Object.keys(inventar.karty).forEach(function(kName) {
-            var cData = inventar.karty[kName]; var reg = getRegistryCard(kName);
-            if (typeof cData.repliky === "object") {
-                Object.keys(cData.repliky).forEach(function(cls) {
-                    var count = cData.repliky[cls] || 0;
-                    if (count > 0) {
-                        var isInDeck = (inventar.zostava.indexOf(kName) !== -1); var deckTag = isInDeck ? '<span style="color:#ff4d4d; font-size:0.75em; display:block;">⚠️ V BALÍČKU</span>' : '';
-                        predajHtml += '<div class="karta-karta-wrapper"><div class="karta cls-' + cls + '">' + vytvorHTMLKarty(kName, getRealPower({n:kName, cls:cls}), cls, reg.row, reg.p, false) + '</div><div style="font-size:0.8em; margin:6px 0; color:#ffcc00; text-align:center;">Na sklade: <strong>' + count + 'x</strong>' + deckTag + '</div></div>';
-                    }
-                });
-            }
-        });
-        predajHtml += '</div>'; e.innerHTML = predajHtml; setTimeout(aktualizujDostupneTriedyPrePredaj, 50);
+    } else if (aktualnaZalozkaTrhu === "predaj") {
+        vykresliZalozkuPredaja();
     }
 }
 
+function vykresliZalozkuPredaja() {
+    var e = document.getElementById("obchod-regaly-zoznam"); if (!e) return;
+    
+    var typPredajaHtml = '<select class="sell-form-select" onchange="aktualnyTypPredaja = this.value; vykresliZalozkuPredaja();"><option value="karta" ' + (aktualnyTypPredaja==="karta"?"selected":"") + '>Karty z batohu</option><option value="surovina" ' + (aktualnyTypPredaja==="surovina"?"selected":"") + '>Suroviny (Koža, Kov...)</option></select>';
+    var optionsHtml = "";
+    
+    if (aktualnyTypPredaja === "karta") {
+        var dostupneKarty = Object.keys(inventar.karty).filter(function(k) { return typeof inventar.karty[k].repliky === "object"; });
+        dostupneKarty.forEach(function(k) { optionsHtml += '<option value="' + k + '">' + k + '</option>'; });
+    } else {
+        var dostupneSuroviny = Object.keys(inventar.suroviny).filter(function(s) { return inventar.suroviny[s] > 0; });
+        dostupneSuroviny.forEach(function(s) { optionsHtml += '<option value="' + s + '">' + s + ' (' + inventar.suroviny[s] + ' oz)</option>'; });
+    }
+
+    var formularPredaja = '<div class="sell-form-container"><h3 style="color:#ffcc00; margin-top:0; text-align:center; font-family:Georgia, serif;">📦 VYVESIŤ NOVÚ AUKCIU</h3>' +
+        '<div class="sell-form-row"><label>1. Typ položky:</label>' + typPredajaHtml + '</div>' +
+        '<div class="sell-form-row"><label>2. Vyber predmet:</label><select id="sell-item-select" class="sell-form-select" onchange="aktualizujDostupneTriedyPrePredaj()">' + optionsHtml + '</select></div>';
+        
+    if (aktualnyTypPredaja === "karta") {
+        formularPredaja += '<div class="sell-form-row"><label>Trieda karty:</label><select id="sell-class-select" class="sell-form-select" onchange="aktualizujMaxKusovPrePredaj()"></select></div>';
+    }
+    
+    formularPredaja += '<div class="sell-form-row"><label>3. Počet kusov v balíku: <strong id="sell-count-label" style="color:#ffcc00;">1x</strong></label><input type="range" id="sell-count-range" min="1" max="1" value="1" style="width:100%;" oninput="document.getElementById(\'sell-count-label\').innerText = this.value + \'x\';"></div>' +
+        '<div class="sell-form-row"><label>4. Vyvolávacia cena (Začiatočná ponuka v minciach):</label><input type="number" id="sell-start-price" class="sell-form-input" value="10" min="1"></div>' +
+        '<div class="sell-form-row"><label>5. Cena Okamžitého výkupu (Nepovinné, nechaj 0 pre čistú dražbu):</label><input type="number" id="sell-buyout-price" class="sell-form-input" value="" placeholder="napr. 250 (voliteľné)" min="0"></div>' +
+        '<div style="text-align:center; margin-top:15px;"><button onclick="odoslatPredajnyFormular()" style="background:#10b981; color:#fff; border:none; padding:12px 30px; border-radius:6px; font-weight:bold; font-size:1.05em; cursor:pointer; width:100%;">🚀 Potvrdiť a Vyvesiť na Trh</button></div></div>';
+        
+    e.innerHTML = formularPredaja; 
+    setTimeout(aktualizujDostupneTriedyPrePredaj, 50);
+}
+
 function aktualizujDostupneTriedyPrePredaj() {
-    var kNameEl = document.getElementById("sell-card-select"); if (!kNameEl) return;
-    var kName = kNameEl.value; var cData = inventar.karty[kName]; var sel = document.getElementById("sell-class-select");
-    if (!sel || !cData) return; sel.innerHTML = "";
-    ["F", "E", "D", "C", "B", "A"].forEach(function(cls) { if (cData.repliky && cData.repliky[cls] > 0) sel.innerHTML += '<option value="' + cls + '">' + cls + '-Class (' + cData.repliky[cls] + 'x)</option>'; });
+    var itemEl = document.getElementById("sell-item-select"); if (!itemEl) return;
+    var itemName = itemEl.value; 
+    
+    if (aktualnyTypPredaja === "karta") {
+        var cData = inventar.karty[itemName]; var sel = document.getElementById("sell-class-select");
+        if (!sel || !cData) return; sel.innerHTML = "";
+        ["F", "E", "D", "C", "B", "A", "S"].forEach(function(cls) { 
+            if (cData.repliky && cData.repliky[cls] > 0) sel.innerHTML += '<option value="' + cls + '">' + cls + '-Class (' + cData.repliky[cls] + 'x na sklade)</option>'; 
+        });
+    }
     aktualizujMaxKusovPrePredaj();
 }
 
 function aktualizujMaxKusovPrePredaj() {
-    var kNameEl = document.getElementById("sell-card-select"); var clsEl = document.getElementById("sell-class-select");
-    if (!kNameEl || !clsEl) return; var kName = kNameEl.value; var cls = clsEl.value; var cData = inventar.karty[kName];
-    var max = (cData && cData.repliky && cData.repliky[cls]) ? cData.repliky[cls] : 1;
-    var range = document.getElementById("sell-count-range"); var stockLabel = document.getElementById("sell-max-stock"); var countLabel = document.getElementById("sell-count-label");
+    var itemEl = document.getElementById("sell-item-select"); if (!itemEl) return;
+    var itemName = itemEl.value; var max = 1;
+    
+    if (aktualnyTypPredaja === "karta") {
+        var clsEl = document.getElementById("sell-class-select"); if (!clsEl) return;
+        var cls = clsEl.value; var cData = inventar.karty[itemName];
+        max = (cData && cData.repliky && cData.repliky[cls]) ? cData.repliky[cls] : 1;
+    } else {
+        max = inventar.suroviny[itemName] || 1;
+    }
+    
+    var range = document.getElementById("sell-count-range"); var countLabel = document.getElementById("sell-count-label");
     if (range) { range.max = max; range.value = 1; }
-    if (stockLabel) stockLabel.innerText = max; if (countLabel) countLabel.innerText = "1x";
+    if (countLabel) countLabel.innerText = "1x (Max " + max + "x)";
 }
 
 function odoslatPredajnyFormular() {
-    var kName = document.getElementById("sell-card-select").value; 
-    var cls = document.getElementById("sell-class-select").value;
+    var itemName = document.getElementById("sell-item-select").value; 
+    var cls = (aktualnyTypPredaja === "karta") ? document.getElementById("sell-class-select").value : null;
     var count = parseInt(document.getElementById("sell-count-range").value); 
-    var price = parseInt(document.getElementById("sell-price-input").value);
+    var startPrice = parseInt(document.getElementById("sell-start-price").value);
+    var buyoutPrice = parseInt(document.getElementById("sell-buyout-price").value) || 0;
     
-    // OCHRANA 1: Zadáva vôbec čísla? Sú kladné?
-    if (isNaN(count) || count <= 0 || isNaN(price) || price <= 0) { 
-        ukazOznamenie("⚠️ CHYBA", "Zadaj platné hodnoty do predaja!"); 
-        return; 
+    if (isNaN(count) || count <= 0 || isNaN(startPrice) || startPrice <= 0) { 
+        ukazOznamenie("⚠️ CHYBA", "Vyvolávacia cena aj počet kusov musia byť platné kladné čísla!"); return; 
+    }
+    if (buyoutPrice > 0 && buyoutPrice <= startPrice) {
+        ukazOznamenie("⚠️ CHYBA", "Cena okamžitého výkupu musí byť vyššia ako vyvolávacia cena (alebo ju nechaj prázdnu)!"); return;
     }
     
-    // OCHRANA 2: Predáva to, čo má v decku?
-    if (inventar.zostava.indexOf(kName) !== -1) { 
-        ukazOznamenie("⛔ ZAMIETNUTÉ", "Karta <strong>" + kName + "</strong> je v tvojej bojovej zostave!<br>Ak ju chceš predať, musíš ju najprv vybrať z balíčka v Deckbuilderi."); 
-        return; 
+    if (aktualnyTypPredaja === "karta" && inventar.zostava.indexOf(itemName) !== -1) { 
+        ukazOznamenie("⛔ ZAMIETNUTÉ", "Karta <strong>" + itemName + "</strong> je v tvojej bojovej zostave!<br>Musíš ju najprv vybrať z balíčka v Deckbuilderi."); return; 
     }
 
-    // OCHRANA 3: Klonovanie (Skúša predať viac ako má v batohu?)
-    var countInBag = (inventar.karty[kName] && inventar.karty[kName].repliky) ? (inventar.karty[kName].repliky[cls] || 0) : 0;
-    if (count > countInBag) {
-        ukazOznamenie("⛔ PODVOD ZACHYTENÝ", "Nemáš dostatok kusov na tento predaj!");
-        return;
+    if (aktualnyTypPredaja === "karta") {
+        var countInBag = (inventar.karty[itemName] && inventar.karty[itemName].repliky) ? (inventar.karty[itemName].repliky[cls] || 0) : 0;
+        if (count > countInBag) { ukazOznamenie("⛔ PODVOD ZACHYTENÝ", "Nemáš dostatok kusov kariet na tento predaj!"); return; }
+        inventar.karty[itemName].repliky[cls] -= count;
+    } else {
+        var countInBagSuroviny = inventar.suroviny[itemName] || 0;
+        if (count > countInBagSuroviny) { ukazOznamenie("⛔ PODVOD ZACHYTENÝ", "Nemáš dostatok surovín na tento predaj!"); return; }
+        inventar.suroviny[itemName] -= count;
     }
 
-    // Všetko je ok, odpočítame reálne karty z inventára
-    inventar.karty[kName].repliky[cls] -= count;
-    var hasRemaining = false; 
-    Object.keys(inventar.karty[kName].repliky).forEach(function(cKey) { if (inventar.karty[kName].repliky[cKey] > 0) hasRemaining = true; });
-    if (!hasRemaining) { inventar.karty[kName].repliky["F"] = 1; inventar.karty[kName].aktivnaTrieda = "F"; }
-
-    // Vytvorenie reálneho objektu aukcie (namiesto falšovania textu)
     var novaAukcia = {
         id: "aukcia_" + Date.now(),
         predajca: "Hráč 1 (Ty)",
-        kartaN: kName,
-        kartaCls: cls,
+        typ: aktualnyTypPredaja,
+        predmet: itemName,
+        trieda: cls,
         pocet: count,
         veduciHrac: "Nikto",
-        aktualnaPonuka: 0,
-        vykupnaCena: price,
-        casDoKonca: 3600 // 1 hodina
+        aktualnaPonuka: startPrice,
+        vykupnaCena: buyoutPrice,
+        casDoKonca: 3600 // 1 hodina (60 min x 60 s)
     };
-    globalneAukcie.push(novaAukcia); // Uložíme do databázy
+    globalneAukcie.push(novaAukcia);
 
-    ukazOznamenie("🎉 POLOŽKA ZALISTOVANÁ", "Balík **" + count + "x " + kName + " (" + cls + "-Class)** bol vyvesený na trh za " + price + " mincí!");
-    prepniZalozkuTrhu("trh"); // Prepne ťa do Trhu nech vidíš vlastnú ponuku
+    ukazOznamenie("🎉 POLOŽKA ZALISTOVANÁ", "Aukcia bola úspešne vyvesená na Trhovisko!");
+    prepniZalozkuTrhu("trh");
 }
 
 function kupitSurovinuZoStatnehoSkladu(mat, pocetOz) {
     var item = STATNY_SKLAD_CENNIK[mat]; if (!item) return;
     var celkovaCena = item.price * pocetOz;
     if (inventar.mince < celkovaCena) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Na nákup potrebuješ " + celkovaCena + " mincí!"); return; }
-    inventar.mince -= celkovaCena;if (mat === "F-Zvitok") {if (!inventar.karty["Zvitok"]) inventar.karty["Zvitok"] = { repliky: { "F": 0 }, aktivnaTrieda: "F" };inventar.karty["Zvitok"].repliky["F"] = (inventar.karty["Zvitok"].repliky["F"] || 0) + pocetOz;
+    inventar.mince -= celkovaCena; 
+    if (mat === "F-Zvitok") {
+        if (!inventar.karty["Zvitok"]) inventar.karty["Zvitok"] = { repliky: { "F": 0 }, aktivnaTrieda: "F" };
+        inventar.karty["Zvitok"].repliky["F"] = (inventar.karty["Zvitok"].repliky["F"] || 0) + pocetOz;
     } else {
         inventar.suroviny[mat] = (inventar.suroviny[mat] || 0) + pocetOz;
     }
-     inventar.suroviny[mat] = (inventar.suroviny[mat] || 0) + pocetOz;
     ukazOznamenie("🏛️ NÁKUP", "Kúpil si **" + pocetOz + " oz " + mat + "** za " + celkovaCena + " mincí!"); aktualizujVsetkyStickyWallety();
+}
+
+function pridelPredmetHracovi(aukcia) {
+    if (aukcia.typ === "karta") {
+        if (!inventar.karty[aukcia.predmet]) inventar.karty[aukcia.predmet] = { repliky: { "F": 0 }, aktivnaTrieda: "F" };
+        if (typeof inventar.karty[aukcia.predmet].repliky !== "object") inventar.karty[aukcia.predmet].repliky = { "F": 0 };
+        inventar.karty[aukcia.predmet].repliky[aukcia.trieda] = (inventar.karty[aukcia.predmet].repliky[aukcia.trieda] || 0) + aukcia.pocet;
+    } else {
+        inventar.suroviny[aukcia.predmet] = (inventar.suroviny[aukcia.predmet] || 0) + aukcia.pocet;
+    }
 }
 
 function anonymnePrihoditSumu(aukciaId) {
     var aukcia = globalneAukcie.find(function(a) { return a.id === aukciaId; });
     if (!aukcia) { ukazOznamenie("⚠️ CHYBA", "Táto aukcia už neexistuje!"); return; }
+    if (aukcia.predajca === "Hráč 1 (Ty)") { ukazOznamenie("⛔ ZAMIETNUTÉ", "Nemôžeš prihadzovať na svoju vlastnú aukciu!"); return; }
 
-    // OCHRANA PRED PRIHADZOVANÍM NA VLASTNÉ AUKCIE
-    if (aukcia.predajca === "Hráč 1 (Ty)") {
-        ukazOznamenie("⛔ ZAMIETNUTÉ", "Nemôžeš prihadzovať na svoju vlastnú aukciu!"); 
-        return;
-    }
+    var ponuka = parseInt(prompt("Zadaj svoju ponuku (Musí byť vyššia ako " + aukcia.aktualnaPonuka + "m):"));
+    if (isNaN(ponuka) || ponuka <= aukcia.aktualnaPonuka) { ukazOznamenie("⚠️ CHYBA", "Musíš prihodiť platnú sumu vyššiu ako je aktuálna ponuka!"); return; }
+    if (inventar.mince < ponuka) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Nemáš dostatok mincí na túto ponuku!"); return; }
 
-    var ponuka = parseInt(prompt("Zadaj svoju ponuku (Strop výkupu: " + aukcia.vykupnaCena + "m):"));
-    if (isNaN(ponuka) || ponuka <= aukcia.aktualnaPonuka) { ukazOznamenie("⚠️ CHYBA", "Musíš prihodiť platnú sumu vyššiu ako je aktuálna ponuka (" + aukcia.aktualnaPonuka + "m)!"); return; }
-    if (inventar.mince < ponuka) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Nemáš dostatok mincí!"); return; }
-
-    if (ponuka >= aukcia.vykupnaCena) {
+    if (aukcia.vykupnaCena > 0 && ponuka >= aukcia.vykupnaCena) {
         okamziteOdkupitKartu(aukciaId);
     } else {
         inventar.mince -= ponuka; 
         aukcia.aktualnaPonuka = ponuka; 
         aukcia.veduciHrac = "Hráč 1 (Ty)";
-        ukazOznamenie("🕵️ PONUKA ZAREGISTROVANÁ", "Tvoja ponuka " + ponuka + "m ťa posunula na 1. miesto v aukcii!"); 
+        ukazOznamenie("🕵️ PONUKA ZAREGISTROVANÁ", "Tvoja ponuka " + ponuka + "m ťa posunula na 1. miesto v aukcii! Ak ťa niekto prebije, mince ti vrátime."); 
         vygenerujSimulaciuTrhu();
     }
 }
@@ -1115,13 +1210,12 @@ function okamziteOdkupitKartu(aukciaId) {
     if (aukcia.vykupnaCena === 0) { ukazOznamenie("⛔ ZAMIETNUTÉ", "Tento predmet nemá cenu okamžitého výkupu, musíš sa zúčastniť dražby!"); return; }
     if (aukcia.predajca === "Hráč 1 (Ty)") { ukazOznamenie("⛔ ZAMIETNUTÉ", "Nemôžeš kúpiť svoju vlastnú aukciu!"); return; }
     if (inventar.mince < aukcia.vykupnaCena) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Na kúpu z voľnej ruky potrebuješ " + aukcia.vykupnaCena + "m!"); return; }
+    
     inventar.mince -= aukcia.vykupnaCena; 
     
-    // --- TU ZAZNAMENÁME PREDAJ DO NAŠEJ PAMÄTI PRE EMA ---
     var predmetNazov = (aukcia.typ === "karta") ? aukcia.predmet : aukcia.predmet;
     var predmetTrieda = (aukcia.typ === "karta") ? aukcia.trieda : "F";
     zaznamenajPredajNaTrhu(predmetNazov, predmetTrieda, aukcia.pocet, aukcia.vykupnaCena);
-    // ----------------------------------------------------
 
     pridelPredmetHracovi(aukcia);
     globalneAukcie.splice(aukciaIndex, 1);
@@ -1129,7 +1223,61 @@ function okamziteOdkupitKartu(aukciaId) {
     var nazovZobrazenie = (aukcia.typ === "karta") ? (aukcia.predmet + " (" + aukcia.trieda + "-Class)") : (aukcia.predmet + " (Surovina)");
     ukazOznamenie("🎉 KÚPENÉ IHNEĎ!", "Zaplatil si " + aukcia.vykupnaCena + "m. Tvoj batoh sa rozšíril o:<br><br><strong style='color:#10b981; font-size:1.1em;'>" + aukcia.pocet + "x " + nazovZobrazenie + "</strong>"); 
     vygenerujSimulaciuTrhu(); aktualizujVsetkyStickyWallety();
-};
+}
+
+function spustitOdpocitavanieAukcie() {
+    if (aukcnyCasomeračInterval) clearInterval(aukcnyCasomeračInterval); 
+    
+    aukcnyCasomeračInterval = setInterval(function() {
+        if (aktualnaZalozkaTrhu !== "trh") return;
+        
+        var ziveAukcie = [];
+        var niecoSkoncilo = false;
+
+        globalneAukcie.forEach(function(aukcia) {
+            if (aukcia.casDoKonca > 0) {
+                aukcia.casDoKonca--;
+                ziveAukcie.push(aukcia);
+                
+                var timerEl = document.getElementById("timer-" + aukcia.id);
+                if (timerEl) {
+                    var h = Math.floor(aukcia.casDoKonca / 3600); var m = Math.floor((aukcia.casDoKonca % 3600) / 60); var s = aukcia.casDoKonca % 60;
+                    timerEl.innerText = (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+                }
+            } else {
+                niecoSkoncilo = true;
+                if (aukcia.veduciHrac === "Nikto") {
+                    if (aukcia.predajca === "Hráč 1 (Ty)") {
+                        pridelPredmetHracovi(aukcia); 
+                        ukazOznamenie("⏱️ AUKCIA SKONČILA (NEPREDANÉ)", "O tvoju aukciu (" + aukcia.pocet + "x " + aukcia.predmet + ") nikto neprejavil záujem. Veci sa ti vrátili do batohu.");
+                    }
+                } else {
+                    // KUPIL TO NIEKTO V DRAŽBE -> ZÁPIS DO EMA PAMÄTE
+                    var predmetNazov = (aukcia.typ === "karta") ? aukcia.predmet : aukcia.predmet;
+                    var predmetTrieda = (aukcia.typ === "karta") ? aukcia.trieda : "F";
+                    zaznamenajPredajNaTrhu(predmetNazov, predmetTrieda, aukcia.pocet, aukcia.aktualnaPonuka);
+
+                    if (aukcia.predajca === "Hráč 1 (Ty)") {
+                        inventar.mince += aukcia.aktualnaPonuka;
+                        ukazOznamenie("💰 ÚSPEŠNÝ PREDAJ", "Hráč " + aukcia.veduciHrac + " vydražil tvoju aukciu (" + aukcia.pocet + "x " + aukcia.predmet + "). Získavaš " + aukcia.aktualnaPonuka + "m!");
+                    }
+                    if (aukcia.veduciHrac === "Hráč 1 (Ty)") {
+                        pridelPredmetHracovi(aukcia); 
+                        ukazOznamenie("🏆 VYHRAL SI AUKCIU!", "Čas vypršal a tvoja ponuka " + aukcia.aktualnaPonuka + "m bola najvyššia. Získavaš " + aukcia.pocet + "x " + aukcia.predmet + "!");
+                    }
+                }
+            }
+        });
+        
+        if (niecoSkoncilo) {
+            globalneAukcie = ziveAukcie;
+            vygenerujSimulaciuTrhu();
+            aktualizujVsetkyStickyWallety();
+        }
+
+        if (globalneAukcie.length === 0) clearInterval(aukcnyCasomeračInterval);
+    }, 1000);
+}
 // =====================================================================
 // [SEKCIA 5 - JS] HERNÁ LOGIKA A VÝPOČTY SILY
 // =====================================================================
