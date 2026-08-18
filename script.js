@@ -174,10 +174,22 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
 }
 
 function automatickyDoplnitDefaultZostavu(showNotify) {
-    var defaultPool = Object.keys(MASTER_REGISTRY).filter(function(k) { return !MASTER_REGISTRY[k].isPrizrak; });
+    var defaultPool = Object.keys(MASTER_REGISTRY).filter(function(k) { 
+        var r = MASTER_REGISTRY[k];
+        // Do predvoleného balíčka nepôjdu: Platinovky, Prízraky, Zvitky, Kúzla ani Predmety
+        return !r.isPrizrak && !r.isZvitok && !r.isPlatinum && !r.isTournamentUnique && !r.isSpell && !r.isItem;
+    });
+    
+    // Vyberie náhodne 25 klasických kariet (Muži, Ženy, Zvieratá)
+    for (var i = defaultPool.length - 1; i > 0; i--) { 
+        var j = Math.floor(Math.random() * (i + 1)); 
+        var temp = defaultPool[i]; defaultPool[i] = defaultPool[j]; defaultPool[j] = temp; 
+    }
+    
     inventar.zostava = defaultPool.slice(0, 25);
     ulozitZostavuDoStorage();
-    if (showNotify !== false) ukazOznamenie("⚡ PREDVOLENÁ ZOSTRAVA", "Zostava bola automaticky naplnená 25 základnými kartami!");
+    
+    if (showNotify !== false) ukazOznamenie("⚡ PREDVOLENÁ ZOSTRAVA", "Zostava bola automaticky naplnená 25 základnými bojovými kartami!");
     vygenerujDeckbuilder(); aktualizujVsetkyStickyWallety();
 }
 
@@ -972,41 +984,52 @@ function vypocitajSemaforAEMA(predmet, trieda) {
 }
 
 function ziskajFérovuCenu(typ, predmet, trieda) {
+    // 1. SUROVINY
     if (typ === "surovina") {
         var trh = vypocitajSemaforAEMA(predmet, null);
         if (trh.semafor === "🟢") return { cena: trh.emaCena, zdroj: "EMA (Zelený trh - Aktívne obchody)", semafor: "🟢" };
+        
         var skladCena = STATNY_SKLAD_CENNIK[predmet] ? STATNY_SKLAD_CENNIK[predmet].price : 10;
-        return { cena: skladCena, zdroj: "Štátny Sklad (Nízka likvidita)", semafor: trh.semafor };
+        if (trh.semafor === "🟠") return { cena: Math.round(skladCena * 0.75), zdroj: "Odhad z ťažby (Stredná likvidita)", semafor: "🟠" };
+        
+        return { cena: skladCena, zdroj: "Štátny Sklad (Nízka likvidita)", semafor: "🔴" };
     }
 
+    // 2. PRÍZRAKY
     if (typ === "prizrak") {
         var trhPrizrak = vypocitajSemaforAEMA("Prízrak", trieda);
         if (trhPrizrak.semafor === "🟢") return { cena: trhPrizrak.emaCena, zdroj: "EMA (Zelený trh)", semafor: "🟢" };
-        var pRoc = vypocitajKaskadoveROC(trieda, true); 
+        
+        if (trhPrizrak.semafor === "🟠") {
+            var dropPrizrak = { "F": 150, "E": 450, "D": 1350, "C": 4050, "B": 12150, "A": 36450 };
+            return { cena: dropPrizrak[trieda] || 150, zdroj: "Teoretická Drop Hodnota z truhlíc", semafor: "🟠" };
+        }
+        
+        var pRoc = vypocitajKaskadoveROC(trieda, true, "Prízrak"); 
         return { cena: pRoc, zdroj: "Kaskádové ROC (Ochrana proti inflácii)", semafor: "🔴" };
     }
 
+    // 3. VŠETKY OSTATNÉ KARTY (Bojové, Kúzla, Predmety, Zvitky)
     if (typ === "karta") {
         var reg = getRegistryCard(predmet);
         var trhKarty = vypocitajSemaforAEMA(predmet, trieda);
+        
         if (trhKarty.semafor === "🟢") return { cena: trhKarty.emaCena, zdroj: "EMA (Zelený trh - Čistá trhová cena)", semafor: "🟢" };
         
-        if (reg.isSpell || reg.isPlatinum || reg.isItem) {
-            return { cena: 100, zdroj: "Základná odhadovaná hodnota", semafor: trhKarty.semafor }; 
-        }
-
-        if (reg.isTournamentUnique) {
-            return { cena: 5000, zdroj: "Zberateľská Turnajová Hodnota", semafor: "🔴" };
-        }
+        // Zberateľské výnimky (Nekujú sa)
+        if (reg.isPlatinum) return { cena: 10000, zdroj: "Zberateľská Hodnota", semafor: trhKarty.semafor }; 
+        if (reg.isTournamentUnique) return { cena: 5000, zdroj: "Zberateľská Turnajová Hodnota", semafor: "🔴" };
 
         if (trhKarty.semafor === "🟠") {
             var dropCeny = { "F": 50, "E": 150, "D": 450, "C": 1350, "B": 4000, "A": 12000, "S": 36000 };
             return { cena: dropCeny[trieda] || 50, zdroj: "Teoretická Drop Hodnota z truhlíc", semafor: "🟠" };
         }
 
-        var roc = vypocitajKaskadoveROC(trieda, false);
-        return { cena: roc, zdroj: "Kaskádové ROC (Ochrana proti inflácii)", semafor: "🔴" };
+        // Ak je trh mŕtvy (Červený), nasadzujeme tvrdú výrobnú cenu z Dielne
+        var roc = vypocitajKaskadoveROC(trieda, false, predmet);
+        return { cena: roc, zdroj: "Kaskádové ROC (Výrobná cena v Dielni)", semafor: "🔴" };
     }
+    
     return { cena: 10, zdroj: "Neznáme", semafor: "🔴" };
 }
 
