@@ -273,7 +273,6 @@ function cykliTrieduKarty(kartaName, vlastneneTriedy) {
     ulozitZostavuDoStorage();
     vygenerujDeckbuilder(); // Prekreslí obrazovku
 }
-
 function pripravBalicekPreZapas(pNum) {
     if (pNum === 2 && jeSingleplayer) { return vygenerujUmeluInteligenciu(); }
     
@@ -318,23 +317,23 @@ function pripravBalicekPreZapas(pNum) {
     return pool;
 }
 
-
+// POMOCNÁ FUNKCIA: Presné škálovanie AI balíčka
 function vygenerujUmeluInteligenciu() {
     var dostupneKarty = Object.keys(MASTER_REGISTRY).filter(function(k) {
         var r = MASTER_REGISTRY[k]; 
         // Bot NEsmie ťahať: Platinovky, Turnajové unikáty, Prízraky a Zvitky
-        // Kúzla (isSpell) a Predmety (isItem) má POUŽITÉ A POVOLENÉ.
         return !r.isPlatinum && !r.isTournamentUnique && !r.isPrizrak && !r.isZvitok;
     });
+    
+    // TENTO RIADOK TI PREDTÝM VYPADOL A SPÔSOBOVAL PÁD HRY:
     var pool = [];
     
     function pridajDoBalika(trieda, pocet) {
         for(var i=0; i<pocet; i++) {
-            if (dostupneKarty.length === 0) break; // Poistka, aby neťahal viac než existuje
+            if (dostupneKarty.length === 0) break; // Poistka
             var randIndex = Math.floor(Math.random() * dostupneKarty.length);
             var randMeno = dostupneKarty[randIndex];
             
-            // TOTO ZABRÁNI DUPLIKÁTOM - Akonáhle kartu bot vytiahne, odstráni sa zo zoznamu dostupných!
             dostupneKarty.splice(randIndex, 1); 
             pool.push({ n: randMeno, cls: trieda });
         }
@@ -351,7 +350,7 @@ function vygenerujUmeluInteligenciu() {
     for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; }
     return pool;
 }
-    
+   
     function pridajDoBalika(trieda, pocet) {
         for(var i=0; i<pocet; i++) {
             if (dostupneKarty.length === 0) break; // Poistka, aby neťahal viac než existuje
