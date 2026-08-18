@@ -351,20 +351,129 @@ function vygenerujUmeluInteligenciu() {
     return pool;
 }
 
+function vygenerujDeckbuilder() {
+    var e = document.getElementById("deckbuilder-zoznam"); var countEl = document.getElementById("deckbuilder-count"); var msgEl = document.getElementById("deckbuilder-msg");
+    if (!e) return; e.innerHTML = "";
+    
+    // OPRAVA 1: Zostavu čistíme LEN od Prízrakov a Zvitkov (Kúzla a Predmety sú povolené!)
+    inventar.zostava = inventar.zostava.filter(function(karta) {
+        var reg = MASTER_REGISTRY[karta];
+        return reg && !reg.isPrizrak && !reg.isZvitok;
+    });
+    
+    var count = inventar.zostava.length;
+    if (countEl) countEl.innerText = count;
+    if (msgEl) msgEl.innerHTML = (count >= 25) ? "<span style='color:#10b981;'>✅ Zostava je pripravená na boj!</span>" : "<span style='color:#ff4d4d;'>⚠️ Potrebuješ ešte pridať " + (25 - count) + " kariet!</span>";
+
+    Object.keys(MASTER_REGISTRY).forEach(function(t) {
+        var reg = MASTER_REGISTRY[t]; 
+        // OPRAVA 2: Skryjeme v UI len Prízraky a Zvitky
+        if (reg.isPrizrak || reg.isZvitok) return;
+        
+        var isVBaliku = (inventar.zostava.indexOf(t) !== -1);
+        var cData = inventar.karty[t];
+        var vlastneneTriedy = [];
+        
+        if (cData && typeof cData.repliky === "object") {
+            ["F", "E", "D", "C", "B", "A", "S"].forEach(function(c) { if (cData.repliky[c] > 0) vlastneneTriedy.push(c); });
+        }
+
+        var cardCls = "F";
+        if (reg.isTournamentUnique) {
+            cardCls = (cData && cData.aktivnaTrieda) ? cData.aktivnaTrieda : "F";
+        } else if (vlastneneTriedy.length > 0) {
+            if (cData.zvolenaTrieda && vlastneneTriedy.indexOf(cData.zvolenaTrieda) !== -1) {
+                cardCls = cData.zvolenaTrieda;
+            } else {
+                cardCls = vlastneneTriedy[vlastneneTriedy.length - 1]; 
+                if (cData) cData.zvolenaTrieda = cardCls;
+            }
+        }
+
+        var wrap = document.createElement("div"); wrap.className = "karta-karta-wrapper " + (isVBaliku ? "deck-active-card" : "deck-inactive-card");
+        var div = document.createElement("div"); div.className = "karta cls-" + (reg.isPlatinum ? "PLATINUM" : cardCls);
+        div.innerHTML = vytvorHTMLKarty(t, getRealPower({n:t, cls:cardCls}), cardCls, reg.row, reg.p, false); 
+        div.onclick = function() { prepniKartuVZostave(t); };
+        wrap.appendChild(div);
+        
+        var badge = document.createElement("div"); badge.style.marginTop = "8px"; badge.style.fontWeight = "bold"; badge.style.fontSize = "0.85em"; badge.style.textAlign = "center";
+        badge.innerHTML = isVBaliku ? "<span style='color:#10b981; cursor:pointer;' onclick='prepniKartuVZostave(\"" + t + "\")'>✅ V Zostave</span>" : "<span style='color:#888; cursor:pointer;' onclick='prepniKartuVZostave(\"" + t + "\")'>+ Pridať do Zostavy</span>"; 
+        wrap.appendChild(badge);
+
+        if (!reg.isTournamentUnique && !reg.isPlatinum && vlastneneTriedy.length > 1) {
+            var btnZmena = document.createElement("button");
+            btnZmena.innerHTML = "🔄 Zmeniť triedu";
+            btnZmena.style.cssText = "margin-top:6px; background:#3b2d1d; color:#ffcc00; border:1px solid #d4af37; border-radius:4px; padding:4px 8px; font-size:0.8em; font-weight:bold; cursor:pointer; width:100%; transition: 0.2s;";
+            btnZmena.onclick = function(event) { event.stopPropagation(); cykliTrieduKarty(t, vlastneneTriedy); };
+            wrap.appendChild(btnZmena);
+        }
+
+        e.appendChild(wrap);
+    });
+    aktualizujVsetkyStickyWallety();
+}
+
+function cykliTrieduKarty(kartaName, vlastneneTriedy) {
+    var cData = inventar.karty[kartaName];
+    if (!cData || vlastneneTriedy.length === 0) return;
+    var aktualna = cData.zvolenaTrieda || vlastneneTriedy[vlastneneTriedy.length - 1];
+    var idx = vlastneneTriedy.indexOf(aktualna);
+    var nextIdx = (idx + 1) % vlastneneTriedy.length;
+    cData.zvolenaTrieda = vlastneneTriedy[nextIdx];
+    ulozitZostavuDoStorage();
+    vygenerujDeckbuilder();
+}
+
+function pripravBalicekPreZapas(pNum) {
+    if (pNum === 2 && jeSingleplayer) { return vygenerujUmeluInteligenciu(); }
+    
+    var pool = [];
+    inventar.zostava.forEach(function(kartaName) {
+        if (inventar.karty[kartaName] && pool.indexOf(kartaName) === -1) {
+            pool.push(kartaName);
+        }
+    });
+
+    if (pool.length < 25) {
+        console.warn("Dopĺňam balíček na 25 kariet (Highlander pravidlo).");
+        var fallbackPool = Object.keys(MASTER_REGISTRY).filter(function(k) { 
+            var r = MASTER_REGISTRY[k];
+            return !r.isPrizrak && !r.isPlatinum && !r.isZvitok; 
+        });
+        
+        for (var i = fallbackPool.length - 1; i > 0; i--) { 
+            var j = Math.floor(Math.random() * (i + 1)); 
+            var temp = fallbackPool[i]; fallbackPool[i] = fallbackPool[j]; fallbackPool[j] = temp; 
+        }
+        
+        var fbIndex = 0;
+        while(pool.length < 25 && fbIndex < fallbackPool.length) { 
+            var kandidat = fallbackPool[fbIndex++];
+            if (pool.indexOf(kandidat) === -1) {
+                pool.push(kandidat); 
+            }
+        }
+    }
+
+    for (var i = pool.length - 1; i > 0; i--) { 
+        var j = Math.floor(Math.random() * (i + 1)); 
+        var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; 
+    }
+    return pool;
+}
+
 // POMOCNÁ FUNKCIA: Presné škálovanie AI balíčka
 function vygenerujUmeluInteligenciu() {
     var dostupneKarty = Object.keys(MASTER_REGISTRY).filter(function(k) {
         var r = MASTER_REGISTRY[k]; 
-        // Bot NEsmie ťahať: Platinovky, Turnajové unikáty, Prízraky a Zvitky
         return !r.isPlatinum && !r.isTournamentUnique && !r.isPrizrak && !r.isZvitok;
     });
     
-    // TENTO RIADOK TI PREDTÝM VYPADOL A SPÔSOBOVAL PÁD HRY:
     var pool = [];
     
     function pridajDoBalika(trieda, pocet) {
         for(var i=0; i<pocet; i++) {
-            if (dostupneKarty.length === 0) break; // Poistka
+            if (dostupneKarty.length === 0) break;
             var randIndex = Math.floor(Math.random() * dostupneKarty.length);
             var randMeno = dostupneKarty[randIndex];
             
@@ -373,42 +482,17 @@ function vygenerujUmeluInteligenciu() {
         }
     }
     
-    if (obtiaznostAI === "A") { // ĽAHKÁ (A)
+    if (obtiaznostAI === "A") { 
         pridajDoBalika("F", 10); pridajDoBalika("E", 10); pridajDoBalika("D", 5);
-    } else if (obtiaznostAI === "B") { // STREDNÁ (B)
+    } else if (obtiaznostAI === "B") { 
         pridajDoBalika("F", 5); pridajDoBalika("E", 5); pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 5);
-    } else { // ŤAŽKÁ (C)
+    } else { 
         pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 8); pridajDoBalika("A", 5); pridajDoBalika("S", 2);
     }
     
     for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; }
     return pool;
 }
-   
-    function pridajDoBalika(trieda, pocet) {
-        for(var i=0; i<pocet; i++) {
-            if (dostupneKarty.length === 0) break; // Poistka, aby neťahal viac než existuje
-            var randIndex = Math.floor(Math.random() * dostupneKarty.length);
-            var randMeno = dostupneKarty[randIndex];
-            // NOVÉ: Kartu odstránime zo zoznamu, takže ju AI dostane len raz
-            dostupneKarty.splice(randIndex, 1); 
-            pool.push({ n: randMeno, cls: trieda });
-        }
-    }
-    
-    if (obtiaznostAI === "A") { // ĽAHKÁ (A)
-        pridajDoBalika("F", 10); pridajDoBalika("E", 10); pridajDoBalika("D", 5);
-    } else if (obtiaznostAI === "B") { // STREDNÁ (B)
-        pridajDoBalika("F", 5); pridajDoBalika("E", 5); pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 5);
-    } else { // ŤAŽKÁ (C)
-        pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 8); pridajDoBalika("A", 5); pridajDoBalika("S", 2);
-    }
-    
-    for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; }
-    return pool;
-} 
-
-// koniec funkcie vygenerujUmeluInteligenciu
 
 function vytiahniRukuZRozdanehoBalicka(pNum) {
     var deck = (pNum === 1) ? p1_active_deck : p2_active_deck; var hand = [];
