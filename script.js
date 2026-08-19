@@ -860,7 +860,7 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
     var reg = getRegistryCard(meno); var oldPwr = getRealPower({ n: meno, cls: oldCls }); var nextPwr = getRealPower({ n: meno, cls: nextCls });
     var slot1Html = "", slot2Html = "", slot3Html = "";
 
-   var reqReal = 3, reqPrizrak = 0;
+    var reqReal = 3, reqPrizrak = 0;
     if (mixValue) { var pts = mixValue.split(","); reqReal = parseInt(pts[0]); reqPrizrak = parseInt(pts[1]); }
 
     if (reg.isTournamentUnique) {
@@ -903,7 +903,6 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
                 ukazOznamenie("👑 KRÁĽOVSKÝ ŠAMPIÓN POVÝŠENÝ!", "Turnajová trofej <strong>Kráľovský Šampión</strong> bola povýšená na <strong>" + nextCls + "-Class</strong>!");
                 if (nextCls === "S") vyhlasGlobalnySClassOznam("Hráč 1 (Ty)", meno);
             } else {
-                // NOVÉ: Kontrola zvitku - ak nebol chránený, Prízrak zhorí. Ak bol, zachráni sa!
                 if (!wasProtected) {
                     inventar.prizraky[oldCls] = Math.max(0, (inventar.prizraky[oldCls] || 0) - 1);
                     ukazOznamenie("💥 KOVANIE ZLYHALO!", "Kovanie zlyhalo a 1x Prízrak zhorel v ohni. <strong>Kráľovský Šampión</strong> je však nezničiteľný unikát a zostal zachovaný.");
@@ -916,9 +915,6 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
             var availableReal = t.repliky[oldCls] || 0; 
             var availablePrizrak = inventar.prizraky[oldCls] || 0;
             
-            var reqReal = 3, reqPrizrak = 0;
-            if (mixValue) { var pts = mixValue.split(","); reqReal = parseInt(pts[0]); reqPrizrak = parseInt(pts[1]); }
-
             if (isSuccess) {
                 t.repliky[oldCls] = Math.max(0, availableReal - reqReal);
                 if (reqPrizrak > 0) inventar.prizraky[oldCls] = Math.max(0, availablePrizrak - reqPrizrak);
@@ -927,12 +923,13 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
                 if (nextCls === "S") vyhlasGlobalnySClassOznam("Hráč 1 (Ty)", meno);
             } else {
                 if (!wasProtected) {
-                    if (reqReal > 0 && availableReal > 0) {
+                    // 💡 ZMENA PRIORITY: Najskôr spálime Prízrak, ak bol v recepte!
+                    if (reqPrizrak > 0 && availablePrizrak > 0) {
+                        inventar.prizraky[oldCls] = Math.max(0, availablePrizrak - 1);
+                        ukazOznamenie("💥 KOVANIE ZLYHALO!", "Suroviny zhoreli a prišiel si o 1x Prízrak! Tvoja reálna karta zostala v bezpečí.");
+                    } else if (reqReal > 0 && availableReal > 0) {
                         t.repliky[oldCls] = Math.max(0, availableReal - 1);
                         ukazOznamenie("💥 KOVANIE ZLYHALO!", "Suroviny zhoreli a prišiel si o 1x Reálnu kartu!");
-                    } else if (reqPrizrak > 0 && availablePrizrak > 0) {
-                        inventar.prizraky[oldCls] = Math.max(0, availablePrizrak - 1);
-                        ukazOznamenie("💥 KOVANIE ZLYHALO!", "Suroviny zhoreli a prišiel si o 1x Prízrak!");
                     }
                 } else {
                     ukazOznamenie("🛡️ KARTA OCHRÁNENÁ!", "Kovanie zlyhalo, ale Zvitok ochrany materiál zachránil!");
@@ -1243,15 +1240,38 @@ function odoslatPredajnyFormular() {
         var countInBag = (inventar.karty[itemName] && inventar.karty[itemName].repliky) ? (inventar.karty[itemName].repliky[cls] || 0) : 0;
         if (count > countInBag) { ukazOznamenie("⛔ PODVOD ZACHYTENÝ", "Nemáš dostatok kusov kariet na tento predaj!"); return; }
         
-        var celkovyPocetKariet = 0; Object.keys(inventar.karty[itemName].repliky).forEach(function(cKey) { celkovyPocetKariet += inventar.karty[itemName].repliky[cKey]; });
-        if (inventar.zostava.indexOf(itemName) !== -1 && (celkovyPocetKariet - count) < 1) { 
-            ukazOznamenie("⛔ ZAMIETNUTÉ", "Karta <strong>" + itemName + "</strong> je v tvojej bojovej zostave a toto sú tvoje posledné kusy!<br>Ak ju chceš predať, musíš ju najprv vybrať z balíčka v Deckbuilderi."); 
-            return; 
+        var celkovyPocetKariet = 0; 
+        Object.keys(inventar.karty[itemName].repliky).forEach(function(cKey) { 
+            celkovyPocetKariet += inventar.karty[itemName].repliky[cKey]; 
+        });
+        
+        // 🛡️ OCHRANA INVENTÁRA: Platí pre úplne všetky karty, kúzla a predmety do balíčka!
+        var reg = getRegistryCard(itemName);
+        if (!reg.isZvitok && !reg.isPrizrak && !reg.isPlatinum) {
+            if ((celkovyPocetKariet - count) < 1) { 
+                ukazOznamenie("🛡️ OCHRANA INVENTÁRA", "Túto kartu (<strong>" + itemName + "</strong>) nemôžeš predať úplne celú!<br><br>Musí ti ostať vždy aspoň 1 kus (akejkoľvek triedy), aby ti nechýbala v 25-kartovom balíčku."); 
+                return; 
+            }
         }
+
+        // 🚨 VAROVANIE PRE VZÁCNE TRIEDY (C, B, A, S)
+        if (["C", "B", "A", "S"].indexOf(cls) !== -1) {
+            var potvrdenie = confirm("⚠️ POZOR!\n\nChystáš sa vyvesiť na trh veľmi vzácnu kartu: " + itemName + " (" + cls + "-Class).\n\nSi si absolútne istý, že ju chceš predať?");
+            if (!potvrdenie) return; // Ak hráč klikne na Zrušiť, predaj sa okamžite zablokuje
+        }
+
         inventar.karty[itemName].repliky[cls] -= count;
+        
     } else if (aktualnyTypPredaja === "prizrak") {
         var countInBagPrizrak = inventar.prizraky[cls] || 0;
         if (count > countInBagPrizrak) { ukazOznamenie("⛔ PODVOD ZACHYTENÝ", "Nemáš dostatok prízrakov na tento predaj!"); return; }
+        
+        // Varovanie pre vzácne Prízraky
+        if (["C", "B", "A", "S"].indexOf(cls) !== -1) {
+            var potvrdeniePrizrak = confirm("⚠️ POZOR!\n\nChystáš sa predať mimoriadne vzácny Prízrak (" + cls + "-Class).\n\nNaozaj chceš pokračovať?");
+            if (!potvrdeniePrizrak) return;
+        }
+
         inventar.prizraky[cls] -= count;
     } else {
         var countInBagSuroviny = inventar.suroviny[itemName] || 0;
