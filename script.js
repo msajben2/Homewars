@@ -121,7 +121,7 @@ function hracVlastniPlatinovku(kartaMeno) {
     return vlastni;
 }
 // -----------------------------------------------------------
-var inventar = { mince: 500, suroviny: { "Koža": 15, "Drevo": 10, "Kov": 5, "Bronz": 2, "Striebro": 1, "Zlato": 20 }, karty: {}, prizraky: { "F": 10, "E": 5, "D": 5, "C": 5, "B": 5, "A": 5 }, zostava: [] };
+var inventar = { mince: 500, suroviny: { "Koža": 15, "Drevo": 10, "Kov": 5, "Bronz": 2, "Striebro": 1, "Zlato": 20 }, karty: {}, prizraky: { "F": 10, "E": 5, "D": 5, "C": 5, "B": 5, "A": 5 }, zostava: [], starePlatinovky: [] };
 var simulačneRebríčky = { sampión: [ { hrac: "Hráč 1 (Ty)", skore: 12, inaktivny: false, titulCard: "Zvedavá suseda" }, { hrac: "Lord_Grob", skore: 8, inaktivny: false }, { hrac: "Mníchov_Master", skore: 1, inaktivny: false } ], nerozhodny: [ { hrac: "Mníchov_Master", skore: 5, inaktivny: false, titulCard: "Ďuri" }, { hrac: "Hráč 1 (Ty)", skore: 2, inaktivny: false }, { hrac: "Lord_Grob", skore: 0, inaktivny: false } ], nie_sampión: [ { hrac: "Lord_Grob", skore: 14, inaktivny: false, titulCard: "Makak" }, { hrac: "Hráč 1 (Ty)", skore: 4, inaktivny: false } ], sClass: [ { hrac: "Lord_Grob", skore: 3, inaktivny: false, titulCard: "Oli" }, { hrac: "Hráč 1 (Ty)", skore: 1, inaktivny: false } ], aClass: [ { hrac: "Hráč 1 (Ty)", skore: 5, inaktivny: false, titulCard: "Vinár Dávid" }, { hrac: "Lord_Grob", skore: 2, inaktivny: false } ], bClass: [ { hrac: "Mníchov_Master", skore: 7, inaktivny: false, titulCard: "Sestrička" }, { hrac: "Hráč 1 (Ty)", skore: 4, inaktivny: false } ], cClass: [ { hrac: "Lord_Grob", skore: 10, inaktivny: false, titulCard: "Vlk" }, { hrac: "Hráč 1 (Ty)", skore: 3, inaktivny: false } ], dClass: [ { hrac: "Hráč 1 (Ty)", skore: 15, inaktivny: false, titulCard: "Erik" }, { hrac: "Mníchov_Master", skore: 8, inaktivny: false } ], eClass: [ { hrac: "Mníchov_Master", skore: 20, inaktivny: false, titulCard: "Sisa" }, { hrac: "Lord_Grob", skore: 12, inaktivny: false } ], fClass: [ { hrac: "Hráč 1 (Ty)", skore: 45, inaktivny: false, titulCard: "Mária Trhovkyňa" }, { hrac: "Lord_Grob", skore: 30, inaktivny: false } ], detailista: [ { hrac: "Hráč 1 (Ty)", skore: 88, inaktivny: false, titulCard: "Nela" }, { hrac: "Mníchov_Master", skore: 50, inaktivny: false } ], majster_aukcii: [ { hrac: "Lord_Grob", skore: 450, inaktivny: false, titulCard: "Zatúlaný tatranský medveď" }, { hrac: "Hráč 1 (Ty)", skore: 250, inaktivny: false } ], demolator: [ { hrac: "Mníchov_Master", skore: 78, inaktivny: false, titulCard: "Jakub" }, { hrac: "Hráč 1 (Ty)", skore: 45, inaktivny: false } ], rozsafny: [ { hrac: "Hráč 1 (Ty)", skore: 1250, inaktivny: false, titulCard: "Kika" }, { hrac: "Lord_Grob", skore: 800, inaktivny: false } ], grill_majster: [ { hrac: "Lord_Grob", skore: 18, inaktivny: false, titulCard: "Doktor" }, { hrac: "Hráč 1 (Ty)", skore: 6, inaktivny: false } ], fenix: [ { hrac: "Hráč 1 (Ty)", skore: 9, inaktivny: false, titulCard: "Michal" }, { hrac: "Mníchov_Master", skore: 3, inaktivny: false } ], hazarder: [ { hrac: "Mníchov_Master", skore: 4, inaktivny: false, titulCard: "Kornélia" }, { hrac: "Hráč 1 (Ty)", skore: 1, inaktivny: false } ], duelovy_veteran: [ { hrac: "Hráč 1 (Ty)", skore: 35, inaktivny: false, titulCard: "Katy" }, { hrac: "Lord_Grob", skore: 20, inaktivny: false } ], terminator: [ { hrac: "Lord_Grob", skore: 50, inaktivny: false, titulCard: "Krčmár Boris" }, { hrac: "Hráč 1 (Ty)", skore: 22, inaktivny: false } ], plosny_zabijak: [ { hrac: "Hráč 1 (Ty)", skore: 14, inaktivny: false, titulCard: "Marek" }, { hrac: "Mníchov_Master", skore: 8, inaktivny: false } ] };
 var KATEGORIE_METADATA = { sampión: { title: "🥇 Šampión (Najviac výhier)", card: "Zvedavá suseda" }, nerozhodny: { title: "🤝 Nerozhodný (Najviac remíz)", card: "Ďuri" }, nie_sampión: { title: "💀 Nie-Šampión (Najviac prehier)", card: "Makak" }, sClass: { title: "👑 S-Class majster (Vykované S)", card: "Oli" }, aClass: { title: "💎 A-Class majster (Vykované A)", card: "Vinár Dávid" }, bClass: { title: "🔮 B-Class majster (Vykované B)", card: "Sestrička" }, cClass: { title: "📜 C-Class majster (Vykované C)", card: "Vlk" }, dClass: { title: "🛡️ D-Class majster (Vykované D)", card: "Erik" }, eClass: { title: "🌲 E-Class majster (Vykované E)", card: "Sisa" }, fClass: { title: "📦 F-Class majster (Získané F)", card: "Mária Trhovkyňa" }, detailista: { title: "🔨 Detailista (Pokusy vo Forge)", card: "Nela" }, majster_aukcii: { title: "💰 Majster aukcií (Top ponuka)", card: "Zatúlaný tatranský medveď" }, demolator: { title: "💥 Demolátor (Top skóre v 1 kole)", card: "Jakub" }, rozsafny: { title: "💸 Rozšafný (Minuté mince)", card: "Kika" }, grill_majster: { title: "🔥 Grill majster (Spálené karty)", card: "Doktor" }, fenix: { title: "🕊️ Fénix (Oživené karty)", card: "Michal" }, hazarder: { title: "🎲 Hazardér (Výhry o 1 bod)", card: "Kornélia" }, duelovy_veteran: { title: "⚔️ Duelový veterán (PVP zápasy)", card: "Katy" }, terminator: { title: "🤖 Terminátor (AI zápasy)", card: "Krčmár Boris" }, plosny_zabijak: { title: "⚡ Plošný zabijak (Kúzla stola)", card: "Marek" } };
 
@@ -259,7 +259,56 @@ function nacitatUlozenuZostavu() {
 function ulozitZostavuDoStorage() { 
     try { localStorage.setItem("homewars_cloud_save_v1", JSON.stringify(inventar)); } catch(e) { console.error("Chyba ukladania:", e); } 
 }
+function skontrolujPlatinovky() {
+    var strateneKarty = [];
+    var ziskaneKarty = [];
+    
+    Object.keys(simulačneRebríčky).forEach(function(kat) {
+        var lidri = simulačneRebríčky[kat];
+        var meta = KATEGORIE_METADATA[kat];
+        if (!lidri || lidri.length === 0 || !meta) return;
+        
+        var kartaMeno = meta.card;
+        var aktualnyLider = lidri[0];
+        var jaVlastnim = (aktualnyLider.hrac === "Hráč 1 (Ty)" && !aktualnyLider.inaktivny);
+        var malSomMinule = (inventar.starePlatinovky.indexOf(kartaMeno) !== -1);
+        
+        if (jaVlastnim && !malSomMinule) {
+            inventar.starePlatinovky.push(kartaMeno);
+            inventar.karty[kartaMeno] = { repliky: { "PLATINUM": 1 }, aktivnaTrieda: "PLATINUM" };
+            ziskaneKarty.push(kartaMeno);
+        } else if (!jaVlastnim && malSomMinule) {
+            var idx = inventar.starePlatinovky.indexOf(kartaMeno);
+            if (idx !== -1) inventar.starePlatinovky.splice(idx, 1);
+            
+            delete inventar.karty[kartaMeno];
+            // VYTRHNUTIE ZO ZOSTAVY
+            var zostavaIdx = inventar.zostava.indexOf(kartaMeno);
+            if (zostavaIdx !== -1) inventar.zostava.splice(zostavaIdx, 1); 
+            
+            strateneKarty.push({ karta: kartaMeno, zlodej: aktualnyLider.hrac });
+        } else if (jaVlastnim && malSomMinule) {
+            if (!inventar.karty[kartaMeno]) inventar.karty[kartaMeno] = { repliky: { "PLATINUM": 1 }, aktivnaTrieda: "PLATINUM" };
+        }
+    });
+    
+    ulozitZostavuDoStorage();
+    
+    strateneKarty.forEach(function(s) {
+        // TOTO JE VEREJNÝ OZNAM PRE CELÝ SERVER
+        vyhlasGlobalnyOznam("📢 KRÁĽOVSKÝ PREVRAT", "Hráč <strong>" + s.zlodej + "</strong> zosadil z trónu pôvodného majiteľa a získal Platinovú kartu <strong>" + s.karta + "</strong>!");
+        
+        // TOTO JE SÚKROMNÁ FACKA PRE HRÁČA
+        ukazOznamenie("⚠️ STRATA PLATINOVEJ TROFEJE!", "Hráč <strong>" + s.zlodej + "</strong> ťa prekonal v rebríčku a Kráľovský dvor ti nemilosrdne zhabal kartu <strong>" + s.karta + "</strong> z tvojho batohu!<br><br>Tvoja herná zostava má teraz menej ako 25 kariet. Pred ďalším zápasom musíš ísť do Deckbuilderu a doplniť chýbajúce miesto!");
+    });
+}
 
+function vyhlasGlobalnyOznam(titulok, text) { 
+    var banner = document.createElement("div"); banner.className = "global-announce-banner"; 
+    banner.innerHTML = "<strong>" + titulok + ":</strong> " + text; 
+    document.body.appendChild(banner); 
+    setTimeout(function() { banner.remove(); }, 6000); 
+}
 function prepniKartuVZostave(kartaMeno) {
     var idx = inventar.zostava.indexOf(kartaMeno);
     if (idx !== -1) inventar.zostava.splice(idx, 1); else inventar.zostava.push(kartaMeno);
@@ -345,40 +394,10 @@ function cykliTrieduKarty(kartaName, vlastneneTriedy) {
 function pripravBalicekPreZapas(pNum) {
     if (pNum === 2 && jeSingleplayer) { return vygenerujUmeluInteligenciu(); }
     
-    var pool = [];
-    // BEZPEČNOSTNÁ KONTROLA: Overíme, či má hráč karty reálne v batohu a či v balíčku nie sú duplikáty
-    inventar.zostava.forEach(function(kartaName) {
-        if (inventar.karty[kartaName] && pool.indexOf(kartaName) === -1) {
-            pool.push(kartaName);
-        }
-    });
-
-    // Ak hráč nemá aspoň 25 kariet, doplníme mu balíček (Striktne BEZ duplikátov!)
-    if (pool.length < 25) {
-        console.warn("Dopĺňam balíček na 25 kariet (Highlander pravidlo).");
-        var fallbackPool = Object.keys(MASTER_REGISTRY).filter(function(k) { 
-            var r = MASTER_REGISTRY[k];
-            // Do zálohy neťaháme prízraky, zvitky ani platinovky
-            return !r.isPrizrak && !r.isPlatinum && !r.isZvitok; 
-        });
-        
-        // Náhodne zamiešame fallback karty
-        for (var i = fallbackPool.length - 1; i > 0; i--) { 
-            var j = Math.floor(Math.random() * (i + 1)); 
-            var temp = fallbackPool[i]; fallbackPool[i] = fallbackPool[j]; fallbackPool[j] = temp; 
-        }
-        
-        // Dopĺňame iba tie, ktoré ešte v balíčku nie sú
-        var fbIndex = 0;
-        while(pool.length < 25 && fbIndex < fallbackPool.length) { 
-            var kandidat = fallbackPool[fbIndex++];
-            if (pool.indexOf(kandidat) === -1) {
-                pool.push(kandidat); 
-            }
-        }
-    }
-
-    // Finálne zamiešanie balíčka pred zápasom
+    // Zoberieme presnú hráčovu zostavu
+    var pool = inventar.zostava.slice();
+    
+    // Zamiešame ju
     for (var i = pool.length - 1; i > 0; i--) { 
         var j = Math.floor(Math.random() * (i + 1)); 
         var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; 
@@ -1198,7 +1217,8 @@ function vykresliZalozkuPredaja() {
     // TEXTOVÉ POLÍČKO S ČÍSLAMI NAMIESTO POSUVNÍKA
     formularPredaja += '<div class="sell-form-row"><label>3. Počet kusov na predaj (Skladom: <span id="sell-max-stock" style="color:#ffcc00; font-weight:bold;">1</span>x):</label><input type="number" id="sell-count-input" class="sell-form-input" min="1" max="1" value="1" style="width:120px; font-weight:bold; font-size:1.1em; background:#110c08; color:#ffcc00;" oninput="aktualizujPoradcuCeny()"></div>' +
         '<div class="sell-form-row"><label>4. Vyvolávacia cena celkom (Predvyplnená trhom):</label><input type="number" id="sell-start-price" class="sell-form-input" value="10" min="1"></div>' +
-        '<div class="sell-form-row"><label>5. Cena Okamžitého výkupu (Nepovinné, nechaj prázdne pre dražbu):</label><input type="number" id="sell-buyout-price" class="sell-form-input" value="" placeholder="napr. 250 (voliteľné)" min="0"></div>' +
+        // 💡 NOVÉ: Výber času (namiesto výkupnej ceny)
+        '<div class="sell-form-row"><label>5. Trvanie aukcie:</label><select id="sell-duration-select" class="sell-form-select"><option value="3600">1 Hodina</option><option value="21600">6 Hodín</option><option value="43200">12 Hodín</option><option value="86400">24 Hodín</option></select></div>' +
         '<div style="text-align:center; margin-top:15px;"><button onclick="odoslatPredajnyFormular()" style="background:#10b981; color:#fff; border:none; padding:12px 30px; border-radius:6px; font-weight:bold; font-size:1.05em; cursor:pointer; width:100%;">🚀 Potvrdiť a Vyvesiť na Trh</button></div></div>';
         
     e.innerHTML = formularPredaja; 
@@ -1273,16 +1293,14 @@ function odoslatPredajnyFormular() {
     var count = parseInt(document.getElementById("sell-count-input").value); 
     var startPrice = parseInt(document.getElementById("sell-start-price").value);
     
-    var rawBuyout = document.getElementById("sell-buyout-price").value.trim();
-    var buyoutPrice = (rawBuyout === "") ? 0 : parseInt(rawBuyout);
+    // 💡 Načítanie zvoleného času v sekundách
+    var trvanie = parseInt(document.getElementById("sell-duration-select").value);
     
-    // 🛡️ OCHRANA PROTI INFINITY A PREKTEČENIU ČÍSIEL
     if (isNaN(count) || count <= 0 || isNaN(startPrice) || startPrice <= 0 || startPrice > 1000000) { 
         ukazOznamenie("⚠️ CHYBA", "Zadaj platné čísla! (Maximálna vyvolávacia cena je 1 000 000 mincí)"); 
         return; 
     }
-    if (buyoutPrice > 1000000) { ukazOznamenie("⚠️ CHYBA", "Výkupná cena nesmie presiahnuť 1 000 000 mincí!"); return; }
-    // OCHRANA PRED MANIPULÁCIOU TRHU (5% Poplatok Kráľovstvu)
+    
     var zalistovaciPoplatok = Math.max(1, Math.floor(startPrice * 0.05));
     if (inventar.mince < zalistovaciPoplatok) { 
         ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Na vyvesenie tejto ponuky potrebuješ zaplatiť trhový poplatok " + zalistovaciPoplatok + "m!"); 
@@ -1291,49 +1309,60 @@ function odoslatPredajnyFormular() {
     inventar.mince -= zalistovaciPoplatok;
 
     if (aktualnyTypPredaja === "karta") {
-        var countInBag = (inventar.karty[itemName] && inventar.karty[itemName].repliky) ? (inventar.karty[itemName].repliky[cls] || 0) : 0;
-        if (count > countInBag) { ukazOznamenie("⛔ PODVOD ZACHYTENÝ", "Nemáš dostatok kusov kariet na tento predaj!"); return; }
-        
-        var celkovyPocetKariet = 0; 
-        Object.keys(inventar.karty[itemName].repliky).forEach(function(cKey) { 
-            celkovyPocetKariet += inventar.karty[itemName].repliky[cKey]; 
-        });
-        
-        // 🛡️ OCHRANA INVENTÁRA: Platí pre úplne všetky karty, kúzla a predmety do balíčka!
         var reg = getRegistryCard(itemName);
-        if (!reg.isZvitok && !reg.isPrizrak && !reg.isPlatinum) {
-            if ((celkovyPocetKariet - count) < 1) { 
-                ukazOznamenie("🛡️ OCHRANA INVENTÁRA", "Túto kartu (<strong>" + itemName + "</strong>) nemôžeš predať úplne celú!<br><br>Musí ti ostať vždy aspoň 1 kus (akejkoľvek triedy), aby ti nechýbala v 25-kartovom balíčku."); 
-                return; 
+        
+        // OPRAVA PRE KRÁĽOVSKÉHO ŠAMPIÓNA
+        if (reg.isTournamentUnique) {
+            var aktCls = inventar.karty[itemName] ? inventar.karty[itemName].aktivnaTrieda : "F";
+            if (!inventar.karty[itemName] || aktCls !== cls) {
+                inventar.mince += zalistovaciPoplatok; // Vrátime peniaze za poplatok
+                ukazOznamenie("⛔ CHYBA", "Túto unikátnu kartu nevlastníš v tejto triede!"); return;
             }
-        }
+            delete inventar.karty[itemName]; // Šampión natrvalo odstránený z batohu!
+        } else {
+            // Bežné karty
+            var countInBag = (inventar.karty[itemName] && inventar.karty[itemName].repliky) ? (inventar.karty[itemName].repliky[cls] || 0) : 0;
+            if (count > countInBag) { inventar.mince += zalistovaciPoplatok; ukazOznamenie("⛔ PODVOD ZACHYTENÝ", "Nemáš dostatok kusov kariet na tento predaj!"); return; }
+            
+            var celkovyPocetKariet = 0; 
+            Object.keys(inventar.karty[itemName].repliky).forEach(function(cKey) { 
+                celkovyPocetKariet += inventar.karty[itemName].repliky[cKey]; 
+            });
+            
+            if (!reg.isZvitok && !reg.isPrizrak && !reg.isPlatinum) {
+                if ((celkovyPocetKariet - count) < 1) { 
+                    inventar.mince += zalistovaciPoplatok;
+                    ukazOznamenie("🛡️ OCHRANA INVENTÁRA", "Túto kartu (<strong>" + itemName + "</strong>) nemôžeš predať úplne celú!<br><br>Musí ti ostať vždy aspoň 1 kus (akejkoľvek triedy)."); 
+                    return; 
+                }
+            }
 
-        // 🚨 VAROVANIE PRE VZÁCNE TRIEDY (C, B, A, S)
-        if (["C", "B", "A", "S"].indexOf(cls) !== -1) {
-            var potvrdenie = confirm("⚠️ POZOR!\n\nChystáš sa vyvesiť na trh veľmi vzácnu kartu: " + itemName + " (" + cls + "-Class).\n\nSi si absolútne istý, že ju chceš predať?");
-            if (!potvrdenie) return; // Ak hráč klikne na Zrušiť, predaj sa okamžite zablokuje
-        }
+            if (["C", "B", "A", "S"].indexOf(cls) !== -1) {
+                var potvrdenie = confirm("⚠️ POZOR!\n\nChystáš sa vyvesiť na trh veľmi vzácnu kartu: " + itemName + " (" + cls + "-Class).\n\nSi si absolútne istý, že ju chceš predať?");
+                if (!potvrdenie) { inventar.mince += zalistovaciPoplatok; return; }
+            }
 
-        inventar.karty[itemName].repliky[cls] -= count;
+            inventar.karty[itemName].repliky[cls] -= count;
+        }
         
     } else if (aktualnyTypPredaja === "prizrak") {
         var countInBagPrizrak = inventar.prizraky[cls] || 0;
-        if (count > countInBagPrizrak) { ukazOznamenie("⛔ PODVOD ZACHYTENÝ", "Nemáš dostatok prízrakov na tento predaj!"); return; }
+        if (count > countInBagPrizrak) { inventar.mince += zalistovaciPoplatok; ukazOznamenie("⛔ PODVOD ZACHYTENÝ", "Nemáš dostatok prízrakov na tento predaj!"); return; }
         
-        // Varovanie pre vzácne Prízraky
         if (["C", "B", "A", "S"].indexOf(cls) !== -1) {
             var potvrdeniePrizrak = confirm("⚠️ POZOR!\n\nChystáš sa predať mimoriadne vzácny Prízrak (" + cls + "-Class).\n\nNaozaj chceš pokračovať?");
-            if (!potvrdeniePrizrak) return;
+            if (!potvrdeniePrizrak) { inventar.mince += zalistovaciPoplatok; return; }
         }
 
         inventar.prizraky[cls] -= count;
     } else {
         var countInBagSuroviny = inventar.suroviny[itemName] || 0;
-        if (count > countInBagSuroviny) { ukazOznamenie("⛔ PODVOD ZACHYTENÝ", "Nemáš dostatok surovín na tento predaj!"); return; }
+        if (count > countInBagSuroviny) { inventar.mince += zalistovaciPoplatok; ukazOznamenie("⛔ PODVOD ZACHYTENÝ", "Nemáš dostatok surovín na tento predaj!"); return; }
         inventar.suroviny[itemName] -= count;
     }
 
-    globalneAukcie.push({ id: "aukcia_" + Date.now(), predajca: "Hráč 1 (Ty)", typ: aktualnyTypPredaja, predmet: itemName, trieda: cls, pocet: count, veduciHrac: "Nikto", aktualnaPonuka: startPrice, vykupnaCena: buyoutPrice, casDoKonca: 3600 });
+    // 💡 Nastavíme čas z výberu a výkupnú cenu natvrdo na 0
+    globalneAukcie.push({ id: "aukcia_" + Date.now(), predajca: "Hráč 1 (Ty)", typ: aktualnyTypPredaja, predmet: itemName, trieda: cls, pocet: count, veduciHrac: "Nikto", aktualnaPonuka: startPrice, vykupnaCena: 0, casDoKonca: trvanie });
     ukazOznamenie("🎉 POLOŽKA ZALISTOVANÁ", "Aukcia bola úspešne vyvesená na Trhovisko!");
     prepniZalozkuTrhu("trh");
 }
@@ -1357,9 +1386,15 @@ function kupitSurovinuZoStatnehoSkladu(mat, pocetOz) {
 
 function pridelPredmetHracovi(aukcia) {
     if (aukcia.typ === "karta") {
-        if (!inventar.karty[aukcia.predmet]) inventar.karty[aukcia.predmet] = { repliky: { "F": 0 }, aktivnaTrieda: "F" };
-        if (typeof inventar.karty[aukcia.predmet].repliky !== "object") inventar.karty[aukcia.predmet].repliky = { "F": 0 };
-        inventar.karty[aukcia.predmet].repliky[aukcia.trieda] = (inventar.karty[aukcia.predmet].repliky[aukcia.trieda] || 0) + aukcia.pocet;
+        var reg = getRegistryCard(aukcia.predmet);
+        // OPRAVA: Správne uloženie Šampióna pre kupca alebo vrátenie majiteľovi
+        if (reg.isTournamentUnique) {
+            inventar.karty[aukcia.predmet] = { repliky: {}, aktivnaTrieda: aukcia.trieda };
+        } else {
+            if (!inventar.karty[aukcia.predmet]) inventar.karty[aukcia.predmet] = { repliky: { "F": 0 }, aktivnaTrieda: "F" };
+            if (typeof inventar.karty[aukcia.predmet].repliky !== "object") inventar.karty[aukcia.predmet].repliky = { "F": 0 };
+            inventar.karty[aukcia.predmet].repliky[aukcia.trieda] = (inventar.karty[aukcia.predmet].repliky[aukcia.trieda] || 0) + aukcia.pocet;
+        }
     } else if (aukcia.typ === "prizrak") {
         inventar.prizraky[aukcia.trieda] = (inventar.prizraky[aukcia.trieda] || 0) + aukcia.pocet;
     } else {
@@ -1375,51 +1410,14 @@ function anonymnePrihoditSumu(aukciaId) {
     var ponuka = parseInt(prompt("Zadaj svoju ponuku (Musí byť vyššia ako " + aukcia.aktualnaPonuka + "m):"));
     if (isNaN(ponuka) || ponuka <= aukcia.aktualnaPonuka) { ukazOznamenie("⚠️ CHYBA", "Musíš prihodiť platnú sumu!"); return; }
     
-    // Ak hráč už aktuálne vedie dražbu, doplatí len rozdiel. Ak nevedie, platí plnú sumu.
     var sumaNaZaplatenie = (aukcia.veduciHrac === "Hráč 1 (Ty)") ? (ponuka - aukcia.aktualnaPonuka) : ponuka;
-    
     if (inventar.mince < sumaNaZaplatenie) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Nemáš dostatok mincí na túto ponuku!"); return; }
 
-    if (aukcia.vykupnaCena > 0 && ponuka >= aukcia.vykupnaCena) {
-        okamziteOdkupitKartu(aukciaId);
-    } else {
-        inventar.mince -= sumaNaZaplatenie; 
-        aukcia.aktualnaPonuka = ponuka; 
-        aukcia.veduciHrac = "Hráč 1 (Ty)";
-        ukazOznamenie("🕵️ PONUKA ZAREGISTROVANÁ", "Tvoja ponuka " + ponuka + "m ťa posunula na 1. miesto v aukcii!"); 
-        vygenerujSimulaciuTrhu();
-    }
-}
-
-function okamziteOdkupitKartu(aukciaId) {
-    var aukciaIndex = globalneAukcie.findIndex(function(a) { return a.id === aukciaId; });
-    if (aukciaIndex === -1) { ukazOznamenie("⚠️ CHYBA", "Aukcia už neexistuje alebo bola vykúpená iným hráčom!"); return; }
-    var aukcia = globalneAukcie[aukciaIndex];
-
-    if (aukcia.vykupnaCena === 0) { ukazOznamenie("⛔ ZAMIETNUTÉ", "Tento predmet nemá cenu okamžitého výkupu, musíš sa zúčastniť dražby!"); return; }
-    if (aukcia.predajca === "Hráč 1 (Ty)") { ukazOznamenie("⛔ ZAMIETNUTÉ", "Nemôžeš kúpiť svoju vlastnú aukciu!"); return; }
-    
-    // Ak už hráč dal peniaze do dražby na túto kartu, zohľadníme to pri výkupe (aby neplatil dvakrát)
-    var cenaKUpade = aukcia.vykupnaCena;
-    if (aukcia.veduciHrac === "Hráč 1 (Ty)") {
-        inventar.mince += aukcia.aktualnaPonuka; // Vrátime mu dočasne jeho zálohu z dražby
-    }
-
-    if (inventar.mince < cenaKUpade) { 
-        if (aukcia.veduciHrac === "Hráč 1 (Ty)") inventar.mince -= aukcia.aktualnaPonuka; // Ak nemá dosť, vrátime zálohu späť do aukcie
-        ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Na výkup potrebuješ " + cenaKUpade + "m!"); return; 
-    }
-    
-    inventar.mince -= cenaKUpade; 
-    var predmetNazov = (aukcia.typ === "karta" || aukcia.typ === "prizrak") ? aukcia.predmet : aukcia.predmet;
-    var predmetTrieda = (aukcia.typ === "karta" || aukcia.typ === "prizrak") ? aukcia.trieda : "F";
-    zaznamenajPredajNaTrhu(predmetNazov, predmetTrieda, aukcia.pocet, aukcia.vykupnaCena);
-
-    pridelPredmetHracovi(aukcia);
-    globalneAukcie.splice(aukciaIndex, 1);
-    var nazovZobrazenie = (aukcia.typ === "karta" || aukcia.typ === "prizrak") ? (aukcia.predmet + " (" + aukcia.trieda + "-Class)") : (aukcia.predmet + " (Surovina)");
-    ukazOznamenie("🎉 KÚPENÉ IHNEĎ!", "Zaplatil si " + aukcia.vykupnaCena + "m. Tvoj batoh sa rozšíril o:<br><br><strong style='color:#10b981; font-size:1.1em;'>" + aukcia.pocet + "x " + nazovZobrazenie + "</strong>"); 
-    vygenerujSimulaciuTrhu(); aktualizujVsetkyStickyWallety();
+    inventar.mince -= sumaNaZaplatenie; 
+    aukcia.aktualnaPonuka = ponuka; 
+    aukcia.veduciHrac = "Hráč 1 (Ty)";
+    ukazOznamenie("🕵️ PONUKA ZAREGISTROVANÁ", "Tvoja ponuka " + ponuka + "m ťa posunula na 1. miesto v aukcii!"); 
+    vygenerujSimulaciuTrhu();
 }
 
 function spustitOdpocitavanieAukcie() {
@@ -1613,17 +1611,29 @@ function otvorErikBuffDialog(pNum, callback) {
 // [SEKCIA 6 - JS] ZÁPAS, MULLIGAN A UMELÁ INTELIGENCIA
 // =====================================================================
 function spustitZapasLokálnePVP() { 
-    if (inventar.zostava.length < 25) { ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Potrebuješ aspoň 25 kariet v zostave!"); return; }
+    if (inventar.zostava.length < 25) { 
+        ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Tvoja zostava má iba " + inventar.zostava.length + "/25 kariet. Doplň si balíček!"); 
+        otvoriťDeckbuilder(); 
+        return; 
+    }
     jeSingleplayer = false; inicializujNovyZapas(); 
 }
 
 function zobraziťMenuAI() { 
-    if (inventar.zostava.length < 25) { ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Potrebuješ aspoň 25 kariet v zostave!"); return; }
+    if (inventar.zostava.length < 25) { 
+        ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Tvoja zostava má iba " + inventar.zostava.length + "/25 kariet. Doplň si balíček!"); 
+        otvoriťDeckbuilder(); 
+        return; 
+    }
     var obt = prompt("Vyber obtiažnosť AI (A, B, C):", "B"); if (obt) { obtiaznostAI = obt.toUpperCase(); spustitZapasProtiAI(); } 
 }
 
 function spustitZapasProtiAI() { 
-    if (inventar.zostava.length < 25) { ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Potrebuješ aspoň 25 kariet v zostave!"); return; }
+    if (inventar.zostava.length < 25) { 
+        ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Tvoja zostava má iba " + inventar.zostava.length + "/25 kariet. Doplň si balíček!"); 
+        otvoriťDeckbuilder(); 
+        return; 
+    }
     jeSingleplayer = true; inicializujNovyZapas(); 
 }
 
@@ -1660,7 +1670,10 @@ function prepniVyberMulliganKarty(idx) {
 }
 
 function potvrditMulliganAkciu(chceVymenu) {
-    var el = document.getElementById("mulligan-modal-overlay"); if (el) el.remove();
+    var el = document.getElementById("mulligan-modal-overlay"); 
+    if (!el) return; // 🛡️ Zabraňuje Double-Mulligan exploitu (ak už okno mizne)
+    el.remove();
+    
     if (chceVymenu && mulliganSelectedIndices.length > 0) {
         mulliganSelectedIndices.sort(function(a, b) { return b - a; }); var pocetVymen = mulliganSelectedIndices.length;
         mulliganSelectedIndices.forEach(function(idx) { p1_draft_hand.splice(idx, 1); });
@@ -1670,11 +1683,10 @@ function potvrditMulliganAkciu(chceVymenu) {
                 var cardCls = "F";
                 if (inventar.karty[nK]) {
                     var regItem = getRegistryCard(nK);
-                    if (regItem.isTournamentUnique) {
-                        cardCls = inventar.karty[nK].aktivnaTrieda || "F";
-                    } else if (inventar.karty[nK].zvolenaTrieda) {
-                        cardCls = inventar.karty[nK].zvolenaTrieda; // NOVÉ
-                    } else if (inventar.karty[nK].repliky) {
+                    if (regItem.isPlatinum) cardCls = "PLATINUM";
+                    else if (regItem.isTournamentUnique) cardCls = inventar.karty[nK].aktivnaTrieda || "F";
+                    else if (inventar.karty[nK].zvolenaTrieda) cardCls = inventar.karty[nK].zvolenaTrieda;
+                    else if (inventar.karty[nK].repliky) {
                         var rep = inventar.karty[nK].repliky;
                         if (rep["S"] > 0) cardCls = "S"; else if (rep["A"] > 0) cardCls = "A"; else if (rep["B"] > 0) cardCls = "B"; else if (rep["C"] > 0) cardCls = "C"; else if (rep["D"] > 0) cardCls = "D"; else if (rep["E"] > 0) cardCls = "E";
                     }
@@ -1682,7 +1694,6 @@ function potvrditMulliganAkciu(chceVymenu) {
                 p1_draft_hand.push({ n: nK, cls: cardCls }); 
             } 
         }
-        // NOVÉ: Presný výpočet bodov (1 karta = 2b, 2 karty = 5b)
         p2MulliganRound1Bonus = (pocetVymen === 1) ? 2 : 5; 
         ukazOznamenie("🎲 MULLIGAN DOKONČENÝ", "Vymenil si " + pocetVymen + " kariet! Súper získal +" + p2MulliganRound1Bonus + "b náskok v 1. kole.");
     } else { 
@@ -1690,7 +1701,6 @@ function potvrditMulliganAkciu(chceVymenu) {
     }
 
     if (jeSingleplayer) {
-        // AI nepotrebuje Mulligan. Rovno spustíme hru.
         setTimeout(function() {
         vykresliHraciuPlochu();
         setTimeout(spravujAI, 800);
@@ -1698,7 +1708,7 @@ function potvrditMulliganAkciu(chceVymenu) {
     } else {
         vykresliHraciuPlochu();
     }
-} // Toto je koniec funkcie potvrditMulliganAkciu
+}
 
 function vykresliStol() {
     for (var r = 1; r <= 3; r++) { var el1 = document.getElementById("p1-row" + r); var el2 = document.getElementById("p2-row" + r); if (el1) el1.innerHTML = ""; if (el2) el2.innerHTML = ""; }
@@ -1928,8 +1938,10 @@ function vykonajTachAI() {
 function skontrolujKoniecKola() {
     prepočitajSkoreStola(); blokujVykladanie = true;
     var textVysledku = "";
-    if (sc1 > sc2) { r1++; textVysledku = "Tvoja výhra (" + sc1 + " : " + sc2 + ")"; } 
-    else if (sc2 > sc1) { r2++; textVysledku = "Súper vyhral (" + sc2 + " : " + sc1 + ")"; } 
+    poslednyVitazKola = 0; // Resetujeme pred vyhodnotením
+    
+    if (sc1 > sc2) { r1++; poslednyVitazKola = 1; textVysledku = "Tvoja výhra (" + sc1 + " : " + sc2 + ")"; } 
+    else if (sc2 > sc1) { r2++; poslednyVitazKola = 2; textVysledku = "Súper vyhral (" + sc2 + " : " + sc1 + ")"; } 
     else { r1++; r2++; textVysledku = "Remíza, obaja majú korunku (" + sc1 + " : " + sc2 + ")"; }
     
     p1MulliganRound1Bonus = 0; p2MulliganRound1Bonus = 0;
@@ -1949,8 +1961,9 @@ function pripravNoveKolo() {
     if (cisloKola === 2) aktualnyHrac = 2;
     else if (cisloKola === 3) aktualnyHrac = 1;
     
-    tahatNoveKartyZBalicka(1, 2); 
-    tahatNoveKartyZBalicka(2, 2);
+    // 💡 Ťahá si IBA víťaz, a to presne 1 kartu (Ak je remíza, neťahá nikto)
+    if (poslednyVitazKola === 1) tahatNoveKartyZBalicka(1, 1);
+    else if (poslednyVitazKola === 2) tahatNoveKartyZBalicka(2, 1);
     
     vykresliHraciuPlochu();
     setTimeout(spravujAI, 1000);
@@ -2104,7 +2117,9 @@ function vykresliGridStatistik() {
 function vyhlasGlobalnySClassOznam(hracMeno, kartaMeno) { var banner = document.createElement("div"); banner.className = "global-announce-banner"; banner.innerHTML = "👑 <strong>KRÁĽOVSKÝ OZNAM:</strong> Hráč <strong>" + hracMeno + "</strong> vykoval <strong>S-Class</strong> kartu <strong>" + kartaMeno + "</strong>!"; document.body.appendChild(banner); setTimeout(function() { banner.remove(); }, 6000); }
 
 document.addEventListener("DOMContentLoaded", function() {
-    nacitatUlozenuZostavu(); zobraziťObrazovku("hlavne-menu");
+    nacitatUlozenuZostavu(); 
+    skontrolujPlatinovky(); // 💡 NOVÉ: Hneď po načítaní skontroluje trofeje
+    zobraziťObrazovku("hlavne-menu");
     aktualizujPanelDielne(); vygenerujSimulaciuTrhu(); aktualizujVsetkyStickyWallety();
 });
 
@@ -2140,4 +2155,4 @@ function tahatNoveKartyZBalicka(pNum, pocetKariet) {
     }
 }
 
-window.spustitZapasLokálnePVP = spustitZapasLokálnePVP; window.zobraziťMenuAI = zobraziťMenuAI; window.spustitZapasProtiAI = spustitZapasProtiAI; window.otvoriťObchod = otvoriťObchod; window.otvoriťDielňu = otvoriťDielňu; window.otvoriťDeckbuilder = otvoriťDeckbuilder; window.otvoriťStatistiky = otvoriťStatistiky; window.otvoriťNavodHry = otvoriťNavodHry; window.posunStraneKnihy = posunStraneKnihy; window.vylepsiKartuVoForge = vylepsiKartuVoForge;  window.zatvoritTruhluAOpustit = zatvoritTruhluAOpustit; window.hracPassuje = hracPassuje; window.vylozitKartuZRuky = vylozitKartuZRuky; window.zobraziťObrazovku = zobraziťObrazovku; window.prepniZvuk = prepniZvuk; window.upravHlasitost = upravHlasitost; window.otvorTruhluVitaza = otvorTruhluVitaza; window.otvorTruhluUcastnika = otvorTruhluUcastnika; window.spustitHudbuPoPrvomKliknuti = spustitHudbuPoPrvomKliknuti; window.otvorDetailKarty = otvorDetailKarty; window.ukazOznamenie = ukazOznamenie; window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu; window.anonymnePrihoditSumu = anonymnePrihoditSumu; window.okamziteOdkupitKartu = okamziteOdkupitKartu; window.vykresliGridStatistik = vykresliGridStatistik; window.aktualizujPanelDielne = aktualizujPanelDielne; window.automatickyDoplnitDefaultZostavu = automatickyDoplnitDefaultZostavu; window.prepniKartuVZostave = prepniKartuVZostave; window.prepniVyberMulliganKarty = prepniVyberMulliganKarty; window.potvrditMulliganAkciu = potvrditMulliganAkciu; window.prepniZalozkuTrhu = prepniZalozkuTrhu; window.kupitSurovinuZoStatnehoSkladu = kupitSurovinuZoStatnehoSkladu; window.aktualizujDostupneTriedyPrePredaj = aktualizujDostupneTriedyPrePredaj; window.aktualizujMaxKusovPrePredaj = aktualizujMaxKusovPrePredaj; window.odoslatPredajnyFormular = odoslatPredajnyFormular;
+window.spustitZapasLokálnePVP = spustitZapasLokálnePVP; window.zobraziťMenuAI = zobraziťMenuAI; window.spustitZapasProtiAI = spustitZapasProtiAI; window.otvoriťObchod = otvoriťObchod; window.otvoriťDielňu = otvoriťDielňu; window.otvoriťDeckbuilder = otvoriťDeckbuilder; window.otvoriťStatistiky = otvoriťStatistiky; window.otvoriťNavodHry = otvoriťNavodHry; window.posunStraneKnihy = posunStraneKnihy; window.vylepsiKartuVoForge = vylepsiKartuVoForge;  window.zatvoritTruhluAOpustit = zatvoritTruhluAOpustit; window.hracPassuje = hracPassuje; window.vylozitKartuZRuky = vylozitKartuZRuky; window.zobraziťObrazovku = zobraziťObrazovku; window.prepniZvuk = prepniZvuk; window.upravHlasitost = upravHlasitost; window.otvorTruhluVitaza = otvorTruhluVitaza; window.otvorTruhluUcastnika = otvorTruhluUcastnika; window.spustitHudbuPoPrvomKliknuti = spustitHudbuPoPrvomKliknuti; window.otvorDetailKarty = otvorDetailKarty; window.ukazOznamenie = ukazOznamenie; window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu; window.anonymnePrihoditSumu = anonymnePrihoditSumu; window.vykresliGridStatistik = vykresliGridStatistik; window.aktualizujPanelDielne = aktualizujPanelDielne; window.automatickyDoplnitDefaultZostavu = automatickyDoplnitDefaultZostavu; window.prepniKartuVZostave = prepniKartuVZostave; window.prepniVyberMulliganKarty = prepniVyberMulliganKarty; window.potvrditMulliganAkciu = potvrditMulliganAkciu; window.prepniZalozkuTrhu = prepniZalozkuTrhu; window.kupitSurovinuZoStatnehoSkladu = kupitSurovinuZoStatnehoSkladu; window.aktualizujDostupneTriedyPrePredaj = aktualizujDostupneTriedyPrePredaj; window.aktualizujMaxKusovPrePredaj = aktualizujMaxKusovPrePredaj; window.odoslatPredajnyFormular = odoslatPredajnyFormular;
