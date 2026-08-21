@@ -208,12 +208,42 @@ function aktualizujVsetkyStickyWallety() {
     ulozitZostavuDoStorage();
 }
 
+// =====================================================================
+// [SEKCIA 1 - JS] MASTER REGISTRY, KONFIGURÁCIE A PREMENNÉ
+// =====================================================================
+var TAJNY_KOD_HESLA = "dGVzdGVyMTIzIQ=="; // Heslo pre bežných hráčov: tester123!
+var TAJNY_KOD_ADMIN = "S3JhbEdyb2J1OTk="; // 👑 Tvoje ADMIN heslo: KralGrobu99
+var isAdmin = false;
+
+(function() {
+    var vstup = prompt("🔒 Vstup do kráľovstva zakázaný!\nZadaj prístupové heslo:");
+    var zadaneHeslo = vstup ? vstup.trim() : "";
+    var btoaZadane = btoa(zadaneHeslo);
+    
+    if (btoaZadane === TAJNY_KOD_ADMIN) {
+        isAdmin = true;
+        alert("👑 Vitaj, Najvyšší Admin! Vývojárske nástroje sú odomknuté.");
+    } else if (btoaZadane !== TAJNY_KOD_HESLA) {
+        alert("❌ Nesprávne heslo!");
+        document.body.innerHTML = "<div style='display:flex; justify-content:center; align-items:center; height:100vh; background:#111; color:#ff4d4d; font-family:sans-serif; font-size:1.5em; font-weight:bold;'>🔒 Prístup odmietnutý. Stránka je chránená rodinným zámkom.</div>";
+        throw new Error("Neautorizovaný prístup.");
+    }
+})();
+
+var VERZIA = "36.1.0"; // Verzia s nepriestrelnou ekonomikou
+
+// ... (TU ZOSTÁVA TVOJ MASTER_REGISTRY, CLASS_CONFIG A FORGE_RATES, tie nemeň) ...
+
+// O kúsok nižšie nájdi funkciu nacitatUlozenuZostavu a zmeň ju takto:
 function nacitatUlozenuZostavu() {
     try { 
         var ulozene = localStorage.getItem("homewars_cloud_save_v1"); 
         if (ulozene) {
             var data = JSON.parse(ulozene);
-            inventar.mince = data.mince !== undefined ? data.mince : 500;
+            inventar.mince = parseInt(data.mince);
+            // Ochrana pred prepísaním mincí na "NaN" cez F12
+            if (isNaN(inventar.mince) || inventar.mince < 0) inventar.mince = 500; 
+            
             inventar.suroviny = data.suroviny || { "Koža": 15, "Drevo": 10, "Kov": 5, "Bronz": 2, "Striebro": 1, "Zlato": 20 };
             inventar.karty = data.karty || {};
             inventar.prizraky = data.prizraky || { "F": 10, "E": 5, "D": 5, "C": 5, "B": 5, "A": 5 };
@@ -667,7 +697,20 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
         });
         coinsEarned += itemBonusCoins;
     }
-    coinsEarned += extraLowPwrCoins; 
+    coinsEarned += extraLowPwrCoins;
+    // ⚔️ PvP ADRENALÍNOVÝ MULTIPLIKÁTOR (+25% BONUS ZA HHRÁČA VS. HRÁČA)
+    var pvpTextBonus = "";
+    if (!jeSingleplayer) {
+        coinsEarned = Math.floor(coinsEarned * 1.25); // +25 % mincí
+        
+        // 25% šanca na extra drop za to, že hráte proti sebe
+        if (Math.random() <= 0.25) goldEarned += 1;
+        if (Math.random() <= 0.25) prizrakCount += 1;
+        if (Math.random() <= 0.25) zvitkyZiskane += 1;
+        if (Math.random() <= 0.25) maxKariet += 1;
+        
+        pvpTextBonus = "<div style='color:#ffcc00; margin-top:8px; font-weight:bold; font-size:1.1em;'>⚔️ PvP BONUS AKTÍVNY! (+25%)</div>";
+    } 
     
     // PRIDELENIE DO INVENTÁRA
     inventar.mince += coinsEarned; 
@@ -715,6 +758,7 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
 
     var rewardsBox = document.createElement("div"); rewardsBox.className = "chest-rewards-modal";
     rewardsBox.innerHTML = '<h2>🎉 TRUHLA OTVORENÁ!</h2><p style="color:#aaa; font-size:1em;">Získal si odmeny z truhlice do svojej pokladnice:</p><div class="rewards-card-container">' + odmenyHtml + '</div><button onclick="zatvoritTruhluAOpustit(\'' + overlayElement.id + '\')" style="background:#10b981; color:#fff; border:none; padding:12px 35px; border-radius:6px; font-weight:bold; font-size:1.1em; cursor:pointer; margin-top:10px;">Zobrať Všetko do Batohu</button>';
+    pvpTextBonus
     overlayElement.appendChild(rewardsBox); aktualizujPanelDielne(); aktualizujVsetkyStickyWallety();
 }
 
@@ -722,7 +766,12 @@ function zatvoritTruhluAOpustit(overlayId) { var el = document.getElementById(ov
 
 function aktualizujPanelDielne() {
     var e = document.getElementById("dielna-zoznam"); if (!e) return; e.innerHTML = "";
-   
+   // Zobrazí fialové tlačidlo len ak si prihlásený ako Admin
+    if (isAdmin) {
+        var devBtnDiv = document.createElement("div"); devBtnDiv.style.gridColumn = "1/-1"; devBtnDiv.style.marginBottom = "15px";
+        devBtnDiv.innerHTML = '<button onclick="devPridatSurovinyACheaty()" style="background:#8b5cf6; color:#fff; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; cursor:pointer; width:100%;">⚡ DEV CHEAT: Pridať Suroviny</button>'; e.appendChild(devBtnDiv);
+    }
+    
 
    // Načítanie fyzických zvitkov z inventára pre roletku
     var zData = (inventar.karty["Zvitok"] && inventar.karty["Zvitok"].repliky) ? inventar.karty["Zvitok"].repliky : {};
@@ -792,7 +841,10 @@ function aktualizujPanelDielne() {
 
 
 function vylepsiKartuVoForge(meno, transitionKey, pergamenCls, mixValue) {
-    var cfg = FORGE_RATES[transitionKey]; if (!cfg) return;
+    if (window.jeKovanieAktivne) return; // Zabraňuje spamovaniu tlačidla!
+    window.jeKovanieAktivne = true; 
+
+    var cfg = FORGE_RATES[transitionKey]; if (!cfg) { window.jeKovanieAktivne = false; return; }
     var fromCls = cfg.from; var nextCls = cfg.nextClass; var reg = getRegistryCard(meno);
 
     if (reg.isPrizrak) {
@@ -1224,8 +1276,12 @@ function odoslatPredajnyFormular() {
     var rawBuyout = document.getElementById("sell-buyout-price").value.trim();
     var buyoutPrice = (rawBuyout === "") ? 0 : parseInt(rawBuyout);
     
-    if (isNaN(count) || count <= 0 || isNaN(startPrice) || startPrice <= 0) { ukazOznamenie("⚠️ CHYBA", "Zadaj platné čísla!"); return; }
-    if (buyoutPrice > 0 && buyoutPrice <= startPrice) { ukazOznamenie("⚠️ CHYBA", "Cena okamžitého výkupu musí byť vyššia ako vyvolávacia cena!"); return; }
+    // 🛡️ OCHRANA PROTI INFINITY A PREKTEČENIU ČÍSIEL
+    if (isNaN(count) || count <= 0 || isNaN(startPrice) || startPrice <= 0 || startPrice > 1000000) { 
+        ukazOznamenie("⚠️ CHYBA", "Zadaj platné čísla! (Maximálna vyvolávacia cena je 1 000 000 mincí)"); 
+        return; 
+    }
+    if (buyoutPrice > 1000000) { ukazOznamenie("⚠️ CHYBA", "Výkupná cena nesmie presiahnuť 1 000 000 mincí!"); return; }
     // OCHRANA PRED MANIPULÁCIOU TRHU (5% Poplatok Kráľovstvu)
     var zalistovaciPoplatok = Math.max(1, Math.floor(startPrice * 0.05));
     if (inventar.mince < zalistovaciPoplatok) { 
@@ -1283,6 +1339,7 @@ function odoslatPredajnyFormular() {
 }
 
 function kupitSurovinuZoStatnehoSkladu(mat, pocetOz) {
+    if (isNaN(pocetOz) || pocetOz <= 0) return; // Ochrana pred hackerským nákupom do mínusu
     var item = STATNY_SKLAD_CENNIK[mat]; if (!item) return;
     var celkovaCena = item.price * pocetOz;
     if (inventar.mince < celkovaCena) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Na nákup potrebuješ " + celkovaCena + " mincí!"); return; }
@@ -1507,6 +1564,7 @@ function vypocitajSetBonusRadu(targetRow, cardList, pNum) {
 }
 
 function otvorErikBuffDialog(pNum, callback) {
+    blokujVykladanie = true;
     if (pNum === 2 && jeSingleplayer) {
         if ((obtiaznostAI === "A") || (obtiaznostAI === "B" && Math.random() <= 0.65)) {
             var r1Points = p2_played_cards.filter(function(c){return getRegistryCard(c.n).row===1;}).length;
@@ -1539,6 +1597,7 @@ function otvorErikBuffDialog(pNum, callback) {
     }, 1000);
 
     window.zvolErikRow = function(r, isAuto) {
+        blokujVykladanie = false;
         clearInterval(erikInterval);
         if (pNum === 1) p1_erik_buff_row = r; else p2_erik_buff_row = r;
         if (modal && document.body.contains(modal)) modal.remove(); 
@@ -1822,6 +1881,7 @@ function vykonajOzivenieZArchivu(pNum) {
 }
 
 function hracPassuje(pNum) {
+    if (blokujVykladanie) return; // 🛡️ Zabraňuje passnúť kolo počas Erikovej animácie!
     if (pNum === 1) p1Pass = true; if (pNum === 2) p2Pass = true;
     if (p1Pass && p2Pass) skontrolujKoniecKola(); else prepniHracov();
 }
