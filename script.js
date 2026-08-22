@@ -489,10 +489,11 @@ function vygenerujDeckbuilder() {
     var e = document.getElementById("deckbuilder-zoznam"); var countEl = document.getElementById("deckbuilder-count"); var msgEl = document.getElementById("deckbuilder-msg");
     if (!e) return; e.innerHTML = "";
     
-    // OPRAVA 1: Zostavu čistíme LEN od Prízrakov a Zvitkov (Kúzla a Predmety sú povolené!)
     inventar.zostava = inventar.zostava.filter(function(karta) {
         var reg = MASTER_REGISTRY[karta];
-        return reg && !reg.isPrizrak && !reg.isZvitok;
+        if (!reg || reg.isPrizrak || reg.isZvitok) return false;
+        if (reg.isPlatinum && !hracVlastniPlatinovku(karta)) return false; // 🛡️ Vykopne Platinovku, ktorú nevlastníš
+        return true;
     });
     
     var count = inventar.zostava.length;
@@ -503,7 +504,7 @@ function vygenerujDeckbuilder() {
         var reg = MASTER_REGISTRY[t]; 
         // OPRAVA 2: Skryjeme v UI len Prízraky a Zvitky
         if (reg.isPrizrak || reg.isZvitok) return;
-        
+        if (reg.isPlatinum && !hracVlastniPlatinovku(t)) return; // 🛡️ Skryje Platinovky, na ktoré nemáš nárok
         var isVBaliku = (inventar.zostava.indexOf(t) !== -1);
         var cData = inventar.karty[t];
         var vlastneneTriedy = [];
