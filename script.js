@@ -1471,12 +1471,25 @@ function anonymnePrihoditSumu(aukciaId) {
     var ponuka = parseInt(prompt("Zadaj svoju ponuku (Musí byť vyššia ako " + aukcia.aktualnaPonuka + "m):"));
     if (isNaN(ponuka) || ponuka <= aukcia.aktualnaPonuka) { ukazOznamenie("⚠️ CHYBA", "Musíš prihodiť platnú sumu!"); return; }
     
-    var sumaNaZaplatenie = (aukcia.veduciHrac === "Hráč 1 (Ty)") ? (ponuka - aukcia.aktualnaPonuka) : ponuka;
-    if (inventar.mince < sumaNaZaplatenie) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Nemáš dostatok mincí na túto ponuku!"); return; }
+    // Zistíme, či má aktuálny hráč dosť peňazí na celú ponuku
+    if (inventar.mince < ponuka) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Nemáš dostatok mincí na túto ponuku!"); return; }
 
-    inventar.mince -= sumaNaZaplatenie; 
+    // 1. Odpočítame novú sumu aktuálnemu hráčovi (Ty)
+    inventar.mince -= ponuka; 
+    
+    // 2. VRÁTENIE MINCÍ PREDCHÁDZAJÚCEMU LÍDROVI
+    if (aukcia.veduciHrac === "Hráč 1 (Ty)") {
+        // Ak si sa z nejakého dôvodu prebil sám
+        inventar.mince += aukcia.aktualnaPonuka;
+    } else if (aukcia.veduciHrac !== "Nikto") {
+        // MIESTO PRE FIREBASE: Tu povieme serveru, nech vráti peniaze inému hráčovi
+        console.log("Pripravené pre Cloud: Vrátenie " + aukcia.aktualnaPonuka + "m hráčovi " + aukcia.veduciHrac);
+    }
+
+    // 3. Aktualizácia aukcie
     aukcia.aktualnaPonuka = ponuka; 
     aukcia.veduciHrac = "Hráč 1 (Ty)";
+    
     ukazOznamenie("🕵️ PONUKA ZAREGISTROVANÁ", "Tvoja ponuka " + ponuka + "m ťa posunula na 1. miesto v aukcii!"); 
     vygenerujSimulaciuTrhu();
 }
@@ -1860,14 +1873,40 @@ function pokracujPoVylozeni(pNum) {
 
 function vykonajAutoSpalenie(pôvodcaMeno) {
     var vsetkyKartyStola = [];
-    p1_played_cards.forEach(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli") vsetkyKartyStola.push(c); });
-    p2_played_cards.forEach(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli") vsetkyKartyStola.push(c); });
+    
+    // Zozbierame karty oboch hráčov a zapamätáme si, komu patria (pNum)
+    p1_played_cards.forEach(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli") vsetkyKartyStola.push({ karta: c, majitel: 1 }); });
+    p2_played_cards.forEach(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli") vsetkyKartyStola.push({ karta: c, majitel: 2 }); });
+    
     if (vsetkyKartyStola.length === 0) return;
-    var maxPwr = -1; vsetkyKartyStola.forEach(function(c) { var p = getRealPower(c); if (p > maxPwr) maxPwr = p; });
+    
+    // Zistíme absolútne najvyššiu dynamickú silu na stole vrátane buffov
+    var maxPwr = -1; 
+    vsetkyKartyStola.forEach(function(zaznam) { 
+        var dynPwr = vypocitajDynamickuSiluJednejKarty(zaznam.karta, zaznam.majitel); 
+        if (dynPwr !== "none" && dynPwr > maxPwr) {
+            maxPwr = dynPwr; 
+        }
+    });
+    
     if (maxPwr <= 0) return;
 
-    p1_played_cards = p1_played_cards.filter(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli" && getRealPower(c) === maxPwr) { p1_cakaren.push(c); return false; } return true; });
-    p2_played_cards = p2_played_cards.filter(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli" && getRealPower(c) === maxPwr) { p2_cakaren.push(c); return false; } return true; });
+    // Spálime (presunieme do očistca) všetky karty, ktoré majú túto aktuálnu max silu
+    p1_played_cards = p1_played_cards.filter(function(c) { 
+        if (c.n !== pôvodcaMeno && c.n !== "Oli" && vypocitajDynamickuSiluJednejKarty(c, 1) === maxPwr) { 
+            p1_cakaren.push(c); 
+            return false; 
+        } 
+        return true; 
+    });
+    
+    p2_played_cards = p2_played_cards.filter(function(c) { 
+        if (c.n !== pôvodcaMeno && c.n !== "Oli" && vypocitajDynamickuSiluJednejKarty(c, 2) === maxPwr) { 
+            p2_cakaren.push(c); 
+            return false; 
+        } 
+        return true; 
+    });
 }
 
 function vykonajCieleneSpalenieMarekom(pNum) {
@@ -1969,7 +2008,22 @@ function potvrdOzivenieKarty(pNum, index) {
         var reg = getRegistryCard(oživenaKarta.n);
         if (reg.isSpy) { oppPlayed.push(oživenaKarta); tahatNoveKartyZBalicka(pNum, 2); } 
         else { myPlayed.push(oživenaKarta); }
+        
         ukazOznamenie("🕊️ OŽIVENIE Z OHŇA!", "Z plameňov sa vrátila karta <strong>" + oživenaKarta.n + "</strong>!", function() {
+            // TOTO SME PRIDALI: Aktivácia špeciálnych schopností po oživení
+            if (oživenaKarta.n === "Erik") {
+                otvorErikBuffDialog(pNum, function() { vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); });
+                return; // Zastavíme tu, lebo Erik má vlastný časovač a odovzdá ťah sám
+            }
+            if (oživenaKarta.n === "Zatúlaný tatranský medveď" || oživenaKarta.n === "Jakub" || oživenaKarta.n === "Marek") {
+                vykonajAutoSpalenie(oživenaKarta.n);
+            }
+            if (oživenaKarta.n === "Sestrička" || oživenaKarta.n === "Doktor" || oživenaKarta.n === "Kornélia") {
+                vykonajOzivenieZArchivu(pNum);
+                return; // Reťazové oživovanie! Zastavíme, kým hráč nevyberie ďalšiu kartu.
+            }
+            
+            // Ak karta nemá špeciálny efekt pri vstupe, pokračujeme klasicky
             vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
         });
     } else {
@@ -2269,5 +2323,13 @@ function tahatNoveKartyZBalicka(pNum, pocetKariet) {
         ukazOznamenie("🃏 ŤAHANIE KARIET", "Potiahol si si " + potiahnute + " nové karty z balíčka!");
     }
 }
-
-window.spustitZapasLokálnePVP = spustitZapasLokálnePVP; window.zobraziťMenuAI = zobraziťMenuAI; window.spustitZapasProtiAI = spustitZapasProtiAI; window.otvoriťObchod = otvoriťObchod; window.otvoriťDielňu = otvoriťDielňu; window.otvoriťDeckbuilder = otvoriťDeckbuilder; window.otvoriťStatistiky = otvoriťStatistiky; window.otvoriťNavodHry = otvoriťNavodHry; window.posunStraneKnihy = posunStraneKnihy; window.vylepsiKartuVoForge = vylepsiKartuVoForge;  window.zatvoritTruhluAOpustit = zatvoritTruhluAOpustit; window.hracPassuje = hracPassuje; window.vylozitKartuZRuky = vylozitKartuZRuky; window.zobraziťObrazovku = zobraziťObrazovku; window.prepniZvuk = prepniZvuk; window.upravHlasitost = upravHlasitost; window.otvorTruhluVitaza = otvorTruhluVitaza; window.otvorTruhluUcastnika = otvorTruhluUcastnika; window.spustitHudbuPoPrvomKliknuti = spustitHudbuPoPrvomKliknuti; window.otvorDetailKarty = otvorDetailKarty; window.ukazOznamenie = ukazOznamenie; window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu; window.anonymnePrihoditSumu = anonymnePrihoditSumu; window.vykresliGridStatistik = vykresliGridStatistik; window.aktualizujPanelDielne = aktualizujPanelDielne; window.automatickyDoplnitDefaultZostavu = automatickyDoplnitDefaultZostavu; window.prepniKartuVZostave = prepniKartuVZostave; window.prepniVyberMulliganKarty = prepniVyberMulliganKarty; window.potvrditMulliganAkciu = potvrditMulliganAkciu; window.prepniZalozkuTrhu = prepniZalozkuTrhu; window.kupitSurovinuZoStatnehoSkladu = kupitSurovinuZoStatnehoSkladu; window.aktualizujDostupneTriedyPrePredaj = aktualizujDostupneTriedyPrePredaj; window.aktualizujMaxKusovPrePredaj = aktualizujMaxKusovPrePredaj; window.odoslatPredajnyFormular = odoslatPredajnyFormular;
+function devPridatSurovinyACheaty() {
+    if (!isAdmin) return;
+    inventar.mince += 10000;
+    inventar.suroviny["Koža"] = (inventar.suroviny["Koža"] || 0) + 50;
+    inventar.suroviny["Zlato"] = (inventar.suroviny["Zlato"] || 0) + 50;
+    inventar.prizraky["F"] = (inventar.prizraky["F"] || 0) + 10;
+    ukazOznamenie("⚡ DEV CHEAT", "Bolo ti pridaných 10 000 mincí a suroviny pre testovanie!");
+    aktualizujVsetkyStickyWallety();
+}
+window.spustitZapasLokálnePVP = spustitZapasLokálnePVP; window.zobraziťMenuAI = zobraziťMenuAI; window.spustitZapasProtiAI = spustitZapasProtiAI; window.otvoriťObchod = otvoriťObchod; window.otvoriťDielňu = otvoriťDielňu; window.otvoriťDeckbuilder = otvoriťDeckbuilder; window.otvoriťStatistiky = otvoriťStatistiky; window.otvoriťNavodHry = otvoriťNavodHry; window.posunStraneKnihy = posunStraneKnihy; window.vylepsiKartuVoForge = vylepsiKartuVoForge;  window.zatvoritTruhluAOpustit = zatvoritTruhluAOpustit; window.hracPassuje = hracPassuje; window.vylozitKartuZRuky = vylozitKartuZRuky; window.zobraziťObrazovku = zobraziťObrazovku; window.prepniZvuk = prepniZvuk; window.upravHlasitost = upravHlasitost; window.otvorTruhluVitaza = otvorTruhluVitaza; window.otvorTruhluUcastnika = otvorTruhluUcastnika; window.spustitHudbuPoPrvomKliknuti = spustitHudbuPoPrvomKliknuti; window.otvorDetailKarty = otvorDetailKarty; window.ukazOznamenie = ukazOznamenie; window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu; window.anonymnePrihoditSumu = anonymnePrihoditSumu; window.vykresliGridStatistik = vykresliGridStatistik; window.aktualizujPanelDielne = aktualizujPanelDielne; window.automatickyDoplnitDefaultZostavu = automatickyDoplnitDefaultZostavu; window.prepniKartuVZostave = prepniKartuVZostave; window.prepniVyberMulliganKarty = prepniVyberMulliganKarty; window.potvrditMulliganAkciu = potvrditMulliganAkciu; window.prepniZalozkuTrhu = prepniZalozkuTrhu; window.kupitSurovinuZoStatnehoSkladu = kupitSurovinuZoStatnehoSkladu; window.aktualizujDostupneTriedyPrePredaj = aktualizujDostupneTriedyPrePredaj; window.aktualizujMaxKusovPrePredaj = aktualizujMaxKusovPrePredaj; window.odoslatPredajnyFormular = odoslatPredajnyFormular; window.devPridatSurovinyACheaty = devPridatSurovinyACheaty;
