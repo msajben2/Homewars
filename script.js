@@ -723,6 +723,7 @@ function spustitVideoAnimationTruhly(typ) {
     document.body.appendChild(overlay);
     var vid = document.getElementById("chest-video-element"); var promptTxt = document.getElementById("chest-click-prompt");
     overlay.onclick = function() { if (vid.paused) { vid.play().catch(function(){}); promptTxt.style.display = "none"; } };
+    
     // Poistka proti zamrznutiu videa truhlice
     var videoSkoncilo = false;
     var vyhodnotVideo = function() {
