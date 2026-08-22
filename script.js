@@ -205,8 +205,8 @@ function automatickyDoplnitDefaultZostavu(showNotify) {
 
     // 2. Skontrolujeme, koľko kariet chýba
     var aktualnyPocet = inventar.zostava.length;
-    if (aktualnyPocet >= 25) {
-        if (showNotify !== false) ukazOznamenie("✅ ZOSTAVA JE PLNÁ", "Tvoja zostava už má 25 kariet, nepotrebuješ ju dopĺňať.");
+    if (aktualnyPocet >= 28) {
+        if (showNotify !== false) ukazOznamenie("✅ ZOSTAVA JE PLNÁ", "Tvoja zostava už má 28 kariet, nepotrebuješ ju dopĺňať.");
         return;
     }
 
@@ -222,7 +222,7 @@ function automatickyDoplnitDefaultZostavu(showNotify) {
     }
 
     // 5. Doplníme iba chýbajúci počet!
-    var chybajuceMiesto = 25 - aktualnyPocet;
+    var chybajuceMiesto = 28 - aktualnyPocet;
     var pridaneKarty = 0;
     
     for (var i = 0; i < kartyNaPridanie.length && pridaneKarty < chybajuceMiesto; i++) {
@@ -234,7 +234,7 @@ function automatickyDoplnitDefaultZostavu(showNotify) {
     
     if (showNotify !== false) {
         if (pridaneKarty < chybajuceMiesto) {
-            ukazOznamenie("⚠️ NEDOSTATOK KARIET", "Doplnili sme " + pridaneKarty + " kariet, ale stále ti chýba " + (chybajuceMiesto - pridaneKarty) + " do 25. Musíš si otvoriť viac truhlíc!");
+            ukazOznamenie("⚠️ NEDOSTATOK KARIET", "Doplnili sme " + pridaneKarty + " kariet, ale stále ti chýba " + (chybajuceMiesto - pridaneKarty) + " do 28. Musíš si otvoriť viac truhlíc!");
         } else {
             ukazOznamenie("⚡ ZOSTAVA DOPLNENÁ", "Úspešne sme ti do voľných miest doplnili " + pridaneKarty + " vlastnených kariet!");
         }
@@ -302,7 +302,7 @@ function nacitatUlozenuZostavu() {
         }
     } catch(e) { console.error("Chyba načítavania Cloudu:", e); }
     
-    if (!Array.isArray(inventar.zostava) || inventar.zostava.length < 25) {
+    if (!Array.isArray(inventar.zostava) || inventar.zostava.length < 28) {
         automatickyDoplnitDefaultZostavu(false);
     }
 }
@@ -350,7 +350,7 @@ function skontrolujPlatinovky() {
         vyhlasGlobalnyOznam("📢 KRÁĽOVSKÝ PREVRAT", "Hráč <strong>" + s.zlodej + "</strong> zosadil z trónu pôvodného majiteľa a získal Platinovú kartu <strong>" + s.karta + "</strong>!");
         
         // TOTO JE SÚKROMNÁ FACKA PRE HRÁČA
-        ukazOznamenie("⚠️ STRATA PLATINOVEJ TROFEJE!", "Hráč <strong>" + s.zlodej + "</strong> ťa prekonal v rebríčku a Kráľovský dvor ti nemilosrdne zhabal kartu <strong>" + s.karta + "</strong> z tvojho batohu!<br><br>Tvoja herná zostava má teraz menej ako 25 kariet. Pred ďalším zápasom musíš ísť do Deckbuilderu a doplniť chýbajúce miesto!");
+        ukazOznamenie("⚠️ STRATA PLATINOVEJ TROFEJE!", "Hráč <strong>" + s.zlodej + "</strong> ťa prekonal v rebríčku a Kráľovský dvor ti nemilosrdne zhabal kartu <strong>" + s.karta + "</strong> z tvojho batohu!<br><br>Tvoja herná zostava má teraz menej ako 28 kariet. Pred ďalším zápasom musíš ísť do Deckbuilderu a doplniť chýbajúce miesto!");
     });
 }
 
@@ -380,7 +380,7 @@ function vygenerujDeckbuilder() {
     
     var count = inventar.zostava.length;
     if (countEl) countEl.innerText = count;
-    if (msgEl) msgEl.innerHTML = (count >= 25) ? "<span style='color:#10b981;'>✅ Zostava je pripravená na boj!</span>" : "<span style='color:#ff4d4d;'>⚠️ Potrebuješ ešte pridať " + (25 - count) + " kariet!</span>";
+    if (msgEl) msgEl.innerHTML = (count >= 28) ? "<span style='color:#10b981;'>✅ Zostava je pripravená na boj!</span>" : "<span style='color:#ff4d4d;'>⚠️ Potrebuješ ešte pridať " + (28 - count) + " kariet!</span>";
 
     Object.keys(MASTER_REGISTRY).forEach(function(t) {
         var reg = MASTER_REGISTRY[t]; 
@@ -506,7 +506,7 @@ function vygenerujDeckbuilder() {
     
     var count = inventar.zostava.length;
     if (countEl) countEl.innerText = count;
-    if (msgEl) msgEl.innerHTML = (count >= 25) ? "<span style='color:#10b981;'>✅ Zostava je pripravená na boj!</span>" : "<span style='color:#ff4d4d;'>⚠️ Potrebuješ ešte pridať " + (25 - count) + " kariet!</span>";
+    if (msgEl) msgEl.innerHTML = (count >= 28) ? "<span style='color:#10b981;'>✅ Zostava je pripravená na boj!</span>" : "<span style='color:#ff4d4d;'>⚠️ Potrebuješ ešte pridať " + (28 - count) + " kariet!</span>";
 
     Object.keys(MASTER_REGISTRY).forEach(function(t) {
         var reg = MASTER_REGISTRY[t]; 
@@ -577,8 +577,8 @@ function pripravBalicekPreZapas(pNum) {
         }
     });
 
-    if (pool.length < 25) {
-        console.warn("Dopĺňam balíček na 25 kariet (Highlander pravidlo).");
+    if (pool.length < 28) {
+        console.warn("Dopĺňam balíček na 28 kariet (Highlander pravidlo).");
         var fallbackPool = Object.keys(MASTER_REGISTRY).filter(function(k) { 
             var r = MASTER_REGISTRY[k];
             return !r.isPrizrak && !r.isPlatinum && !r.isZvitok; 
@@ -590,7 +590,7 @@ function pripravBalicekPreZapas(pNum) {
         }
         
         var fbIndex = 0;
-        while(pool.length < 25 && fbIndex < fallbackPool.length) { 
+        while(pool.length < 28 && fbIndex < fallbackPool.length) { 
             var kandidat = fallbackPool[fbIndex++];
             if (pool.indexOf(kandidat) === -1) {
                 pool.push(kandidat); 
@@ -879,7 +879,7 @@ function aktualizujPanelDielne() {
 
     Object.keys(MASTER_REGISTRY).forEach(function(t) {
         var reg = MASTER_REGISTRY[t]; if (reg.isPlatinum || reg.isPrizrak) return;
-        if (!inventar.karty[t]) inventar.karty[t] = { repliky: { "F": 1 }, aktivnaTrieda: "F" }; var cardData = inventar.karty[t];
+        if (!inventar.karty[t]) inventar.karty[t] = { repliky: { "F": 0 }, aktivnaTrieda: "F" }; var cardData = inventar.karty[t];
         
         var topClass = "F";
         if (reg.isTournamentUnique) {
@@ -1254,8 +1254,13 @@ function vykresliZalozkuPredaja() {
     var optionsHtml = "";
     
     if (aktualnyTypPredaja === "karta") {
-        var dostupneKarty = Object.keys(inventar.karty).filter(function(k) { return typeof inventar.karty[k].repliky === "object"; });
+        var dostupneKarty = Object.keys(inventar.karty).filter(function(k) { 
+            // TOTO SME PRIDALI: Kontrola, či to nie je platinovka
+            var reg = getRegistryCard(k);
+            return typeof inventar.karty[k].repliky === "object" && (!reg || !reg.isPlatinum); 
+        });
         dostupneKarty.forEach(function(k) { optionsHtml += '<option value="' + k + '">' + k + '</option>'; });
+    }
     } else if (aktualnyTypPredaja === "prizrak") {
         optionsHtml = '<option value="Prízrak">Prízrak</option>';
     } else {
@@ -1685,8 +1690,8 @@ function otvorErikBuffDialog(pNum, callback) {
 // [SEKCIA 6 - JS] ZÁPAS, MULLIGAN A UMELÁ INTELIGENCIA
 // =====================================================================
 function spustitZapasLokálnePVP() { 
-    if (inventar.zostava.length < 25) { 
-        ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Tvoja zostava má iba " + inventar.zostava.length + "/25 kariet. Doplň si balíček!"); 
+    if (inventar.zostava.length < 28) { 
+        ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Tvoja zostava má iba " + inventar.zostava.length + "/28 kariet. Doplň si balíček!"); 
         otvoriťDeckbuilder(); 
         return; 
     }
@@ -1694,8 +1699,8 @@ function spustitZapasLokálnePVP() {
 }
 
 function zobraziťMenuAI() { 
-    if (inventar.zostava.length < 25) { 
-        ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Tvoja zostava má iba " + inventar.zostava.length + "/25 kariet. Doplň si balíček!"); 
+    if (inventar.zostava.length < 28) { 
+        ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Tvoja zostava má iba " + inventar.zostava.length + "/28 kariet. Doplň si balíček!"); 
         otvoriťDeckbuilder(); 
         return; 
     }
@@ -1703,8 +1708,8 @@ function zobraziťMenuAI() {
 }
 
 function spustitZapasProtiAI() { 
-    if (inventar.zostava.length < 25) { 
-        ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Tvoja zostava má iba " + inventar.zostava.length + "/25 kariet. Doplň si balíček!"); 
+    if (inventar.zostava.length < 28) { 
+        ukazOznamenie("⚠️ NEÚPLNÁ ZOSTRAVA", "Tvoja zostava má iba " + inventar.zostava.length + "/28 kariet. Doplň si balíček!"); 
         otvoriťDeckbuilder(); 
         return; 
     }
@@ -2183,7 +2188,7 @@ function vykresliStraneKnihy() {
     if (aktualnaStranaKnihy === 1) {
         container.innerHTML = '<h3 style="color:#ffcc00;">📜 KAPITOLA I: CIEĽ HRY A ZÁPAS</h3><p>Cieľom hry je poraziť súpera získaním 2 víťazných koruniek. Zápas prebieha vykladaním kariet na stôl, čím buduješ svoju celkovú silu. Kolo vyhráva ten, kto má po pasovaní oboch hráčov vyššie skóre.</p><ul style="line-height:1.6;"><li><strong>Mulligan (Výmena kariet):</strong> Na začiatku si môžeš vymeniť 0 až 2 karty. Každá výmena ťa niečo stojí – súper získa výhodu! Za 1 vymenenú kartu dostane +2 body, za 2 karty získa +5 bodov (platí iba v 1. kole).</li><li><strong>Striedanie:</strong> Hru začína náhodne vyžrebovaný hráč. V 2. kole začína druhý hráč a v 3. kole opäť prvý.</li><li><strong>Remízy:</strong> Ak kolo skončí rovnakým skóre, obaja hráči získavajú korunku. Ak nastane celková absolútna remíza (2:2 na korunky), obaja hráči dostanú iba Truhlu účastníka.</li></ul>';
     } else if (aktualnaStranaKnihy === 2) {
-        container.innerHTML = '<h3 style="color:#ffcc00;">⚔️ KAPITOLA II: KARTY, SYNERGIE A ZOSTAVA</h3><p>Pred zápasom si musíš poskladať balíček (Zostavu), ktorý musí obsahovať minimálne 25 kariet.</p><ul style="line-height:1.6;"><li><strong>Bojové jednotky:</strong> Patria do špecifických radov (1. rad Muži, 2. rad Ženy, 3. rad Zvieratá). Ich sila rastie vďaka Setovým bonusom (ak máš v rade viac kariet z rovnakej vzácnej triedy). Slabé F-karty (1-4b) ti pri výhre generujú extra mince!</li><li><strong>Predmety (Alkohol, Kvety...):</strong> Tieto karty pridávajú plošný bonus celému radu. Bonus závisí od ich vykovanej vzácnosti (od +1b pri F až po +7b pri S-Class).</li><li><strong>Kúzla stola:</strong> Ukladajú sa do špeciálneho Neutrálneho radu a ovplyvňujú oboch hráčov. Dokážu zraziť silu konkrétnych radov na 1 bod.</li><li><strong>Špióni a Oživovanie:</strong> Niektoré karty sa vykladajú na súperovu stranu stola, za čo získaš potiahnutie 2 nových kariet. Iné dokážu oživiť karty, ktoré boli zničené požiarom z boja.</li></ul>';
+        container.innerHTML = '<h3 style="color:#ffcc00;">⚔️ KAPITOLA II: KARTY, SYNERGIE A ZOSTAVA</h3><p>Pred zápasom si musíš poskladať balíček (Zostavu), ktorý musí obsahovať minimálne 28 kariet.</p><ul style="line-height:1.6;"><li><strong>Bojové jednotky:</strong> Patria do špecifických radov (1. rad Muži, 2. rad Ženy, 3. rad Zvieratá). Ich sila rastie vďaka Setovým bonusom (ak máš v rade viac kariet z rovnakej vzácnej triedy). Slabé F-karty (1-4b) ti pri výhre generujú extra mince!</li><li><strong>Predmety (Alkohol, Kvety...):</strong> Tieto karty pridávajú plošný bonus celému radu. Bonus závisí od ich vykovanej vzácnosti (od +1b pri F až po +7b pri S-Class).</li><li><strong>Kúzla stola:</strong> Ukladajú sa do špeciálneho Neutrálneho radu a ovplyvňujú oboch hráčov. Dokážu zraziť silu konkrétnych radov na 1 bod.</li><li><strong>Špióni a Oživovanie:</strong> Niektoré karty sa vykladajú na súperovu stranu stola, za čo získaš potiahnutie 2 nových kariet. Iné dokážu oživiť karty, ktoré boli zničené požiarom z boja.</li></ul>';
     } else if (aktualnaStranaKnihy === 3) {
         container.innerHTML = '<h3 style="color:#ffcc00;">🔨 KAPITOLA III: KOVÁČSKA DIELŇA A ZVITKY</h3><p>V Dielni môžeš zlučovať slabšie karty do silnejších tried (od F po S). Vyššia trieda má väčšiu základnú silu a odomyká silnejšie Setové bonusy na stole.</p><ul style="line-height:1.6;"><li><strong>Kovanie:</strong> Na vylepšenie potrebuješ vždy 3x rovnakú kartu (napr. 3x E-Class na D-Class) + poplatok v minciach + konkrétny remeselný materiál v unciach (oz).</li><li><strong>Prízrak:</strong> Slúži ako univerzálny "žolík". Môžeš ním nahradiť akúkoľvek bežnú kartu v procese kovania (od F po A).</li><li><strong>Riziko zničenia:</strong> S vyššou triedou klesá šanca na úspech. Ak kovanie zlyhá, stratíš suroviny aj jednu z kariet (zhorí)! Preto môžeš použiť <strong>Zvitky ochrany</strong>, ktoré si kúpiš za Zlato. Zvitok nielen zvýši šancu na úspech, ale kartu pri neúspechu ochráni pred zničením.</li></ul>';
     } else if (aktualnaStranaKnihy === 4) {
