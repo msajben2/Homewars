@@ -687,31 +687,7 @@ function vytiahniRukuZRozdanehoBalicka(pNum) {
     }
     return hand;
 }
-    var deck = (pNum === 1) ? p1_active_deck : p2_active_deck; var hand = [];
-    for (var i = 0; i < 10; i++) { 
-        if (deck.length > 0) { 
-            var item = deck.pop();
-            if (typeof item === "object") { hand.push(item); } 
-            else {
-                var cardCls = "F"; 
-                if (pNum === 1 && inventar.karty[item]) {
-                    var regItem = getRegistryCard(item);
-                    if (regItem.isTournamentUnique) {
-                        cardCls = inventar.karty[item].aktivnaTrieda || "F";
-                    } } else if (inventar.karty[item].zvolenaTrieda && inventar.karty[item].repliky[inventar.karty[item].zvolenaTrieda] > 0) {
-                        cardCls = inventar.karty[item].zvolenaTrieda; // NOVÉ: Hra číta triedu zvolenú hráčom!
-                    } else if (inventar.karty[item].repliky) {
-                        var rep = inventar.karty[item].repliky;
-                        if (rep["S"] > 0) cardCls = "S"; else if (rep["A"] > 0) cardCls = "A"; else if (rep["B"] > 0) cardCls = "B"; else if (rep["C"] > 0) cardCls = "C"; else if (rep["D"] > 0) cardCls = "D"; else if (rep["E"] > 0) cardCls = "E";
-                    }
-                }
-                hand.push({ n: item, cls: cardCls }); 
-            }
-        } 
-    }
-    
-
-
+   
 function vykresliRukuHraca(pNum) {
     var handContainer = document.getElementById("p" + pNum + "-hand"); if (!handContainer) return;
     handContainer.innerHTML = ""; var hand = (pNum === 1) ? p1_draft_hand : p2_draft_hand;
