@@ -1300,15 +1300,13 @@ function vykresliZalozkuPredaja() {
             return typeof inventar.karty[k].repliky === "object" && (!reg || !reg.isPlatinum); 
         });
         dostupneKarty.forEach(function(k) { optionsHtml += '<option value="' + k + '">' + k + '</option>'; });
-    }
-    
     } else if (aktualnyTypPredaja === "prizrak") {
         optionsHtml = '<option value="Prízrak">Prízrak</option>';
     } else {
         var dostupneSuroviny = Object.keys(inventar.suroviny).filter(function(s) { return inventar.suroviny[s] > 0; });
         dostupneSuroviny.forEach(function(s) { optionsHtml += '<option value="' + s + '">' + s + ' (' + inventar.suroviny[s] + ' oz)</option>'; });
+    } // <--- TU BOLA DOPLNENÁ CHÝBAJÚCA ZÁTVORKA
     
-
     var formularPredaja = '<div class="sell-form-container"><h3 style="color:#ffcc00; margin-top:0; text-align:center; font-family:Georgia, serif;">📦 VYVESIŤ NOVÚ AUKCIU</h3>' +
         '<div class="sell-form-row"><label>1. Typ položky:</label>' + typPredajaHtml + '</div>' +
         '<div class="sell-form-row"><label>2. Vyber predmet:</label><select id="sell-item-select" class="sell-form-select" onchange="aktualizujDostupneTriedyPrePredaj()">' + optionsHtml + '</select></div>';
@@ -1323,7 +1321,6 @@ function vykresliZalozkuPredaja() {
     // TEXTOVÉ POLÍČKO S ČÍSLAMI NAMIESTO POSUVNÍKA
     formularPredaja += '<div class="sell-form-row"><label>3. Počet kusov na predaj (Skladom: <span id="sell-max-stock" style="color:#ffcc00; font-weight:bold;">1</span>x):</label><input type="number" id="sell-count-input" class="sell-form-input" min="1" max="1" value="1" style="width:120px; font-weight:bold; font-size:1.1em; background:#110c08; color:#ffcc00;" oninput="aktualizujPoradcuCeny()"></div>' +
         '<div class="sell-form-row"><label>4. Vyvolávacia cena celkom (Predvyplnená trhom):</label><input type="number" id="sell-start-price" class="sell-form-input" value="10" min="1"></div>' +
-        // 💡 NOVÉ: Výber času (namiesto výkupnej ceny)
         '<div class="sell-form-row"><label>5. Trvanie aukcie:</label><select id="sell-duration-select" class="sell-form-select"><option value="3600">1 Hodina</option><option value="21600">6 Hodín</option><option value="43200">12 Hodín</option><option value="86400">24 Hodín</option></select></div>' +
         '<div style="text-align:center; margin-top:15px;"><button onclick="odoslatPredajnyFormular()" style="background:#10b981; color:#fff; border:none; padding:12px 30px; border-radius:6px; font-weight:bold; font-size:1.05em; cursor:pointer; width:100%;">🚀 Potvrdiť a Vyvesiť na Trh</button></div></div>';
         
