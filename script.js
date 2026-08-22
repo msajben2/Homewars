@@ -132,6 +132,7 @@ var simulačneRebríčky = {
 var KATEGORIE_METADATA = { sampión: { title: "🥇 Šampión (Najviac výhier)", card: "Zvedavá suseda" }, nerozhodny: { title: "🤝 Nerozhodný (Najviac remíz)", card: "Ďuri" }, nie_sampión: { title: "💀 Nie-Šampión (Najviac prehier)", card: "Makak" }, sClass: { title: "👑 S-Class majster (Vykované S)", card: "Oli" }, aClass: { title: "💎 A-Class majster (Vykované A)", card: "Vinár Dávid" }, bClass: { title: "🔮 B-Class majster (Vykované B)", card: "Sestrička" }, cClass: { title: "📜 C-Class majster (Vykované C)", card: "Vlk" }, dClass: { title: "🛡️ D-Class majster (Vykované D)", card: "Erik" }, eClass: { title: "🌲 E-Class majster (Vykované E)", card: "Sisa" }, fClass: { title: "📦 F-Class majster (Získané F)", card: "Mária Trhovkyňa" }, detailista: { title: "🔨 Detailista (Pokusy vo Forge)", card: "Nela" }, majster_aukcii: { title: "💰 Majster aukcií (Top ponuka)", card: "Zatúlaný tatranský medveď" }, demolator: { title: "💥 Demolátor (Top skóre v 1 kole)", card: "Jakub" }, rozsafny: { title: "💸 Rozšafný (Minuté mince)", card: "Kika" }, grill_majster: { title: "🔥 Grill majster (Spálené karty)", card: "Doktor" }, fenix: { title: "🕊️ Fénix (Oživené karty)", card: "Michal" }, hazarder: { title: "🎲 Hazardér (Výhry o 1 bod)", card: "Kornélia" }, duelovy_veteran: { title: "⚔️ Duelový veterán (PVP zápasy)", card: "Katy" }, terminator: { title: "🤖 Terminátor (AI zápasy)", card: "Krčmár Boris" }, plosny_zabijak: { title: "⚡ Plošný zabijak (Kúzla stola)", card: "Marek" } };
 
 var p1_played_cards = [], p2_played_cards = [];
+var p1_celkove_karty_zapasu = [];
 var p1_erik_buff_row = null, p2_erik_buff_row = null;
 var sc1 = 0, sc2 = 0, r1 = 0, r2 = 0, p1Pass = false, p2Pass = false, aktualnyHrac = 1;
 var p1_draft_hand = [], p2_draft_hand = [];
@@ -759,10 +760,14 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
     var sanceNaZvitok = { "F": 0.03, "E": 0.06, "D": 0.09, "C": 0.12, "B": 0.15, "A": 0.18, "S": 0.21 };
 
     if (typ === "vitaz" && r1 >= 2) {
-        p1_played_cards.forEach(function(c) {
+        // TOTO SME ZMENILI: Spojíme archív s posledným kolom
+        var vsetkyKartyKolaAArchivu = p1_celkove_karty_zapasu.concat(p1_played_cards);
+        
+        vsetkyKartyKolaAArchivu.forEach(function(c) {
             var reg = getRegistryCard(c.n);
             if (!reg.isSpell && !reg.isItem && !reg.isPrizrak && !reg.isPlatinum) {
                 var cls = c.cls || "F";
+                // ... (zvyšok funkcie nechaj tak, ako je)
                 odohraneTriedy[cls] = (odohraneTriedy[cls] || 0) + 1; 
                 
                 // Hod kockou na extra zvitok podľa sily karty
@@ -966,36 +971,36 @@ function vylepsiKartuVoForge(meno, transitionKey, pergamenCls, mixValue) {
 
     if (reg.isPrizrak) {
         var countPrizraky = inventar.prizraky[fromCls] || 0;
-        if (countPrizraky < 3) { ukazOznamenie("⚠️ NEDOSTATOK PRÍZRAKOV", "Potrebuješ 3x " + fromCls + "-Prízrakov na povýšenie!"); return; }
+        if (countPrizraky < 3) { window.jeKovanieAktivne = false; ukazOznamenie("⚠️ NEDOSTATOK PRÍZRAKOV", "Potrebuješ 3x " + fromCls + "-Prízrakov na povýšenie!"); return; }
     } else if (reg.isTournamentUnique) {
         var t = inventar.karty[meno];
         if (!t) { inventar.karty[meno] = { repliky: {}, aktivnaTrieda: "F" }; t = inventar.karty[meno]; }
         var aktualnaTriedaSkutocna = t.aktivnaTrieda || "F";
-        if (aktualnaTriedaSkutocna !== fromCls) { ukazOznamenie("⚠️ NESPRÁVNA TRIEDA", "Tvoj Kráľovský Šampión má aktuálne triedu <strong>" + aktualnaTriedaSkutocna + "-Class</strong>!"); return; }
+        if (aktualnaTriedaSkutocna !== fromCls) { window.jeKovanieAktivne = false; ukazOznamenie("⚠️ NESPRÁVNA TRIEDA", "Tvoj Kráľovský Šampión má aktuálne triedu <strong>" + aktualnaTriedaSkutocna + "-Class</strong>!"); return; }
         var countPrizraky = inventar.prizraky[fromCls] || 0;
-        if (countPrizraky < 2) { ukazOznamenie("⚠️ CHÝBAJÚ PRÍZRAKY", "Na povýšenie Kráľovského Šampióna potrebuješ 2x <strong>Prízrak (" + fromCls + "-Class)</strong>!"); return; }
+        if (countPrizraky < 2) { window.jeKovanieAktivne = false; ukazOznamenie("⚠️ CHÝBAJÚ PRÍZRAKY", "Na povýšenie Kráľovského Šampióna potrebuješ 2x <strong>Prízrak (" + fromCls + "-Class)</strong>!"); return; }
     } else {
-        var t = inventar.karty[meno]; if (!t) return;
+        var t = inventar.karty[meno]; if (!t) { window.jeKovanieAktivne = false; return; }
         var countCurrent = (typeof t.repliky === "object") ? (t.repliky[fromCls] || 0) : t.repliky;
         var countPrizrak = inventar.prizraky[fromCls] || 0;
         
         var reqReal = 3, reqPrizrak = 0;
         if (mixValue) { var pts = mixValue.split(","); reqReal = parseInt(pts[0]); reqPrizrak = parseInt(pts[1]); }
-        if (reqReal + reqPrizrak !== 3 || reqReal < 0 || reqPrizrak < 0) { ukazOznamenie("⛔ POKUS O PODVOD", "Zachytená manipulácia! Receptúra musí obsahovať presne 3 karty alebo prízraky!"); return; }
-        if (countCurrent < reqReal) { ukazOznamenie("⚠️ NEDOSTATOK KARIET", "Potrebuješ <strong>" + reqReal + "x Reálnu kartu</strong> (máš " + countCurrent + ")."); return; }
-        if (countPrizrak < reqPrizrak) { ukazOznamenie("⚠️ NEDOSTATOK PRÍZRAKOV", "Potrebuješ <strong>" + reqPrizrak + "x Prízrak</strong> (máš " + countPrizrak + ")."); return; }
+        if (reqReal + reqPrizrak !== 3 || reqReal < 0 || reqPrizrak < 0) { window.jeKovanieAktivne = false; ukazOznamenie("⛔ POKUS O PODVOD", "Zachytená manipulácia! Receptúra musí obsahovať presne 3 karty alebo prízraky!"); return; }
+        if (countCurrent < reqReal) { window.jeKovanieAktivne = false; ukazOznamenie("⚠️ NEDOSTATOK KARIET", "Potrebuješ <strong>" + reqReal + "x Reálnu kartu</strong> (máš " + countCurrent + ")."); return; }
+        if (countPrizrak < reqPrizrak) { window.jeKovanieAktivne = false; ukazOznamenie("⚠️ NEDOSTATOK PRÍZRAKOV", "Potrebuješ <strong>" + reqPrizrak + "x Prízrak</strong> (máš " + countPrizrak + ")."); return; }
     }
 
     var reqMat = cfg.reqMat;
-    if ((inventar.suroviny[reqMat] || 0) < cfg.reqMatCount) { ukazOznamenie("⚠️ NEDOSTATOK SUROVÍN", "Potrebuješ " + cfg.reqMatCount + " oz " + reqMat + "!"); return; }
-    if (inventar.mince < cfg.coinFee) { ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Potrebuješ " + cfg.coinFee + "m za poplatok!"); return; }
+    if ((inventar.suroviny[reqMat] || 0) < cfg.reqMatCount) { window.jeKovanieAktivne = false; ukazOznamenie("⚠️ NEDOSTATOK SUROVÍN", "Potrebuješ " + cfg.reqMatCount + " oz " + reqMat + "!"); return; }
+    if (inventar.mince < cfg.coinFee) { window.jeKovanieAktivne = false; ukazOznamenie("⚠️ NEDOSTATOK MINCÍ", "Potrebuješ " + cfg.coinFee + "m za poplatok!"); return; }
 
     // Logika Fyzických Zvitkov
     var pBonus = 0;
     var saveCard = false;
     if (pergamenCls && pergamenCls !== "none") {
         if (!inventar.karty["Zvitok"] || !inventar.karty["Zvitok"].repliky[pergamenCls] || inventar.karty["Zvitok"].repliky[pergamenCls] < 1) {
-            ukazOznamenie("⚠️ CHYBA", "Nemáš v batohu žiadny " + pergamenCls + "-Zvitok!"); return;
+            window.jeKovanieAktivne = false; ukazOznamenie("⚠️ CHYBA", "Nemáš v batohu žiadny " + pergamenCls + "-Zvitok!"); return;
         }
         inventar.karty["Zvitok"].repliky[pergamenCls]--; // Odrátanie použitého zvitku z inventára!
         
@@ -1770,7 +1775,7 @@ var cisloKola = 1;
 function inicializujNovyZapas() {
     p1_pouzite_predmety = [];
     p1_played_cards = []; p2_played_cards = []; p1_spalene = []; p2_spalene = [];p1_cakaren = [];
-    p2_cakaren = []; odhodene_karty_kola = [];
+    p2_cakaren = []; odhodene_karty_kola = [];p1_celkove_karty_zapasu = [];
     neutralne_vplyvy = []; p1_erik_buff_row = null; p2_erik_buff_row = null;
     r1 = 0; r2 = 0; sc1 = 0; sc2 = 0; p1Pass = false; p2Pass = false;
     zapasSkoncilVlajka = false;
@@ -2169,6 +2174,8 @@ function pripravNoveKolo() {
     odhodene_karty_kola = odhodene_karty_kola.concat(p1_played_cards).concat(p2_played_cards);
     
     // 🧹 Vyčistenie hracej plochy a Čakárne pre nové kolo
+    // Uložíme kópiu kariet do globálnej pamäte zápasu pred ich zmazaním zo stola
+    p1_celkove_karty_zapasu = p1_celkove_karty_zapasu.concat(p1_played_cards);
     p1_played_cards = []; 
     p2_played_cards = []; 
     p1_cakaren = []; 
