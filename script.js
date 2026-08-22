@@ -1266,7 +1266,7 @@ function vykresliZalozkuPredaja() {
     } else {
         var dostupneSuroviny = Object.keys(inventar.suroviny).filter(function(s) { return inventar.suroviny[s] > 0; });
         dostupneSuroviny.forEach(function(s) { optionsHtml += '<option value="' + s + '">' + s + ' (' + inventar.suroviny[s] + ' oz)</option>'; });
-    }
+    
 
     var formularPredaja = '<div class="sell-form-container"><h3 style="color:#ffcc00; margin-top:0; text-align:center; font-family:Georgia, serif;">📦 VYVESIŤ NOVÚ AUKCIU</h3>' +
         '<div class="sell-form-row"><label>1. Typ položky:</label>' + typPredajaHtml + '</div>' +
