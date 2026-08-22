@@ -136,7 +136,9 @@ var p1_erik_buff_row = null, p2_erik_buff_row = null;
 var sc1 = 0, sc2 = 0, r1 = 0, r2 = 0, p1Pass = false, p2Pass = false, aktualnyHrac = 1;
 var p1_draft_hand = [], p2_draft_hand = [];
 var p1_active_deck = [], p2_active_deck = [];
-var p1_spalene = [], p2_spalene = []; 
+var p1_spalene = [], p2_spalene = [];
+var p1_cakaren = [];
+var p2_cakaren = []; 
 var odhodene_karty_kola = []; 
 var neutralne_vplyvy = [];
 var jeSingleplayer = false; var obtiaznostAI = "B"; var blokujVykladanie = false;
@@ -1700,7 +1702,8 @@ var cisloKola = 1;
 
 function inicializujNovyZapas() {
     p1_pouzite_predmety = [];
-    p1_played_cards = []; p2_played_cards = []; p1_spalene = []; p2_spalene = []; odhodene_karty_kola = [];
+    p1_played_cards = []; p2_played_cards = []; p1_spalene = []; p2_spalene = [];p1_cakaren = [];
+    p2_cakaren = []; odhodene_karty_kola = [];
     neutralne_vplyvy = []; p1_erik_buff_row = null; p2_erik_buff_row = null;
     r1 = 0; r2 = 0; sc1 = 0; sc2 = 0; p1Pass = false; p2Pass = false;
     zapasSkoncilVlajka = false;
@@ -1863,8 +1866,8 @@ function vykonajAutoSpalenie(pôvodcaMeno) {
     var maxPwr = -1; vsetkyKartyStola.forEach(function(c) { var p = getRealPower(c); if (p > maxPwr) maxPwr = p; });
     if (maxPwr <= 0) return;
 
-    p1_played_cards = p1_played_cards.filter(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli" && getRealPower(c) === maxPwr) { p1_spalene.push(c); return false; } return true; });
-    p2_played_cards = p2_played_cards.filter(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli" && getRealPower(c) === maxPwr) { p2_spalene.push(c); return false; } return true; });
+    p1_played_cards = p1_played_cards.filter(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli" && getRealPower(c) === maxPwr) { p1_cakaren.push(c); return false; } return true; });
+    p2_played_cards = p2_played_cards.filter(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli" && getRealPower(c) === maxPwr) { p2_cakaren.push(c); return false; } return true; });
 }
 
 function vykonajCieleneSpalenieMarekom(pNum) {
@@ -2048,9 +2051,26 @@ function skontrolujKoniecKola() {
 }
 
 function pripravNoveKolo() {
+    // 💀 OČISTEC A BOJISKO SA PRESÚVAJÚ DO HROBU:
+    // Zoberieme karty, ktoré v tomto kole zhoreli (Čakáreň) a tie, ktoré prežili na stole, a dáme ich medikom k dispozícii
+    p1_spalene = p1_spalene.concat(p1_played_cards).concat(p1_cakaren);
+    p2_spalene = p2_spalene.concat(p2_played_cards).concat(p2_cakaren);
+    
+    // Pôvodná premenná (nechávame ju pre istotu, ak na ňu máš naviazané iné funkcie)
     odhodene_karty_kola = odhodene_karty_kola.concat(p1_played_cards).concat(p2_played_cards);
-    p1_played_cards = []; p2_played_cards = []; neutralne_vplyvy = []; p1_erik_buff_row = null; p2_erik_buff_row = null;
-    p1Pass = false; p2Pass = false; blokujVykladanie = false;
+    
+    // 🧹 Vyčistenie hracej plochy a Čakárne pre nové kolo
+    p1_played_cards = []; 
+    p2_played_cards = []; 
+    p1_cakaren = []; 
+    p2_cakaren = []; 
+    
+    neutralne_vplyvy = []; 
+    p1_erik_buff_row = null; 
+    p2_erik_buff_row = null;
+    p1Pass = false; 
+    p2Pass = false; 
+    blokujVykladanie = false;
     
     cisloKola++;
     if (cisloKola === 2) aktualnyHrac = 2;
