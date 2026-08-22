@@ -417,10 +417,27 @@ body {
         .karta { width: 110px; height: 172px; }
         /* ... atď ... */
     }
-    .global-announce-banner { 
-        position: fixed; 
-        top: 20px; 
-        /* ... atď ... */
-    }
-    @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
+    /* 👑 GLOBÁLNE OZNAMY SERVERA (Napr. S-Class alebo Krádež Platinovky) */
+.global-announce-banner { 
+    position: fixed; 
+    top: 20px; 
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #24170c 0%, #110c08 100%);
+    border: 2px solid #d4af37;
+    color: #ffcc00;
+    padding: 15px 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.8);
+    z-index: 9999999;
+    font-size: 1.1em;
+    text-align: center;
+    pointer-events: none;
+    animation: slideDown 0.5s ease-out forwards;
+}
+
+@keyframes slideDown { 
+    from { top: -50px; opacity: 0; } 
+    to { top: 20px; opacity: 1; } 
+}
 
