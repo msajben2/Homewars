@@ -449,10 +449,34 @@ function cykliTrieduKarty(kartaName, vlastneneTriedy) {
 function pripravBalicekPreZapas(pNum) {
     if (pNum === 2 && jeSingleplayer) { return vygenerujUmeluInteligenciu(); }
     
-    // Zoberieme presnú hráčovu zostavu
-    var pool = inventar.zostava.slice();
-    
-    // Zamiešame ju
+    var pool = [];
+    inventar.zostava.forEach(function(kartaName) {
+        if (inventar.karty[kartaName] && pool.indexOf(kartaName) === -1) {
+            pool.push(kartaName);
+        }
+    });
+
+    if (pool.length < 28) {
+        console.warn("Dopĺňam balíček na 28 kariet (Highlander pravidlo).");
+        var fallbackPool = Object.keys(MASTER_REGISTRY).filter(function(k) { 
+            var r = MASTER_REGISTRY[k];
+            return !r.isPrizrak && !r.isPlatinum && !r.isZvitok; 
+        });
+        
+        for (var i = fallbackPool.length - 1; i > 0; i--) { 
+            var j = Math.floor(Math.random() * (i + 1)); 
+            var temp = fallbackPool[i]; fallbackPool[i] = fallbackPool[j]; fallbackPool[j] = temp; 
+        }
+        
+        var fbIndex = 0;
+        while(pool.length < 28 && fbIndex < fallbackPool.length) { 
+            var kandidat = fallbackPool[fbIndex++];
+            if (pool.indexOf(kandidat) === -1) {
+                pool.push(kandidat); 
+            }
+        }
+    }
+
     for (var i = pool.length - 1; i > 0; i--) { 
         var j = Math.floor(Math.random() * (i + 1)); 
         var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; 
@@ -699,7 +723,15 @@ function spustitVideoAnimationTruhly(typ) {
     document.body.appendChild(overlay);
     var vid = document.getElementById("chest-video-element"); var promptTxt = document.getElementById("chest-click-prompt");
     overlay.onclick = function() { if (vid.paused) { vid.play().catch(function(){}); promptTxt.style.display = "none"; } };
-    vid.onended = function() { doplnOdmenyAUpravUI(typ, overlay); };
+    // Poistka proti zamrznutiu videa truhlice
+    var videoSkoncilo = false;
+    var vyhodnotVideo = function() {
+        if (videoSkoncilo) return;
+        videoSkoncilo = true;
+        doplnOdmenyAUpravUI(typ, overlay);
+    };
+    vid.onended = vyhodnotVideo;
+    setTimeout(vyhodnotVideo, 6000); // ⏱️ Ak video zlyhá, truhla sa otvorí sama po 6 sekundách
 }
 
 function doplnOdmenyAUpravUI(typ, overlayElement) {
@@ -1012,7 +1044,12 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
 
     var vid = document.getElementById("forge-video-element"); if (vid) vid.play().catch(function(){});
 
-    vid.onended = function() {
+    // POISTKA DIELNE
+    var videoSkoncilo = false;
+    var vyhodnotKovanie = function() {
+        if (videoSkoncilo) return;
+        videoSkoncilo = true;
+
         if (reg.isPrizrak) {
             if (isSuccess) {
                 inventar.prizraky[oldCls] = Math.max(0, (inventar.prizraky[oldCls] || 0) - 3); inventar.prizraky[nextCls] = (inventar.prizraky[nextCls] || 0) + 1;
@@ -1048,7 +1085,6 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
                 if (nextCls === "S") vyhlasGlobalnySClassOznam("Hráč 1 (Ty)", meno);
             } else {
                 if (!wasProtected) {
-                    // 💡 ZMENA PRIORITY: Najskôr spálime Prízrak, ak bol v recepte!
                     if (reqPrizrak > 0 && availablePrizrak > 0) {
                         inventar.prizraky[oldCls] = Math.max(0, availablePrizrak - 1);
                         ukazOznamenie("💥 KOVANIE ZLYHALO!", "Suroviny zhoreli a prišiel si o 1x Prízrak! Tvoja reálna karta zostala v bezpečí.");
@@ -1062,7 +1098,10 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
             }
         }
         window.jeKovanieAktivne = false; overlay.remove(); obnovitHudbuPoVideu(); aktualizujPanelDielne(); aktualizujVsetkyStickyWallety();
-    };
+    }; // Koniec vyhodnotKovanie
+
+    vid.onended = vyhodnotKovanie;
+    setTimeout(vyhodnotKovanie, 8500); // ⏱️ Poistka proti zamrznutiu Dielne
 }
 
 
@@ -1260,7 +1299,7 @@ function vykresliZalozkuPredaja() {
             return typeof inventar.karty[k].repliky === "object" && (!reg || !reg.isPlatinum); 
         });
         dostupneKarty.forEach(function(k) { optionsHtml += '<option value="' + k + '">' + k + '</option>'; });
-    
+    }
     
     } else if (aktualnyTypPredaja === "prizrak") {
         optionsHtml = '<option value="Prízrak">Prízrak</option>';
@@ -1753,11 +1792,12 @@ function prepniVyberMulliganKarty(idx) {
 
 function potvrditMulliganAkciu(chceVymenu) {
     var el = document.getElementById("mulligan-modal-overlay"); 
-    if (!el) return; // 🛡️ Zabraňuje Double-Mulligan exploitu (ak už okno mizne)
+    if (!el) return;
     el.remove();
     
     if (chceVymenu && mulliganSelectedIndices.length > 0) {
-        mulliganSelectedIndices.sort(function(a, b) { return b - a; }); var pocetVymen = mulliganSelectedIndices.length;
+        mulliganSelectedIndices.sort(function(a, b) { return b - a; }); 
+        var pocetVymen = mulliganSelectedIndices.length;
         mulliganSelectedIndices.forEach(function(idx) { p1_draft_hand.splice(idx, 1); });
         for (var i = 0; i < pocetVymen; i++) { 
             if (p1_active_deck.length > 0) { 
@@ -2338,4 +2378,38 @@ function devPridatSurovinyACheaty() {
     ukazOznamenie("⚡ DEV CHEAT", "Bolo ti pridaných 10 000 mincí a suroviny pre testovanie!");
     aktualizujVsetkyStickyWallety();
 }
-window.spustitZapasLokálnePVP = spustitZapasLokálnePVP; window.zobraziťMenuAI = zobraziťMenuAI; window.spustitZapasProtiAI = spustitZapasProtiAI; window.otvoriťObchod = otvoriťObchod; window.otvoriťDielňu = otvoriťDielňu; window.otvoriťDeckbuilder = otvoriťDeckbuilder; window.otvoriťStatistiky = otvoriťStatistiky; window.otvoriťNavodHry = otvoriťNavodHry; window.posunStraneKnihy = posunStraneKnihy; window.vylepsiKartuVoForge = vylepsiKartuVoForge;  window.zatvoritTruhluAOpustit = zatvoritTruhluAOpustit; window.hracPassuje = hracPassuje; window.vylozitKartuZRuky = vylozitKartuZRuky; window.zobraziťObrazovku = zobraziťObrazovku; window.prepniZvuk = prepniZvuk; window.upravHlasitost = upravHlasitost; window.otvorTruhluVitaza = otvorTruhluVitaza; window.otvorTruhluUcastnika = otvorTruhluUcastnika; window.spustitHudbuPoPrvomKliknuti = spustitHudbuPoPrvomKliknuti; window.otvorDetailKarty = otvorDetailKarty; window.ukazOznamenie = ukazOznamenie; window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu; window.anonymnePrihoditSumu = anonymnePrihoditSumu; window.vykresliGridStatistik = vykresliGridStatistik; window.aktualizujPanelDielne = aktualizujPanelDielne; window.automatickyDoplnitDefaultZostavu = automatickyDoplnitDefaultZostavu; window.prepniKartuVZostave = prepniKartuVZostave; window.prepniVyberMulliganKarty = prepniVyberMulliganKarty; window.potvrditMulliganAkciu = potvrditMulliganAkciu; window.prepniZalozkuTrhu = prepniZalozkuTrhu; window.kupitSurovinuZoStatnehoSkladu = kupitSurovinuZoStatnehoSkladu; window.aktualizujDostupneTriedyPrePredaj = aktualizujDostupneTriedyPrePredaj; window.aktualizujMaxKusovPrePredaj = aktualizujMaxKusovPrePredaj; window.odoslatPredajnyFormular = odoslatPredajnyFormular; window.devPridatSurovinyACheaty = devPridatSurovinyACheaty;
+window.spustitZapasLokálnePVP = spustitZapasLokálnePVP; 
+window.zobraziťMenuAI = zobraziťMenuAI; 
+window.spustitZapasProtiAI = spustitZapasProtiAI; 
+window.otvoriťObchod = otvoriťObchod; 
+window.otvoriťDielňu = otvoriťDielňu; 
+window.otvoriťDeckbuilder = otvoriťDeckbuilder; 
+window.otvoriťStatistiky = otvoriťStatistiky; 
+window.otvoriťNavodHry = otvoriťNavodHry; 
+window.posunStraneKnihy = posunStraneKnihy; 
+window.vylepsiKartuVoForge = vylepsiKartuVoForge; 
+window.zatvoritTruhluAOpustit = zatvoritTruhluAOpustit; 
+window.hracPassuje = hracPassuje; 
+window.vylozitKartuZRuky = vylozitKartuZRuky; 
+window.zobraziťObrazovku = zobraziťObrazovku; 
+window.prepniZvuk = prepniZvuk; 
+window.upravHlasitost = upravHlasitost; 
+window.otvorTruhluVitaza = otvorTruhluVitaza; 
+window.otvorTruhluUcastnika = otvorTruhluUcastnika; 
+window.spustitHudbuPoPrvomKliknuti = spustitHudbuPoPrvomKliknuti; 
+window.otvorDetailKarty = otvorDetailKarty; 
+window.ukazOznamenie = ukazOznamenie; 
+window.prepniRozbalovanieBatohu = prepniRozbalovanieBatohu; 
+window.anonymnePrihoditSumu = anonymnePrihoditSumu; 
+window.vykresliGridStatistik = vykresliGridStatistik; 
+window.aktualizujPanelDielne = aktualizujPanelDielne; 
+window.automatickyDoplnitDefaultZostavu = automatickyDoplnitDefaultZostavu; 
+window.prepniKartuVZostave = prepniKartuVZostave; 
+window.prepniVyberMulliganKarty = prepniVyberMulliganKarty; 
+window.potvrditMulliganAkciu = potvrditMulliganAkciu; 
+window.prepniZalozkuTrhu = prepniZalozkuTrhu; 
+window.kupitSurovinuZoStatnehoSkladu = kupitSurovinuZoStatnehoSkladu; 
+window.aktualizujDostupneTriedyPrePredaj = aktualizujDostupneTriedyPrePredaj; 
+window.aktualizujMaxKusovPrePredaj = aktualizujMaxKusovPrePredaj; 
+window.odoslatPredajnyFormular = odoslatPredajnyFormular;
+window.devPridatSurovinyACheaty = devPridatSurovinyACheaty;
