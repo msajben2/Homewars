@@ -680,7 +680,14 @@ function vykresliRukuHraca(pNum) {
 // =====================================================================
 function otvorTruhluVitaza() { spustitVideoAnimationTruhly("vitaz"); }
 function otvorTruhluUcastnika() { spustitVideoAnimationTruhly("ucastnik"); }
-function vyhodnotKoniecZapasu() { var typTruhly = (r1 >= 2 && r2 < 2) ? "vitaz" : "ucastnik"; spustitVideoAnimationTruhly(typTruhly); }
+var zapasSkoncilVlajka = false; // Poistka
+function vyhodnotKoniecZapasu() { 
+    if (zapasSkoncilVlajka) return; // Ak sa už truhla otvára, ignoruj ďalšie kliky
+    zapasSkoncilVlajka = true;
+    blokujVykladanie = true; // Zmrazí celý stôl
+    var typTruhly = (r1 >= 2 && r2 < 2) ? "vitaz" : "ucastnik"; 
+    spustitVideoAnimationTruhly(typTruhly); 
+}
 
 function spustitVideoAnimationTruhly(typ) {
     pozastavitHudbuPreVideo();
@@ -1696,6 +1703,7 @@ function inicializujNovyZapas() {
     p1_played_cards = []; p2_played_cards = []; p1_spalene = []; p2_spalene = []; odhodene_karty_kola = [];
     neutralne_vplyvy = []; p1_erik_buff_row = null; p2_erik_buff_row = null;
     r1 = 0; r2 = 0; sc1 = 0; sc2 = 0; p1Pass = false; p2Pass = false;
+    zapasSkoncilVlajka = false;
     p1MulliganRound1Bonus = 0; p2MulliganRound1Bonus = 0; blokujVykladanie = false;
     
     cisloKola = 1;
@@ -1880,8 +1888,42 @@ function otvorSpalenisko(pNum, isReviving) {
     }
 
     container.innerHTML = "";
-    subtitle.innerText = isReviving ? "Vyber kartu, ktorú chceš oživiť z plameňov!" : "Zoznam kariet, ktoré zhoreli v plameňoch.";
+    subtitle.innerHTML = isReviving ? "Vyber kartu, ktorú chceš oživiť z plameňov! <br><strong id='revive-timer' style='color:#ff4d4d; font-size:1.2em;'>10</strong> s (alebo zavri okno pre zrušenie)" : "Zoznam kariet, ktoré zhoreli v plameňoch.";
     subtitle.style.color = isReviving ? "#10b981" : "#ccc";
+
+    if (window.reviveInterval) clearInterval(window.reviveInterval);
+    var closeBtn = modal.querySelector(".card-modal-close");
+
+    if (isReviving && pNum === 1) {
+        // Ochrana krížika a kliknutia mimo okna - bezpečne zrušia oživovanie a odovzdajú ťah
+        modal.onclick = function(e) { if(e.target === modal) window.zrusOzivovanie(pNum); };
+        if (closeBtn) closeBtn.onclick = function() { window.zrusOzivovanie(pNum); };
+
+        var timeLeft = 10;
+        window.reviveInterval = setInterval(function() {
+            timeLeft--;
+            var tEl = document.getElementById("revive-timer");
+            if (tEl) tEl.innerText = timeLeft;
+            
+            if (timeLeft <= 0) {
+                ukazOznamenie("⏱️ ČAS VYPRŠAL", "Nestihol si oživiť žiadnu kartu.");
+                window.zrusOzivovanie(pNum);
+            }
+        }, 1000);
+    } else {
+        // Obyčajné prezeranie spáleniska - krížik okno len zavrie (žiadna strata ťahu)
+        modal.onclick = function(e) { if(e.target === modal) modal.style.display='none'; };
+        if (closeBtn) closeBtn.onclick = function() { modal.style.display='none'; };
+    }
+
+    // Pomocná funkcia na bezpečné zrušenie oživovania
+    window.zrusOzivovanie = function(hracNum) {
+        if (window.reviveInterval) clearInterval(window.reviveInterval);
+        var m = document.getElementById("graveyard-modal");
+        if (m) m.style.display = "none";
+        vykresliHraciuPlochu();
+        pokracujPoVylozeni(hracNum);
+    };
 
     arch.forEach(function(c, idx) {
         var reg = getRegistryCard(c.n);
@@ -1914,6 +1956,7 @@ function otvorSpalenisko(pNum, isReviving) {
 }
 
 function potvrdOzivenieKarty(pNum, index) {
+    if (window.reviveInterval) clearInterval(window.reviveInterval); // Vypne časovač po úspešnom výbere
     var arch = (pNum === 1) ? p1_spalene : p2_spalene;
     var myPlayed = (pNum === 1) ? p1_played_cards : p2_played_cards;
     var oppPlayed = (pNum === 1) ? p2_played_cards : p1_played_cards;
@@ -1943,7 +1986,7 @@ function vykonajOzivenieZArchivu(pNum) {
 }
 
 function hracPassuje(pNum) {
-    if (blokujVykladanie) return; // 🛡️ Zabraňuje passnúť kolo počas Erikovej animácie!
+    if (blokujVykladanie || pNum !== aktualnyHrac) return; // 🛡️ Zabraňuje passnúť, ak nie si na ťahu alebo beží animácia!
     if (pNum === 1) p1Pass = true; if (pNum === 2) p2Pass = true;
     if (p1Pass && p2Pass) skontrolujKoniecKola(); else prepniHracov();
 }
