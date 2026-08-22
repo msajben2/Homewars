@@ -871,10 +871,12 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
         odmenyHtml += '<div class="karta cls-F">' + vytvorHTMLKarty(randCardName, realPwr, "F", reg.row, reg.p) + '</div>';
     }
 
+   
     var rewardsBox = document.createElement("div"); rewardsBox.className = "chest-rewards-modal";
-    rewardsBox.innerHTML = '<h2>🎉 TRUHLA OTVORENÁ!</h2><p style="color:#aaa; font-size:1em;">Získal si odmeny z truhlice do svojej pokladnice:</p><div class="rewards-card-container">' + odmenyHtml + '</div><button onclick="zatvoritTruhluAOpustit(\'' + overlayElement.id + '\')" style="background:#10b981; color:#fff; border:none; padding:12px 35px; border-radius:6px; font-weight:bold; font-size:1.1em; cursor:pointer; margin-top:10px;">Zobrať Všetko do Batohu</button>';
-    pvpTextBonus
+    // Tu do HTML vkladáme náš pvpTextBonus priamo za nadpis
+    rewardsBox.innerHTML = '<h2>🎉 TRUHLA OTVORENÁ!</h2><p style="color:#aaa; font-size:1em;">Získal si odmeny z truhlice do svojej pokladnice:</p>' + pvpTextBonus + '<div class="rewards-card-container">' + odmenyHtml + '</div><button onclick="zatvoritTruhluAOpustit(\'' + overlayElement.id + '\')" style="background:#10b981; color:#fff; border:none; padding:12px 35px; border-radius:6px; font-weight:bold; font-size:1.1em; cursor:pointer; margin-top:10px;">Zobrať Všetko do Batohu</button>';
     overlayElement.appendChild(rewardsBox); aktualizujPanelDielne(); aktualizujVsetkyStickyWallety();
+    
 }
 
 function zatvoritTruhluAOpustit(overlayId) { var el = document.getElementById(overlayId); if (el) el.remove(); obnovitHudbuPoVideu(); zobraziťObrazovku("hlavne-menu"); }
@@ -1540,16 +1542,25 @@ function anonymnePrihoditSumu(aukciaId) {
 function spustitOdpocitavanieAukcie() {
     if (aukcnyCasomeračInterval) clearInterval(aukcnyCasomeračInterval); 
     aukcnyCasomeračInterval = setInterval(function() {
-        if (aktualnaZalozkaTrhu !== "trh") return;
+        // VYMAŽ TEN RIADOK: if (aktualnaZalozkaTrhu !== "trh") return;
         var ziveAukcie = []; var niecoSkoncilo = false;
 
         globalneAukcie.forEach(function(aukcia) {
             if (aukcia.casDoKonca > 0) {
-                aukcia.casDoKonca--; ziveAukcie.push(aukcia);
-                var timerEl = document.getElementById("timer-" + aukcia.id);
-                if (timerEl) { var h = Math.floor(aukcia.casDoKonca / 3600); var m = Math.floor((aukcia.casDoKonca % 3600) / 60); var s = aukcia.casDoKonca % 60; timerEl.innerText = (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s); }
+                aukcia.casDoKonca--; 
+                ziveAukcie.push(aukcia);
+                
+                // Aktualizujeme UI iba ak sme reálne na Trhu
+                if (aktualnaZalozkaTrhu === "trh") {
+                    var timerEl = document.getElementById("timer-" + aukcia.id);
+                    if (timerEl) { 
+                        var h = Math.floor(aukcia.casDoKonca / 3600); var m = Math.floor((aukcia.casDoKonca % 3600) / 60); var s = aukcia.casDoKonca % 60; 
+                        timerEl.innerText = (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s); 
+                    }
+                }
             } else {
                 niecoSkoncilo = true;
+                // ... (zvyšok funkcie pre ukončenie aukcie nechaj presne tak, ako bol)
                 if (aukcia.veduciHrac === "Nikto") {
                     if (aukcia.predajca === "Hráč 1 (Ty)") {
                         pridelPredmetHracovi(aukcia); 
@@ -1610,7 +1621,7 @@ function vypocitajDynamickuSiluJednejKarty(card, pNum) {
 
     if (!isNelaOnTable && card.n !== "Oli") {
         if (reg.row === 1 && myCards.some(function(c) { return c.n === "Sisa"; })) rowMultiplier += 0.50;
-        if (reg.row === 2 && card.n === "Ďuri" && hasAlkohol) rowMultiplier += 1.00;
+        if (reg.row === 2 && myCards.some(function(c) { return c.n === "Ďuri"; }) && hasAlkohol) rowMultiplier += 1.00;
         if (reg.row === 3 && myCards.some(function(c) { return c.n === "Vlk"; })) rowMultiplier += 0.50;
         if (myErikRow === reg.row) rowMultiplier += 0.50;
         if (card.n === "Michal") rowMultiplier += 1.00;
