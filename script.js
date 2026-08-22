@@ -506,12 +506,12 @@ function vygenerujUmeluInteligenciu() {
         }
     }
     
-    if (obtiaznostAI === "A") { // ĽAHKÁ (A)
-        pridajDoBalika("F", 10); pridajDoBalika("E", 10); pridajDoBalika("D", 5);
-    } else if (obtiaznostAI === "B") { // STREDNÁ (B)
-        pridajDoBalika("F", 5); pridajDoBalika("E", 5); pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 5);
-    } else { // ŤAŽKÁ (C)
-        pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 8); pridajDoBalika("A", 5); pridajDoBalika("S", 2);
+    if (obtiaznostAI === "A") { 
+        pridajDoBalika("F", 13); pridajDoBalika("E", 10); pridajDoBalika("D", 5); 
+    } else if (obtiaznostAI === "B") { 
+        pridajDoBalika("F", 6); pridajDoBalika("E", 6); pridajDoBalika("D", 6); pridajDoBalika("C", 5); pridajDoBalika("B", 5); 
+    } else { 
+        pridajDoBalika("D", 6); pridajDoBalika("C", 6); pridajDoBalika("B", 9); pridajDoBalika("A", 5); pridajDoBalika("S", 2); 
     }
     
     for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; }
@@ -674,7 +674,7 @@ function vytiahniRukuZRozdanehoBalicka(pNum) {
                     var regItem = getRegistryCard(item);
                     if (regItem.isTournamentUnique) {
                         cardCls = inventar.karty[item].aktivnaTrieda || "F";
-                    } else if (inventar.karty[item].zvolenaTrieda) {
+                    } } else if (inventar.karty[item].zvolenaTrieda && inventar.karty[item].repliky[inventar.karty[item].zvolenaTrieda] > 0) {
                         cardCls = inventar.karty[item].zvolenaTrieda; // NOVÉ: Hra číta triedu zvolenú hráčom!
                     } else if (inventar.karty[item].repliky) {
                         var rep = inventar.karty[item].repliky;
@@ -686,7 +686,7 @@ function vytiahniRukuZRozdanehoBalicka(pNum) {
         } 
     }
     return hand;
-}
+
 
 function vykresliRukuHraca(pNum) {
     var handContainer = document.getElementById("p" + pNum + "-hand"); if (!handContainer) return;
