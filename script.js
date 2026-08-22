@@ -174,23 +174,66 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
 }
 
 function automatickyDoplnitDefaultZostavu(showNotify) {
-    var defaultPool = Object.keys(MASTER_REGISTRY).filter(function(k) { 
-        var r = MASTER_REGISTRY[k];
-        // Do predvoleného balíčka nepôjdu: Platinovky, Prízraky, Zvitky, Kúzla ani Predmety
-        return !r.isPrizrak && !r.isZvitok && !r.isPlatinum && !r.isTournamentUnique && !r.isSpell && !r.isItem;
+    // 1. Zistíme, aké karty hráč reálne VLASTNÍ (okrem Prízrakov a Zvitkov)
+    var vlastneneKarty = Object.keys(MASTER_REGISTRY).filter(function(k) {
+        var reg = MASTER_REGISTRY[k];
+        if (reg.isPrizrak || reg.isZvitok) return false;
+        
+        if (reg.isPlatinum) return hracVlastniPlatinovku(k);
+        
+        var cData = inventar.karty[k];
+        if (!cData) return false;
+        if (reg.isTournamentUnique) return true; 
+        
+        // Má aspoň 1 fyzickú kópiu nejakej triedy?
+        var maKopiu = false;
+        if (cData.repliky) {
+            ["F", "E", "D", "C", "B", "A", "S"].forEach(function(cls) {
+                if (cData.repliky[cls] > 0) maKopiu = true;
+            });
+        }
+        return maKopiu;
     });
-    
-    // Vyberie náhodne 25 klasických kariet (Muži, Ženy, Zvieratá)
-    for (var i = defaultPool.length - 1; i > 0; i--) { 
-        var j = Math.floor(Math.random() * (i + 1)); 
-        var temp = defaultPool[i]; defaultPool[i] = defaultPool[j]; defaultPool[j] = temp; 
+
+    // 2. Skontrolujeme, koľko kariet chýba
+    var aktualnyPocet = inventar.zostava.length;
+    if (aktualnyPocet >= 25) {
+        if (showNotify !== false) ukazOznamenie("✅ ZOSTAVA JE PLNÁ", "Tvoja zostava už má 25 kariet, nepotrebuješ ju dopĺňať.");
+        return;
     }
+
+    // 3. Vyfiltrujeme karty, ktoré EŠTE NEMÁ v zostave
+    var kartyNaPridanie = vlastneneKarty.filter(function(k) {
+        return inventar.zostava.indexOf(k) === -1;
+    });
+
+    // 4. Zamiešame karty na pridanie (aby to bolo náhodné)
+    for (var i = kartyNaPridanie.length - 1; i > 0; i--) { 
+        var j = Math.floor(Math.random() * (i + 1)); 
+        var temp = kartyNaPridanie[i]; kartyNaPridanie[i] = kartyNaPridanie[j]; kartyNaPridanie[j] = temp; 
+    }
+
+    // 5. Doplníme iba chýbajúci počet!
+    var chybajuceMiesto = 25 - aktualnyPocet;
+    var pridaneKarty = 0;
     
-    inventar.zostava = defaultPool.slice(0, 25);
+    for (var i = 0; i < kartyNaPridanie.length && pridaneKarty < chybajuceMiesto; i++) {
+        inventar.zostava.push(kartyNaPridanie[i]);
+        pridaneKarty++;
+    }
+
     ulozitZostavuDoStorage();
     
-    if (showNotify !== false) ukazOznamenie("⚡ PREDVOLENÁ ZOSTRAVA", "Zostava bola automaticky naplnená 25 základnými bojovými kartami!");
-    vygenerujDeckbuilder(); aktualizujVsetkyStickyWallety();
+    if (showNotify !== false) {
+        if (pridaneKarty < chybajuceMiesto) {
+            ukazOznamenie("⚠️ NEDOSTATOK KARIET", "Doplnili sme " + pridaneKarty + " kariet, ale stále ti chýba " + (chybajuceMiesto - pridaneKarty) + " do 25. Musíš si otvoriť viac truhlíc!");
+        } else {
+            ukazOznamenie("⚡ ZOSTAVA DOPLNENÁ", "Úspešne sme ti do voľných miest doplnili " + pridaneKarty + " vlastnených kariet!");
+        }
+    }
+    
+    vygenerujDeckbuilder(); 
+    aktualizujVsetkyStickyWallety();
 }
 
 function aktualizujVsetkyStickyWallety() {
@@ -344,6 +387,10 @@ function vygenerujDeckbuilder() {
         if (cData && typeof cData.repliky === "object") {
             ["F", "E", "D", "C", "B", "A", "S"].forEach(function(c) { if (cData.repliky[c] > 0) vlastneneTriedy.push(c); });
         }
+
+        // 🛡️ OCHRANA: Skryjeme karty, ktoré hráč fyzicky nemá v batohu
+        if (!reg.isPlatinum && !reg.isTournamentUnique && vlastneneTriedy.length === 0) return;
+        if (reg.isTournamentUnique && !cData) return;
 
         var cardCls = "F";
         if (reg.isTournamentUnique) {
@@ -998,7 +1045,7 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
                 }
             }
         }
-        overlay.remove(); obnovitHudbuPoVideu(); aktualizujPanelDielne(); aktualizujVsetkyStickyWallety();
+        window.jeKovanieAktivne = false; overlay.remove(); obnovitHudbuPoVideu(); aktualizujPanelDielne(); aktualizujVsetkyStickyWallety();
     };
 }
 
@@ -1137,15 +1184,12 @@ function vygenerujSimulaciuTrhu() {
             globalneAukcie.forEach(function(aukcia) {
                 var jeMoja = (aukcia.predajca === "Hráč 1 (Ty)");
                 var tlacidlaHtml = "";
-                var buyoutText = aukcia.vykupnaCena > 0 ? '<strong style="color:#10b981;">' + aukcia.vykupnaCena + ' m</strong>' : '<strong style="color:#aaa;">Iba dražba (Bez výkupu)</strong>';
                 
                 if (jeMoja) {
                     tlacidlaHtml = '<div style="color:#10b981; font-weight:bold; margin-top:10px; padding:8px; border:1px solid #10b981; border-radius:6px; background:rgba(16, 185, 129, 0.1);">📦 Tvoja vlastná ponuka, čaká na kupcov.</div>';
                 } else {
                     tlacidlaHtml = '<div style="display:flex; gap:10px;"><button onclick="anonymnePrihoditSumu(\'' + aukcia.id + '\')" style="background:linear-gradient(180deg, #3b2d1d 0%, #21180e 100%); color:#ffcc00; border:1px solid #d4af37; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">🕵️ Prihodiť (Viac ako ' + aukcia.aktualnaPonuka + 'm)</button>';
-                    if (aukcia.vykupnaCena > 0) {
-                        tlacidlaHtml += '<button onclick="okamziteOdkupitKartu(\'' + aukcia.id + '\')" style="background:#10b981; color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:bold; cursor:pointer;">⚡ Kúpiť Ihneď za ' + aukcia.vykupnaCena + 'm</button>';
-                    }
+                    
                     tlacidlaHtml += '</div>';
                 }
 
@@ -1166,8 +1210,8 @@ function vygenerujSimulaciuTrhu() {
                     vizualZobrazenie = '<div class="karta-surovina" style="width: 140px !important; height: 210px !important; margin: 0; box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);"><div class="surovina-foto" style="background-image: url(\'' + imgUrl + '\'); height: 120px;"></div><div class="surovina-stitok" style="margin-top: 10px;"><div class="surovina-nazov">' + aukcia.predmet + '</div></div></div>';
                     titulokZobrazenie = aukcia.predmet + ' (Surovina)';
                 }
-
-                trhHtml += '<div class="auction-card-box" style="margin-bottom:15px; border:1px solid #5a4d3e; padding:15px; border-radius:8px; display:flex; gap:15px; align-items:center; background:rgba(0,0,0,0.4);">' + vizualZobrazenie + '<div style="flex-grow:1;"><h3 style="color:#ffcc00; margin:0 0 5px 0;">' + titulokZobrazenie + ' - ' + aukcia.pocet + 'x Balíček</h3><p style="margin:2px 0; color:#aaa; font-size:0.9em;">Predajca: <strong>' + aukcia.predajca + '</strong></p><div style="background:rgba(0,0,0,0.6); border:1px solid #5a4d3e; padding:12px; border-radius:6px; margin:10px 0; max-width:480px;"><div>⏱️ Čas aukcie: <span id="timer-' + aukcia.id + '" style="color:#ffcc00; font-weight:bold;">Počítam...</span></div><div style="margin-top:4px;">👑 Aktuálna ponuka (Vedie): <strong style="color:#ffcc00;">' + aukcia.veduciHrac + ' (' + aukcia.aktualnaPonuka + ' m)</strong></div><div style="margin-top:4px;">💰 Okamžitý Výkup (Strop): ' + buyoutText + '</div></div>' + tlacidlaHtml + '</div></div>';
+                
+                trhHtml += '<div class="auction-card-box" style="margin-bottom:15px; border:1px solid #5a4d3e; padding:15px; border-radius:8px; display:flex; gap:15px; align-items:center; background:rgba(0,0,0,0.4);">' + vizualZobrazenie + '<div style="flex-grow:1;"><h3 style="color:#ffcc00; margin:0 0 5px 0;">' + titulokZobrazenie + ' - ' + aukcia.pocet + 'x Balíček</h3><p style="margin:2px 0; color:#aaa; font-size:0.9em;">Predajca: <strong>' + aukcia.predajca + '</strong></p><div style="background:rgba(0,0,0,0.6); border:1px solid #5a4d3e; padding:12px; border-radius:6px; margin:10px 0; max-width:480px;"><div>⏱️ Čas aukcie: <span id="timer-' + aukcia.id + '" style="color:#ffcc00; font-weight:bold;">Počítam...</span></div><div style="margin-top:4px;">👑 Aktuálna ponuka (Vedie): <strong style="color:#ffcc00;">' + aukcia.veduciHrac + ' (' + aukcia.aktualnaPonuka + ' m)</strong></div></div>' + tlacidlaHtml + '</div></div>';
             });
         }
         e.innerHTML = trhHtml;
@@ -1368,6 +1412,7 @@ function odoslatPredajnyFormular() {
 }
 
 function kupitSurovinuZoStatnehoSkladu(mat, pocetOz) {
+    pocetOz = parseInt(pocetOz, 10);
     if (isNaN(pocetOz) || pocetOz <= 0) return; // Ochrana pred hackerským nákupom do mínusu
     var item = STATNY_SKLAD_CENNIK[mat]; if (!item) return;
     var celkovaCena = item.price * pocetOz;
