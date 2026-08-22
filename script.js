@@ -1260,7 +1260,8 @@ function vykresliZalozkuPredaja() {
             return typeof inventar.karty[k].repliky === "object" && (!reg || !reg.isPlatinum); 
         });
         dostupneKarty.forEach(function(k) { optionsHtml += '<option value="' + k + '">' + k + '</option>'; });
-    }
+    
+    
     } else if (aktualnyTypPredaja === "prizrak") {
         optionsHtml = '<option value="Prízrak">Prízrak</option>';
     } else {
