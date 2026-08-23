@@ -451,45 +451,108 @@ body {
 }
 
 /* =====================================================================
-   1. MIKRO RUKA SÚPERA (Záchrana vertikálneho miesta hore)
+   ABSOLÚTNY NO-SCROLL LAYOUT (100vh) - S MENAMI KARIET
    ===================================================================== */
+/* Hlavný kontajner sa zamkne presne na veľkosť obrazovky */
+.board-container {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important; /* Totálny zákaz scrollovania */
+    padding: 4px !important;
+    gap: 4px !important;
+    justify-content: space-between !important;
+}
+
+/* Osekáme zbytočné medzery medzi radmi */
+.board-half { gap: 4px !important; }
+
+/* Hlavičky hráčov (4.5% výšky obrazovky) */
+.player-header {
+    height: 4.5vh !important;
+    min-height: 30px !important;
+    padding: 2px 10px !important;
+    margin: 0 !important;
+}
+
+/* Mikro ruka súpera (5% výšky) */
 .p2-hand {
-    min-height: 50px !important; 
-    padding: 5px !important;
-    margin-bottom: 0 !important;
-    background: transparent !important; /* Zrušíme to hrubé pozadie */
+    height: 5vh !important;
+    min-height: 35px !important;
+    padding: 2px !important;
+    background: transparent !important;
     border: none !important;
 }
 .karta.cls-HIDDEN {
-    width: 35px !important;
-    height: 55px !important;
-    margin: 0 -8px !important; /* Karty sa jemne prekrývajú ako šupiny */
-    border: 1.5px solid #5a4d3e !important;
-    border-radius: 4px !important;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.8) !important;
-}
-/* Skryjeme zbytočné texty a obrovské ikony na skrytých kartách */
-.karta.cls-HIDDEN .karta-stitok-spodok { display: none !important; }
-.karta.cls-HIDDEN .karta-foto div { font-size: 1.2em !important; }
-
-
-/* =====================================================================
-   2. KOMPAKTNÝ STÔL (Menšie vyložené karty)
-   ===================================================================== */
-/* Zmenšenie kariet LEN na ploche (1. až 3. rad a neutrálny) */
-.board-row .karta {
-    width: clamp(75px, 9vw, 105px) !important; 
-    height: clamp(118px, 14.1vw, 165px) !important; 
+    height: 100% !important;
+    width: auto !important;
+    aspect-ratio: 2/3 !important;
+    margin: 0 -10px !important; /* Karty zapadnú do seba ako šupiny */
+    border: 1px solid #d4af37 !important;
 }
 
-/* Samotné rady na stole budú oveľa nižšie */
+/* 6 Herných radov (Každý zje 10.5% výšky obrazovky) */
 .board-row {
-    min-height: clamp(130px, 15vw, 180px) !important; 
-    padding: 5px 40px 5px 10px !important; 
+    height: 10.5vh !important;
+    min-height: 50px !important;
+    padding: 2px 40px 2px 10px !important;
 }
 
-/* Neutrálny rad nepotrebuje byť taký vysoký */
+/* Neutrálny rad (5% výšky) */
 .row-neutral {
-    min-height: 80px !important;
-    padding: 5px !important;
+    height: 5vh !important;
+    min-height: 40px !important;
+    padding: 2px !important;
+}
+
+/* Tvoja ruka - tu potrebuješ najviac detailov (16% výšky) */
+.p1-hand {
+    height: 16vh !important;
+    min-height: 90px !important;
+    padding: 4px !important;
+}
+
+/* --- MAGICKÉ ŠKÁLOVANIE KARIET --- */
+.board-row .karta, .p1-hand .karta {
+    height: 100% !important;
+    width: auto !important;
+    aspect-ratio: 0.63 !important; 
+    margin: 0 3px !important;
+}
+
+/* --- ČISTENIE KARIET: LUPA PREČ, MENO ZOSTÁVA --- */
+/* Lupa zmizne na celej hracej ploche (Gwent hover to plne nahrádza) */
+.board-container .karta-btn-inspect {
+    display: none !important;
+}
+
+/* Extrémne kompaktné mená na kartách vyložených na stole */
+.board-row .karta-stitok-spodok {
+    display: block !important; 
+    padding: 2px 0 !important;
+    background: rgba(12, 8, 5, 0.95) !important;
+    border-top: 1px solid rgba(212, 175, 55, 0.4) !important;
+}
+.board-row .karta-nazov {
+    font-size: 0.65em !important;
+    line-height: 1.1 !important;
+}
+
+/* Zmenšenie krúžkov pre silu a triedu na stole */
+.board-row .karta-kruh {
+    width: 20px !important;
+    height: 20px !important;
+    font-size: 0.75em !important;
+    top: 2px !important;
+}
+.board-row .karta-kruh-pwr { left: 2px !important; border-width: 1px !important; }
+.board-row .karta-kruh-cls { right: 2px !important; border-width: 1px !important; }
+
+/* Tlačidlo Opustiť Zápas */
+.btn-exit {
+    position: relative !important;
+    bottom: auto !important;
+    right: auto !important;
+    padding: 4px 10px !important;
+    font-size: 0.9em !important;
+    margin-left: 10px !important;
 }
