@@ -490,24 +490,24 @@ body {
     border: 1px solid #d4af37 !important;
 }
 
-/* 6 Herných radov (Každý zje 10.5% výšky obrazovky) */
+/* 6 Herných radov (Zmenšené z 10.5vh na 9.5vh, aby sa urobilo miesto kúzlam) */
 .board-row {
-    height: 10.5vh !important;
-    min-height: 50px !important;
+    height: 9.5vh !important;
+    min-height: 45px !important;
     padding: 2px 40px 2px 10px !important;
 }
 
-/* Neutrálny rad (5% výšky) */
+/* Neutrálny rad (Zväčšený z 5vh na 9.5vh - karty budú rovnako veľké ako v iných radoch) */
 .row-neutral {
-    height: 5vh !important;
-    min-height: 40px !important;
+    height: 9.5vh !important;
+    min-height: 45px !important;
     padding: 2px !important;
 }
 
-/* Tvoja ruka - tu potrebuješ najviac detailov (16% výšky) */
+/* Tvoja ruka (Jemne upravená zo 16vh na 14.5vh pre vyrovnanie matematiky) */
 .p1-hand {
-    height: 16vh !important;
-    min-height: 90px !important;
+    height: 14.5vh !important;
+    min-height: 80px !important;
     padding: 4px !important;
 }
 
