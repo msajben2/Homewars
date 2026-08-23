@@ -83,7 +83,16 @@ body {
 
 .board-container { display: flex; flex-direction: column; min-height: 100vh; max-width: 1600px; margin: 0 auto; padding: 10px; justify-content: space-between; }
 .player-header { display: flex; justify-content: space-between; align-items: center; background: rgba(20, 15, 10, 0.9); border: 1px solid #5a4d3e; padding: 8px 20px; border-radius: 8px; backdrop-filter: blur(4px); }
-.player-name { font-weight: bold; color: #ffcc00; font-size: 1.2em; }
+.player-name { 
+    font-weight: bold; 
+    color: #ffcc00; 
+    font-size: 1.2em; 
+    /* Pridaná vizuálna ochrana */
+    max-width: 160px; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}
 .score-badge { background: #d4af37; color: #111; font-weight: bold; font-size: 1.6em; padding: 4px 18px; border-radius: 6px; }
 .btn-pass { background: #8b0000; color: #fff; border: 1px solid #ff4d4d; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 /* 6. Oprava plávajúceho tlačidla "Opustiť Zápas" */
@@ -441,3 +450,46 @@ body {
     to { top: 20px; opacity: 1; } 
 }
 
+/* =====================================================================
+   1. MIKRO RUKA SÚPERA (Záchrana vertikálneho miesta hore)
+   ===================================================================== */
+.p2-hand {
+    min-height: 50px !important; 
+    padding: 5px !important;
+    margin-bottom: 0 !important;
+    background: transparent !important; /* Zrušíme to hrubé pozadie */
+    border: none !important;
+}
+.karta.cls-HIDDEN {
+    width: 35px !important;
+    height: 55px !important;
+    margin: 0 -8px !important; /* Karty sa jemne prekrývajú ako šupiny */
+    border: 1.5px solid #5a4d3e !important;
+    border-radius: 4px !important;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.8) !important;
+}
+/* Skryjeme zbytočné texty a obrovské ikony na skrytých kartách */
+.karta.cls-HIDDEN .karta-stitok-spodok { display: none !important; }
+.karta.cls-HIDDEN .karta-foto div { font-size: 1.2em !important; }
+
+
+/* =====================================================================
+   2. KOMPAKTNÝ STÔL (Menšie vyložené karty)
+   ===================================================================== */
+/* Zmenšenie kariet LEN na ploche (1. až 3. rad a neutrálny) */
+.board-row .karta {
+    width: clamp(75px, 9vw, 105px) !important; 
+    height: clamp(118px, 14.1vw, 165px) !important; 
+}
+
+/* Samotné rady na stole budú oveľa nižšie */
+.board-row {
+    min-height: clamp(130px, 15vw, 180px) !important; 
+    padding: 5px 40px 5px 10px !important; 
+}
+
+/* Neutrálny rad nepotrebuje byť taký vysoký */
+.row-neutral {
+    min-height: 80px !important;
+    padding: 5px !important;
+}

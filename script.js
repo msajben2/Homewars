@@ -172,7 +172,7 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
     var imgPath = reg.img || "Img/zlato.webp";
     var cisteMeno = meno.replace(/\s+\d+$/, "").trim();
     var html = "";
-    if (livePwr !== "none" && !reg.isSpell && !reg.isItem && !reg.isPrizrak) html += "<div class='karta-kruh karta-kruh-pwr'>" + livePwr + "</div>";
+    if (livePwr !== "none" && !reg.isSpell && !reg.isItem && !reg.isPrizrak && !reg.isZvitok) html += "<div class='karta-kruh karta-kruh-pwr'>" + livePwr + "</div>";
     var safeCls = cls || "F";
     var renderCls = reg.isPlatinum ? "PLATINUM" : (reg.isPrizrak ? "PRIZRAK-" + safeCls : safeCls);
     html += "<div class='karta-kruh karta-kruh-cls cls-" + renderCls + "'>" + (reg.isPlatinum ? "P" : safeCls) + "</div>";
@@ -249,12 +249,11 @@ function aktualizujVsetkyStickyWallety() {
     var walletIds = ["deckbuilder-sticky-wallet", "dielna-sticky-wallet", "obchod-sticky-wallet"];
     var html = '<div class="wallet-chip"><img src="Img/mince.webp" class="wallet-chip-img"> ' + inventar.mince + ' m</div>' +
                '<div class="wallet-chip"><img src="Img/zlato.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Zlato"]||0) + ' oz Zlato</div>' +
-               '<div class="wallet-chip"><img src="Img/koza.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Koža"]||0) + ' oz Koža</div>' +
-               '<div class="wallet-chip"><img src="Img/drevo.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Drevo"]||0) + ' oz Drevo</div>' +
-               '<div class="wallet-chip"><img src="Img/zelezo.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Kov"]||0) + ' oz Kov</div>' +
-               '<div class="wallet-chip"><img src="Img/bronz.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Bronz"]||0) + ' oz Bronz</div>' +
                '<div class="wallet-chip"><img src="Img/striebro.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Striebro"]||0) + ' oz Striebro</div>' +
-               '<div class="wallet-chip"><img src="Img/prizrak.webp" class="wallet-chip-img"> ' + (inventar.prizraky["F"]||0) + 'x F-Prízrak</div>';
+               '<div class="wallet-chip"><img src="Img/bronz.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Bronz"]||0) + ' oz Bronz</div>' +
+               '<div class="wallet-chip"><img src="Img/zelezo.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Kov"]||0) + ' oz Kov</div>' +
+               '<div class="wallet-chip"><img src="Img/drevo.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Drevo"]||0) + ' oz Drevo</div>' +
+               '<div class="wallet-chip"><img src="Img/koza.webp" class="wallet-chip-img"> ' + (inventar.suroviny["Koža"]||0) + ' oz Koža</div>';
     walletIds.forEach(function(id) { var el = document.getElementById(id); if (el) el.innerHTML = html; });
     vykresliRozbalovaciBatoh();
     ulozitZostavuDoStorage();
@@ -1288,7 +1287,10 @@ function vygenerujSimulaciuTrhu() {
         var skladHtml = '<div style="background:rgba(30,20,10,0.85); border:2px solid #d4af37; padding:15px; border-radius:10px; text-align:center; margin-bottom:15px;"><h3 style="color:#d4af37; margin-top:0;">🏛️ KRÁĽOVSKÝ ŠTÁTNY SKLAD (NÚDZOVÉ ZÁSOBY)</h3><p style="font-size:0.9em; color:#ccc;">Ak na trhu chýbajú suroviny, štát ti ich garantovane predá za mince.</p></div><div class="market-store-grid">';
         Object.keys(STATNY_SKLAD_CENNIK).forEach(function(mat) {
             var item = STATNY_SKLAD_CENNIK[mat];
-            skladHtml += '<div class="market-store-card"><img src="' + item.img + '" class="market-store-img"><strong style="color:#ffcc00; font-size:1em;">' + mat + '</strong><span style="color:#aaa; font-size:0.85em;">Cena: <strong style="color:#ffcc00;">' + item.price + ' m / 1 oz</strong></span><div style="display:flex; gap:6px; margin-top:6px;"><button onclick="kupitSurovinuZoStatnehoSkladu(\'' + mat + '\', 1)" style="background:#3b2d1d; color:#ffcc00; border:1px solid #d4af37; padding:5px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:0.8em;">+1 oz</button><button onclick="kupitSurovinuZoStatnehoSkladu(\'' + mat + '\', 5)" style="background:#10b981; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:0.8em;">+5 oz</button></div></div>';
+            // Dynamická voľba jednotky: Ak je to Zvitok alebo Prízrak, dáme "ks", inak "oz"
+            var jednotka = (mat === "F-Zvitok" || mat === "F-Prízrak") ? "ks" : "oz";
+            
+            skladHtml += '<div class="market-store-card"><img src="' + item.img + '" class="market-store-img"><strong style="color:#ffcc00; font-size:1em;">' + mat + '</strong><span style="color:#aaa; font-size:0.85em;">Cena: <strong style="color:#ffcc00;">' + item.price + ' m / 1 ' + jednotka + '</strong></span><div style="display:flex; gap:6px; margin-top:6px;"><button onclick="kupitSurovinuZoStatnehoSkladu(\'' + mat + '\', 1)" style="background:#3b2d1d; color:#ffcc00; border:1px solid #d4af37; padding:5px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:0.8em;">+1 ' + jednotka + '</button><button onclick="kupitSurovinuZoStatnehoSkladu(\'' + mat + '\', 5)" style="background:#10b981; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:0.8em;">+5 ' + jednotka + '</button></div></div>';
         });
         skladHtml += '</div>'; e.innerHTML = skladHtml;
         
@@ -2306,8 +2308,17 @@ function vykresliStraneKnihy() {
 function prepniRozbalovanieBatohu() { var el = document.getElementById("inventory-dropdown-content"); if (!el) return; if (el.style.display === "none" || el.style.display === "") { vykresliRozbalovaciBatoh(); el.style.display = "flex"; } else { el.style.display = "none"; } }
 function vykresliRozbalovaciBatoh() {
     var el = document.getElementById("inventory-dropdown-content"); if (!el) return;
-    var items = [ { name: "Mince", val: inventar.mince, img: "Img/mince.webp" }, { name: "Koža", val: (inventar.suroviny["Koža"] || 0) + " oz", img: "Img/koza.webp" }, { name: "Zlato", val: (inventar.suroviny["Zlato"] || 0) + " oz", img: "Img/zlato.webp" }, { name: "Prízraky", val: (inventar.prizraky["F"] || 0) + "x F", img: "Img/prizrak.webp" } ];
-    var html = ""; items.forEach(function(item) { html += '<div class="inventory-mini-card"><img src="' + item.img + '" class="inventory-mini-img"><div class="inventory-mini-info"><span class="inventory-mini-title">' + item.name + '</span><span class="inventory-mini-val">' + item.val + '</span></div></div>'; });
+    var items = [ 
+        { name: "Mince", val: inventar.mince + " m", img: "Img/mince.webp" }, 
+        { name: "Zlato", val: (inventar.suroviny["Zlato"] || 0) + " oz", img: "Img/zlato.webp" },
+        { name: "Striebro", val: (inventar.suroviny["Striebro"] || 0) + " oz", img: "Img/striebro.webp" },
+        { name: "Bronz", val: (inventar.suroviny["Bronz"] || 0) + " oz", img: "Img/bronz.webp" },
+        { name: "Kov", val: (inventar.suroviny["Kov"] || 0) + " oz", img: "Img/zelezo.webp" },
+        { name: "Drevo", val: (inventar.suroviny["Drevo"] || 0) + " oz", img: "Img/drevo.webp" },
+        { name: "Koža", val: (inventar.suroviny["Koža"] || 0) + " oz", img: "Img/koza.webp" } 
+    ];
+    var html = ""; 
+    items.forEach(function(item) { html += '<div class="inventory-mini-card"><img src="' + item.img + '" class="inventory-mini-img"><div class="inventory-mini-info"><span class="inventory-mini-title">' + item.name + '</span><span class="inventory-mini-val">' + item.val + '</span></div></div>'; });
     el.innerHTML = html;
 }
 
@@ -2480,3 +2491,32 @@ window.aktualizujDostupneTriedyPrePredaj = aktualizujDostupneTriedyPrePredaj;
 window.aktualizujMaxKusovPrePredaj = aktualizujMaxKusovPrePredaj; 
 window.odoslatPredajnyFormular = odoslatPredajnyFormular;
 window.devPridatSurovinyACheaty = devPridatSurovinyACheaty;
+
+// =====================================================================
+// GWENT HOVER EFEKT (Optická ilúzia pre kompaktný stôl)
+// =====================================================================
+document.addEventListener('mouseover', function(e) {
+    // Sledujeme, či myš vošla na nejakú kartu na stole alebo v tvojej ruke
+    var kartaEl = e.target.closest('.board-row .karta, .p1-hand .karta');
+    var preview = document.getElementById('gwent-hover-preview');
+    
+    if (!preview) return;
+
+    // Ak myš ukazuje na kartu a nie je to skrytá karta súpera
+    if (kartaEl && !kartaEl.classList.contains('cls-HIDDEN')) {
+        var fotoEl = kartaEl.querySelector('.karta-foto');
+        if (fotoEl) {
+            // Skopírujeme obrázok priamo z originálnej karty
+            preview.style.backgroundImage = fotoEl.style.backgroundImage;
+            
+            // Skopírujeme CSS triedy pre rámik (napr. cls-PLATINUM, cls-A)
+            preview.className = kartaEl.className;
+            preview.classList.remove('karta'); // Odstránime základnú triedu, aby ju CSS nezmenšilo
+            
+            preview.style.display = 'block';
+        }
+    } else {
+        // Ak myš z karty odíde, náhľad okamžite zmizne
+        preview.style.display = 'none';
+    }
+});
