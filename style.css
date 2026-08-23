@@ -556,3 +556,20 @@ body {
     font-size: 0.9em !important;
     margin-left: 10px !important;
 }
+
+/* ROZTIAHNUTIE RÁMOV PRESNE NA OKRAJE KARTY */
+.karta.cls-A::after, 
+.karta.cls-S::after,
+.karta.cls-A .karta-foto::after, 
+.karta.cls-S .karta-foto::after {
+    background-size: 100% 100% !important; /* Toto je kľúčové - natiahne to natvrdo */
+    background-position: center !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    border: none !important;
+}
