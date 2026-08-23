@@ -2193,20 +2193,32 @@ function skontrolujKoniecKola() {
 }
 
 function pripravNoveKolo() {
-    // 💀 OČISTEC A BOJISKO SA PRESÚVAJÚ DO HROBU
-    p1_spalene = p1_spalene.concat(p1_played_cards).concat(p1_cakaren);
-    p2_spalene = p2_spalene.concat(p2_played_cards).concat(p2_cakaren);
+    // 🛡️ OPRAVA: Triedička! Bojové jednotky idú do hrobu (dajú sa oživiť), predmety a kúzla letia nenávratne preč.
+    var jednotkyP1 = [], veciP1 = [];
+    p1_played_cards.concat(p1_cakaren).forEach(function(c) {
+        var reg = getRegistryCard(c.n);
+        if (reg.isItem || reg.isSpell) veciP1.push(c); else jednotkyP1.push(c);
+    });
     
-    // Záchrana odhodených kariet (vrátane "Šicko v porádku")
-    odhodene_karty_kola = odhodene_karty_kola.concat(p1_played_cards).concat(p2_played_cards);
+    var jednotkyP2 = [], veciP2 = [];
+    p2_played_cards.concat(p2_cakaren).forEach(function(c) {
+        var reg = getRegistryCard(c.n);
+        if (reg.isItem || reg.isSpell) veciP2.push(c); else jednotkyP2.push(c);
+    });
+
+    // 💀 OČISTEC A BOJISKO SA PRESÚVAJÚ DO HROBU (Už iba čisté bojové jednotky!)
+    p1_spalene = p1_spalene.concat(jednotkyP1);
+    p2_spalene = p2_spalene.concat(jednotkyP2);
     
-    // 🔮 OPRAVA: Extrahujeme hráčove kúzla, aby za ne dostal xp a mince!
+    // 🗑️ Záchrana odhodených kariet (Teraz tam idú bezpečne všetky predmety a zvyšné kúzla stola)
+    odhodene_karty_kola = odhodene_karty_kola.concat(veciP1).concat(veciP2).concat(neutralne_vplyvy);
+    
+    // 🔮 Extrahujeme hráčove kúzla z neutrálneho radu, aby za ne dostal XP a mince!
     var mojeKuzlaKola = neutralne_vplyvy.filter(function(spell) { return spell.owner === 1; });
     var superoveKuzlaKola = neutralne_vplyvy.filter(function(spell) { return spell.owner === 2; });
     
-    // 💰 OPRAVA EKONOMIKY: Uložíme do histórie zápasu nielen preživších, ale aj mŕtvych z čakárne a kúzla!
+    // 💰 EKONOMIKA: Uložíme do histórie zápasu preživších, mŕtvych z čakárne aj kúzla! (Aby boli na konci odmeny)
     p1_celkove_karty_zapasu = p1_celkove_karty_zapasu.concat(p1_played_cards).concat(p1_cakaren).concat(mojeKuzlaKola);
-    // (Ak by si niekedy chcel rátať aj súperove štatistiky, robilo by sa to tu pre p2)
     
     // 🧹 Bezpečné vyčistenie hracej plochy a čakárne pre nové kolo
     p1_played_cards = []; 
@@ -2352,8 +2364,8 @@ function zobraziťObrazovku(idObrazovky) {
         blokujVykladanie = true; // Zastaví všetky ďalšie kliky
         p1Pass = true; p2Pass = true; // Uspí AI logiku
     }
-
-    var obrazovky = ["hlavne-menu", "hracia-plocha", "dielna-modal", "obchod-modal", "navod-modal", "deckbuilder-modal", "stats-modal"];
+    
+    var obrazovky = ["hlavne-menu", "hracia-plocha", "dielna-modal", "obchod-modal", "navod-modal", "deckbuilder-modal", "stats-modal", "graveyard-modal", "mulligan-modal-overlay"];
     obrazovky.forEach(function(id) { 
         var el = document.getElementById(id); 
         if (el) {
