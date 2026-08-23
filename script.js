@@ -5,11 +5,19 @@
 // =====================================================================
 // [SEKCIA 1 - JS] MASTER REGISTRY, KONFIGURÁCIE A PREMENNÉ
 // =====================================================================
+var TAJNY_KOD_HESLA = "dGVzdGVyMTIzIQ=="; // Heslo pre bežných hráčov: tester123!
+var TAJNY_KOD_ADMIN = "S3JhbEdyb2J1OTk="; // 👑 Tvoje ADMIN heslo: KralGrobu99
+var isAdmin = false;
+
 (function() {
-    var TAJNY_KOD_HESLA = "dGVzdGVyMTIzIQ=="; 
-    var vstup = prompt("🔒 Vstup do kráľovstva zakázaný!\nZadaj tajné rodinné prístupové heslo:");
+    var vstup = prompt("🔒 Vstup do kráľovstva zakázaný!\nZadaj prístupové heslo:");
     var zadaneHeslo = vstup ? vstup.trim() : "";
-    if (btoa(zadaneHeslo) !== TAJNY_KOD_HESLA) {
+    var btoaZadane = btoa(zadaneHeslo);
+    
+    if (btoaZadane === TAJNY_KOD_ADMIN) {
+        isAdmin = true;
+        alert("👑 Vitaj, Najvyšší Admin! Vývojárske nástroje sú odomknuté.");
+    } else if (btoaZadane !== TAJNY_KOD_HESLA) {
         alert("❌ Nesprávne heslo!");
         document.body.innerHTML = "<div style='display:flex; justify-content:center; align-items:center; height:100vh; background:#111; color:#ff4d4d; font-family:sans-serif; font-size:1.5em; font-weight:bold;'>🔒 Prístup odmietnutý. Stránka je chránená rodinným zámkom.</div>";
         throw new Error("Neautorizovaný prístup.");
@@ -259,27 +267,7 @@ function aktualizujVsetkyStickyWallety() {
     ulozitZostavuDoStorage();
 }
 
-// =====================================================================
-// [SEKCIA 1 - JS] MASTER REGISTRY, KONFIGURÁCIE A PREMENNÉ
-// =====================================================================
-var TAJNY_KOD_HESLA = "dGVzdGVyMTIzIQ=="; // Heslo pre bežných hráčov: tester123!
-var TAJNY_KOD_ADMIN = "S3JhbEdyb2J1OTk="; // 👑 Tvoje ADMIN heslo: KralGrobu99
-var isAdmin = false;
 
-(function() {
-    var vstup = prompt("🔒 Vstup do kráľovstva zakázaný!\nZadaj prístupové heslo:");
-    var zadaneHeslo = vstup ? vstup.trim() : "";
-    var btoaZadane = btoa(zadaneHeslo);
-    
-    if (btoaZadane === TAJNY_KOD_ADMIN) {
-        isAdmin = true;
-        alert("👑 Vitaj, Najvyšší Admin! Vývojárske nástroje sú odomknuté.");
-    } else if (btoaZadane !== TAJNY_KOD_HESLA) {
-        alert("❌ Nesprávne heslo!");
-        document.body.innerHTML = "<div style='display:flex; justify-content:center; align-items:center; height:100vh; background:#111; color:#ff4d4d; font-family:sans-serif; font-size:1.5em; font-weight:bold;'>🔒 Prístup odmietnutý. Stránka je chránená rodinným zámkom.</div>";
-        throw new Error("Neautorizovaný prístup.");
-    }
-})();
 
 var VERZIA = "36.1.0"; // Verzia s nepriestrelnou ekonomikou
 
