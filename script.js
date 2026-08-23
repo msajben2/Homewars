@@ -27,7 +27,7 @@ var MASTER_REGISTRY = {
     "Vinár Dávid": { row: 1, p: 4, isPlatinum: true, isSpy: true, img: "Img/david.webp", desc: "Kráľovský vinár, ktorý vie, komu naliať čistého vína.", abilityDesc: "🕵️ <strong>Špión:</strong> Vykladá sa súperovi do 1. radu a potiahne ti 2 nové karty." },
     "Sestrička": { row: 2, p: 3, isPlatinum: true, img: "Img/sestricka.webp", desc: "Obetavá ošetrovateľka, pripravená pomôcť kedykoľvek.", abilityDesc: "🏥 <strong>Oživenie:</strong> Vráti do hry tebou vybranú spálenú kartu z archívu ohňa." },
     "Vlk": { row: 3, p: 3, isPlatinum: true, img: "Img/vlk.webp", desc: "Hrdý vodca lesnej svorky.", abilityDesc: "🐾 <strong>Svorka:</strong> Zvyšuje silu všetkých zvierat v 3. rade o +50 %." },
-    "Erik": { row: 1, p: 3, isPlatinum: true, img: "Img/erik.webp", desc: "Taktik, ktorý dokáže motivovať svoje okolie k lepším výkonom.", abilityDesc: "📢 <strong>Buff:</strong> Po vyložení zvolíš rad, ktorému natrvalo pridá +50 % k celkovej sile." },
+    "Erik": { row: 1, p: 3, isPlatinum: true, img: "Img/erik.webp", desc: "Taktik, ktorý dokáže motivovať svoje okolie k lepším výkonom.", abilityDesc: "📢 <strong>Buff:</strong> Po vyložení zvolíš rad, ktorému do konca kola pridá +50 % k celkovej sile." },
     "Sisa": { row: 2, p: 4, isPlatinum: true, img: "Img/sisa.webp", desc: "Dvorná dáma s vyberaným vkusom a autoritou.", abilityDesc: "📢 <strong>Dvorná dáma:</strong> Zvyšuje silu celého mužského radu o +50 %." },
     "Mária Trhovkyňa": { row: 2, p: 9, isPlatinum: true, isSpy: true, img: "Img/maria.webp", desc: "Skúsená trhovkyňa, ktorá za dobrú cenu predá aj vlastnú babku.", abilityDesc: "🕵️ <strong>Špión:</strong> Vyloží sa súperovi a potiahne ti 2 karty. (Cena za informácie je 9b súperovi)." },
     "Nela": { row: 2, p: 1, isPlatinum: true, img: "Img/nela.webp", desc: "Ochranný štít rodiny, držiaci všetkých pokope.", abilityDesc: "🛡️ <strong>Štít:</strong> Zmrazí stôl! Okamžite vypne všetky percentuálne buffy a aury pre oboch hráčov." },
@@ -866,7 +866,7 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
         }
     });
 
-    var dostupneFm = Object.keys(MASTER_REGISTRY).filter(function(m) { var r = MASTER_REGISTRY[m]; return !r.isPlatinum && !r.isSpell && !r.isPrizrak && !r.isTournamentUnique && !r.isZvitok; });
+    var dostupneFm = Object.keys(MASTER_REGISTRY).filter(function(m) { var r = MASTER_REGISTRY[m]; return !r.isPlatinum && !r.isPrizrak && !r.isTournamentUnique && !r.isZvitok; });
     for (var i = 0; i < maxKariet; i++) {
         var randCardName = dostupneFm[Math.floor(Math.random() * dostupneFm.length)];
         if (!inventar.karty[randCardName]) inventar.karty[randCardName] = { repliky: { "F": 0 }, aktivnaTrieda: "F" };
@@ -919,6 +919,10 @@ function aktualizujPanelDielne() {
 
     Object.keys(MASTER_REGISTRY).forEach(function(t) {
         var reg = MASTER_REGISTRY[t]; if (reg.isPlatinum || reg.isPrizrak) return;
+        
+        // 🔒 FIX: Dielňa nesmie vytvoriť záznam pre Šampióna, ak ho hráč naozaj nemá!
+        if (reg.isTournamentUnique && !inventar.karty[t]) return; 
+
         if (!inventar.karty[t]) inventar.karty[t] = { repliky: { "F": 0 }, aktivnaTrieda: "F" }; var cardData = inventar.karty[t];
         
         var topClass = "F";
@@ -1338,11 +1342,22 @@ function vykresliZalozkuPredaja() {
 function aktualizujDostupneTriedyPrePredaj() {
     var itemEl = document.getElementById("sell-item-select"); if (!itemEl) return;
     var itemName = itemEl.value; 
-    
     var sel = document.getElementById("sell-class-select");
+    
     if (aktualnyTypPredaja === "karta" && sel) {
         var cData = inventar.karty[itemName]; sel.innerHTML = "";
-        if (cData) { ["F", "E", "D", "C", "B", "A", "S"].forEach(function(cls) { if (cData.repliky && cData.repliky[cls] > 0) sel.innerHTML += '<option value="' + cls + '">' + cls + '-Class (' + cData.repliky[cls] + 'x)</option>'; }); }
+        var reg = getRegistryCard(itemName);
+        
+        if (cData) { 
+            // 🔓 FIX: Výnimka pre vykreslenie Šampióna do roletky
+            if (reg.isTournamentUnique) {
+                sel.innerHTML += '<option value="' + cData.aktivnaTrieda + '">' + cData.aktivnaTrieda + '-Class (Unikát)</option>';
+            } else {
+                ["F", "E", "D", "C", "B", "A", "S"].forEach(function(cls) { 
+                    if (cData.repliky && cData.repliky[cls] > 0) sel.innerHTML += '<option value="' + cls + '">' + cls + '-Class (' + cData.repliky[cls] + 'x)</option>'; 
+                }); 
+            }
+        }
     } else if (aktualnyTypPredaja === "prizrak" && sel) {
         sel.innerHTML = "";
         ["F", "E", "D", "C", "B", "A"].forEach(function(cls) { if (inventar.prizraky[cls] > 0) sel.innerHTML += '<option value="' + cls + '">' + cls + '-Class (' + inventar.prizraky[cls] + 'x)</option>'; });
@@ -1905,7 +1920,12 @@ function vylozitKartuZRuky(pNum, cardIndex) {
         oppPlayed.push(card); 
         tahatNoveKartyZBalicka(pNum, 2);
     } else if (reg.isSpell) {
-        if (card.n === "Šicko v porádku") { neutralne_vplyvy = []; odhodene_karty_kola.push(card); } 
+        if (card.n === "Šicko v porádku") { 
+    // PRELEJEME VŠETKY KÚZLA DO ARCHÍVU PRED ICH ZMAZANÍM
+            odhodene_karty_kola = odhodene_karty_kola.concat(neutralne_vplyvy); 
+            neutralne_vplyvy = []; 
+            odhodene_karty_kola.push(card); 
+} 
         else { neutralne_vplyvy.push({ n: card.n, cls: card.cls || "F", owner: pNum }); }
     } else {
         myPlayed.push(card);
@@ -2180,17 +2200,22 @@ function skontrolujKoniecKola() {
 }
 
 function pripravNoveKolo() {
-    // 💀 OČISTEC A BOJISKO SA PRESÚVAJÚ DO HROBU:
-    // Zoberieme karty, ktoré v tomto kole zhoreli (Čakáreň) a tie, ktoré prežili na stole, a dáme ich medikom k dispozícii
+    // 💀 OČISTEC A BOJISKO SA PRESÚVAJÚ DO HROBU
     p1_spalene = p1_spalene.concat(p1_played_cards).concat(p1_cakaren);
     p2_spalene = p2_spalene.concat(p2_played_cards).concat(p2_cakaren);
     
-    // Pôvodná premenná (nechávame ju pre istotu, ak na ňu máš naviazané iné funkcie)
+    // Záchrana odhodených kariet (vrátane "Šicko v porádku")
     odhodene_karty_kola = odhodene_karty_kola.concat(p1_played_cards).concat(p2_played_cards);
     
-    // 🧹 Vyčistenie hracej plochy a Čakárne pre nové kolo
-    // Uložíme kópiu kariet do globálnej pamäte zápasu pred ich zmazaním zo stola
-    p1_celkove_karty_zapasu = p1_celkove_karty_zapasu.concat(p1_played_cards);
+    // 🔮 OPRAVA: Extrahujeme hráčove kúzla, aby za ne dostal xp a mince!
+    var mojeKuzlaKola = neutralne_vplyvy.filter(function(spell) { return spell.owner === 1; });
+    var superoveKuzlaKola = neutralne_vplyvy.filter(function(spell) { return spell.owner === 2; });
+    
+    // 💰 OPRAVA EKONOMIKY: Uložíme do histórie zápasu nielen preživších, ale aj mŕtvych z čakárne a kúzla!
+    p1_celkove_karty_zapasu = p1_celkove_karty_zapasu.concat(p1_played_cards).concat(p1_cakaren).concat(mojeKuzlaKola);
+    // (Ak by si niekedy chcel rátať aj súperove štatistiky, robilo by sa to tu pre p2)
+    
+    // 🧹 Bezpečné vyčistenie hracej plochy a čakárne pre nové kolo
     p1_played_cards = []; 
     p2_played_cards = []; 
     p1_cakaren = []; 
@@ -2329,6 +2354,12 @@ function ukazOznamenie(titulok, sprava, callback) {
 }
 
 function zobraziťObrazovku(idObrazovky) {
+    // ANTI-GHOST OCHRANA: Ak odchádzame zo zápasu do menu, tvrdý reset enginu
+    if (idObrazovky === "hlavne-menu" && document.getElementById("hracia-plocha").style.display !== "none") {
+        blokujVykladanie = true; // Zastaví všetky ďalšie kliky
+        p1Pass = true; p2Pass = true; // Uspí AI logiku
+    }
+
     var obrazovky = ["hlavne-menu", "hracia-plocha", "dielna-modal", "obchod-modal", "navod-modal", "deckbuilder-modal", "stats-modal"];
     obrazovky.forEach(function(id) { 
         var el = document.getElementById(id); 
