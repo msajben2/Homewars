@@ -1953,48 +1953,41 @@ function pokracujPoVylozeni(pNum) {
 
 function vykonajAutoSpalenie(pôvodcaMeno) {
     var vsetkyKartyStola = [];
-    
-    // Zozbierame karty oboch hráčov a zapamätáme si, komu patria (pNum)
     p1_played_cards.forEach(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli") vsetkyKartyStola.push({ karta: c, majitel: 1 }); });
     p2_played_cards.forEach(function(c) { if (c.n !== pôvodcaMeno && c.n !== "Oli") vsetkyKartyStola.push({ karta: c, majitel: 2 }); });
     
     if (vsetkyKartyStola.length === 0) return;
     
-    // Zistíme absolútne najvyššiu dynamickú silu na stole vrátane buffov
     var maxPwr = -1; 
+    var cieleNaSpalenie = [];
+    
+    // 1. FÁZA ZAMERANIA: Iba si zapíšeme do zoznamu, kto zomrie (Nikto sa zatiaľ neničí)
     vsetkyKartyStola.forEach(function(zaznam) { 
         var dynPwr = vypocitajDynamickuSiluJednejKarty(zaznam.karta, zaznam.majitel); 
-        if (dynPwr !== "none" && dynPwr > maxPwr) {
-            maxPwr = dynPwr; 
+        if (dynPwr !== "none") {
+            if (dynPwr > maxPwr) {
+                maxPwr = dynPwr;
+                cieleNaSpalenie = [zaznam.karta];
+            } else if (dynPwr === maxPwr) {
+                cieleNaSpalenie.push(zaznam.karta);
+            }
         }
     });
     
     if (maxPwr <= 0) return;
 
-    // Spálime (presunieme do očistca) všetky karty, ktoré majú túto aktuálnu max silu
+    // 2. FÁZA POPRAVY: Teraz už len bezpečne odstránime všetky zamerané ciele naraz
     p1_played_cards = p1_played_cards.filter(function(c) { 
-        if (c.n !== pôvodcaMeno && c.n !== "Oli" && vypocitajDynamickuSiluJednejKarty(c, 1) === maxPwr) { 
-            p1_cakaren.push(c); 
-            return false; 
-        } 
+        if (cieleNaSpalenie.includes(c)) { p1_cakaren.push(c); return false; } 
         return true; 
     });
     
     p2_played_cards = p2_played_cards.filter(function(c) { 
-        if (c.n !== pôvodcaMeno && c.n !== "Oli" && vypocitajDynamickuSiluJednejKarty(c, 2) === maxPwr) { 
-            p2_cakaren.push(c); 
-            return false; 
-        } 
+        if (cieleNaSpalenie.includes(c)) { p2_cakaren.push(c); return false; } 
         return true; 
     });
 }
 
-function vykonajCieleneSpalenieMarekom(pNum) {
-    var oppCards = (pNum === 1) ? p2_played_cards : p1_played_cards; var oppSpalene = (pNum === 1) ? p2_spalene : p1_spalene;
-    var targetable = oppCards.filter(function(c) { return c.n !== "Oli"; }); if (targetable.length === 0) return;
-    var victim = targetable[Math.floor(Math.random() * targetable.length)]; var vIdx = oppCards.indexOf(victim);
-    if (vIdx !== -1) { oppCards.splice(vIdx, 1); oppSpalene.push(victim); }
-}
 
 function otvorSpalenisko(pNum, isReviving) {
     var arch = (pNum === 1) ? p1_spalene : p2_spalene;
