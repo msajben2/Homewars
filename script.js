@@ -2018,11 +2018,11 @@ function otvorSpalenisko(pNum, isReviving) {
         if (closeBtn) closeBtn.onclick = function() { modal.style.display='none'; };
     }
 
-    // Pomocná funkcia na bezpečné zrušenie oživovania
     window.zrusOzivovanie = function(hracNum) {
         if (window.reviveInterval) clearInterval(window.reviveInterval);
         var m = document.getElementById("graveyard-modal");
         if (m) m.style.display = "none";
+        blokujVykladanie = false; // 🔓 ODOMKNUTIE STOLA PRI ZRUŠENÍ
         vykresliHraciuPlochu();
         pokracujPoVylozeni(hracNum);
     };
@@ -2058,7 +2058,12 @@ function otvorSpalenisko(pNum, isReviving) {
 }
 
 function potvrdOzivenieKarty(pNum, index) {
-    if (window.reviveInterval) clearInterval(window.reviveInterval); // Vypne časovač po úspešnom výbere
+    // 🛡️ Poistka proti spam-kliku (ak už modal mizne, ignorujeme)
+    var modal = document.getElementById("graveyard-modal");
+    if (!modal || modal.style.display === "none") return;
+    modal.style.display = "none";
+
+    if (window.reviveInterval) clearInterval(window.reviveInterval); 
     var arch = (pNum === 1) ? p1_spalene : p2_spalene;
     var myPlayed = (pNum === 1) ? p1_played_cards : p2_played_cards;
     var oppPlayed = (pNum === 1) ? p2_played_cards : p1_played_cards;
@@ -2070,23 +2075,23 @@ function potvrdOzivenieKarty(pNum, index) {
         else { myPlayed.push(oživenaKarta); }
         
         ukazOznamenie("🕊️ OŽIVENIE Z OHŇA!", "Z plameňov sa vrátila karta <strong>" + oživenaKarta.n + "</strong>!", function() {
-            // TOTO SME PRIDALI: Aktivácia špeciálnych schopností po oživení
             if (oživenaKarta.n === "Erik") {
                 otvorErikBuffDialog(pNum, function() { vykresliHraciuPlochu(); pokracujPoVylozeni(pNum); });
-                return; // Zastavíme tu, lebo Erik má vlastný časovač a odovzdá ťah sám
+                return; 
             }
             if (oživenaKarta.n === "Zatúlaný tatranský medveď" || oživenaKarta.n === "Jakub" || oživenaKarta.n === "Marek") {
                 vykonajAutoSpalenie(oživenaKarta.n);
             }
             if (oživenaKarta.n === "Sestrička" || oživenaKarta.n === "Doktor" || oživenaKarta.n === "Kornélia") {
                 vykonajOzivenieZArchivu(pNum);
-                return; // Reťazové oživovanie! Zastavíme, kým hráč nevyberie ďalšiu kartu.
+                return; 
             }
             
-            // Ak karta nemá špeciálny efekt pri vstupe, pokračujeme klasicky
+            blokujVykladanie = false; // 🔓 ODOMKNUTIE STOLA PO OŽIVENÍ
             vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
         });
     } else {
+        blokujVykladanie = false; // 🔓 ODOMKNUTIE STOLA
         vykresliHraciuPlochu(); pokracujPoVylozeni(pNum);
     }
 }
@@ -2099,6 +2104,7 @@ function vykonajOzivenieZArchivu(pNum) {
         });
         return;
     }
+    blokujVykladanie = true; // 🔒 OCHRANA PRED FANTÓMOVOU RUKOU
     otvorSpalenisko(pNum, true);
 }
 
@@ -2118,17 +2124,26 @@ function spravujAI() { if (jeSingleplayer && aktualnyHrac === 2 && !p2Pass && !b
 function vykonajTachAI() {
     if (p2Pass || blokujVykladanie) return;
     
-    if (p1Pass && sc2 > sc1) { hracPassuje(2); return; } 
-    if (sc2 > (sc1 + 20) && p2_draft_hand.length < 10) { hracPassuje(2); return; } 
-    if (!p2_draft_hand || p2_draft_hand.length === 0) { hracPassuje(2); return; } 
-    
-    // --- NOVÉ: TAKTICKÝ ÚSTUP AI ---
-    // Ak AI prehráva o viac ako 25 bodov a ty ešte nemáš vyhraté kolo (r1 === 0), 
-    // radšej passne a ušetrí si karty na ďalšie kolá.
-    if (sc1 > (sc2 + 25) && r1 === 0) {
+    // --- INTELIGENTNÝ TAKTICKÝ ÚSTUP AI ---
+    // AI ti odovzdá 1. kolo, ak na ňu vyhodíš kombo a získaš 20+ bodový náskok. Radšej si ušetrí karty.
+    if (r1 === 0 && r2 === 0 && sc1 > (sc2 + 20)) { 
         hracPassuje(2); 
-        return;
+        return; 
     }
+    
+    // Ak už hráč (Ty) passol, AI zhodnotí situáciu
+    if (p1Pass) {
+        if (sc2 > sc1) { 
+            hracPassuje(2); // AI už vyhráva, nepotrebuje hrať ďalšie karty, šetrí ich
+            return; 
+        }
+        if (sc1 > (sc2 + 15)) {
+            hracPassuje(2); // Hráč passol s veľkým náskokom, AI nechce páliť priveľa kariet
+            return;
+        }
+    }
+    
+    if (!p2_draft_hand || p2_draft_hand.length === 0) { hracPassuje(2); return; } 
     
     // --- INTELIGENTNÝ VÝBER KARTY ---
     var chosenIndex = -1;
@@ -2145,7 +2160,7 @@ function vykonajTachAI() {
     }
     
     vylozitKartuZRuky(2, chosenIndex);
-} // koniec funkcie vykonajTachAI
+}
 
 function skontrolujKoniecKola() {
     prepočitajSkoreStola(); blokujVykladanie = true;
