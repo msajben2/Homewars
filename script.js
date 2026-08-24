@@ -496,12 +496,12 @@ function vygenerujUmeluInteligenciu() {
         }
     }
     
-    if (obtiaznostAI === "A") { 
-        pridajDoBalika("F", 13); pridajDoBalika("E", 10); pridajDoBalika("D", 5); 
-    } else if (obtiaznostAI === "B") { 
-        pridajDoBalika("F", 6); pridajDoBalika("E", 6); pridajDoBalika("D", 6); pridajDoBalika("C", 5); pridajDoBalika("B", 5); 
-    } else { 
-        pridajDoBalika("D", 6); pridajDoBalika("C", 6); pridajDoBalika("B", 9); pridajDoBalika("A", 5); pridajDoBalika("S", 2); 
+    if (obtiaznostAI === "Ľahká") { 
+        pridajDoBalika("F", 10); pridajDoBalika("E", 10); pridajDoBalika("D", 5);
+    } else if (obtiaznostAI === "Stredná") { 
+        pridajDoBalika("F", 5); pridajDoBalika("E", 5); pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 5);
+    } else if (obtiaznostAI === "Ťažká") { 
+        pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 8); pridajDoBalika("A", 5); pridajDoBalika("S", 2);
     }
     
     for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; }
@@ -783,9 +783,10 @@ function doplnOdmenyAUpravUI(typ, overlayElement) {
                     else if (cls === "S") currentCoins = 80;
                 }
                 
-                if (currentCoins > extraLowPwrCoins) {
-                    extraLowPwrCoins = currentCoins;
-                    extraLowPwrGold = currentGold;
+                // OPRAVA: Mince a zlato za tieto karty sa teraz krásne sčítavajú!
+                if (currentCoins > 0) {
+                    extraLowPwrCoins += currentCoins;
+                    extraLowPwrGold += currentGold;
                 }
             }
         });
@@ -1766,7 +1767,15 @@ function zobraziťMenuAI() {
         otvoriťDeckbuilder(); 
         return; 
     }
-    var obt = prompt("Vyber obtiažnosť AI (A, B, C):", "B"); if (obt) { obtiaznostAI = obt.toUpperCase(); spustitZapasProtiAI(); } 
+    
+    var obt = prompt("Vyber obtiažnosť bota:\n1 = Ľahká\n2 = Stredná\n3 = Ťažká", "2"); 
+    if (obt) {
+        if (obt === "1") obtiaznostAI = "Ľahká";
+        else if (obt === "3") obtiaznostAI = "Ťažká";
+        else obtiaznostAI = "Stredná"; // Ak zadá 2, alebo napíše nejaký preklep, dáme mu strednú
+        
+        spustitZapasProtiAI(); 
+    } 
 }
 
 function spustitZapasProtiAI() { 
@@ -1820,7 +1829,15 @@ function potvrditMulliganAkciu(chceVymenu) {
     if (chceVymenu && mulliganSelectedIndices.length > 0) {
         mulliganSelectedIndices.sort(function(a, b) { return b - a; }); 
         var pocetVymen = mulliganSelectedIndices.length;
-        mulliganSelectedIndices.forEach(function(idx) { p1_draft_hand.splice(idx, 1); });
+        
+        // 1. Zoberieme karty z ruky a dočasne si ich uložíme
+        var odlozeneKarty = [];
+        mulliganSelectedIndices.forEach(function(idx) { 
+            var vyhodenaKarta = p1_draft_hand.splice(idx, 1)[0];
+            odlozeneKarty.push(vyhodenaKarta.n); // Uložíme si len jej meno
+        });
+
+        // 2. Potiahneme si z vrchu balíčka nové karty
         for (var i = 0; i < pocetVymen; i++) { 
             if (p1_active_deck.length > 0) { 
                 var nK = p1_active_deck.pop(); 
@@ -1838,8 +1855,14 @@ function potvrditMulliganAkciu(chceVymenu) {
                 p1_draft_hand.push({ n: nK, cls: cardCls }); 
             } 
         }
+
+        // 3. Vrátime tie pôvodné odložené karty na spodok nášho balíčka!
+        odlozeneKarty.forEach(function(kartaMeno) {
+            p1_active_deck.unshift(kartaMeno); // unshift ich zasunie úplne na dno
+        });
+
         p2MulliganRound1Bonus = (pocetVymen === 1) ? 2 : 5; 
-        ukazOznamenie("🎲 MULLIGAN DOKONČENÝ", "Vymenil si " + pocetVymen + " kariet! Súper získal +" + p2MulliganRound1Bonus + "b náskok v 1. kole.");
+        ukazOznamenie("🎲 MULLIGAN DOKONČENÝ", "Vymenil si " + pocetVymen + " kariet! Karty boli vrátené do balíčka. Súper získal +" + p2MulliganRound1Bonus + "b náskok v 1. kole.");
     } else { 
         ukazOznamenie("✅ RUKA POTVRDENÁ", "Ponechal si si pôvodnú ruku."); 
     }
@@ -2127,45 +2150,98 @@ function prepniHracov() {
 
 function spravujAI() { if (jeSingleplayer && aktualnyHrac === 2 && !p2Pass && !blokujVykladanie) setTimeout(vykonajTachAI, 1200); }
 
+// --- DVOJVRSTVOVÝ MOZOG UMELEJ INTELIGENCIE ---
+
 function vykonajTachAI() {
     if (p2Pass || blokujVykladanie) return;
-    
-    // --- INTELIGENTNÝ TAKTICKÝ ÚSTUP AI ---
-    // AI ti odovzdá 1. kolo, ak na ňu vyhodíš kombo a získaš 20+ bodový náskok. Radšej si ušetrí karty.
-    if (r1 === 0 && r2 === 0 && sc1 > (sc2 + 20)) { 
-        hracPassuje(2); 
-        return; 
-    }
-    
-    // Ak už hráč (Ty) passol, AI zhodnotí situáciu
+    if (!p2_draft_hand || p2_draft_hand.length === 0) { hracPassuje(2); return; }
+
+    var jeFinale = (r1 === 1 && r2 === 1);
+    var aiMusiVyhrat = (r1 === 1 && r2 === 0);
+    var hracMusiVyhrat = (r1 === 0 && r2 === 1);
+
+    // =========================================================================
+    // 1. VRSTVA: ŽELEZNÉ PRAVIDLÁ (Záchranné brzdy)
+    // =========================================================================
     if (p1Pass) {
-        if (sc2 > sc1) { 
-            hracPassuje(2); // AI už vyhráva, nepotrebuje hrať ďalšie karty, šetrí ich
-            return; 
-        }
-        if (sc1 > (sc2 + 15)) {
-            hracPassuje(2); // Hráč passol s veľkým náskokom, AI nechce páliť priveľa kariet
-            return;
-        }
-    }
-    
-    if (!p2_draft_hand || p2_draft_hand.length === 0) { hracPassuje(2); return; } 
-    
-    // --- INTELIGENTNÝ VÝBER KARTY ---
-    var chosenIndex = -1;
-    var safeIndices = [];
-    
-    p2_draft_hand.forEach(function(c, i) {
-        if (c.n !== "Marek" && c.n !== "Jakub" && c.n !== "Zatúlaný tatranský medveď") safeIndices.push(i);
-    });
-    
-    if (sc1 === 0 && safeIndices.length > 0) {
-        chosenIndex = safeIndices[Math.floor(Math.random() * safeIndices.length)];
+        if (sc2 > sc1) { hracPassuje(2); return; }
+        if (!aiMusiVyhrat && !jeFinale && sc1 > (sc2 + 20)) { hracPassuje(2); return; }
     } else {
-        chosenIndex = Math.floor(Math.random() * p2_draft_hand.length);
+        if (!aiMusiVyhrat && !jeFinale && sc1 > (sc2 + 25)) { hracPassuje(2); return; }
+        
+        // TAKTIKA ŤAŽKÉHO BOTA: Bleeding v 2. kole
+        if (obtiaznostAI === "Ťažká" && hracMusiVyhrat && !jeFinale) {
+            if (p2_draft_hand.length <= (p1_draft_hand.length - 1) || sc1 > (sc2 + 10)) {
+                hracPassuje(2); return;
+            }
+        }
     }
+
+    // =========================================================================
+    // 2. VRSTVA: MATEMATICKÝ SKÓROVACÍ SYSTÉM
+    // =========================================================================
+    var najlepsiaKartaIdx = -1;
+    var najvyssieSkore = -9999;
     
-    vylozitKartuZRuky(2, chosenIndex);
+    p2_draft_hand.forEach(function(karta, index) {
+        var skore = ohodnotKrokAI(karta, obtiaznostAI, jeFinale, hracMusiVyhrat);
+        
+        if (skore > najvyssieSkore || (skore === najvyssieSkore && Math.random() > 0.5)) {
+            najvyssieSkore = skore;
+            najlepsiaKartaIdx = index;
+        }
+    });
+
+    vylozitKartuZRuky(2, najlepsiaKartaIdx);
+}
+
+// --- POMOCNÁ FUNKCIA: KALKULAČKA HODNOTY ŤAHU ---
+function ohodnotKrokAI(karta, obtiaznost, jeFinale, hracMusiVyhrat) {
+    var reg = getRegistryCard(karta.n);
+    var skore = 0;
+    
+    if (reg.isSpell) {
+        if (karta.n === "Šicko v porádku") {
+            skore = neutralne_vplyvy.length * 8; 
+        } else {
+            var cielovyRad = (karta.n === "Upokoj sa") ? 2 : (karta.n === "Ohnostroj" ? 3 : 1);
+            var mojaSilaPred = 0, superSilaPred = 0, mojPocet = 0, superPocet = 0;
+            
+            p2_played_cards.forEach(function(c) { if(getRegistryCard(c.n).row===cielovyRad) { mojaSilaPred += getRealPower(c); mojPocet++; }});
+            p1_played_cards.forEach(function(c) { if(getRegistryCard(c.n).row===cielovyRad) { superSilaPred += getRealPower(c); superPocet++; }});
+            
+            var zniceneSuperovi = superSilaPred - superPocet;
+            var zniceneMne = mojaSilaPred - mojPocet;
+            skore = zniceneSuperovi - zniceneMne;
+        }
+    } else if (reg.isItem) {
+        var mojPocet = p2_played_cards.filter(function(c) { return getRegistryCard(c.n).row === reg.row; }).length;
+        skore = mojPocet * CLASS_CONFIG[karta.cls || "F"].itemBonus;
+        if (mojPocet === 0) skore = -10; 
+    } else {
+        skore = vypocitajDynamickuSiluJednejKarty(karta, 2);
+    }
+
+    // 2. TAKTICKÁ ÚPRAVA PODĽA OBTIAŽNOSTI
+    if (obtiaznost === "Ťažká") { 
+        if (hracMusiVyhrat && !jeFinale) {
+            if (!reg.isSpell && !reg.isItem) {
+                skore = 50 - skore; 
+            } else {
+                skore = -100; 
+            }
+        } else {
+            if (reg.isSpell && skore < 15) skore -= 50; 
+        }
+    } 
+    else if (obtiaznost === "Stredná") { 
+        if (reg.isSpell && skore < 8) skore -= 20;
+    } 
+    else if (obtiaznost === "Ľahká") { 
+        if (reg.isSpell && skore > 0) skore += 10;
+    }
+
+    return skore;
 }
 
 function skontrolujKoniecKola() {
@@ -2504,17 +2580,16 @@ document.addEventListener('mouseover', function(e) {
 
     // Ak myš ukazuje na kartu a nie je to skrytá karta súpera
     if (kartaEl && !kartaEl.classList.contains('cls-HIDDEN')) {
-        var fotoEl = kartaEl.querySelector('.karta-foto');
-        if (fotoEl) {
-            // Skopírujeme obrázok priamo z originálnej karty
-            preview.style.backgroundImage = fotoEl.style.backgroundImage;
-            
-            // Skopírujeme CSS triedy pre rámik (napr. cls-PLATINUM, cls-A)
-            preview.className = kartaEl.className;
-            
-            
-            preview.style.display = 'block';
-        }
+        // Skopírujeme kompletne celý HTML obsah malej karty (vrátane krúžkov!)
+        preview.innerHTML = kartaEl.innerHTML;
+        
+        // Skopírujeme CSS triedy pre správny rámik (napr. cls-PLATINUM)
+        preview.className = kartaEl.className;
+        
+        // Poistka: vrátime mu jeho ID, aby fungovalo tvoje CSS skrytie menovky
+        preview.id = 'gwent-hover-preview';
+        
+        preview.style.display = 'block';
     } else {
         // Ak myš z karty odíde, náhľad okamžite zmizne
         preview.style.display = 'none';
