@@ -184,7 +184,7 @@ function vytvorHTMLKarty(meno, livePwr, cls, row, origPwr, isHidden) {
     var safeCls = cls || "F";
     var renderCls = reg.isPlatinum ? "PLATINUM" : (reg.isPrizrak ? "PRIZRAK-" + safeCls : safeCls);
     html += "<div class='karta-kruh karta-kruh-cls cls-" + renderCls + "'>" + (reg.isPlatinum ? "P" : safeCls) + "</div>";
-    html += "<button class='karta-btn-inspect' title='Zväčšiť kartu' onclick=\"event.stopPropagation(); otvorDetailKarty('" + meno.replace(/'/g, "\\'") + "');\">🔍</button>";
+    html += "<button class='karta-btn-inspect' title='Zväčšiť kartu' onclick=\"event.stopPropagation(); otvorDetailKarty('" + meno.replace(/'/g, "\\'") + "', '" + liveCls + "');\">🔍</button>";
     html += "<div class='karta-foto' style=\"background-image: url('" + encodeURI(imgPath) + "');\"></div>";
     html += "<div class='karta-stitok-spodok'><div class='karta-nazov'>" + cisteMeno + "</div></div>";
     return html;
@@ -2310,7 +2310,7 @@ function vykresliRozbalovaciBatoh() {
     el.innerHTML = html;
 }
 
-function otvorDetailKarty(n) {
+function otvorDetailKarty(n, vynutenaTrieda) {
     var reg = getRegistryCard(n); if (!reg) return;
     var modal = document.getElementById("card-detail-modal");
     if (!modal) {
@@ -2322,17 +2322,26 @@ function otvorDetailKarty(n) {
         document.body.appendChild(modal);
     }
 
+    // --- NOVÁ LOGIKA PRE TRIEDU ---
     var topClass = "F";
-    if (inventar && inventar.karty && inventar.karty[n] && typeof inventar.karty[n].repliky === "object") {
-        if (inventar.karty[n].repliky["S"] > 0) topClass = "S";
-        else if (inventar.karty[n].repliky["A"] > 0) topClass = "A";
-        else if (inventar.karty[n].repliky["B"] > 0) topClass = "B";
-        else if (inventar.karty[n].repliky["C"] > 0) topClass = "C";
-        else if (inventar.karty[n].repliky["D"] > 0) topClass = "D";
-        else if (inventar.karty[n].repliky["E"] > 0) topClass = "E";
-    } else if (reg.isPlatinum) { topClass = "PLATINUM"; } else if (reg.isPrizrak) { topClass = "F"; }
+    if (vynutenaTrieda) {
+        // Ak sme klikli na lupu na konkrétnej karte, použijeme presne túto triedu (rám)
+        topClass = vynutenaTrieda;
+    } else {
+        // Ak sme klikli inak (bez špecifickej triedy), hra nájde najlepšiu dostupnú
+        if (inventar && inventar.karty && inventar.karty[n] && typeof inventar.karty[n].repliky === "object") {
+            if (inventar.karty[n].repliky["S"] > 0) topClass = "S";
+            else if (inventar.karty[n].repliky["A"] > 0) topClass = "A";
+            else if (inventar.karty[n].repliky["B"] > 0) topClass = "B";
+            else if (inventar.karty[n].repliky["C"] > 0) topClass = "C";
+            else if (inventar.karty[n].repliky["D"] > 0) topClass = "D";
+            else if (inventar.karty[n].repliky["E"] > 0) topClass = "E";
+        } else if (reg.isPlatinum) { topClass = "PLATINUM"; } else if (reg.isPrizrak) { topClass = "F"; }
+    }
+    // ------------------------------
 
     var realPwr = getRealPower({ n: n, cls: topClass });
+    // htmlKarty už teraz vykreslí správny rám aj silu
     var htmlKarty = '<div class="karta cls-' + topClass + '" style="transform: scale(1.1); margin: 20px auto; position:relative; pointer-events:none;">' + vytvorHTMLKarty(n, realPwr, topClass, reg.row, reg.p) + '</div>';
     
     var textPribehu = reg.desc ? '<div style="font-style:italic; color:#ddd; margin-bottom:15px; font-size:1.1em; line-height:1.4;">"' + reg.desc + '"</div>' : '';
@@ -2499,7 +2508,7 @@ document.addEventListener('mouseover', function(e) {
             
             // Skopírujeme CSS triedy pre rámik (napr. cls-PLATINUM, cls-A)
             preview.className = kartaEl.className;
-            preview.classList.remove('karta'); // Odstránime základnú triedu, aby ju CSS nezmenšilo
+            
             
             preview.style.display = 'block';
         }

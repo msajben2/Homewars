@@ -573,3 +573,37 @@ body {
     margin: 0 !important;
     border: none !important;
 }
+
+/* Ochrana Gwent náhľadu pred zmenšením na stole */
+#gwent-hover-preview.karta {
+    width: 220px !important;
+    height: 345px !important;
+    margin: 0 !important;
+    aspect-ratio: unset !important;
+}
+/* Aby nám texty neprekrývali HD náhľad */
+#gwent-hover-preview.karta .karta-stitok-spodok {
+    display: none !important;
+}
+
+/* =====================================================================
+   OPTIMALIZÁCIA PRE MOBILY (Kompaktné krúžky)
+   ===================================================================== */
+@media (max-width: 768px) {
+    .board-row .karta-kruh {
+        width: 15px !important;
+        height: 15px !important;
+        font-size: 0.6em !important;
+        top: 0px !important; /* Úplne narazené na horný okraj */
+    }
+    .board-row .karta-kruh-pwr { 
+        left: 0px !important; /* Úplne vľavo */
+    }
+    .board-row .karta-kruh-cls { 
+        right: 0px !important; /* Úplne vpravo */
+    }
+    /* Jemne zmenšíme aj názov karty na mobile, aby netrčal */
+    .board-row .karta-nazov {
+        font-size: 0.55em !important;
+    }
+}
