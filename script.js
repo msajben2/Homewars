@@ -497,11 +497,11 @@ function vygenerujUmeluInteligenciu() {
     }
     
     if (obtiaznostAI === "Ľahká") { 
-        pridajDoBalika("F", 10); pridajDoBalika("E", 10); pridajDoBalika("D", 5);
+        pridajDoBalika("F", 10); pridajDoBalika("E", 9); pridajDoBalika("D", 9);
     } else if (obtiaznostAI === "Stredná") { 
-        pridajDoBalika("F", 5); pridajDoBalika("E", 5); pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 5);
+        pridajDoBalika("F", 2); pridajDoBalika("E", 6); pridajDoBalika("D", 10); pridajDoBalika("C", 7); pridajDoBalika("B", 3);
     } else if (obtiaznostAI === "Ťažká") { 
-        pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 8); pridajDoBalika("A", 5); pridajDoBalika("S", 2);
+        pridajDoBalika("D", 2); pridajDoBalika("C", 6); pridajDoBalika("B", 10); pridajDoBalika("A", 7); pridajDoBalika("S", 3);
     }
     
     for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; }
