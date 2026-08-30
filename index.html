@@ -7,6 +7,24 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body onclick="spustitHudbuPoPrvomKliknuti()">
+    <!-- ================= PRIHLASOVACIA BRÁNA ================= -->
+<div id="login-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background-color:#111; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+    <div style="background: rgba(0,0,0,0.85); padding: 40px; border: 2px solid #d4af37; border-radius: 10px; text-align: center; color: #ffcc00; font-family: sans-serif; box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);">
+        <h1 style="margin-top:0;">🛡️ Vitaj v Kráľovstve</h1>
+        <p style="color: #ccc; margin-bottom: 20px;">Pre vstup sa musíš preukázať</p>
+        
+        <input type="email" id="auth-email" placeholder="Tvoj E-mail" style="display:block; width:100%; margin-bottom:15px; padding:12px; box-sizing:border-box; background:#222; color:#fff; border:1px solid #d4af37; border-radius:5px; font-size: 16px;">
+        
+        <input type="password" id="auth-heslo" placeholder="Heslo (min. 6 znakov)" style="display:block; width:100%; margin-bottom:20px; padding:12px; box-sizing:border-box; background:#222; color:#fff; border:1px solid #d4af37; border-radius:5px; font-size: 16px;">
+        
+        <button onclick="prihlasitHraca()" style="background:#d4af37; color:#000; font-weight:bold; padding:12px 20px; border:none; border-radius:5px; cursor:pointer; width:100%; margin-bottom:10px; font-size: 16px;">Vstúpiť (Prihlásenie)</button>
+        
+        <button onclick="registrovatHraca()" style="background:#333; color:#d4af37; font-weight:bold; padding:12px 20px; border:1px solid #d4af37; border-radius:5px; cursor:pointer; width:100%; font-size: 16px;">Vytvoriť nový účet</button>
+        
+        <p id="auth-chyba" style="color:#ff4d4d; margin-top:15px; font-weight:bold; font-size:14px; min-height: 20px;"></p>
+    </div>
+</div>
+<!-- ================= KONIEC BRÁNY ================= -->
 
     <!-- ===================================================================== -->
     <!-- [SEKCIA 1 - HTML] AUDIO ENGINE A HLAVNÉ MENU                          -->

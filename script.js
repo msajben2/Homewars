@@ -25,6 +25,75 @@ var isAdmin = false;
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
 </script>
+// =========================================================================
+// --- PRIHLASOVANIE A REGISTRÁCIA (Firebase Auth) ---
+// =========================================================================
+
+// Sledovanie stavu - Tento kód beží stále a kontroluje, či je niekto prihlásený
+auth.onAuthStateChanged(function(user) {
+    if (user) {
+        // Tu skontrolujeme, či má overený e-mail (môžeš si tam dať zatiaľ svoj vývojársky e-mail, ak by si nechcel čakať na mail)
+        if (user.emailVerified || user.email === "TVOJ_SKUTOCNY_EMAIL@gmail.com") {
+            document.getElementById("login-screen").style.display = "none"; // Pustí ho do hry
+            console.log("Hráč je prihlásený a overený:", user.email);
+        } else {
+            // E-mail nie je overený, necháme ho pred bránou a upozorníme ho
+            document.getElementById("login-screen").style.display = "flex";
+            document.getElementById("auth-chyba").innerText = "⚠️ Tento účet ešte nie je overený! Klikni na link v e-maile, ktorý ti prišiel.";
+        }
+    } else {
+        document.getElementById("login-screen").style.display = "flex";
+    }
+});
+
+// Funkcia na Prihlásenie existujúceho účtu
+function prihlasitHraca() {
+    var email = document.getElementById("auth-email").value;
+    var heslo = document.getElementById("auth-heslo").value;
+    var chybaText = document.getElementById("auth-chyba");
+    
+    chybaText.innerText = "Prihlasujem...";
+    
+    auth.signInWithEmailAndPassword(email, heslo)
+        .catch(function(error) {
+            chybaText.innerText = "❌ Chyba: " + error.message;
+        });
+}
+
+// Funkcia na Registráciu nového účtu (s vynútením reálneho e-mailu)
+function registrovatHraca() {
+    var email = document.getElementById("auth-email").value;
+    var heslo = document.getElementById("auth-heslo").value;
+    var chybaText = document.getElementById("auth-chyba");
+    
+    if (heslo.length < 6) {
+        chybaText.innerText = "❌ Heslo musí mať aspoň 6 znakov!";
+        return;
+    }
+    
+    chybaText.innerText = "Vytváram účet a odosielam overovací email...";
+
+    auth.createUserWithEmailAndPassword(email, heslo)
+        .then(function(userCredential) {
+            // Účet bol úspešne vytvorený, teraz pošleme overovací e-mail
+            var user = userCredential.user;
+            user.sendEmailVerification().then(function() {
+                chybaText.style.color = "#4dff4d";
+                chybaText.innerText = "✅ Účet vytvorený! Overovací email bol odoslaný na " + email + ". Skontroluj si schránku.";
+            }).catch(function(error) {
+                chybaText.innerText = "⚠️ Účet vznikol, ale email sa nepodarilo odoslať: " + error.message;
+            });
+        })
+        .catch(function(error) {
+            chybaText.style.color = "#ff4d4d";
+            chybaText.innerText = "❌ Chyba: " + error.message;
+        });
+}
+
+// Funkcia na odhlásenie
+function odhlasitHraca() {
+    auth.signOut();
+}
 
 var VERZIA = "36.0.0";
 
