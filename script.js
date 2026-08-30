@@ -2152,6 +2152,10 @@ function spravujAI() { if (jeSingleplayer && aktualnyHrac === 2 && !p2Pass && !b
 
 // --- DVOJVRSTVOVÝ MOZOG UMELEJ INTELIGENCIE ---
 
+// =========================================================================
+// --- DVOJVRSTVOVÝ MOZOG UMELEJ INTELIGENCIE (V3.0) ---
+// =========================================================================
+
 function vykonajTachAI() {
     if (p2Pass || blokujVykladanie) return;
     if (!p2_draft_hand || p2_draft_hand.length === 0) { hracPassuje(2); return; }
@@ -2159,26 +2163,51 @@ function vykonajTachAI() {
     var jeFinale = (r1 === 1 && r2 === 1);
     var aiMusiVyhrat = (r1 === 1 && r2 === 0);
     var hracMusiVyhrat = (r1 === 0 && r2 === 1);
+    var rozdielKariet = p2_draft_hand.length - p1_draft_hand.length; // Kladné číslo = AI má viac kariet
 
     // =========================================================================
-    // 1. VRSTVA: ŽELEZNÉ PRAVIDLÁ (Záchranné brzdy)
+    // 1. VRSTVA: ŽELEZNÉ PRAVIDLÁ (Záchranné brzdy - Pud sebazáchovy)
     // =========================================================================
+    
     if (p1Pass) {
+        // Hráč passol a AI má viac bodov -> Výhra je vo vrecku, netreba míňať karty.
         if (sc2 > sc1) { hracPassuje(2); return; }
-        if (!aiMusiVyhrat && !jeFinale && sc1 > (sc2 + 20)) { hracPassuje(2); return; }
-    } else {
-        if (!aiMusiVyhrat && !jeFinale && sc1 > (sc2 + 25)) { hracPassuje(2); return; }
         
-        // TAKTIKA ŤAŽKÉHO BOTA: Bleeding v 2. kole
-        if (obtiaznostAI === "Ťažká" && hracMusiVyhrat && !jeFinale) {
-            if (p2_draft_hand.length <= (p1_draft_hand.length - 1) || sc1 > (sc2 + 10)) {
-                hracPassuje(2); return;
+        // Hráč passol, AI prehráva. Oplatí sa to dobiehať?
+        if (!aiMusiVyhrat && !jeFinale) {
+            // Ak AI prehráva o viac ako 20 bodov, vzdá to, aby si ušetrilo karty na ďalšie kolá.
+            if (sc1 > (sc2 + 20)) { hracPassuje(2); return; }
+        }
+    } else {
+        // Hráč EŠTE HRÁ.
+        
+        // ZÁCHRANA RUKY 1: Ak AI prehráva o 20+ bodov v 1. kole, radšej utečie.
+        if (!aiMusiVyhrat && !jeFinale && sc1 > (sc2 + 20)) { hracPassuje(2); return; }
+        
+        // ZÁCHRANA RUKY 2: Ochrana výhody (Card Advantage). 
+        // Ak má AI o 2 karty menej ako hráč a nie je to finále, okamžite passuje.
+        if (!aiMusiVyhrat && !jeFinale && rozdielKariet <= -2) {
+            hracPassuje(2); return; 
+        }
+
+        // TAKTIKA 2. KOLA (Bleeding a Dry Pass) - Ak AI vyhralo 1. kolo:
+        if (hracMusiVyhrat && !jeFinale) {
+            if (obtiaznostAI === "Ťažká" || obtiaznostAI === "Stredná") {
+                // Akonáhle má hráč viac kariet, alebo odskočil o 10 bodov, AI sa stiahne a šetrí na finále.
+                if (rozdielKariet < 0 || sc1 > (sc2 + 10)) {
+                    hracPassuje(2); return;
+                }
+            } else if (obtiaznostAI === "Ľahká") {
+                // Ľahký bot hrá férovo, ale nesmie si zničiť ruku. Ak stráca karty a prehráva, vzdá to.
+                if (rozdielKariet < 0 && sc1 > sc2) {
+                    hracPassuje(2); return;
+                }
             }
         }
     }
 
     // =========================================================================
-    // 2. VRSTVA: MATEMATICKÝ SKÓROVACÍ SYSTÉM
+    // 2. VRSTVA: MATEMATICKÝ SKÓROVACÍ SYSTÉM (Výber najlepšieho ťahu)
     // =========================================================================
     var najlepsiaKartaIdx = -1;
     var najvyssieSkore = -9999;
@@ -2192,6 +2221,13 @@ function vykonajTachAI() {
         }
     });
 
+    // POSLEDNÁ POISTKA: Ak je najlepšia možná karta pre AI vyložene zlá (napr. mínusové skóre) 
+    // a AI nemusí hrať za každú cenu, radšej passne.
+    if (najvyssieSkore < 0 && !aiMusiVyhrat && !jeFinale && !p1Pass) {
+        hracPassuje(2); return;
+    }
+
+    // Vyložíme víťaznú kartu, ktorú mozog vybral
     vylozitKartuZRuky(2, najlepsiaKartaIdx);
 }
 
@@ -2200,6 +2236,7 @@ function ohodnotKrokAI(karta, obtiaznost, jeFinale, hracMusiVyhrat) {
     var reg = getRegistryCard(karta.n);
     var skore = 0;
     
+    // 1. ZÁKLADNÁ MATEMATIKA (Akú hodnotu má táto karta práve teraz?)
     if (reg.isSpell) {
         if (karta.n === "Šicko v porádku") {
             skore = neutralne_vplyvy.length * 8; 
@@ -2210,35 +2247,48 @@ function ohodnotKrokAI(karta, obtiaznost, jeFinale, hracMusiVyhrat) {
             p2_played_cards.forEach(function(c) { if(getRegistryCard(c.n).row===cielovyRad) { mojaSilaPred += getRealPower(c); mojPocet++; }});
             p1_played_cards.forEach(function(c) { if(getRegistryCard(c.n).row===cielovyRad) { superSilaPred += getRealPower(c); superPocet++; }});
             
+            // Kúzlo zrazí všetky karty na 1 bod
             var zniceneSuperovi = superSilaPred - superPocet;
             var zniceneMne = mojaSilaPred - mojPocet;
-            skore = zniceneSuperovi - zniceneMne;
+            skore = zniceneSuperovi - zniceneMne; // Čistý zisk bodov pre AI
         }
     } else if (reg.isItem) {
         var mojPocet = p2_played_cards.filter(function(c) { return getRegistryCard(c.n).row === reg.row; }).length;
         skore = mojPocet * CLASS_CONFIG[karta.cls || "F"].itemBonus;
-        if (mojPocet === 0) skore = -10; 
+        if (mojPocet === 0) skore = -10; // Klátať predmet na prázdny rad je hlúposť
     } else {
         skore = vypocitajDynamickuSiluJednejKarty(karta, 2);
     }
 
-    // 2. TAKTICKÁ ÚPRAVA PODĽA OBTIAŽNOSTI
+    // 2. TAKTICKÁ ÚPRAVA PODĽA OBTIAŽNOSTI (Kedy kartu reálne zahrať?)
     if (obtiaznost === "Ťažká") { 
+        // ŠACHISTA
         if (hracMusiVyhrat && !jeFinale) {
+            // Bleeding: V 2. kole chce zahrať tie NAJSLABŠIE karty (F-Class), aby si šetril silné
             if (!reg.isSpell && !reg.isItem) {
-                skore = 50 - skore; 
+                skore = 50 - skore; // Obrátená logika - čím slabšia karta, tým má lepšie skóre
             } else {
-                skore = -100; 
+                skore = -100; // Zakazuje hrať kúzla v "oddychovom" 2. kole
             }
         } else {
+            // Normálna hra: Svojimi najlepšími kúzlami šetrí na drvivý úder (>15 bodov)
             if (reg.isSpell && skore < 15) skore -= 50; 
         }
     } 
     else if (obtiaznost === "Stredná") { 
-        if (reg.isSpell && skore < 8) skore -= 20;
+        // POKROČILÝ TAKTIK
+        if (hracMusiVyhrat && !jeFinale) {
+            // Mierny bleeding: Hrá normálne karty, ale zakážeme mu míňať kúzla
+            if (reg.isSpell || reg.isItem) skore -= 20; 
+        } else {
+            // Kúzla čaká na aspoň 8-bodový profit
+            if (reg.isSpell && skore < 8) skore -= 20;
+        }
     } 
     else if (obtiaznost === "Ľahká") { 
-        if (reg.isSpell && skore > 0) skore += 10;
+        // SNAŽIVÝ AMATÉR (Nedočkavec)
+        // Akonáhle mu kúzlo hodí aspoň drobný profit (>3 body), okamžite ho pálí. Nečaká.
+        if (reg.isSpell && skore > 3) skore += 15;
     }
 
     return skore;
