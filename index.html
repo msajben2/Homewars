@@ -28,20 +28,18 @@
         </div>
 
         <div class="menu-buttons">
-            <button class="btn-menu" onclick="spustitZapasLokálnePVP()">⚔️ Mníchovský Súboj (PVP 1v1)</button>
-            <button class="btn-menu" onclick="zobraziťMenuAI()">🤖 Zápas proti AI Botovi</button>
-            <button class="btn-menu" onclick="otvoriťDeckbuilder()">🎴 Vytvoriť Zostavu (Deckbuilder)</button>
-            <button class="btn-menu" onclick="otvoriťDielňu()">🔨 Kráľovská Dielňa (Forge)</button>
-            <button class="btn-menu" onclick="otvoriťObchod()">🛒 Player-Driven Trhovisko & Sklad</button>
-            <button class="btn-menu" style="background:#4a2c00; border-color:#ffcc00;" onclick="otvoriťStatistiky()">🏆 Sieň Slávy & Štatistiky (20)</button>
-            <button class="btn-menu" onclick="otvoriťNavodHry()">📖 Kronika & Návod Hry</button>
-            
-            
+            <button class="btn-menu" onclick="spustitZapasLokálnePVP()">⚔️ Online Hra</button>
+            <button class="btn-menu" onclick="zobraziťMenuAI()">🤖 Zápas proti botovi</button>
+            <button class="btn-menu" onclick="otvoriťDeckbuilder()">🎴 Vytvoriť zostavu</button>
+            <button class="btn-menu" onclick="otvoriťDielňu()">🔨 Dielňa</button>
+            <button class="btn-menu" onclick="otvoriťObchod()">🛒 Trhovisko</button>
+            <button class="btn-menu" style="background:#4a2c00; border-color:#ffcc00;" onclick="otvoriťStatistiky()">🏆 Štatistiky</button>
+            <button class="btn-menu" onclick="otvoriťNavodHry()">📖 Návod</button>
         </div>
 
         <!-- ROZBALOVACIE MENU SUROVÍN A POKLADNICE -->
         <div class="inventory-dropdown-container">
-            <button class="btn-inventory-toggle" onclick="prepniRozbalovanieBatohu()">🎒 Kráľovská Pokladnica & Batoh ▼</button>
+            <button class="btn-inventory-toggle" onclick="prepniRozbalovanieBatohu()">🎒 Pokladnica a batoh ▼</button>
             <div id="inventory-dropdown-content" class="inventory-dropdown-content" style="display: none;"></div>
         </div>
     </div>
@@ -99,11 +97,11 @@
     <!-- ===================================================================== -->
     <!-- [SEKCIA 3 - HTML] MODÁLNE OKNÁ (ŠTATISTIKY, DECKBUILDER, FORGE, TRH)  -->
     <!-- ===================================================================== -->
-    <!-- ŠTATISTIKY A SIEŇ SLÁVY -->
+    <!-- ŠTATISTIKY -->
     <div id="stats-modal" class="card-modal" style="display: none;" onclick="if(event.target === this) this.style.display='none';">
         <div class="modal-content modal-bg-dedina" style="max-width: 1450px;">
             <span class="card-modal-close" onclick="document.getElementById('stats-modal').style.display='none'">&times;</span>
-            <h2 class="modal-title">🏆 SIEŇ SLÁVY & KRÁĽOVSKÉ REBRÍČKY (20 KATEGÓRIÍ)</h2>
+            <h2 class="modal-title">🏆 ŠTATISTIKY</h2>
             <div id="stats-grid-container" class="stats-grid-20"></div>
         </div>
     </div>
@@ -113,7 +111,7 @@
         <div class="modal-content modal-bg-polia">
             <span class="card-modal-close" onclick="document.getElementById('deckbuilder-modal').style.display='none'">&times;</span>
             <div id="deckbuilder-sticky-wallet" class="modal-sticky-wallet"></div>
-            <h2 class="modal-title">🎴 VYTVORIŤ ZOSTRAVU DO HRY</h2>
+            <h2 class="modal-title">🎴 VYTVORIŤ ZOSTRAVU </h2>
             <div id="deckbuilder-status-bar" style="background: rgba(0,0,0,0.7); border: 1.5px solid #d4af37; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div style="font-size: 1.1em; color: #ffcc00;">
                     Karty v balíčku: <strong id="deckbuilder-count" style="font-size: 1.3em;">0</strong> / 28 min.
@@ -130,7 +128,7 @@
         <div class="modal-content modal-bg-dielna">
             <span class="card-modal-close" onclick="document.getElementById('dielna-modal').style.display='none'">&times;</span>
             <div id="dielna-sticky-wallet" class="modal-sticky-wallet"></div>
-            <h2 class="modal-title">🔨 KRÁĽOVSKÁ DIELŇA (FORGE)</h2>
+            <h2 class="modal-title">🔨 DIELŇA </h2>
             <div id="dielna-zoznam" class="dielna-grid"></div>
         </div>
     </div>
@@ -140,7 +138,7 @@
         <div class="modal-content modal-bg-trhovisko">
             <span class="card-modal-close" onclick="document.getElementById('obchod-modal').style.display='none'">&times;</span>
             <div id="obchod-sticky-wallet" class="modal-sticky-wallet"></div>
-            <h2 class="modal-title">🛒 PLAYER-DRIVEN TRHOVISKO & KRÁĽOVSKÝ SKLAD</h2>
+            <h2 class="modal-title">🛒 TRHOVISKO </h2>
             
             <div style="display:flex; justify-content:center; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
                 <button id="btn-tab-trh" class="btn-market-tab active-market-tab" onclick="prepniZalozkuTrhu('trh')">🏛️ Aktuálne Aukcie</button>

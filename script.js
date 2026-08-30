@@ -28,16 +28,16 @@ var VERZIA = "36.0.0";
 
 var MASTER_REGISTRY = {
     // 🌟 PLATINOVÉ KARTY
-    "Zvedavá suseda": { row: 2, p: 7, isPlatinum: true, isSpy: true, img: "Img/zvedava-suseda.webp", desc: "Vidí a počuje všetko, čo sa v dedine šustne. Nič pred ňou neutajíš.", abilityDesc: "🕵️ <strong>Špión:</strong> Vykladá sa na súperovu stranu stola. Po vyložení si potiahneš 2 nové karty." },
+    "Zvedavá suseda": { row: 2, p: 7, isPlatinum: true, isSpy: true, img: "Img/zvedava-suseda.webp", desc: "Vidí a počuje všetko, čo sa v dedine šuchne. Nič pred ňou neutajíš.", abilityDesc: "🕵️ <strong>Špión:</strong> Vykladá sa na súperovu stranu stola. Po vyložení si potiahneš 2 nové karty." },
     "Ďuri": { row: 1, p: 6, isPlatinum: true, img: "Img/duri.webp", desc: "Miestny veterán, ktorý má vždy v rukáve nejaký starý trik.", abilityDesc: "🍺 <strong>Taktik:</strong> Ak je na stole Alkohol, posilňuje celý ženský 2. rad o +100 %." },
     "Makak": { row: 3, p: 2, isPlatinum: true, isSpy: true, img: "Img/makak.webp", desc: "Lesný šibal, ktorý narobí viac škody ako úžitku.", abilityDesc: "🕵️ <strong>Špión:</strong> Dáva súperovi len 2 body a potiahne ti 2 nové karty do ruky." },
-    "Oli": { row: 2, p: 12, isPlatinum: true, img: "Img/oli.webp", desc: "Duchovná matka dediny s neoblomnou vierou.", abilityDesc: "✝️ <strong>Imunita:</strong> Jej sila (12b) je absolútne nedotknuteľná kúzlam aj plošnému spáleniu." },
-    "Vinár Dávid": { row: 1, p: 4, isPlatinum: true, isSpy: true, img: "Img/david.webp", desc: "Kráľovský vinár, ktorý vie, komu naliať čistého vína.", abilityDesc: "🕵️ <strong>Špión:</strong> Vykladá sa súperovi do 1. radu a potiahne ti 2 nové karty." },
+    "Oli": { row: 2, p: 12, isPlatinum: true, img: "Img/oli.webp", desc: "Duchovná matka dediny s neoblomnou vierou.", abilityDesc: "✝️ <strong>Imunita:</strong> Jej sila (12b) je absolútne nedotknuteľná voči kúzlam aj plošnému spáleniu." },
+    "Dávid": { row: 1, p: 4, isPlatinum: true, isSpy: true, img: "Img/david.webp", desc: "Kráľovský vinár, ktorý vie, komu naliať čistého vína.", abilityDesc: "🕵️ <strong>Špión:</strong> Vykladá sa súperovi do 1. radu a potiahne ti 2 nové karty." },
     "Sestrička": { row: 2, p: 3, isPlatinum: true, img: "Img/sestricka.webp", desc: "Obetavá ošetrovateľka, pripravená pomôcť kedykoľvek.", abilityDesc: "🏥 <strong>Oživenie:</strong> Vráti do hry tebou vybranú spálenú kartu z archívu ohňa." },
     "Vlk": { row: 3, p: 3, isPlatinum: true, img: "Img/vlk.webp", desc: "Hrdý vodca lesnej svorky.", abilityDesc: "🐾 <strong>Svorka:</strong> Zvyšuje silu všetkých zvierat v 3. rade o +50 %." },
     "Erik": { row: 1, p: 3, isPlatinum: true, img: "Img/erik.webp", desc: "Taktik, ktorý dokáže motivovať svoje okolie k lepším výkonom.", abilityDesc: "📢 <strong>Buff:</strong> Po vyložení zvolíš rad, ktorému do konca kola pridá +50 % k celkovej sile." },
     "Sisa": { row: 2, p: 4, isPlatinum: true, img: "Img/sisa.webp", desc: "Dvorná dáma s vyberaným vkusom a autoritou.", abilityDesc: "📢 <strong>Dvorná dáma:</strong> Zvyšuje silu celého mužského radu o +50 %." },
-    "Mária Trhovkyňa": { row: 2, p: 9, isPlatinum: true, isSpy: true, img: "Img/maria.webp", desc: "Skúsená trhovkyňa, ktorá za dobrú cenu predá aj vlastnú babku.", abilityDesc: "🕵️ <strong>Špión:</strong> Vyloží sa súperovi a potiahne ti 2 karty. (Cena za informácie je 9b súperovi)." },
+    "Mária": { row: 2, p: 9, isPlatinum: true, isSpy: true, img: "Img/maria.webp", desc: "Skúsená trhovkyňa, ktorá za dobrú cenu predá aj vlastnú babku.", abilityDesc: "🕵️ <strong>Špión:</strong> Vyloží sa súperovi a potiahne ti 2 karty. (Cena za informácie je 9b súperovi)." },
     "Nela": { row: 2, p: 1, isPlatinum: true, img: "Img/nela.webp", desc: "Ochranný štít rodiny, držiaci všetkých pokope.", abilityDesc: "🛡️ <strong>Štít:</strong> Zmrazí stôl! Okamžite vypne všetky percentuálne buffy a aury pre oboch hráčov." },
     "Zatúlaný tatranský medveď": { row: 3, p: 5, isPlatinum: true, img: "Img/zatulany-tatransky-medved.webp", desc: "Obrovská horská šelma zblúdená v dedine.", abilityDesc: "🔥 <strong>Dravec:</strong> Automaticky spáli najsilnejšiu kartu (alebo karty pri zhode) na celom stole (okrem seba a Oli)." },
     "Jakub": { row: 1, p: 4, isPlatinum: true, img: "Img/jakub.webp", desc: "Neúprosný pevnostný strážca.", abilityDesc: "🔥 <strong>Bojovník:</strong> Automaticky spáli najsilnejšiu kartu (alebo karty pri zhode) na celom stole (okrem seba a Oli)." },
@@ -64,24 +64,24 @@ var MASTER_REGISTRY = {
     "Darinka": { row: 2, p: 5, img: "Img/darinka.webp", desc: "Majsterka tkáčka, z ktorej látok sa šijú kráľovské odevy." },
     "Viera": { row: 2, p: 6, img: "Img/viera.webp", desc: "Hradná pekárka, ktorej chlieb vonia na míle ďaleko." },
     "Anka": { row: 2, p: 7, img: "Img/anka.webp", desc: "Prísna správkyňa hradných kľúčov." },
-    "Grobské Mravce": { row: 3, p: 1, img: "Img/grobske-mravce.webp", desc: "Húževnatá a nezastaviteľná svorka lesných mravcov.", abilityDesc: "💰 <strong>Bonus:</strong> Pri výhre prináša do pokladnice extra mince." },
+    "Grobské mravce": { row: 3, p: 1, img: "Img/grobske-mravce.webp", desc: "Húževnatá a nezastaviteľná svorka lesných mravcov.", abilityDesc: "💰 <strong>Bonus:</strong> Pri výhre prináša do pokladnice extra mince." },
     "Petržalské holuby": { row: 3, p: 1, img: "Img/petrzalske-holuby.webp", desc: "Rýchli hradní posli prenášajúci tajné správy.", abilityDesc: "💰 <strong>Bonus:</strong> Pri výhre prináša do pokladnice extra mince." },
-    "Patkaňe": { row: 3, p: 2, img: "Img/patkane.webp", desc: "Hladná pivničná svorka drancujúca sýpky.", abilityDesc: "💰 <strong>Bonus:</strong> Pri výhre prináša do pokladnice extra mince." },
+    "Potkany": { row: 3, p: 2, img: "Img/patkane.webp", desc: "Hladná pivničná svorka drancujúca sýpky.", abilityDesc: "💰 <strong>Bonus:</strong> Pri výhre prináša do pokladnice extra mince." },
     "Kabelkový pes": { row: 3, p: 3, img: "Img/kabelkovy-pes.webp", desc: "Rozmaznaný panský miláčik usadený na vankúši.", abilityDesc: "💰 <strong>Bonus:</strong> Pri výhre prináša do pokladnice extra mince." },
-    "Pouličný mačiak": { row: 3, p: 3, img: "Img/poulicny-maciak.webp", desc: "Tichý potulný kocúr sledujúci tiene.", abilityDesc: "💰 <strong>Bonus:</strong> Pri výhre prináša do pokladnice extra mince." },
+    "Pouličný kocúr": { row: 3, p: 3, img: "Img/poulicny-maciak.webp", desc: "Tichý potulný kocúr sledujúci tiene.", abilityDesc: "💰 <strong>Bonus:</strong> Pri výhre prináša do pokladnice extra mince." },
     "Komáre": { row: 3, p: 3, img: "Img/komare.webp", desc: "Dotieravé hradné húfy sajúce krv nepriateľom.", abilityDesc: "💰 <strong>Bonus:</strong> Pri výhre prináša do pokladnice extra mince." },
-    "Sviňa lesná": { row: 3, p: 4, img: "Img/svina-lesna.webp", desc: "Zúrivý lesný kanec ničiaci všetko, čo mu stojí v ceste." },
-    "Pes ktorý prerástol kabelku": { row: 3, p: 4, img: "Img/pes.webp", desc: "Verný a mohutný strážny pes, z ktorého ide strach." },
+    "Divá sviňa": { row: 3, p: 4, img: "Img/svina-lesna.webp", desc: "Zúrivý lesný kanec ničiaci všetko, čo mu stojí v ceste." },
+    "Pes, ktorý prerástol kabelku": { row: 3, p: 4, img: "Img/pes.webp", desc: "Verný a mohutný strážny pes, z ktorého ide strach." },
     
     // PREDMETY A KÚZLA
-    "Alcohol": { row: 1, p: 0, isItem: true, img: "Img/alkohol.webp", desc: "Silná medovina dodávajúca odvahu.", abilityDesc: "🛠️ <strong>Predmet:</strong> Pridáva +1b až +7b ku každej karte v 1. rade (podľa jej vzácnosti)." },
+    "Alkohol": { row: 1, p: 0, isItem: true, img: "Img/alkohol.webp", desc: "Silná medovina dodávajúca odvahu.", abilityDesc: "🛠️ <strong>Predmet:</strong> Pridáva +1b až +7b ku každej karte v 1. rade (podľa jej vzácnosti)." },
     "Kvety": { row: 2, p: 0, isItem: true, img: "Img/kvety.webp", desc: "Krásna kytica prinášajúca pokoj a odhodlanie.", abilityDesc: "🛠️ <strong>Predmet:</strong> Pridáva +1b až +7b ku každej karte v 2. rade (podľa jej vzácnosti)." },
-    "Medove Orechy": { row: 3, p: 0, isItem: true, img: "Img/medove-orechy.webp", desc: "Sladká odmena pre zvieracích bojovníkov.", abilityDesc: "🛠️ <strong>Predmet:</strong> Pridáva +1b až +7b ku každej karte v 3. rade (podľa jej vzácnosti)." },
+    "Medové orechy": { row: 3, p: 0, isItem: true, img: "Img/medove-orechy.webp", desc: "Sladká odmena pre zvieracích bojovníkov.", abilityDesc: "🛠️ <strong>Predmet:</strong> Pridáva +1b až +7b ku každej karte v 3. rade (podľa jej vzácnosti)." },
     "Musíme sa porozprávať": { row: 0, p: 0, isSpell: true, img: "Img/musime-sa-porozpravat.webp", desc: "Slová, z ktorých tuhne krv v žilách každému mužovi.", abilityDesc: "⚡ <strong>Kúzlo:</strong> Okamžite zníži základnú silu všetkých mužov (1. rad) oboch hráčov na 1b." },
     "Upokoj sa": { row: 0, p: 0, isSpell: true, img: "Img/upokoj-sa.webp", desc: "Najhoršia možná rada, ktorá vyvoláva nekontrolovateľný hnev.", abilityDesc: "⚡ <strong>Kúzlo:</strong> Okamžite zníži základnú silu všetkých žien (2. rad) oboch hráčov na 1b." },
-    "Ohnostroj": { row: 0, p: 0, isSpell: true, img: "Img/ohnostroj.webp", desc: "Ohlušujúci rachot plašiaci zver široko-ďaleko.", abilityDesc: "⚡ <strong>Kúzlo:</strong> Okamžite zníži základnú silu všetkých zvierat (3. rad) oboch hráčov na 1b." },
+    "Ohňostroj": { row: 0, p: 0, isSpell: true, img: "Img/ohnostroj.webp", desc: "Ohlušujúci rachot plašiaci zver široko-ďaleko.", abilityDesc: "⚡ <strong>Kúzlo:</strong> Okamžite zníži základnú silu všetkých zvierat (3. rad) oboch hráčov na 1b." },
     "Šicko v porádku": { row: 0, p: 0, isSpell: true, img: "Img/sicko-v-poradku.webp", desc: "Úsmev, ktorý vyrieši každú napätú situáciu.", abilityDesc: "⚡ <strong>Kúzlo:</strong> Okamžite vyčistí neutrálny rad od všetkých negatívnych kúziel stola!" },
-    "Zvitok": { row: 0, p: 0, isZvitok: true, img: "Img/pergamen.webp", desc: "Zvyšuje šancu pri kovaní. Od D-Class chráni kartu pred spálením. Pri kovaní zvitkov sa nesmú používať iné zvitky!" },
+    "Zvitok": { row: 0, p: 0, isZvitok: true, img: "Img/pergamen.webp", desc: "Zvyšuje šancu pri kovaní. Od D-Class chráni kartu pred spálením. Pri kovaní zvitkov sa nesmú používať ďalšie zvitky!" }
 };
 
 var CLASS_CONFIG = { 
@@ -137,7 +137,7 @@ var simulačneRebríčky = {
     grill_majster: [], fenix: [], hazarder: [], duelovy_veteran: [], 
     terminator: [], plosny_zabijak: [] 
 };
-var KATEGORIE_METADATA = { sampión: { title: "🥇 Šampión (Najviac výhier)", card: "Zvedavá suseda" }, nerozhodny: { title: "🤝 Nerozhodný (Najviac remíz)", card: "Ďuri" }, nie_sampión: { title: "💀 Nie-Šampión (Najviac prehier)", card: "Makak" }, sClass: { title: "👑 S-Class majster (Vykované S)", card: "Oli" }, aClass: { title: "💎 A-Class majster (Vykované A)", card: "Vinár Dávid" }, bClass: { title: "🔮 B-Class majster (Vykované B)", card: "Sestrička" }, cClass: { title: "📜 C-Class majster (Vykované C)", card: "Vlk" }, dClass: { title: "🛡️ D-Class majster (Vykované D)", card: "Erik" }, eClass: { title: "🌲 E-Class majster (Vykované E)", card: "Sisa" }, fClass: { title: "📦 F-Class majster (Získané F)", card: "Mária Trhovkyňa" }, detailista: { title: "🔨 Detailista (Pokusy vo Forge)", card: "Nela" }, majster_aukcii: { title: "💰 Majster aukcií (Top ponuka)", card: "Zatúlaný tatranský medveď" }, demolator: { title: "💥 Demolátor (Top skóre v 1 kole)", card: "Jakub" }, rozsafny: { title: "💸 Rozšafný (Minuté mince)", card: "Kika" }, grill_majster: { title: "🔥 Grill majster (Spálené karty)", card: "Doktor" }, fenix: { title: "🕊️ Fénix (Oživené karty)", card: "Michal" }, hazarder: { title: "🎲 Hazardér (Výhry o 1 bod)", card: "Kornélia" }, duelovy_veteran: { title: "⚔️ Duelový veterán (PVP zápasy)", card: "Katy" }, terminator: { title: "🤖 Terminátor (AI zápasy)", card: "Krčmár Boris" }, plosny_zabijak: { title: "⚡ Plošný zabijak (Kúzla stola)", card: "Marek" } };
+var KATEGORIE_METADATA = { sampión: { title: "🥇 Šampión (Najviac výhier)", card: "Zvedavá suseda" }, nerozhodny: { title: "🤝 Nerozhodný (Najviac remíz)", card: "Ďuri" }, nie_sampión: { title: "💀 Nie-Šampión (Najviac prehier)", card: "Makak" }, sClass: { title: "👑 S-Class majster (Vykované S)", card: "Oli" }, aClass: { title: "💎 A-Class majster (Vykované A)", card: "Dávid" }, bClass: { title: "🔮 B-Class majster (Vykované B)", card: "Sestrička" }, cClass: { title: "📜 C-Class majster (Vykované C)", card: "Vlk" }, dClass: { title: "🛡️ D-Class majster (Vykované D)", card: "Erik" }, eClass: { title: "🌲 E-Class majster (Vykované E)", card: "Sisa" }, fClass: { title: "📦 F-Class majster (Získané F)", card: "Mária" }, detailista: { title: "🔨 Detailista (Pokusy vo Forge)", card: "Nela" }, majster_aukcii: { title: "💰 Majster aukcií (Top ponuka)", card: "Zatúlaný tatranský medveď" }, demolator: { title: "💥 Demolátor (Top skóre v 1 kole)", card: "Jakub" }, rozsafny: { title: "💸 Rozšafný (Minuté mince)", card: "Kika" }, grill_majster: { title: "🔥 Grill majster (Spálené karty)", card: "Doktor" }, fenix: { title: "🕊️ Fénix (Oživené karty)", card: "Michal" }, hazarder: { title: "🎲 Hazardér (Výhry o 1 bod)", card: "Kornélia" }, duelovy_veteran: { title: "⚔️ Duelový veterán (PVP zápasy)", card: "Katy" }, terminator: { title: "🤖 Terminátor (AI zápasy)", card: "Krčmár Boris" }, plosny_zabijak: { title: "⚡ Plošný zabijak (Kúzla stola)", card: "Marek" } };
 
 var p1_played_cards = [], p2_played_cards = [];
 var p1_celkove_karty_zapasu = [];
@@ -1625,12 +1625,12 @@ function vypocitajDynamickuSiluJednejKarty(card, pNum) {
     if (card.n !== "Oli") {
         if (reg.row === 1 && neutralne_vplyvy.some(function(s){return s.n === "Musíme sa porozprávať";})) basePwr = 1;
         if (reg.row === 2 && neutralne_vplyvy.some(function(s){return s.n === "Upokoj sa";})) basePwr = 1;
-        if (reg.row === 3 && neutralne_vplyvy.some(function(s){return s.n === "Ohnostroj";})) basePwr = 1;
+        if (reg.row === 3 && neutralne_vplyvy.some(function(s){return s.n === "Ohňostroj";})) basePwr = 1;
     }
 
     basePwr += itemBonus + rowSetBonus;
     var rowMultiplier = 1.0;
-    var hasAlkohol = myCards.some(function(c) { return c.n === "Alcohol"; });
+    var hasAlkohol = myCards.some(function(c) { return c.n === "Alkohol"; });
     var myErikRow = (pNum === 1) ? p1_erik_buff_row : p2_erik_buff_row;
 
     if (!isNelaOnTable && card.n !== "Oli") {
@@ -1678,7 +1678,7 @@ function vypocitajSetBonusRadu(targetRow, cardList, pNum) {
         if (spell.owner !== pNum) { 
             if ((targetRow === 1 && spell.n === "Musíme sa porozprávať") ||
                 (targetRow === 2 && spell.n === "Upokoj sa") ||
-                (targetRow === 3 && spell.n === "Ohnostroj")) {
+                (targetRow === 3 && spell.n === "Ohňostroj")) {
                 var w = weights[spell.cls || "F"] || 1;
                 if (w > spellWeight) spellWeight = w;
             }
@@ -2241,7 +2241,7 @@ function ohodnotKrokAI(karta, obtiaznost, jeFinale, hracMusiVyhrat) {
         if (karta.n === "Šicko v porádku") {
             skore = neutralne_vplyvy.length * 8; 
         } else {
-            var cielovyRad = (karta.n === "Upokoj sa") ? 2 : (karta.n === "Ohnostroj" ? 3 : 1);
+            var cielovyRad = (karta.n === "Upokoj sa") ? 2 : (karta.n === "Ohňostroj" ? 3 : 1);
             var mojaSilaPred = 0, superSilaPred = 0, mojPocet = 0, superPocet = 0;
             
             p2_played_cards.forEach(function(c) { if(getRegistryCard(c.n).row===cielovyRad) { mojaSilaPred += getRealPower(c); mojPocet++; }});
