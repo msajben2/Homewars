@@ -706,7 +706,7 @@ function spustitVideoAnimationTruhly(typ) {
         doplnOdmenyAUpravUI(typ, overlay);
     };
     vid.onended = vyhodnotVideo;
-    setTimeout(vyhodnotVideo, 6000); // ⏱️ Ak video zlyhá, truhla sa otvorí sama po 6 sekundách
+    setTimeout(vyhodnotVideo, 12000); // ⏱️ Ak video zlyhá, truhla sa otvorí sama po 6 sekundách
 }
 
 function doplnOdmenyAUpravUI(typ, overlayElement) {
@@ -1026,7 +1026,7 @@ function spustitVideoAnimationKovania(meno, oldCls, nextCls, isSuccess, wasProte
 
     var card1 = document.getElementById("forge-card-1"); var card2 = document.getElementById("forge-card-2"); var card3 = document.getElementById("forge-card-3"); var card4 = document.getElementById("forge-card-4");
     setTimeout(function() { if (card1) card1.style.opacity = "0"; if (card2) card2.style.opacity = "0"; if (card3) card3.style.opacity = "0"; }, 3800);
-    setTimeout(function() { if (isSuccess && card4) card4.style.opacity = "1"; }, 7800);
+    setTimeout(function() { if (isSuccess && card4) card4.style.opacity = "1"; }, 12000);
 
     var vid = document.getElementById("forge-video-element"); if (vid) vid.play().catch(function(){});
 
