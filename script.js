@@ -33,7 +33,7 @@ var isAdmin = false;
 auth.onAuthStateChanged(function(user) {
     if (user) {
         // Tu skontrolujeme, či má overený e-mail (môžeš si tam dať zatiaľ svoj vývojársky e-mail, ak by si nechcel čakať na mail)
-        if (user.emailVerified || user.email === "TVOJ_SKUTOCNY_EMAIL@gmail.com") {
+        if (user.emailVerified || user.email === "marodeveloping@gmail.com") {
             document.getElementById("login-screen").style.display = "none"; // Pustí ho do hry
             console.log("Hráč je prihlásený a overený:", user.email);
         } else {
@@ -60,6 +60,7 @@ function prihlasitHraca() {
         });
 }
 
+// Funkcia na Registráciu nového účtu (s vynútením reálneho e-mailu)
 // Funkcia na Registráciu nového účtu (s vynútením reálneho e-mailu)
 function registrovatHraca() {
     var email = document.getElementById("auth-email").value;
