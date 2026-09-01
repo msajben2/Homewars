@@ -6,25 +6,23 @@
 // [SEKCIA 1 - JS] MASTER REGISTRY, KONFIGURÁCIE A PREMENNÉ
 // =====================================================================
 var isAdmin = false;
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
+// =========================================================================
+// --- FIREBASE CLOUD PREPOJENIE ---
+// =========================================================================
+var firebaseConfig = {
     apiKey: "AIzaSyBBVHQST60Ev1jOUQR1jKx9Lkk-wmaSK1g",
     authDomain: "homewars-f7639.firebaseapp.com",
     projectId: "homewars-f7639",
     storageBucket: "homewars-f7639.firebasestorage.app",
     messagingSenderId: "960665205287",
     appId: "1:960665205287:web:6c5b14638a040612036c02"
-  };
+};
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-</script>
+// Inicializácia cloudu
+firebase.initializeApp(firebaseConfig);
+var auth = firebase.auth();
+var db = firebase.firestore();
+// =========================================================================
 // =========================================================================
 // --- PRIHLASOVANIE A REGISTRÁCIA (Firebase Auth) ---
 // =========================================================================
