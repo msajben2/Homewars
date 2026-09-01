@@ -65,7 +65,7 @@ function registrovatHraca() {
     var heslo = document.getElementById("auth-heslo").value;
     var chybaText = document.getElementById("auth-chyba");
     
-    if (heslo.length < 6) {
+    if (heslo.length >=6) {
         chybaText.innerText = "❌ Heslo musí mať aspoň 6 znakov!";
         return;
     }
