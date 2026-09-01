@@ -22,6 +22,54 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 var auth = firebase.auth();
 var db = firebase.firestore();
+
+// =========================================================================
+// --- ŠTATISTIKY KOMUNITY (Registrovaní / Online) ---
+// =========================================================================
+
+// 1. Sledowanie Online hráčov cez Firestore
+function spustitOnlineSledovanie(user) {
+    var onlineRef = db.collection("mriezkaOnlineHracov").doc(user.uid);
+    
+    // Nastavíme, že tento hráč je online
+    onlineRef.set({
+        email: user.email,
+        poslednaAktivita: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Pravidelne (každých 30 sekúnd) pošleme signál, že žijeme
+    setInterval(function() {
+        onlineRef.update({
+            poslednaAktivita: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    }, 30000);
+
+    // Počúvame, koľko hráčov malo aktivitu za posledných 60 sekúnd
+    var minutuDozadu = new Date(Date.now() - 60000);
+    db.collection("mriezkaOnlineHracov")
+      .where("poslednaAktivita", ">=", minutuDozadu)
+      .onSnapshot(function(snapshot) {
+          var onlinePocet = snapshot.size;
+          var elOnline = document.getElementById("stat-online");
+          if (elOnline) elOnline.innerText = onlinePocet;
+      });
+}
+
+// 2. Sledovanie celkového počtu registrovaných hráčov
+function sledovatPocetHracov() {
+    db.collection("globalneStatistiky").doc("cislaHry").onSnapshot(function(doc) {
+        var elReg = document.getElementById("stat-registrovani");
+        if (doc.exists) {
+            if (elReg) elReg.innerText = doc.data().celkovoRegistrovanych || 0;
+        } else {
+            // Ak dokument ešte neexistuje, vytvoríme ho
+            db.collection("globalneStatistiky").doc("cislaHry").set({ celkovoRegistrovanych: 0 });
+        }
+    });
+}
+
+// Spustíme sledovanie registrácií hneď po načítaní scriptu
+sledovatPocetHracov();
 // =========================================================================
 // =========================================================================
 // --- PRIHLASOVANIE A REGISTRÁCIA (Firebase Auth) ---
