@@ -17,17 +17,34 @@
             <span>🛡️ Registrovaných: <strong id="stat-registrovani-brana" style="color: #ffcc00;">...</strong></span> &nbsp;|&nbsp; 
             <span>🟢 Práve online: <strong id="stat-online-brana" style="color: #4dff4d;">...</strong></span>
         </div>
+          <!-- E-mail -->
+          <input type="email" id="auth-email" placeholder="Tvoj E-mail" style="display:block; width:100%; margin-bottom:15px; padding:10px; box-sizing:border-box;">
         
-        <input type="email" id="auth-email" placeholder="Tvoj E-mail" style="display:block; width:100%; margin-bottom:15px; padding:12px; box-sizing:border-box; background:#222; color:#fff; border:1px solid #d4af37; border-radius:5px; font-size: 16px;">
+          <!-- Heslo 1 -->
+          <input type="password" id="auth-heslo" placeholder="Heslo (min. 6 znakov)" style="display:block; width:100%; margin-bottom:10px; padding:10px; box-sizing:border-box;">
         
-        <input type="password" id="auth-heslo" placeholder="Heslo (min. 6 znakov)" style="display:block; width:100%; margin-bottom:20px; padding:12px; box-sizing:border-box; background:#222; color:#fff; border:1px solid #d4af37; border-radius:5px; font-size: 16px;">
+          <!-- Heslo 2 (Pre kontrolu pri registrácii) -->
+          <input type="password" id="auth-heslo-potvrd" placeholder="Zopakuj heslo (iba pre registráciu)" style="display:block; width:100%; margin-bottom:10px; padding:10px; box-sizing:border-box;">
         
-        <button onclick="prihlasitHraca()" style="background:#d4af37; color:#000; font-weight:bold; padding:12px 20px; border:none; border-radius:5px; cursor:pointer; width:100%; margin-bottom:10px; font-size: 16px;">Vstúpiť (Prihlásenie)</button>
+          <!-- Zobrazenie hesla -->
+        <div style="text-align: left; margin-bottom: 20px; font-size: 13px; color: #aaa;">
+            <label style="cursor:pointer;"><input type="checkbox" onclick="prepniViditelnostHesla()"> Zobraziť heslá</label>
+        </div>
+
+        <!-- TLAČIDLÁ -->
+        <div style="display:flex; gap:10px; justify-content:center; margin-bottom: 15px;">
+            <button onclick="prihlasitHraca()" style="background:#d4af37; color:#000; font-weight:bold; padding:12px 20px; border:none; border-radius:5px; cursor:pointer; width:50%;">Vstúpiť (Prihlásenie)</button>
+            <button onclick="registrovatHraca()" style="background:#333; color:#d4af37; font-weight:bold; padding:12px 20px; border:1px solid #d4af37; border-radius:5px; cursor:pointer; width:50%;">Vytvoriť nový účet</button>
+        </div>
         
-        <button onclick="registrovatHraca()" style="background:#333; color:#d4af37; font-weight:bold; padding:12px 20px; border:1px solid #d4af37; border-radius:5px; cursor:pointer; width:100%; font-size: 16px;">Vytvoriť nový účet</button>
-        
-        <p id="auth-chyba" style="color:#ff4d4d; margin-top:15px; font-weight:bold; font-size:14px; min-height: 20px;"></p>
-    </div>
+        <!-- ZABUDNUTÉ HESLO -->
+        <div style="margin-bottom: 15px;">
+            <a href="#" onclick="obnovitZabudnuteHeslo(); return false;" style="color:#d4af37; font-size:13px; text-decoration:underline;">Zabudol som heslo</a>
+        </div>
+
+        <!-- Chybové hlášky -->
+        <p id="auth-chyba" style="color:#ff4d4d; margin-top:10px; font-weight:bold; font-size:14px; min-height: 20px;"></p>
+        </div>
 </div>
 <!-- POČÍTADLÁ KOMUNITY -->
         <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(212, 175, 55, 0.3); font-size: 13px; color: #aaa; display: flex; justify-content: space-around;">

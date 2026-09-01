@@ -75,7 +75,34 @@ function sledovatPocetHracov() {
 // =========================================================================
 // --- PRIHLASOVANIE A REGISTRÁCIA (Firebase Auth) ---
 // =========================================================================
+// Funkcia na zobrazenie/skrytie hesla
+function prepniViditelnostHesla() {
+    var h1 = document.getElementById("auth-heslo");
+    var h2 = document.getElementById("auth-heslo-potvrd");
+    if (h1.type === "password") {
+        h1.type = "text"; h2.type = "text";
+    } else {
+        h1.type = "password"; h2.type = "password";
+    }
+}
 
+// Funkcia na odoslanie linku pre zabudnuté heslo
+function obnovitZabudnuteHeslo() {
+    var email = document.getElementById("auth-email").value;
+    var chybaText = document.getElementById("auth-chyba");
+    if (!email) {
+        chybaText.style.color = "#ff4d4d";
+        chybaText.innerText = "❌ Najprv napíš svoj E-mail do horného políčka!";
+        return;
+    }
+    auth.sendPasswordResetEmail(email).then(function() {
+        chybaText.style.color = "#4dff4d";
+        chybaText.innerText = "✅ E-mail s inštrukciami na obnovu hesla bol odoslaný!";
+    }).catch(function(error) {
+        chybaText.style.color = "#ff4d4d";
+        chybaText.innerText = "❌ Chyba: " + error.message;
+    });
+}
 // Sledovanie stavu - Tento kód beží stále a kontroluje, či je niekto prihlásený
 auth.onAuthStateChanged(function(user) {
     if (user) {
@@ -115,7 +142,7 @@ function registrovatHraca() {
     var heslo = document.getElementById("auth-heslo").value;
     var chybaText = document.getElementById("auth-chyba");
     
-    if (heslo.length >=6) {
+    if (heslo.length <=5) {
         chybaText.innerText = "❌ Heslo musí mať aspoň 6 znakov!";
         return;
     }
