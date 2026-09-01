@@ -84,6 +84,7 @@ auth.onAuthStateChanged(function(user) {
         if (user.emailVerified || user.email === "marodeveloping@gmail.com") {
             document.getElementById("login-screen").style.display = "none"; // Pustí ho do hry
             console.log("Hráč je prihlásený a overený:", user.email);
+            zapisovatMojuAktivitu(user);
         } else {
             // E-mail nie je overený, necháme ho pred bránou a upozorníme ho
             document.getElementById("login-screen").style.display = "flex";
