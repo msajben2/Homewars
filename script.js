@@ -141,7 +141,9 @@ function registrovatHraca() {
 
 // Funkcia na odhlásenie
 function odhlasitHraca() {
-    auth.signOut();
+    auth.signOut().then(function() {
+        location.reload(); // Obnoví stránku, aby brána znovu vyskočila
+    });
 }
 
 var VERZIA = "36.0.0";
