@@ -27,14 +27,15 @@ var db = firebase.firestore();
 // --- ŠTATISTIKY KOMUNITY (Registrovaní / Online) ---
 // =========================================================================
 
-// 1A. Sledovanie koľko hráčov je online (TOTO BEŽÍ HNEĎ PRE KAŽDÉHO)
+
+// 1A. Sledovanie koľko hráčov je online (Bez časového filtra)
 function sledovatOnlinePocet() {
-    var minutuDozadu = new Date(Date.now() - 60000);
     db.collection("mriezkaOnlineHracov")
-      .where("poslednaAktivita", ">=", minutuDozadu)
       .onSnapshot(function(snapshot) {
           var elOnline = document.getElementById("stat-online");
-          if (elOnline) elOnline.innerText = snapshot.size; // Prepíše "---" na reálne číslo
+          if (elOnline) {
+              elOnline.innerText = snapshot.size; // Vytlačí surový počet záznamov
+          }
       });
 }
 
