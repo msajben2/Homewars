@@ -2530,7 +2530,12 @@ function spustitHudbuPoPrvomKliknuti() {
     // Ak je brána aktívna, hudbu ešte nepustíme
     if (document.getElementById("login-screen").style.display !== "none") return;
     
-    // ... tu pokračuje tvoj pôvodný kód pre prehrávanie hudby ...
+    // Spustíme hudbu, ak ešte nezačala hrať
+    if (!hudbaSpustena) {
+        prehratDalsiSong();
+        hudbaSpustena = true;
+    }
+}
 function upravHlasitost(val) { var audio = document.getElementById("bg-music"); if (audio) audio.volume = val; }
 
 function otvoriťNavodHry() {
