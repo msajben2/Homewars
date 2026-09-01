@@ -55,25 +55,23 @@ function zapisovatMojuAktivitu(user) {
     }, 30000);
 }
 
-// Spustíme čítanie online hráčov hneď po zapnutí stránky
-sledovatOnlinePocet();
 
-// 2. Sledovanie celkového počtu registrovaných hráčov
 function sledovatPocetHracov() {
     db.collection("globalneStatistiky").doc("cislaHry").onSnapshot(function(doc) {
-        var elReg = document.getElementById("stat-registrovani");
+        var pocet = 0;
         if (doc.exists) {
-            if (elReg) elReg.innerText = doc.data().celkovoRegistrovanych || 0;
-        } else {
-            // Ak dokument ešte neexistuje, vytvoríme ho
-            db.collection("globalneStatistiky").doc("cislaHry").set({ celkovoRegistrovanych: 0 });
+            pocet = doc.data().celkovoRegistrovanych || 0;
         }
+        
+        var elHra = document.getElementById("stat-registrovani");
+        var elBrana = document.getElementById("stat-registrovani-brana");
+        
+        if (elHra) elHra.innerText = pocet;
+        if (elBrana) elBrana.innerText = pocet;
     });
 }
 
-// Spustíme sledovanie registrácií hneď po načítaní scriptu
-sledovatPocetHracov();
-// =========================================================================
+
 // =========================================================================
 // --- PRIHLASOVANIE A REGISTRÁCIA (Firebase Auth) ---
 // =========================================================================
@@ -2769,6 +2767,7 @@ window.aktualizujMaxKusovPrePredaj = aktualizujMaxKusovPrePredaj;
 window.odoslatPredajnyFormular = odoslatPredajnyFormular;
 window.devPridatSurovinyACheaty = devPridatSurovinyACheaty;
 
+
 // =====================================================================
 // GWENT HOVER EFEKT (Optická ilúzia pre kompaktný stôl)
 // =====================================================================
@@ -2796,3 +2795,6 @@ document.addEventListener('mouseover', function(e) {
         preview.style.display = 'none';
     }
 });
+
+sledovatPocetHracov();
+sledovatOnlinePocet();
