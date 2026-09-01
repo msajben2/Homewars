@@ -27,33 +27,35 @@ var db = firebase.firestore();
 // --- ŠTATISTIKY KOMUNITY (Registrovaní / Online) ---
 // =========================================================================
 
-// 1. Sledowanie Online hráčov cez Firestore
-function spustitOnlineSledovanie(user) {
+// 1A. Sledovanie koľko hráčov je online (TOTO BEŽÍ HNEĎ PRE KAŽDÉHO)
+function sledovatOnlinePocet() {
+    var minutuDozadu = new Date(Date.now() - 60000);
+    db.collection("mriezkaOnlineHracov")
+      .where("poslednaAktivita", ">=", minutuDozadu)
+      .onSnapshot(function(snapshot) {
+          var elOnline = document.getElementById("stat-online");
+          if (elOnline) elOnline.innerText = snapshot.size; // Prepíše "---" na reálne číslo
+      });
+}
+
+// 1B. Zapisovanie vlastnej aktivity (TOTO SA SPUSTÍ AŽ PO PRIHLÁSENÍ)
+function zapisovatMojuAktivitu(user) {
     var onlineRef = db.collection("mriezkaOnlineHracov").doc(user.uid);
     
-    // Nastavíme, že tento hráč je online
     onlineRef.set({
         email: user.email,
         poslednaAktivita: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    // Pravidelne (každých 30 sekúnd) pošleme signál, že žijeme
     setInterval(function() {
         onlineRef.update({
             poslednaAktivita: firebase.firestore.FieldValue.serverTimestamp()
         });
     }, 30000);
-
-    // Počúvame, koľko hráčov malo aktivitu za posledných 60 sekúnd
-    var minutuDozadu = new Date(Date.now() - 60000);
-    db.collection("mriezkaOnlineHracov")
-      .where("poslednaAktivita", ">=", minutuDozadu)
-      .onSnapshot(function(snapshot) {
-          var onlinePocet = snapshot.size;
-          var elOnline = document.getElementById("stat-online");
-          if (elOnline) elOnline.innerText = onlinePocet;
-      });
 }
+
+// Spustíme čítanie online hráčov hneď po zapnutí stránky
+sledovatOnlinePocet();
 
 // 2. Sledovanie celkového počtu registrovaných hráčov
 function sledovatPocetHracov() {
