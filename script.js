@@ -141,12 +141,35 @@ function registrovatHraca() {
         });
 }
 
-// Funkcia na odhlásenie
+// =========================================================================
+// --- ODHLÁSENIE A ODCHOD Z HRY ---
+// =========================================================================
+
+// 1. Keď hráč slušne klikne na tlačidlo "Odhlásiť sa"
 function odhlasitHraca() {
-    auth.signOut().then(function() {
-        location.reload(); // Obnoví stránku, aby brána znovu vyskočila
-    });
+    var user = auth.currentUser;
+    if (user) {
+        // Najprv ho vymažeme zo zoznamu online hráčov
+        db.collection("mriezkaOnlineHracov").doc(user.uid).delete().then(function() {
+            // Až potom ho odhlásime
+            auth.signOut().then(function() {
+                location.reload(); 
+            });
+        });
+    } else {
+        auth.signOut().then(function() { location.reload(); });
+    }
 }
+
+// 2. Keď hráč natvrdo zatvorí kartu alebo prehliadač (klikne na X)
+window.addEventListener("beforeunload", function() {
+    var user = auth.currentUser;
+    if (user) {
+        // Rýchlo pošleme Firebase povel na vymazanie zo zoznamu online
+        db.collection("mriezkaOnlineHracov").doc(user.uid).delete();
+    }
+});
+
 
 var VERZIA = "36.0.0";
 
@@ -2505,7 +2528,11 @@ function prehratDalsiSong() {
     if (!audioMutedByUser) audio.play().then(function() { hudbaSpustena = true; }).catch(function(e) {});
     audio.onended = function() { prehratDalsiSong(); };
 }
-function spustitHudbuPoPrvomKliknuti() { if (!hudbaSpustena && !audioMutedByUser) prehratDalsiSong(); }
+function spustitHudbuPoPrvomKliknuti() {
+    // Ak je brána aktívna, hudbu ešte nepustíme
+    if (document.getElementById("login-screen").style.display !== "none") return;
+    
+    // ... tu pokračuje tvoj pôvodný kód pre prehrávanie hudby ...
 function upravHlasitost(val) { var audio = document.getElementById("bg-music"); if (audio) audio.volume = val; }
 
 function otvoriťNavodHry() {
