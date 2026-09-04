@@ -103,18 +103,22 @@ function obnovitZabudnuteHeslo() {
         chybaText.innerText = "❌ Chyba: " + error.message;
     });
 }
-// Sledovanie stavu - Tento kód beží stále a kontroluje, či je niekto prihlásený
 auth.onAuthStateChanged(function(user) {
     if (user) {
-        // Tu skontrolujeme, či má overený e-mail (môžeš si tam dať zatiaľ svoj vývojársky e-mail, ak by si nechcel čakať na mail)
         if (user.emailVerified || user.email === "marodeveloping@gmail.com") {
-            document.getElementById("login-screen").style.display = "none"; // Pustí ho do hry
-            console.log("Hráč je prihlásený a overený:", user.email);
-            zapisovatMojuAktivitu(user);
+            document.getElementById("auth-chyba").style.color = "#ffcc00";
+            document.getElementById("auth-chyba").innerText = "Načítavam tvoj batoh z kráľovstva...";
+            
+            // Načítame dáta a až potom pustíme hráča dnu
+            nacitatUlozenuZostavu(function() {
+                document.getElementById("login-screen").style.display = "none"; 
+                console.log("Hráč je prihlásený a dáta sú stiahnuté.");
+                zapisovatMojuAktivitu(user);
+            });
         } else {
-            // E-mail nie je overený, necháme ho pred bránou a upozorníme ho
             document.getElementById("login-screen").style.display = "flex";
-            document.getElementById("auth-chyba").innerText = "⚠️ Tento účet ešte nie je overený! Klikni na link v e-maile, ktorý ti prišiel.";
+            document.getElementById("auth-chyba").style.color = "#ff4d4d";
+            document.getElementById("auth-chyba").innerText = "⚠️ Tento účet ešte nie je overený! Skontroluj si e-mail (aj priečinok SPAM).";
         }
     } else {
         document.getElementById("login-screen").style.display = "flex";
@@ -155,7 +159,7 @@ function registrovatHraca() {
             var user = userCredential.user;
             user.sendEmailVerification().then(function() {
                 chybaText.style.color = "#4dff4d";
-                chybaText.innerText = "✅ Účet vytvorený! Overovací email bol odoslaný na " + email + ". Skontroluj si schránku.";
+                chybaText.innerText = "✅ Účet vytvorený! Overovací email bol odoslaný na " + email + ". Skontroluj si schránku (vrátane priečinka SPAM).";
             }).catch(function(error) {
                 chybaText.innerText = "⚠️ Účet vznikol, ale email sa nepodarilo odoslať: " + error.message;
             });
@@ -442,37 +446,51 @@ function aktualizujVsetkyStickyWallety() {
     ulozitZostavuDoStorage();
 }
 
+function nacitatUlozenuZostavu(callback) {
+    var user = auth.currentUser;
+    if (!user) return;
 
-
-var VERZIA = "36.1.0"; // Verzia s nepriestrelnou ekonomikou
-
-// ... (TU ZOSTÁVA TVOJ MASTER_REGISTRY, CLASS_CONFIG A FORGE_RATES, tie nemeň) ...
-
-// O kúsok nižšie nájdi funkciu nacitatUlozenuZostavu a zmeň ju takto:
-function nacitatUlozenuZostavu() {
-    try { 
-        var ulozene = localStorage.getItem("homewars_cloud_save_v1"); 
-        if (ulozene) {
-            var data = JSON.parse(ulozene);
+    db.collection("hracskeUcty").doc(user.uid).get().then(function(doc) {
+        if (doc.exists) {
+            // Hráč už má dáta v cloude
+            var data = doc.data();
             inventar.mince = parseInt(data.mince);
-            // Ochrana pred prepísaním mincí na "NaN" cez F12
             if (isNaN(inventar.mince) || inventar.mince < 0) inventar.mince = 500; 
             
             inventar.suroviny = data.suroviny || { "Koža": 15, "Drevo": 10, "Kov": 5, "Bronz": 2, "Striebro": 1, "Zlato": 20 };
             inventar.karty = data.karty || {};
             inventar.prizraky = data.prizraky || { "F": 10, "E": 5, "D": 5, "C": 5, "B": 5, "A": 5 };
             inventar.zostava = data.zostava || [];
+            inventar.starePlatinovky = data.starePlatinovky || [];
+        } else {
+            // Prvé prihlásenie nového hráča - uložíme mu štartovací inventár
+            ulozitZostavuDoStorage();
         }
-    } catch(e) { console.error("Chyba načítavania Cloudu:", e); }
-    
-    if (!Array.isArray(inventar.zostava) || inventar.zostava.length < 28) {
-        automatickyDoplnitDefaultZostavu(false);
-    }
+        
+        if (!Array.isArray(inventar.zostava) || inventar.zostava.length < 28) {
+            automatickyDoplnitDefaultZostavu(false);
+        }
+
+        aktualizujVsetkyStickyWallety();
+        skontrolujPlatinovky(); // Skontrolujeme trofeje až keď máme reálne dáta z cloudu
+
+        // Spustíme hru (skryjeme bránu)
+        if (typeof callback === "function") callback();
+    }).catch(function(error) { 
+        console.error("Chyba načítavania Cloudu:", error); 
+    });
 }
 
 function ulozitZostavuDoStorage() { 
-    try { localStorage.setItem("homewars_cloud_save_v1", JSON.stringify(inventar)); } catch(e) { console.error("Chyba ukladania:", e); } 
+    var user = auth.currentUser;
+    if (user) {
+        db.collection("hracskeUcty").doc(user.uid).set(inventar)
+          .catch(function(error) { console.error("Chyba pri ukladaní do Cloudu:", error); });
+    } else {
+        console.warn("Hráč nie je prihlásený, inventár sa neuložil do Cloudu.");
+    }
 }
+
 function skontrolujPlatinovky() {
     var strateneKarty = [];
     var ziskaneKarty = [];
@@ -2717,8 +2735,6 @@ function vykresliGridStatistik() {
 function vyhlasGlobalnySClassOznam(hracMeno, kartaMeno) { var banner = document.createElement("div"); banner.className = "global-announce-banner"; banner.innerHTML = "👑 <strong>KRÁĽOVSKÝ OZNAM:</strong> Hráč <strong>" + hracMeno + "</strong> vykoval <strong>S-Class</strong> kartu <strong>" + kartaMeno + "</strong>!"; document.body.appendChild(banner); setTimeout(function() { banner.remove(); }, 6000); }
 
 document.addEventListener("DOMContentLoaded", function() {
-    nacitatUlozenuZostavu(); 
-    skontrolujPlatinovky(); // 💡 NOVÉ: Hneď po načítaní skontroluje trofeje
     zobraziťObrazovku("hlavne-menu");
     aktualizujPanelDielne(); vygenerujSimulaciuTrhu(); aktualizujVsetkyStickyWallety();
 });
