@@ -28,18 +28,34 @@ var db = firebase.firestore();
 // =========================================================================
 
 
-// 1A. Sledovanie koľko hráčov je online (Bez časového filtra)
 function sledovatOnlinePocet() {
-    db.collection("mriezkaOnlineHracov")
-      .onSnapshot(function(snapshot) {
-          var elOnline = document.getElementById("stat-online");
-          if (elOnline) {
-              elOnline.innerText = snapshot.size; // Vytlačí surový počet záznamov
-          }
-      });
+    db.collection("mriezkaOnlineHracov").onSnapshot(function(snapshot) {
+        var aktualnyCas = Date.now();
+        var realneOnline = 0;
+        
+        snapshot.forEach(function(doc) {
+            var data = doc.data();
+            // serverTimestamp môže byť zlomok sekundy 'null', kým ho server spracuje
+            if (data.poslednaAktivita) {
+                var casAktivity = data.poslednaAktivita.toDate().getTime();
+                // 60 000 ms = 1 minúta. Ak je záznam starší, hráč je "duch" a nepočítame ho.
+                if ((aktualnyCas - casAktivity) < 60000) {
+                    realneOnline++;
+                }
+            } else {
+                // Hráč sa práve prihlásil a čas sa generuje, je určite online
+                realneOnline++;
+            }
+        });
+        
+        var elOnline = document.getElementById("stat-online");
+        var elBrana = document.getElementById("stat-online-brana"); // Doplnené aj pre bránu
+        
+        if (elOnline) elOnline.innerText = realneOnline;
+        if (elBrana) elBrana.innerText = realneOnline;
+    });
 }
 
-// 1B. Zapisovanie vlastnej aktivity (TOTO SA SPUSTÍ AŽ PO PRIHLÁSENÍ)
 function zapisovatMojuAktivitu(user) {
     var onlineRef = db.collection("mriezkaOnlineHracov").doc(user.uid);
     
@@ -48,10 +64,18 @@ function zapisovatMojuAktivitu(user) {
         poslednaAktivita: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    setInterval(function() {
-        onlineRef.update({
-            poslednaAktivita: firebase.firestore.FieldValue.serverTimestamp()
-        });
+    // Ochrana: Ak už nejaký interval beží, zrušíme ho
+    if (window.aktivitaInterval) clearInterval(window.aktivitaInterval);
+    
+    window.aktivitaInterval = setInterval(function() {
+        // Pošleme aktualizáciu iba vtedy, ak je reálne prihlásený
+        if (auth.currentUser) {
+            onlineRef.update({
+                poslednaAktivita: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(function(e){ console.log("Hráč je offline, zápis pozastavený."); });
+        } else {
+            clearInterval(window.aktivitaInterval);
+        }
     }, 30000);
 }
 
@@ -665,11 +689,9 @@ function pripravBalicekPreZapas(pNum) {
     return pool;
 }
 
-// POMOCNÁ FUNKCIA: Presné škálovanie AI balíčka
 function vygenerujUmeluInteligenciu() {
     var dostupneKarty = Object.keys(MASTER_REGISTRY).filter(function(k) {
         var r = MASTER_REGISTRY[k]; 
-        // Bot NEsmie ťahať: Platinovky, Turnajové unikáty, Prízraky a Zvitky
         return !r.isPlatinum && !r.isTournamentUnique && !r.isPrizrak && !r.isZvitok;
     });
     
@@ -677,7 +699,7 @@ function vygenerujUmeluInteligenciu() {
     
     function pridajDoBalika(trieda, pocet) {
         for(var i=0; i<pocet; i++) {
-            if (dostupneKarty.length === 0) break; // Poistka
+            if (dostupneKarty.length === 0) break;
             var randIndex = Math.floor(Math.random() * dostupneKarty.length);
             var randMeno = dostupneKarty[randIndex];
             
@@ -686,15 +708,20 @@ function vygenerujUmeluInteligenciu() {
         }
     }
     
+    // Tu sa už správne párujú názvy obtiažností z tvojho Menu
     if (obtiaznostAI === "Ľahká") { 
-        pridajDoBalika("F", 10); pridajDoBalika("E", 9); pridajDoBalika("D", 9);
+        pridajDoBalika("F", 10); pridajDoBalika("E", 10); pridajDoBalika("D", 8);
     } else if (obtiaznostAI === "Stredná") { 
-        pridajDoBalika("F", 2); pridajDoBalika("E", 6); pridajDoBalika("D", 10); pridajDoBalika("C", 7); pridajDoBalika("B", 3);
-    } else if (obtiaznostAI === "Ťažká") { 
-        pridajDoBalika("D", 2); pridajDoBalika("C", 6); pridajDoBalika("B", 10); pridajDoBalika("A", 7); pridajDoBalika("S", 3);
+        pridajDoBalika("F", 4); pridajDoBalika("E", 5); pridajDoBalika("D", 7); pridajDoBalika("C", 6); pridajDoBalika("B", 6);
+    } else { 
+        // Ťažká
+        pridajDoBalika("D", 4); pridajDoBalika("C", 5); pridajDoBalika("B", 8); pridajDoBalika("A", 8); pridajDoBalika("S", 3);
     }
     
-    for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; }
+    for (var i = pool.length - 1; i > 0; i--) { 
+        var j = Math.floor(Math.random() * (i + 1)); 
+        var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; 
+    }
     return pool;
 }
 
@@ -810,37 +837,6 @@ function pripravBalicekPreZapas(pNum) {
     return pool;
 }
 
-// POMOCNÁ FUNKCIA: Presné škálovanie AI balíčka
-function vygenerujUmeluInteligenciu() {
-    var dostupneKarty = Object.keys(MASTER_REGISTRY).filter(function(k) {
-        var r = MASTER_REGISTRY[k]; 
-        return !r.isPlatinum && !r.isTournamentUnique && !r.isPrizrak && !r.isZvitok;
-    });
-    
-    var pool = [];
-    
-    function pridajDoBalika(trieda, pocet) {
-        for(var i=0; i<pocet; i++) {
-            if (dostupneKarty.length === 0) break;
-            var randIndex = Math.floor(Math.random() * dostupneKarty.length);
-            var randMeno = dostupneKarty[randIndex];
-            
-            dostupneKarty.splice(randIndex, 1); 
-            pool.push({ n: randMeno, cls: trieda });
-        }
-    }
-    
-    if (obtiaznostAI === "A") { 
-        pridajDoBalika("F", 10); pridajDoBalika("E", 10); pridajDoBalika("D", 5);
-    } else if (obtiaznostAI === "B") { 
-        pridajDoBalika("F", 5); pridajDoBalika("E", 5); pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 5);
-    } else { 
-        pridajDoBalika("D", 5); pridajDoBalika("C", 5); pridajDoBalika("B", 8); pridajDoBalika("A", 5); pridajDoBalika("S", 2);
-    }
-    
-    for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = pool[i]; pool[i] = pool[j]; pool[j] = temp; }
-    return pool;
-}
 
 function vytiahniRukuZRozdanehoBalicka(pNum) {
     var deck = (pNum === 1) ? p1_active_deck : p2_active_deck; var hand = [];
